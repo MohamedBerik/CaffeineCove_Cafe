@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../services/axios";
 
 function Register() {
   const [name, setName] = useState("");
@@ -23,7 +24,7 @@ function Register() {
     }
 
     try {
-      await axios.post(
+      const res = await api.post(
         "https://caffeinecoveapi-production-a107.up.railway.app/api/register",
         {
           name,
@@ -33,6 +34,7 @@ function Register() {
         },
       );
 
+      localStorage.setItem("token", res.data.token);
       setSuccess("Registration successful 🎉");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {

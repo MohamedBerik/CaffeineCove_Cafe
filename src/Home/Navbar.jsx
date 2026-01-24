@@ -44,11 +44,14 @@ function Navbar() {
 
           {!user ? (
             <>
-              <div className="">
-                <li className="btn btn-outline-success">
+              <div>
+                <li
+                  className="btn btn-success mr-2"
+                  style={{ marginTop: "-9px" }}
+                >
                   <NavLink to="/login">Login</NavLink>
                 </li>
-                <li className="btn btn-outline-success">
+                <li className="btn btn-success" style={{ marginTop: "-9px" }}>
                   <NavLink to="/register">Register</NavLink>
                 </li>
               </div>
@@ -58,7 +61,7 @@ function Navbar() {
               <li>
                 <button
                   onClick={handleLogout}
-                  className="btn btn-danger ml-5"
+                  className="btn btn-outline-danger ml-5"
                   // style={{
                   //   background: "none",
                   //   border: "none",

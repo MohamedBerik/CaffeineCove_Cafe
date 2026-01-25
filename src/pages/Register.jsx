@@ -24,15 +24,12 @@ function Register() {
     }
 
     try {
-      const res = await api.post(
-        "https://caffeinecoveapi-production-a107.up.railway.app/api/register",
-        {
-          name,
-          email,
-          password,
-          password_confirmation: passwordConfirmation,
-        },
-      );
+      const res = await api.post("/api/register", {
+        name,
+        email,
+        password,
+        password_confirmation: passwordConfirmation,
+      });
 
       localStorage.setItem("token", res.data.token);
       setSuccess("Registration successful 🎉");

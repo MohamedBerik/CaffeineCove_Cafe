@@ -29,6 +29,7 @@ function Register() {
         email,
         password,
         password_confirmation: passwordConfirmation,
+        role: "user",
       });
 
       localStorage.setItem("token", res.data.token);

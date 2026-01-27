@@ -30,6 +30,7 @@ function Register() {
         password,
         password_confirmation: passwordConfirmation,
         role: "user",
+        status: "1",
       });
 
       localStorage.setItem("token", res.data.token);

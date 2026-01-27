@@ -25,14 +25,12 @@ function Register() {
 
     try {
       const res = await api.post(
-        "https://caffeinecoveapi-production-a107.up.railway.app/api/api/register",
+        "https://caffeinecoveapi-production-a107.up.railway.app/api/register",
         {
           name,
           email,
           password,
           password_confirmation: passwordConfirmation,
-          role: "user",
-          status: "1",
         },
       );
 

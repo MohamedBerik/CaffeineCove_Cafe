@@ -4,9 +4,9 @@ import {
   createEntity,
   updateEntity,
   getEntityById,
-} from "../../../services/adminApi";
-import { notifyError, notifySuccess } from "../../../utils/notify";
-import AdminLayout from "../../../layouts/AdminLayout";
+} from "../../services/adminApi";
+import { notifyError, notifySuccess } from "../../utils/notify";
+import AdminLayout from "../layouts/AdminLayout";
 
 // === schema لكل جدول (حدد الحقول المطلوبة لكل جدول) ===
 const tableSchemas = {

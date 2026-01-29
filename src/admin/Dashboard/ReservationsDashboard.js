@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
+import api from "../../services/axios";
 
 function ReservationsDashboard() {
   const [reservations, setReservations] = useState([]);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/reservations")
+    fetch("/api/reservations")
       .then((res) => res.json())
       .then((data) => setReservations(data.data));
   }, []);

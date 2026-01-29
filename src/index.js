@@ -4,20 +4,20 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 
 import App from "./App";
-import AllData from "./Data/AllData";
-import AllAbout from "./About/AllAbout";
-import AllMenu from "./Menu/AllMenu";
-import AllTestimonials from "./Testimonials/AllTestimonials";
-import AllContact from "./Contact/AllContact";
-import AdminDashboard from "./pages/admin/Dashboard";
-import { ProtectedRoute, AdminRoute } from "./components/ProtectedRoute";
+import AllData from "./data/AllData";
+import AllAbout from "./pages/About/AllAbout";
+import AllMenu from "./pages/Menu/AllMenu";
+import AllTestimonials from "./pages/Testimonials/AllTestimonials";
+import AllContact from "./pages/Contact/AllContact";
+import AdminDashboard from "./admin/Dashboard/Dashboard";
+import { ProtectedRoute, AdminRoute } from "./admin/routes/ProtectedRoute";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
-import CrudForm from "./pages/admin/crud/CrudForm";
-import CrudTable from "./components/admin/CrudTable";
-import AdminLayout from "./layouts/AdminLayout";
+import CrudForm from "./admin/components/CrudForm";
+import CrudTable from "./admin/components/CrudTable";
+import AdminLayout from "./admin/layouts/AdminLayout";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -72,5 +72,5 @@ createRoot(document.getElementById("root")).render(
         </Routes>
       </BrowserRouter>
     </AllData>
-  </AuthProvider>
+  </AuthProvider>,
 );

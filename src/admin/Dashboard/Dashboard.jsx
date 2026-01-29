@@ -8,7 +8,7 @@ import {
 } from "../../services/adminApi";
 import { data, useNavigate } from "react-router-dom";
 import "./Dashboard.css";
-import AdminLayout from "../../layouts/AdminLayout";
+import AdminLayout from "../layouts/AdminLayout";
 import { notifyError, notifyInfo, notifySuccess } from "../../utils/notify";
 import useDebounce from "../../hooks/useDebounce";
 import debounce from "lodash/debounce";

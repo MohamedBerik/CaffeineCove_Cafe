@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { deleteEntity } from "../../services/adminApi";
 import api from "../../services/axios";
 import "./CrudTable.css";
-import AdminLayout from "../../layouts/AdminLayout";
+import AdminLayout from "../layouts/AdminLayout";
 import { notifyError, notifySuccess } from "../../utils/notify";
 
 const CrudTable = () => {

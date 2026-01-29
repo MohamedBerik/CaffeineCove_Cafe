@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import Navbar from "../Home/Navbar";
-import Footer from "../Home/Footer";
-import api from "../services/axios"; // Axios مهيأ مسبقًا مع BaseURL
-import { useAuth } from "../context/AuthContext";
-import { notifyError, notifySuccess } from "../utils/notify";
+import Navbar from "../../components/Navbar/Navbar";
+import Footer from "../../components/Footer/Footer";
+import api from "../../services/axios"; // Axios مهيأ مسبقًا مع BaseURL
+import { useAuth } from "../../context/AuthContext";
+import { notifyError, notifySuccess } from "../../utils/notify";
 
 function AllContact() {
   const [formData, setFormData] = useState({
@@ -36,9 +36,9 @@ function AllContact() {
 
     try {
       const response = await api.post("/api/reservations", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        // headers: {
+        //   Authorization: `Bearer ${token}`,
+        // },
       });
 
       setSuccess("Reservation sent successfully ✅");

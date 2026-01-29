@@ -1,6 +1,6 @@
 import React from "react";
-import Navbar from "../Home/Navbar";
-import Footer from "../Home/Footer";
+import Navbar from "../../components/Navbar/Navbar";
+import Footer from "../../components/Footer/Footer";
 
 function AllTestimonials() {
   return (

@@ -35,7 +35,7 @@ function AllContact() {
     setLoading(true);
 
     try {
-      const response = await api.post("", formData, {
+      const response = await api.post("/api/reservations", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

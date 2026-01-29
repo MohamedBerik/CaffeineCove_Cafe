@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
@@ -6,6 +6,7 @@ import axios from "axios";
 function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -18,12 +19,20 @@ function Navbar() {
   };
 
   return (
-    <header id="header">
+    <header className="header">
       <nav className="navbar">
+        {/* Logo */}
         <NavLink to="/" className="logo-link">
-          <img src="img/logo.png" alt="Caffeine Cove" className="logo" />
+          <img src="/img/logo.png" alt="Caffeine Cove" className="logo" />
         </NavLink>
-        <ul className="nav-list">
+
+        {/* Burger menu */}
+        <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+          ☰
+        </button>
+
+        {/* Links */}
+        <ul className={`nav-list ${menuOpen ? "open" : ""}`}>
           <li>
             <NavLink to="/" end>
               Home
@@ -43,35 +52,20 @@ function Navbar() {
           </li>
 
           {!user ? (
-            <>
-              <div>
-                <li
-                  className="btn btn-success mr-2"
-                  style={{ marginTop: "-9px" }}
-                >
-                  <NavLink to="/login">Login</NavLink>
-                </li>
-                <li className="btn btn-success" style={{ marginTop: "-9px" }}>
-                  <NavLink to="/register">Register</NavLink>
-                </li>
-              </div>
-            </>
+            <li className="auth-buttons">
+              <NavLink to="/login" className="btn btn-outline">
+                Login
+              </NavLink>
+              <NavLink to="/register" className="btn btn-primary">
+                Register
+              </NavLink>
+            </li>
           ) : (
-            <>
-              <li>
-                <button
-                  onClick={handleLogout}
-                  className="btn btn-outline-danger ml-5"
-                  // style={{
-                  //   background: "none",
-                  //   border: "none",
-                  //   cursor: "pointer",
-                  // }}
-                >
-                  Logout
-                </button>
-              </li>
-            </>
+            <li>
+              <button onClick={handleLogout} className="btn btn-danger">
+                Logout
+              </button>
+            </li>
           )}
         </ul>
       </nav>

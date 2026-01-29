@@ -17,7 +17,7 @@ const CrudTable = () => {
   const fetchTableData = async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/admin/${table}`);
+      const res = await api.get(`/api/admin/${table}`);
 
       const tableData = Array.isArray(res.data)
         ? res.data

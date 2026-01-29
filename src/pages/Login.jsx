@@ -18,7 +18,7 @@ function Login() {
     setError("");
 
     try {
-      const res = await api.post("/api/login", { email, password });
+      const res = await api.post("/login", { email, password });
 
       // ✅ هنا نخزن بيانات المستخدم بما فيها role
       login(res.data.user, res.data.token);

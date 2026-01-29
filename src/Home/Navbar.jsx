@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
+import "./Navbar.css";
 
 function Navbar() {
   const { user, logout } = useAuth();
@@ -53,7 +54,7 @@ function Navbar() {
 
           {!user ? (
             <li className="auth-buttons">
-              <NavLink to="/login" className="btn btn-outline">
+              <NavLink to="/login" className="btn btn-primary">
                 Login
               </NavLink>
               <NavLink to="/register" className="btn btn-primary">

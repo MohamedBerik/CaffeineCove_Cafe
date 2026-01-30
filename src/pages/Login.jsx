@@ -21,8 +21,7 @@ function Login() {
       const res = await api.post("/login", { email, password });
 
       // ✅ هنا نخزن بيانات المستخدم بما فيها role
-      // login(res.data.user, res.data.token);
-      localStorage.setItem("token", res.data.token);
+      login(res.data.user, res.data.token);
 
       // توجيه المستخدم حسب الـ role
       if (res.data.user.role === "admin") {

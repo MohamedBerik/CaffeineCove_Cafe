@@ -1,6 +1,6 @@
-☕ Caffeine Cove – React Frontend
+☕ Caffeine Cove – React Frontend & ERP Extension
 
-واجهة أمامية (Frontend) مبنية بـ React.js لإدارة موقع كافيه متكامل، متصلة بـ Laravel REST API، وتشمل لوحة تحكم إدارية، نظام حجز، مصادقة مستخدمين، وبحث + Pagination ديناميكي.
+واجهة أمامية (Frontend) مبنية بـ React.js لإدارة موقع كافيه متكامل، متصلة بـ Laravel REST API، وتشمل لوحة تحكم إدارية، نظام حجز، إدارة الطلبات والمشتريات، مصادقة مستخدمين، وبحث + Pagination ديناميكي.
 
 🚀 Features
 👤 Authentication
@@ -11,13 +11,13 @@
 
 توجيه المستخدم حسب الدور:
 
-Admin → Dashboard
+Admin → Dashboard / ERP
 
 User → Home
 
 📊 Admin Dashboard
 
-عرض إحصائيات (Users – Products – Orders – Reservations …)
+عرض إحصائيات (Users, Products, Orders, Reservations, Employees, Sales, Revenue…)
 
 عرض أحدث البيانات لكل جدول
 
@@ -35,11 +35,31 @@ Pagination
 
 تحكم الأدمن:
 
-✅ Confirm Reservation
+✅ Confirm Reservation → يرسل Email تلقائي
 
 ❌ Cancel Reservation
 
-إرسال Email Confirmation تلقائي عند التأكيد
+🛒 ERP Extension
+
+إدارة Orders:
+
+إنشاء / تعديل / حذف / تأكيد / إلغاء الطلبات
+
+متابعة Status: pending, confirmed, canceled
+
+إدارة Invoices:
+
+تسجيل مدفوعات جزئية أو كاملة
+
+تحديث حالة الفاتورة: partial / paid
+
+إدارة Purchase Orders:
+
+إنشاء / استلام / دفع طلبات الشراء
+
+لوحة Finance Dashboard: إحصائيات مالية، إيرادات، مدفوعات، مشتريات
+
+Permissions & RBAC: الوصول للعمليات بناءً على الدور والصلاحيات
 
 🔍 Search & Performance
 
@@ -49,13 +69,15 @@ useDebounce لتقليل عدد الـ requests
 
 معالجة أخطاء 429 (Too Many Requests)
 
+تحسين الأداء للـ Dashboard والـ Tables
+
 🧠 Concepts Used
 
 React Hooks (useState, useEffect, useCallback)
 
 Context API (AuthContext)
 
-Axios + Interceptors
+Axios + Interceptors مع Bearer Token
 
 Protected Routes
 
@@ -89,25 +111,32 @@ RESTful APIs
 
 Mail (Mailtrap)
 
+ERP Modules (Orders, Invoices, Purchase Orders, Finance)
+
 📂 Project Structure (Simplified)
 src/
 │── pages/
 │ ├── Login.jsx
 │ ├── Admin/
 │ │ └── Dashboard.jsx
-│
+│ │ └── CrudForm.jsx
+│ │ └── CrudTable.jsx
 │── components/
-│ ├── CrudTable.jsx
 │ ├── AdminLayout.jsx
-│
+│ ├── AdminNavbar.jsx
 │── context/
 │ └── AuthContext.jsx
-│
 │── services/
 │ └── axios.js
+│── hooks/
+│ └── useDebounce.js
+│── utils/
+│ └── notify.js
 
 🔐 Environment Setup
-REACT_APP_API_URL=http://127.0.0.1:8000/api
+REACT_APP_API_URL=https://caffeinecoveapi-production-a107.up.railway.app/api
+
+تأكد من تخزين token بعد تسجيل الدخول وإرساله تلقائيًا مع كل طلب ERP.
 
 ▶️ Run Project
 npm install
@@ -116,6 +145,8 @@ npm start
 ⚠️ Common Issues Handled
 
 401 Unauthorized → Token أو Password خطأ
+
+403 Forbidden → Token غير صالح أو صلاحية محدودة (ERP)
 
 429 Too Many Requests → حلها بـ Debounce
 
@@ -139,4 +170,4 @@ Real-time notifications
 
 Mohamed Berik
 Junior Full Stack Web Developer
-Laravel | React | REST APIs
+Laravel | React | REST APIs | ERP Extensions

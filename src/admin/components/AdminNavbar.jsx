@@ -1,5 +1,13 @@
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import {
+  FaUsers,
+  FaBox,
+  FaShoppingCart,
+  FaFileInvoiceDollar,
+  FaCashRegister,
+  FaCalendarAlt,
+} from "react-icons/fa";
 
 const AdminNavbar = () => {
   const { logout } = useAuth();
@@ -7,8 +15,8 @@ const AdminNavbar = () => {
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
-      <a className="navbar-brand" href="/admin/dashboard">
-        Dashboard
+      <a className="navbar-brand font-weight-bold" href="/admin/dashboard">
+        Admin Dashboard
       </a>
 
       <button
@@ -36,55 +44,64 @@ const AdminNavbar = () => {
               aria-haspopup="true"
               aria-expanded="false"
             >
-              ERP Modules ⚙️
+              ⚙️ ERP Modules
             </a>
             <div className="dropdown-menu" aria-labelledby="erpDropdown">
               <button
-                className="dropdown-item"
+                className="dropdown-item d-flex align-items-center"
                 onClick={() => navigate("/admin/orders")}
               >
-                🛒 Orders
+                <FaShoppingCart className="mr-2" /> Orders
               </button>
               <button
-                className="dropdown-item"
+                className="dropdown-item d-flex align-items-center"
                 onClick={() => navigate("/admin/invoices")}
               >
-                💰 Invoices
+                <FaFileInvoiceDollar className="mr-2" /> Invoices
               </button>
               <button
-                className="dropdown-item"
+                className="dropdown-item d-flex align-items-center"
                 onClick={() => navigate("/admin/purchase-orders")}
               >
-                📦 Purchase Orders
+                <FaBox className="mr-2" /> Purchase Orders
               </button>
               <button
-                className="dropdown-item"
+                className="dropdown-item d-flex align-items-center"
                 onClick={() => navigate("/admin/dashboard/finance")}
               >
-                📊 Finance
+                <FaCashRegister className="mr-2" /> Finance
               </button>
             </div>
           </li>
 
-          {/* Quick Access Links */}
+          {/* Quick Links */}
           <li className="nav-item">
-            <a className="nav-link" href="/admin/users">
-              👤 Users
-            </a>
+            <button
+              className="nav-link btn btn-link"
+              onClick={() => navigate("/admin/users")}
+            >
+              <FaUsers className="mr-1" /> Users
+            </button>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="/admin/products">
-              📦 Products
-            </a>
+            <button
+              className="nav-link btn btn-link"
+              onClick={() => navigate("/admin/products")}
+            >
+              <FaBox className="mr-1" /> Products
+            </button>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="/admin/reservations">
-              📅 Reservations
-            </a>
+            <button
+              className="nav-link btn btn-link"
+              onClick={() => navigate("/admin/reservations")}
+            >
+              <FaCalendarAlt className="mr-1" /> Reservations
+            </button>
           </li>
         </ul>
 
-        {/* Logout Button */}
+        {/* Logout */}
         <button className="btn btn-danger ml-auto" onClick={logout}>
           Logout
         </button>

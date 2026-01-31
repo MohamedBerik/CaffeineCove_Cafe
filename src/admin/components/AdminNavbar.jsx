@@ -1,63 +1,93 @@
 import { useAuth } from "../../context/AuthContext";
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const AdminNavbar = () => {
   const { logout } = useAuth();
-
-  const adminLinks = [
-    { name: "Users", path: "/admin/users" },
-    { name: "Categories", path: "/admin/categories" },
-    { name: "Products", path: "/admin/products" },
-    { name: "Customers", path: "/admin/customers" },
-    { name: "Orders", path: "/erp/orders" }, // ERP
-    { name: "Invoices", path: "/erp/invoices" }, // ERP
-    { name: "Purchase Orders", path: "/erp/purchase-orders" }, // ERP
-    { name: "Employees", path: "/admin/employees" },
-    { name: "Sales", path: "/admin/sales" },
-    { name: "Reservations", path: "/admin/reservations" },
-  ];
+  const navigate = useNavigate();
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-white fixed-top">
-      <NavLink className="navbar-brand" to="/admin/dashboard">
+    <nav className="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+      <a className="navbar-brand" href="/admin/dashboard">
         Dashboard
-      </NavLink>
+      </a>
+
       <button
         className="navbar-toggler"
         type="button"
         data-toggle="collapse"
-        data-target="#navbarScroll"
-        aria-controls="navbarScroll"
+        data-target="#navbarERP"
+        aria-controls="navbarERP"
         aria-expanded="false"
         aria-label="Toggle navigation"
       >
         <span className="navbar-toggler-icon" />
       </button>
 
-      <div className="collapse navbar-collapse" id="navbarScroll">
-        <ul
-          className="navbar-nav mr-auto my-2 my-lg-0 navbar-nav-scroll"
-          style={{ maxHeight: 100 }}
-        >
-          {adminLinks.map((link) => (
-            <li className="nav-item" key={link.path}>
-              <NavLink
-                className={({ isActive }) =>
-                  "nav-link" + (isActive ? " active" : "")
-                }
-                to={link.path}
+      <div className="collapse navbar-collapse" id="navbarERP">
+        <ul className="navbar-nav mr-auto">
+          {/* ERP Dropdown */}
+          <li className="nav-item dropdown">
+            <a
+              className="nav-link dropdown-toggle"
+              href="#"
+              id="erpDropdown"
+              role="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              ERP Modules ⚙️
+            </a>
+            <div className="dropdown-menu" aria-labelledby="erpDropdown">
+              <button
+                className="dropdown-item"
+                onClick={() => navigate("/admin/orders")}
               >
-                {link.name}
-              </NavLink>
-            </li>
-          ))}
+                🛒 Orders
+              </button>
+              <button
+                className="dropdown-item"
+                onClick={() => navigate("/admin/invoices")}
+              >
+                💰 Invoices
+              </button>
+              <button
+                className="dropdown-item"
+                onClick={() => navigate("/admin/purchase-orders")}
+              >
+                📦 Purchase Orders
+              </button>
+              <button
+                className="dropdown-item"
+                onClick={() => navigate("/admin/dashboard/finance")}
+              >
+                📊 Finance
+              </button>
+            </div>
+          </li>
+
+          {/* Quick Access Links */}
+          <li className="nav-item">
+            <a className="nav-link" href="/admin/users">
+              👤 Users
+            </a>
+          </li>
+          <li className="nav-item">
+            <a className="nav-link" href="/admin/products">
+              📦 Products
+            </a>
+          </li>
+          <li className="nav-item">
+            <a className="nav-link" href="/admin/reservations">
+              📅 Reservations
+            </a>
+          </li>
         </ul>
 
-        <div className="d-flex">
-          <button className="btn btn-danger" onClick={logout}>
-            Logout
-          </button>
-        </div>
+        {/* Logout Button */}
+        <button className="btn btn-danger ml-auto" onClick={logout}>
+          Logout
+        </button>
       </div>
     </nav>
   );

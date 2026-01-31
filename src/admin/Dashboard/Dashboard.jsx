@@ -1,18 +1,10 @@
-// src/pages/admin/Dashboard.jsx
 import { useEffect, useState, useCallback } from "react";
-import _ from "lodash";
-import {
-  getAdminDashboard,
-  deleteEntity,
-  getTableData,
-} from "../../services/adminApi";
-import { data, useNavigate } from "react-router-dom";
-import "./Dashboard.css";
+import { useNavigate } from "react-router-dom";
 import AdminLayout from "../layouts/AdminLayout";
-import { notifyError, notifyInfo, notifySuccess } from "../../utils/notify";
-import useDebounce from "../../hooks/useDebounce";
-import debounce from "lodash/debounce";
+import { notifyError, notifySuccess } from "../../utils/notify";
 import api from "../../services/axios";
+import useDebounce from "../../hooks/useDebounce";
+import "./Dashboard.css";
 
 const TABLES = [
   "users",
@@ -25,16 +17,8 @@ const TABLES = [
   "reservations",
 ];
 
-const EMPTY_LATEST = {
-  users: [],
-  categories: [],
-  products: [],
-  customers: [],
-  orders: [],
-  employees: [],
-  sales: [],
-  reservations: [],
-};
+const EMPTY_LATEST = TABLES.reduce((acc, t) => ({ ...acc, [t]: [] }), {});
+const EMPTY_ACTIVITY = [];
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -47,10 +31,18 @@ const Dashboard = () => {
     sales: 0,
     reservations: 0,
     revenue: 0,
+    total_collected: 0,
+    total_paid_to_suppliers: 0,
+    receivables: 0,
+    payables: 0,
   });
   const [latest, setLatest] = useState(EMPTY_LATEST);
+  const [activityLogs, setActivityLogs] = useState(EMPTY_ACTIVITY);
   const [loading, setLoading] = useState(true);
-
+  const [search, setSearch] = useState(
+    Object.fromEntries(TABLES.map((t) => [t, ""])),
+  );
+  const debouncedSearch = useDebounce(search, 500);
   const navigate = useNavigate();
 
   const iconMap = {
@@ -63,59 +55,65 @@ const Dashboard = () => {
     sales: "📈",
     reservations: "📅",
     revenue: "💰",
+    total_collected: "💵",
+    total_paid_to_suppliers: "🏦",
+    receivables: "📬",
+    payables: "📭",
   };
 
   // =====================
   // Fetch Dashboard Data
   // =====================
-  const fetchDashboard = useCallback(() => {
+  const fetchDashboard = useCallback(async () => {
     setLoading(true);
-    getAdminDashboard()
-      .then((res) => {
-        const data = res?.data || {};
-        const totalRevenue =
-          (data.statistics?.orders || 0) * 100 +
-          (data.statistics?.sales || 0) * 150;
+    try {
+      // 1️⃣ fetch general stats & latest tables
+      const res = await api.get("/admin/dashboard");
+      const data = res.data.data || {};
 
-        setStats({
-          users: data.statistics?.users ?? 0,
-          categories: data.statistics?.categories ?? 0,
-          products: data.statistics?.products ?? 0,
-          customers: data.statistics?.customers ?? 0,
-          orders: data.statistics?.orders ?? 0,
-          employees: data.statistics?.employees ?? 0,
-          sales: data.statistics?.sales ?? 0,
-          reservations: data.statistics?.reservations ?? 0,
-          revenue: totalRevenue,
-        });
+      setStats((prev) => ({
+        ...prev,
+        users: data.statistics?.users ?? 0,
+        categories: data.statistics?.categories ?? 0,
+        products: data.statistics?.products ?? 0,
+        customers: data.statistics?.customers ?? 0,
+        orders: data.statistics?.orders ?? 0,
+        employees: data.statistics?.employees ?? 0,
+        sales: data.statistics?.sales ?? 0,
+        reservations: data.statistics?.reservations ?? 0,
+      }));
 
-        setLatest({
-          users: Array.isArray(data.latest?.users) ? data.latest.users : [],
-          categories: Array.isArray(data.latest?.categories)
-            ? data.latest.categories
-            : [],
-          products: Array.isArray(data.latest?.products)
-            ? data.latest.products
-            : [],
-          customers: Array.isArray(data.latest?.customers)
-            ? data.latest.customers
-            : [],
-          orders: Array.isArray(data.latest?.orders) ? data.latest.orders : [],
-          employees: Array.isArray(data.latest?.employees)
-            ? data.latest.employees
-            : [],
-          sales: Array.isArray(data.latest?.sales) ? data.latest.sales : [],
-          reservations: Array.isArray(data.latest?.reservations)
-            ? data.latest.reservations
-            : [],
-        });
-      })
-      .catch((err) => {
-        notifyError("Dashboard fetch error");
-        console.error("Dashboard fetch error:", err);
-        setLatest(EMPTY_LATEST);
-      })
-      .finally(() => setLoading(false));
+      setLatest(
+        TABLES.reduce((acc, table) => {
+          acc[table] = Array.isArray(data.latest?.[table])
+            ? data.latest[table]
+            : [];
+          return acc;
+        }, {}),
+      );
+
+      // 2️⃣ fetch finance stats
+      const finance = await api.get("/erp/dashboard/finance");
+      setStats((prev) => ({
+        ...prev,
+        revenue: finance.data.total_sales,
+        total_collected: finance.data.total_collected,
+        total_paid_to_suppliers: finance.data.total_paid_to_suppliers,
+        receivables: finance.data.receivables,
+        payables: finance.data.payables,
+      }));
+
+      // 3️⃣ fetch activity logs
+      const actRes = await api.get("/erp/activity-logs?limit=6");
+      setActivityLogs(actRes.data.data || []);
+    } catch (err) {
+      console.error("Dashboard fetch error:", err);
+      notifyError("Failed to fetch dashboard");
+      setLatest(EMPTY_LATEST);
+      setActivityLogs(EMPTY_ACTIVITY);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -124,86 +122,80 @@ const Dashboard = () => {
     return () => document.body.classList.remove("dashboard-page");
   }, [fetchDashboard]);
 
-  const [search, setSearch] = useState(
-    Object.fromEntries(TABLES.map((t) => [t, ""])),
-  );
-  const [page, setPage] = useState({});
-  const debouncedSearch = useDebounce(search, 500);
+  const handleSearchChange = (table, value) => {
+    setSearch((prev) => ({ ...prev, [table]: value }));
+  };
 
   const fetchTableData = async (table) => {
     try {
-      const res = await getTableData(table, {
-        search: debouncedSearch[table] || "",
-        per_page: 6,
+      const res = await api.get(`/admin/${table}`, {
+        params: { search: debouncedSearch[table] || "", per_page: 6 },
       });
-
-      setLatest((prev) => ({
-        ...prev,
-        [table]: res.data.data ?? res.data,
-      }));
+      setLatest((prev) => ({ ...prev, [table]: res.data.data ?? res.data }));
     } catch (err) {
       console.error(`Fetch ${table} error`, err);
     }
   };
 
   useEffect(() => {
-    Object.entries(debouncedSearch).forEach(([table, value]) => {
-      if (value !== undefined) {
-        fetchTableData(table);
-      }
-    });
+    Object.keys(debouncedSearch).forEach((table) => fetchTableData(table));
   }, [debouncedSearch]);
-
-  const handleSearchChange = (table, value) => {
-    setSearch((prev) => {
-      if (prev[table] === value) return prev; // لا تغير لو نفس القيمة
-      return { ...prev, [table]: value };
-    });
-  };
 
   // =====================
   // CRUD Handlers
   // =====================
   const handleAdd = (table) => navigate(`/admin/${table}/create`);
-
   const handleEdit = (table, id) => navigate(`/admin/${table}/${id}/edit`);
-
-  const handleShow = (table, id) => navigate(`/admin/${table}/${id}/show`);
-
   const handleDelete = async (table, id) => {
-    const ok = window.confirm(
-      `Are you sure you want to delete this ${table.slice(0, -1)}?`,
-    );
-    if (!ok) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to delete this ${table.slice(0, -1)}?`,
+      )
+    )
+      return;
     try {
-      await deleteEntity(table, id);
+      await api.delete(`/admin/${table}/${id}`);
       notifySuccess("Deleted successfully");
       fetchDashboard();
     } catch (err) {
-      notifyError("Delete failed");
       console.error(err);
+      notifyError("Delete failed");
     }
   };
 
+  // =====================
+  // Reservations & Payments Handlers
+  // =====================
   const handleConfirm = async (id) => {
     try {
-      await api.post(`/reservations/${id}/confirm`);
-      notifySuccess("Reservation confirmed & email sent");
-      fetchTableData("reservations"); // تحديث الجدول
+      await api.post(`/erp/orders/${id}/confirm`);
+      notifySuccess("Order confirmed & email sent");
+      fetchDashboard();
     } catch (err) {
-      notifyError("Failed to confirm reservation");
       console.error(err);
+      notifyError("Failed to confirm order");
     }
   };
 
   const handleCancel = async (id) => {
     try {
-      await api.post(`/reservations/${id}/cancel`);
-      notifySuccess("Reservation cancelled");
-      fetchTableData("reservations"); // تحديث الجدول
+      await api.post(`/erp/orders/${id}/cancel`);
+      notifySuccess("Order cancelled");
+      fetchDashboard();
     } catch (err) {
-      notifyError("Failed to cancel reservation");
       console.error(err);
+      notifyError("Failed to cancel order");
+    }
+  };
+
+  const handlePayInvoice = async (id, amount) => {
+    try {
+      await api.post(`/erp/invoices/${id}/pay`, { amount });
+      notifySuccess("Payment recorded");
+      fetchDashboard();
+    } catch (err) {
+      console.error(err);
+      notifyError("Failed to pay invoice");
     }
   };
 
@@ -221,19 +213,16 @@ const Dashboard = () => {
     <div className="dashboard-container">
       <AdminLayout />
 
-      {/* Header */}
-      <div className="dashboard-header"></div>
-
       {/* Statistics */}
       <div className="stats-grid">
         {Object.entries(stats).map(([key, value]) => (
           <div key={key} className={`stat-card ${key}`}>
             <div className="stat-card-icon">{iconMap[key]}</div>
             <div className="stat-title">
-              {key.charAt(0).toUpperCase() + key.slice(1)}
+              {key.charAt(0).toUpperCase() + key.slice(1).replace("_", " ")}
             </div>
             <div className="stat-value">
-              {key === "revenue" ? `$${value.toLocaleString()}` : value}
+              {typeof value === "number" ? `$${value.toLocaleString()}` : value}
             </div>
           </div>
         ))}
@@ -242,40 +231,32 @@ const Dashboard = () => {
       {/* Latest Tables */}
       <div className="tables-grid">
         {Object.entries(latest).map(([table, data]) => {
-          if (!Array.isArray(data)) return null;
-
           const hiddenColumns = [
-            "_id",
-            "__v",
             "password",
             "remember_token",
             "created_at",
             "updated_at",
           ];
+          const columns = data.length
+            ? Object.keys(data[0])
+                .filter((k) => !hiddenColumns.includes(k))
+                .slice(0, 8)
+            : [];
 
-          const columns =
-            data.length > 0
-              ? Object.keys(data[0])
-                  .filter((k) => !hiddenColumns.includes(k))
-                  .slice(0, window.innerWidth < 1200 ? 3 : 8)
-              : [];
-
-          const filteredData = data.filter((item) => {
-            const term = search[table]?.toLowerCase() || "";
-            if (!term) return true;
-
-            return Object.values(item).some((val) =>
-              String(val).toLowerCase().includes(term),
-            );
-          });
+          const filteredData = data.filter((item) =>
+            Object.values(item).some((val) =>
+              String(val)
+                .toLowerCase()
+                .includes((search[table] || "").toLowerCase()),
+            ),
+          );
 
           return (
             <div key={table} className={`table-container ${table}`}>
               <div className="table-header">
                 <h3>
-                  {iconMap[table]} Latest{" "}
                   {table.charAt(0).toUpperCase() + table.slice(1)} (
-                  {data.length} items)
+                  {data.length})
                 </h3>
                 <div>
                   <button className="mr-2" onClick={() => handleAdd(table)}>
@@ -293,7 +274,6 @@ const Dashboard = () => {
                 onChange={(e) => handleSearchChange(table, e.target.value)}
                 className="w-100 mb-1 rounded-5"
               />
-
               <table className="custom-table">
                 <thead>
                   <tr>
@@ -307,40 +287,23 @@ const Dashboard = () => {
                   {filteredData.slice(0, 6).map((item, idx) => (
                     <tr key={idx}>
                       {columns.map((col) => (
-                        <td key={col}>
-                          {typeof item[col] === "object"
-                            ? JSON.stringify(item[col]).substring(0, 20) + "..."
-                            : String(item[col] || "-")}
-                        </td>
+                        <td key={col}>{String(item[col] ?? "-")}</td>
                       ))}
                       <td>
-                        {/* <button onClick={() => handleShow(table, item.id)}>
-                          <i class="fa-solid fa-eye"></i>
-                        </button> */}
                         <button onClick={() => handleEdit(table, item.id)}>
-                          <i class="fa-solid fa-pen-to-square"></i>
+                          <i className="fa-solid fa-pen-to-square"></i>
                         </button>
                         <button onClick={() => handleDelete(table, item.id)}>
-                          <i class="fa-solid fa-trash"></i>
+                          <i className="fa-solid fa-trash"></i>
                         </button>
                         {table === "reservations" && (
                           <>
-                            <div className="d-flex">
-                              <button
-                                onClick={() => handleConfirm(item.id)}
-                                className=""
-                                title="Confirm"
-                              >
-                                <i class="fa-solid fa-check"></i>
-                              </button>
-                              <button
-                                onClick={() => handleCancel(item.id)}
-                                className=""
-                                title="Cancel"
-                              >
-                                <i class="fas fa-times"></i>
-                              </button>
-                            </div>
+                            <button onClick={() => handleConfirm(item.id)}>
+                              ✔
+                            </button>
+                            <button onClick={() => handleCancel(item.id)}>
+                              ✖
+                            </button>
                           </>
                         )}
                       </td>
@@ -352,6 +315,24 @@ const Dashboard = () => {
             </div>
           );
         })}
+      </div>
+
+      {/* Activity Logs */}
+      <div className="activity-logs">
+        <h3>Recent Activity</h3>
+        {activityLogs.length === 0 ? (
+          <p>No activity yet.</p>
+        ) : (
+          <ul>
+            {activityLogs.map((log) => (
+              <li key={log.id}>
+                <strong>{log.user?.name || "System"}:</strong> {log.action} on{" "}
+                {log.subject_type}#{log.subject_id} at{" "}
+                {new Date(log.created_at).toLocaleString()}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

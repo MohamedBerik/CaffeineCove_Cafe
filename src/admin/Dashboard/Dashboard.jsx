@@ -239,11 +239,21 @@ const Dashboard = () => {
             "updated_at",
             "email_verified_at",
           ];
-          const columns = data.length
-            ? Object.keys(data[0])
-                .filter((k) => !hiddenColumns.includes(k))
-                .slice(0, 4)
+
+          // const columns = data.length
+          // ? Object.keys(data[0])
+          //       .filter((k) => !hiddenColumns.includes(k))
+          //       .slice(0, 4)
+          //   : [];
+
+          let columns = data.length
+            ? Object.keys(data[0]).filter((k) => !hiddenColumns.includes(k))
             : [];
+
+          // تأكد إن id في البداية
+          columns = columns.includes("id")
+            ? ["id", ...columns.filter((col) => col !== "id")].slice(0, 4) // 4 أعمدة مع id أولاً
+            : columns.slice(0, 4);
 
           const filteredData = data.filter((item) =>
             Object.values(item).some((val) =>

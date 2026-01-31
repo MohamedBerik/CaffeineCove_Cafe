@@ -16,6 +16,7 @@ const tableSchemas = {
     price: 0,
     quantity: 0,
     category_id: "",
+    product_image: "",
   },
   categories: {
     title_en: "",
@@ -34,6 +35,7 @@ const tableSchemas = {
     quantity: 1,
     customer_id: "",
     status: "pending", // ERP field
+    total: "",
   },
   invoices: {
     title: "",

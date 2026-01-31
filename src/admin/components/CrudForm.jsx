@@ -10,12 +10,20 @@ const tableSchemas = {
   users: { name: "", email: "", password: "", role: "user", status: "1" },
   products: {
     title_en: "",
+    title_ar: "",
     description_en: "",
+    description_ar: "",
     price: 0,
     quantity: 0,
     category_id: "",
   },
-  categories: { title_en: "", description_en: "", cate_image: "" },
+  categories: {
+    title_en: "",
+    title_ar: "",
+    description_en: "",
+    description_ar: "",
+    cate_image: "",
+  },
   customers: { name: "", email: "", password: "", status: "1" },
   orders: {
     title_en: "",

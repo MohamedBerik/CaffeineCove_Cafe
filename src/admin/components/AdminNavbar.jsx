@@ -1,13 +1,27 @@
 import { useAuth } from "../../context/AuthContext";
+import { NavLink } from "react-router-dom";
 
 const AdminNavbar = () => {
   const { logout } = useAuth();
 
+  const adminLinks = [
+    { name: "Users", path: "/admin/users" },
+    { name: "Categories", path: "/admin/categories" },
+    { name: "Products", path: "/admin/products" },
+    { name: "Customers", path: "/admin/customers" },
+    { name: "Orders", path: "/erp/orders" }, // ERP
+    { name: "Invoices", path: "/erp/invoices" }, // ERP
+    { name: "Purchase Orders", path: "/erp/purchase-orders" }, // ERP
+    { name: "Employees", path: "/admin/employees" },
+    { name: "Sales", path: "/admin/sales" },
+    { name: "Reservations", path: "/admin/reservations" },
+  ];
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white fixed-top">
-      <a className="navbar-brand" href="/admin/dashboard">
+      <NavLink className="navbar-brand" to="/admin/dashboard">
         Dashboard
-      </a>
+      </NavLink>
       <button
         className="navbar-toggler"
         type="button"
@@ -19,70 +33,34 @@ const AdminNavbar = () => {
       >
         <span className="navbar-toggler-icon" />
       </button>
+
       <div className="collapse navbar-collapse" id="navbarScroll">
         <ul
           className="navbar-nav mr-auto my-2 my-lg-0 navbar-nav-scroll"
           style={{ maxHeight: 100 }}
         >
-          <li className="nav-item active">
-            <a className="nav-link" href="/">
-              Home <span className="sr-only">(current)</span>
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/users">
-              Users
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/categories">
-              Categories
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/products">
-              Products
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/customers">
-              Customers
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/orders">
-              Orders
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/employees">
-              Employees
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/sales">
-              Sales
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/reservations">
-              Reservations
-            </a>
-          </li>
+          {adminLinks.map((link) => (
+            <li className="nav-item" key={link.path}>
+              <NavLink
+                className={({ isActive }) =>
+                  "nav-link" + (isActive ? " active" : "")
+                }
+                to={link.path}
+              >
+                {link.name}
+              </NavLink>
+            </li>
+          ))}
         </ul>
-        <form className="d-flex">
-          {/* <input
-            className="form-control mr-2"
-            type="search"
-            placeholder="Search"
-            aria-label="Search"
-          /> */}
-          <button className="btn btn-danger" type="submit" onClick={logout}>
+
+        <div className="d-flex">
+          <button className="btn btn-danger" onClick={logout}>
             Logout
           </button>
-        </form>
+        </div>
       </div>
     </nav>
   );
 };
+
 export default AdminNavbar;

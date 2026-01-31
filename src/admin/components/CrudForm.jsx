@@ -1,16 +1,13 @@
+// src/pages/admin/CrudForm.jsx
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  createEntity,
-  updateEntity,
-  getEntityById,
-} from "../../services/adminApi";
+import api from "../../services/axios";
 import { notifyError, notifySuccess } from "../../utils/notify";
 import AdminLayout from "../layouts/AdminLayout";
 
-// === schema لكل جدول (حدد الحقول المطلوبة لكل جدول) ===
+// === schema لكل جدول (لـ form defaults) ===
 const tableSchemas = {
-  users: { name: "", email: "", password: "", role: "", status: "" },
+  users: { name: "", email: "", password: "", role: "user", status: "1" },
   products: {
     title_en: "",
     description_en: "",
@@ -19,13 +16,27 @@ const tableSchemas = {
     category_id: "",
   },
   categories: { title_en: "", description_en: "", cate_image: "" },
-  customers: { name: "", email: "", password: "", status: "" },
+  customers: { name: "", email: "", password: "", status: "1" },
   orders: {
     title_en: "",
     description_en: "",
-    price: "",
+    price: 0,
     quantity: 1,
     customer_id: "",
+    status: "pending", // ERP field
+  },
+  invoices: {
+    title: "",
+    total: 0,
+    status: "pending", // pending, partial, paid
+    customer_id: "",
+  },
+  "purchase-orders": {
+    title: "",
+    quantity: 0,
+    price: 0,
+    supplier_id: "",
+    status: "pending",
   },
   employees: { name: "", email: "", password: "", salary: 0 },
   sales: {
@@ -45,6 +56,8 @@ const tableSchemas = {
   },
 };
 
+const ERP_TABLES = ["orders", "invoices", "purchase-orders"];
+
 const CrudForm = () => {
   const navigate = useNavigate();
   const { table, id } = useParams();
@@ -54,7 +67,9 @@ const CrudForm = () => {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // === Load data (Edit mode) ===
+  const baseUrl = ERP_TABLES.includes(table) ? "/erp" : "/admin";
+
+  // === Load Data for Edit ===
   useEffect(() => {
     if (!tableSchemas[table]) {
       console.error("Unknown table:", table);
@@ -63,16 +78,19 @@ const CrudForm = () => {
 
     if (isEdit) {
       setLoading(true);
-      getEntityById(table, id)
+      api
+        .get(`${baseUrl}/${table}/${id}`)
         .then((res) => setFormData(res.data))
-        .catch((err) => console.error(err))
+        .catch((err) => {
+          console.error(err);
+          notifyError("Failed to load data");
+        })
         .finally(() => setLoading(false));
     } else {
       setFormData(tableSchemas[table]);
     }
   }, [table, id, isEdit]);
 
-  // === Handlers ===
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -80,28 +98,38 @@ const CrudForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitting(true);
 
     try {
       if (isEdit) {
-        await updateEntity(table, id, formData);
+        await api.put(`${baseUrl}/${table}/${id}`, formData);
         notifySuccess("Updated successfully ✅");
       } else {
-        await createEntity(table, formData);
+        await api.post(`${baseUrl}/${table}`, formData);
         notifySuccess("Created successfully ✅");
       }
-
       navigate("/admin/dashboard");
     } catch (err) {
       notifyError("Something went wrong ❌");
       console.error(err);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
-  // === UI ===
   if (loading) return <p className="p-6">Loading...</p>;
+
+  // === Determine select options for ERP-specific fields ===
+  const getOptions = (key) => {
+    if (key === "status") {
+      if (table === "orders") return ["pending", "confirmed", "cancelled"];
+      if (table === "invoices") return ["pending", "partial", "paid"];
+      if (table === "purchase-orders") return ["pending", "received", "paid"];
+      return ["active", "blocked"];
+    }
+    if (key === "role") return ["user", "admin"];
+    return null;
+  };
 
   return (
     <div className="container-fluid">
@@ -117,52 +145,46 @@ const CrudForm = () => {
                 {isEdit ? "Edit" : "New"} {table.replace(/_/g, " ")}
               </h3>
             </div>
-
             <div className="card-body">
               <form onSubmit={handleSubmit}>
                 <div className="form-row">
-                  {Object.keys(formData).map((key) => (
-                    <div className="col-md-6 col-lg-4 mb-3" key={key}>
-                      <label className="small font-weight-bold text-uppercase text-muted">
-                        {key.replace(/_/g, " ")}
-                      </label>
-
-                      {key === "role" ? (
-                        <select
-                          name="role"
-                          value={formData[key] || "user"}
-                          onChange={handleChange}
-                          className="form-control shadow-sm"
-                        >
-                          <option value="user">User</option>
-                          <option value="admin">Admin</option>
-                        </select>
-                      ) : key === "status" ? (
-                        <select
-                          name="status"
-                          value={formData[key] || "active"}
-                          onChange={handleChange}
-                          className="form-control shadow-sm"
-                        >
-                          <option value="1">Active</option>
-                          <option value="0">Block</option>
-                        </select>
-                      ) : (
-                        <input
-                          type={
-                            typeof formData[key] === "number"
-                              ? "number"
-                              : "text"
-                          }
-                          name={key}
-                          value={formData[key] || ""}
-                          onChange={handleChange}
-                          className="form-control shadow-sm"
-                          placeholder={`${key.replace(/_/g, " ")}...`}
-                        />
-                      )}
-                    </div>
-                  ))}
+                  {Object.keys(formData).map((key) => {
+                    const options = getOptions(key);
+                    return (
+                      <div className="col-md-6 col-lg-4 mb-3" key={key}>
+                        <label className="small font-weight-bold text-uppercase text-muted">
+                          {key.replace(/_/g, " ")}
+                        </label>
+                        {options ? (
+                          <select
+                            name={key}
+                            value={formData[key] || ""}
+                            onChange={handleChange}
+                            className="form-control shadow-sm"
+                          >
+                            {options.map((o) => (
+                              <option key={o} value={o}>
+                                {o.charAt(0).toUpperCase() + o.slice(1)}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type={
+                              typeof formData[key] === "number"
+                                ? "number"
+                                : "text"
+                            }
+                            name={key}
+                            value={formData[key] || ""}
+                            onChange={handleChange}
+                            className="form-control shadow-sm"
+                            placeholder={`${key.replace(/_/g, " ")}...`}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <div className="mt-4 pt-3 border-top">
@@ -189,9 +211,7 @@ const CrudForm = () => {
                         ) : (
                           <>
                             <i
-                              className={`fas fa-${
-                                isEdit ? "save" : "check"
-                              } mr-2`}
+                              className={`fas fa-${isEdit ? "save" : "check"} mr-2`}
                             ></i>
                             {isEdit ? "Save Changes" : "Submit"}
                           </>

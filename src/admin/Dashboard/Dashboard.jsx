@@ -15,6 +15,7 @@ const TABLES = [
   "employees",
   "sales",
   "reservations",
+  "invoices",
 ];
 
 const EMPTY_LATEST = TABLES.reduce((acc, t) => ({ ...acc, [t]: [] }), {});
@@ -236,11 +237,12 @@ const Dashboard = () => {
             "remember_token",
             "created_at",
             "updated_at",
+            "email_verified_at",
           ];
           const columns = data.length
             ? Object.keys(data[0])
                 .filter((k) => !hiddenColumns.includes(k))
-                .slice(0, 8)
+                .slice(0, 4)
             : [];
 
           const filteredData = data.filter((item) =>

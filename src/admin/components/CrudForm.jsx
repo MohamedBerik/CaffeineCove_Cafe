@@ -27,7 +27,9 @@ const tableSchemas = {
   customers: { name: "", email: "", password: "", status: "1" },
   orders: {
     title_en: "",
+    title_ar: "",
     description_en: "",
+    description_ar: "",
     price: 0,
     quantity: 1,
     customer_id: "",
@@ -49,7 +51,9 @@ const tableSchemas = {
   employees: { name: "", email: "", password: "", salary: 0 },
   sales: {
     title_en: "",
+    title_ar: "",
     description_en: "",
+    description_ar: "",
     price: 0,
     quantity: 0,
     employee_id: "",

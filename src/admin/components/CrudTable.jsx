@@ -122,16 +122,10 @@ const CrudTable = () => {
           className="search-input"
         />
         <div>
-          <button
-            className="btn btn-success"
-            onClick={() => navigate(`/admin/${table}/create`)}
-          >
+          <button onClick={() => navigate(`/admin/${table}/create`)}>
             Add New
           </button>
-          <button
-            className="btn btn-outline-success"
-            onClick={() => navigate(`/admin/dashboard`)}
-          >
+          <button onClick={() => navigate(`/admin/dashboard`)}>
             Dashboard
           </button>
         </div>

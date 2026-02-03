@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import api from "../../../services/axios";
+import api from "../../services/axios";
 import { toast } from "react-toastify";
 
 export default function InvoiceDetails() {

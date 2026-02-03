@@ -1,99 +1,143 @@
-# Caffeine Cove – React Frontend
+Caffeine Cove – React Frontend & ERP Dashboard
 
-واجهة أمامية لإدارة موقع كافيه متكامل، متصلة بـ Laravel REST API، تشمل لوحة تحكم إدارية، نظام حجز، عرض الطلبات والفواتير.
+Frontend application for Caffeine Cove café system built with React.js. Integrated with Laravel REST API for managing orders, invoices, payments, refunds, and finance dashboard.
 
-## 🚀 Features
+🚀 Features
+Authentication
 
-### 👤 Authentication
+Login using Laravel Sanctum API token
 
-- تسجيل دخول باستخدام Laravel Sanctum
-- توجيه المستخدم حسب الدور:
-  - **Admin** → Dashboard / ERP
-  - **User** → Home
+Stores token & user info in localStorage
 
-### 📊 Admin Dashboard
+Role-based routing:
 
-- عرض إحصائيات: Users, Products, Orders, Reservations, Employees, Sales, Revenue
-- عرض أحدث البيانات لكل جدول
-- Generic CRUD Tables
-- Search و Pagination ديناميكي
+Admin → Dashboard / ERP
 
-### 📅 Reservations System
+User → Home
 
-- إرسال حجز من المستخدم → pending
-- تحكم الأدمن:
-  - ✅ Confirm Reservation → يرسل Email تلقائي
-  - ❌ Cancel Reservation
+Admin Dashboard
 
-### 🛒 ERP Modules View
+Display key statistics: Users, Products, Orders, Reservations, Sales, Revenue
 
-- متابعة Orders, Invoices, Purchase Orders (عرض فقط)
-- مشاهدة حالة الفواتير والمدفوعات
-- عرض إحصائيات مالية مختصرة
+Show latest data from all tables
 
-### 🔍 Search & Performance
+Generic CRUD tables for all entities
 
-- Debounced Search لتقليل عدد الـ API requests
-- معالجة أخطاء 429 (Too Many Requests)
+Search with backend integration
 
-## 🧠 Concepts Used
+Pagination
 
-- React Hooks: `useState`, `useEffect`, `useCallback`
-- Context API: `AuthContext`
-- Axios + Interceptors مع Bearer Token
-- Protected Routes
-- Debounced Search
-- Reusable Components
-- Error Handling & Notifications
+Hide sensitive fields (e.g., passwords)
 
-## 🛠️ Tech Stack
+Orders Management
 
-- React.js, React Router
-- Axios, Context API
-- Bootstrap / Tailwind (حسب المشروع)
+Create / Edit / Delete / Confirm / Cancel orders
 
-## 📂 Project Structure (Simplified)
+Track status: pending, confirmed, cancelled
 
+Stock validation before order confirmation
+
+Invoices & Payments
+
+Display invoices and their statuses
+
+Record partial or full payments
+
+Track refunds
+
+Show journal entries for each invoice
+
+Reservations System
+
+Submit reservations → pending
+
+Admin can confirm (email sent automatically) or cancel
+
+Search & Performance
+
+Backend-powered search
+
+useDebounce to reduce API calls
+
+Handles rate limiting (429 Too Many Requests)
+
+Optimized for fast dashboard rendering
+
+🧠 Concepts Used
+
+React Hooks (useState, useEffect, useCallback)
+
+Context API (AuthContext) for authentication
+
+Axios with interceptors for Bearer Token
+
+Protected Routes
+
+Debounced search
+
+Reusable components
+
+Clean API integration with error handling and notifications
+
+🛠️ Tech Stack
+
+React.js
+
+React Router
+
+Axios
+
+Context API
+
+Tailwind CSS / Bootstrap (if used)
+
+Connected to Laravel Backend API
+
+📂 Project Structure (Simplified)
 src/
-│── pages/
+├── pages/
 │ ├── Login.jsx
 │ ├── Admin/
-│ ├── Dashboard.jsx
-│ ├── CrudForm.jsx
-│ └── CrudTable.jsx
-│── components/
+│ │ ├── Dashboard.jsx
+│ │ ├── CrudForm.jsx
+│ │ └── CrudTable.jsx
+├── components/
 │ ├── AdminLayout.jsx
-│ ├── AdminNavbar.jsx
-│── context/
+│ └── AdminNavbar.jsx
+├── context/
 │ └── AuthContext.jsx
-│── services/
+├── services/
 │ └── axios.js
-│── hooks/
+├── hooks/
 │ └── useDebounce.js
-│── utils/
-│ └── notify.js
+└── utils/
+└── notify.js
 
-## 🔐 Environment Setup
-
+🔧 Environment Setup
 REACT_APP_API_URL=https://caffeinecoveapi-production-a107.up.railway.app/api
 
-- تأكد من تخزين token بعد تسجيل الدخول وإرساله تلقائيًا مع كل طلب ERP.
+Ensure the token is stored after login and sent automatically with ERP API requests.
 
-## ▶️ Run Project
-
-```bash
+Run Project
 npm install
 npm start
-⚠️ Common Issues
-401 Unauthorized → Token أو Password خطأ
 
-403 Forbidden → صلاحية محدودة (ERP)
+⚠️ Common Issues Handled
 
-Route [login] not defined → Middleware Sanctum
+401 Unauthorized → Wrong token or password
 
-بطء Dashboard → تقليل عدد الـ API calls
+403 Forbidden → Invalid token or limited role
+
+429 Too Many Requests → solved via debounce
+
+Route [login] not defined → Sanctum middleware
+
+Sensitive fields (e.g., password) hidden from tables
+
+Dashboard performance optimized by reducing API calls
 
 📌 Future Improvements
+
 Role Permissions (RBAC)
 
 Export data (Excel / PDF)
@@ -102,6 +146,8 @@ Advanced filters
 
 Real-time notifications
 
+Multi-language support
+
 👨‍💻 Author
-Mohamed Berik – Junior Full Stack Web Developer
-```
+
+Mohamed Berik – Junior Full Stack Developer (Laravel | React | REST API | ERP Extensions)

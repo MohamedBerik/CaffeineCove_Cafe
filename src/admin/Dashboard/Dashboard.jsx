@@ -347,9 +347,7 @@ const Dashboard = () => {
       </div>
       <Routes>
         <Route path="invoices/:id" element={<InvoiceDetails />} />
-        {/* <Route path="orders/:id" element={<OrderDetails />} /> */}
       </Routes>
-      ;
     </div>
   );
 };

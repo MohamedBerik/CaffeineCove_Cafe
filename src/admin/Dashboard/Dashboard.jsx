@@ -290,6 +290,9 @@ const Dashboard = () => {
                         <td key={col}>{String(item[col] ?? "-")}</td>
                       ))}
                       <td>
+                        {/* <button onClick={() => handleEdit(table, item.id)}>
+                          <i className="fa-solid fa-pen-to-square"></i>
+                        </button> */}
                         <button onClick={() => handleEdit(table, item.id)}>
                           <i className="fa-solid fa-pen-to-square"></i>
                         </button>
@@ -315,9 +318,6 @@ const Dashboard = () => {
                             🔍
                           </button>
                         )}
-                        {/* <button onClick={() => handleEdit(table, item.id)}>
-                          <i className="fa-solid fa-pen-to-square"></i>
-                        </button> */}
                       </td>
                     </tr>
                   ))}

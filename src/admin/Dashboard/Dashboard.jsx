@@ -6,6 +6,7 @@ import api from "../../services/axios";
 import useDebounce from "../../hooks/useDebounce";
 import "./Dashboard.css";
 import { Routes, Route } from "react-router-dom";
+import InvoiceDetails from "./InvoiceDetails";
 
 const TABLES = [
   "users",
@@ -214,7 +215,6 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <AdminLayout />
-
       {/* Statistics */}
       <div className="stats-grid">
         {Object.entries(stats).map(([key, value]) => (
@@ -229,7 +229,6 @@ const Dashboard = () => {
           </div>
         ))}
       </div>
-
       {/* Latest Tables */}
       <div className="tables-grid">
         {Object.entries(latest).map(([table, data]) => {
@@ -329,7 +328,6 @@ const Dashboard = () => {
           );
         })}
       </div>
-
       {/* Activity Logs */}
       <div className="activity-logs">
         <h3>Recent Activity</h3>
@@ -347,12 +345,13 @@ const Dashboard = () => {
           </ul>
         )}
       </div>
+      <Routes>
+        <Route path="invoices/:id" element={<InvoiceDetails />} />
+        {/* <Route path="orders/:id" element={<OrderDetails />} /> */}
+      </Routes>
+      ;
     </div>
   );
 };
-<Routes>
-  <Route path="invoices/:id" element={<InvoiceDetails />} />
-  <Route path="orders/:id" element={<OrderDetails />} />
-</Routes>;
 
 export default Dashboard;

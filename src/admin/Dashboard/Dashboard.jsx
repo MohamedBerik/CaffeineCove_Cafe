@@ -5,6 +5,7 @@ import { notifyError, notifySuccess } from "../../utils/notify";
 import api from "../../services/axios";
 import useDebounce from "../../hooks/useDebounce";
 import "./Dashboard.css";
+import { Routes, Route } from "react-router-dom";
 
 const TABLES = [
   "users",
@@ -349,5 +350,9 @@ const Dashboard = () => {
     </div>
   );
 };
+<Routes>
+  <Route path="invoices/:id" element={<InvoiceDetails />} />
+  <Route path="orders/:id" element={<OrderDetails />} />
+</Routes>;
 
 export default Dashboard;

@@ -1,11 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Routes, Route } from "react-router-dom";
 import AdminLayout from "../layouts/AdminLayout";
 import { notifyError, notifySuccess } from "../../utils/notify";
 import api from "../../services/axios";
 import useDebounce from "../../hooks/useDebounce";
 import "./Dashboard.css";
-import { Routes, Route } from "react-router-dom";
 import InvoiceDetails from "./InvoiceDetails";
 
 const TABLES = [
@@ -70,7 +69,6 @@ const Dashboard = () => {
   const fetchDashboard = useCallback(async () => {
     setLoading(true);
     try {
-      // 1️⃣ fetch general stats & latest tables
       const res = await api.get("/admin/dashboard");
       const data = res.data.data || {};
 
@@ -95,7 +93,6 @@ const Dashboard = () => {
         }, {}),
       );
 
-      // 2️⃣ fetch finance stats
       const finance = await api.get("/erp/dashboard/finance");
       setStats((prev) => ({
         ...prev,
@@ -106,7 +103,6 @@ const Dashboard = () => {
         payables: finance.data.payables,
       }));
 
-      // 3️⃣ fetch activity logs
       const actRes = await api.get("/erp/activity-logs?limit=6");
       setActivityLogs(actRes.data.data || []);
     } catch (err) {
@@ -166,9 +162,6 @@ const Dashboard = () => {
     }
   };
 
-  // =====================
-  // Reservations & Payments Handlers
-  // =====================
   const handleConfirm = async (id) => {
     try {
       await api.post(`/erp/orders/${id}/confirm`);
@@ -215,6 +208,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <AdminLayout />
+
       {/* Statistics */}
       <div className="stats-grid">
         {Object.entries(stats).map(([key, value]) => (
@@ -229,6 +223,7 @@ const Dashboard = () => {
           </div>
         ))}
       </div>
+
       {/* Latest Tables */}
       <div className="tables-grid">
         {Object.entries(latest).map(([table, data]) => {
@@ -240,19 +235,12 @@ const Dashboard = () => {
             "email_verified_at",
           ];
 
-          // const columns = data.length
-          // ? Object.keys(data[0])
-          //       .filter((k) => !hiddenColumns.includes(k))
-          //       .slice(0, 4)
-          //   : [];
-
           let columns = data.length
             ? Object.keys(data[0]).filter((k) => !hiddenColumns.includes(k))
             : [];
 
-          // تأكد إن id في البداية
           columns = columns.includes("id")
-            ? ["id", ...columns.filter((col) => col !== "id")].slice(0, 4) // 4 أعمدة مع id أولاً
+            ? ["id", ...columns.filter((col) => col !== "id")].slice(0, 4)
             : columns.slice(0, 4);
 
           const filteredData = data.filter((item) =>
@@ -318,6 +306,15 @@ const Dashboard = () => {
                             </button>
                           </>
                         )}
+                        {table === "invoices" && (
+                          <button
+                            onClick={() =>
+                              navigate(`/admin/dashboard/invoices/${item.id}`)
+                            }
+                          >
+                            🔍
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -328,6 +325,7 @@ const Dashboard = () => {
           );
         })}
       </div>
+
       {/* Activity Logs */}
       <div className="activity-logs">
         <h3>Recent Activity</h3>
@@ -345,6 +343,8 @@ const Dashboard = () => {
           </ul>
         )}
       </div>
+
+      {/* Nested Route for Invoice Details */}
       <Routes>
         <Route path="invoices/:id" element={<InvoiceDetails />} />
       </Routes>

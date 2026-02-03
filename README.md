@@ -21,11 +21,9 @@ User → Home
 
 عرض أحدث البيانات لكل جدول
 
-Generic CRUD Tables (جدول واحد يخدم كل الجداول)
+Generic CRUD Tables لكل الجداول
 
-Search لكل جدول (Backend Search)
-
-Pagination
+Search و Pagination
 
 إخفاء الحقول الحساسة (مثل password)
 
@@ -40,26 +38,62 @@ Pagination
 ❌ Cancel Reservation
 
 🛒 ERP Extension
+Orders
 
-إدارة Orders:
-
-إنشاء / تعديل / حذف / تأكيد / إلغاء الطلبات
+CRUD كامل: إنشاء / تعديل / حذف / تأكيد / إلغاء الطلبات
 
 متابعة Status: pending, confirmed, canceled
 
-إدارة Invoices:
+التحقق من المخزون قبل التأكيد
+
+أمثلة JSON:
+
+{
+"customer_id": 1,
+"items": [
+{"product_id": 1, "quantity": 1}
+]
+}
+
+Invoices
+
+إنشاء فاتورة تلقائيًا عند تأكيد الطلب
 
 تسجيل مدفوعات جزئية أو كاملة
 
 تحديث حالة الفاتورة: partial / paid
 
-إدارة Purchase Orders:
+استرجاع الأموال (Refunds)
 
-إنشاء / استلام / دفع طلبات الشراء
+عرض الفاتورة كاملة مع Items، Payments، Refunds، Journal Entries
 
-لوحة Finance Dashboard: إحصائيات مالية، إيرادات، مدفوعات، مشتريات
+مثال JSON endpoint /api/erp/invoices/{id}/full:
 
-Permissions & RBAC: الوصول للعمليات بناءً على الدور والصلاحيات
+{
+"invoice": { ...full invoice data with items, payments, refunds, journal_entries... }
+}
+
+Payments
+
+تسجيل دفع مرتبط بالفاتورة
+
+منع دفع أكبر من المتبقي
+
+تحديث حالة الفاتورة تلقائيًا (partial / paid)
+
+تسجيل قيود محاسبية تلقائيًا (journal_entries)
+
+Refunds
+
+تسجيل استرجاع الأموال جزئيًا
+
+تحديث القيود المحاسبية تلقائيًا
+
+Journal Entries
+
+كل دفعة أو استرجاع يتم تسجيله في القيود المحاسبية
+
+كل Entry مرتبط بالمصدر (Invoice, Payment, Refund)
 
 🔍 Search & Performance
 
@@ -89,41 +123,37 @@ Clean API Integration
 
 Error Handling & Notifications
 
+Laravel Eloquent Relationships & Transactions
+
+ERP Accounting Concepts: Payments, Refunds, Journal Entries
+
 🛠️ Tech Stack
 
 Frontend
 
-React.js
+React.js, React Router, Axios, Context API
 
-React Router
+Backend
 
-Axios
-
-Context API
-
-Backend (Connected)
-
-Laravel
-
-Sanctum Authentication
+Laravel, Sanctum Authentication
 
 RESTful APIs
 
 Mail (Mailtrap)
 
-ERP Modules (Orders, Invoices, Purchase Orders, Finance)
+ERP Modules (Orders, Invoices, Payments, Refunds, Finance, Journal Entries)
 
 📂 Project Structure (Simplified)
 src/
 │── pages/
 │ ├── Login.jsx
 │ ├── Admin/
-│ │ └── Dashboard.jsx
-│ │ └── CrudForm.jsx
+│ │ ├── Dashboard.jsx
+│ │ ├── CrudForm.jsx
 │ │ └── CrudTable.jsx
 │── components/
 │ ├── AdminLayout.jsx
-│ ├── AdminNavbar.jsx
+│ └── AdminNavbar.jsx
 │── context/
 │ └── AuthContext.jsx
 │── services/
@@ -141,18 +171,18 @@ REACT_APP_API_URL=https://caffeinecoveapi-production-a107.up.railway.app/api
 ▶️ Run Project
 npm install
 npm start
+php artisan migrate
+php artisan serve
 
 ⚠️ Common Issues Handled
 
 401 Unauthorized → Token أو Password خطأ
 
-403 Forbidden → Token غير صالح أو صلاحية محدودة (ERP)
+403 Forbidden → صلاحية محدودة (ERP)
 
-429 Too Many Requests → حلها بـ Debounce
+429 Too Many Requests → Debounce
 
 Route [login] not defined → Middleware Sanctum
-
-ظهور password → تم حله من Backend
 
 بطء Dashboard → تقليل عدد الـ API calls
 
@@ -169,5 +199,4 @@ Real-time notifications
 👨‍💻 Author
 
 Mohamed Berik
-Junior Full Stack Web Developer
-Laravel | React | REST APIs | ERP Extensions
+Junior Full Stack Web Developer Laravel | React | REST APIs | ERP Extensions

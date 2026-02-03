@@ -1,159 +1,69 @@
-☕ Caffeine Cove – React Frontend & ERP Extension
+# Caffeine Cove – React Frontend
 
-واجهة أمامية (Frontend) مبنية بـ React.js لإدارة موقع كافيه متكامل، متصلة بـ Laravel REST API، وتشمل لوحة تحكم إدارية، نظام حجز، إدارة الطلبات والمشتريات، مصادقة مستخدمين، وبحث + Pagination ديناميكي.
+واجهة أمامية لإدارة موقع كافيه متكامل، متصلة بـ Laravel REST API، تشمل لوحة تحكم إدارية، نظام حجز، عرض الطلبات والفواتير.
 
-🚀 Features
-👤 Authentication
+## 🚀 Features
 
-تسجيل دخول باستخدام Laravel Sanctum
+### 👤 Authentication
 
-تخزين token و user في localStorage
+- تسجيل دخول باستخدام Laravel Sanctum
+- توجيه المستخدم حسب الدور:
+  - **Admin** → Dashboard / ERP
+  - **User** → Home
 
-توجيه المستخدم حسب الدور:
+### 📊 Admin Dashboard
 
-Admin → Dashboard / ERP
+- عرض إحصائيات: Users, Products, Orders, Reservations, Employees, Sales, Revenue
+- عرض أحدث البيانات لكل جدول
+- Generic CRUD Tables
+- Search و Pagination ديناميكي
 
-User → Home
+### 📅 Reservations System
 
-📊 Admin Dashboard
+- إرسال حجز من المستخدم → pending
+- تحكم الأدمن:
+  - ✅ Confirm Reservation → يرسل Email تلقائي
+  - ❌ Cancel Reservation
 
-عرض إحصائيات (Users, Products, Orders, Reservations, Employees, Sales, Revenue…)
+### 🛒 ERP Modules View
 
-عرض أحدث البيانات لكل جدول
+- متابعة Orders, Invoices, Purchase Orders (عرض فقط)
+- مشاهدة حالة الفواتير والمدفوعات
+- عرض إحصائيات مالية مختصرة
 
-Generic CRUD Tables لكل الجداول
+### 🔍 Search & Performance
 
-Search و Pagination
+- Debounced Search لتقليل عدد الـ API requests
+- معالجة أخطاء 429 (Too Many Requests)
 
-إخفاء الحقول الحساسة (مثل password)
+## 🧠 Concepts Used
 
-📅 Reservations System
+- React Hooks: `useState`, `useEffect`, `useCallback`
+- Context API: `AuthContext`
+- Axios + Interceptors مع Bearer Token
+- Protected Routes
+- Debounced Search
+- Reusable Components
+- Error Handling & Notifications
 
-إرسال حجز من المستخدم → pending
+## 🛠️ Tech Stack
 
-تحكم الأدمن:
+- React.js, React Router
+- Axios, Context API
+- Bootstrap / Tailwind (حسب المشروع)
 
-✅ Confirm Reservation → يرسل Email تلقائي
+## 📂 Project Structure (Simplified)
 
-❌ Cancel Reservation
-
-🛒 ERP Extension
-Orders
-
-CRUD كامل: إنشاء / تعديل / حذف / تأكيد / إلغاء الطلبات
-
-متابعة Status: pending, confirmed, canceled
-
-التحقق من المخزون قبل التأكيد
-
-أمثلة JSON:
-
-{
-"customer_id": 1,
-"items": [
-{"product_id": 1, "quantity": 1}
-]
-}
-
-Invoices
-
-إنشاء فاتورة تلقائيًا عند تأكيد الطلب
-
-تسجيل مدفوعات جزئية أو كاملة
-
-تحديث حالة الفاتورة: partial / paid
-
-استرجاع الأموال (Refunds)
-
-عرض الفاتورة كاملة مع Items، Payments، Refunds، Journal Entries
-
-مثال JSON endpoint /api/erp/invoices/{id}/full:
-
-{
-"invoice": { ...full invoice data with items, payments, refunds, journal_entries... }
-}
-
-Payments
-
-تسجيل دفع مرتبط بالفاتورة
-
-منع دفع أكبر من المتبقي
-
-تحديث حالة الفاتورة تلقائيًا (partial / paid)
-
-تسجيل قيود محاسبية تلقائيًا (journal_entries)
-
-Refunds
-
-تسجيل استرجاع الأموال جزئيًا
-
-تحديث القيود المحاسبية تلقائيًا
-
-Journal Entries
-
-كل دفعة أو استرجاع يتم تسجيله في القيود المحاسبية
-
-كل Entry مرتبط بالمصدر (Invoice, Payment, Refund)
-
-🔍 Search & Performance
-
-Search مربوط بالـ Backend
-
-useDebounce لتقليل عدد الـ requests
-
-معالجة أخطاء 429 (Too Many Requests)
-
-تحسين الأداء للـ Dashboard والـ Tables
-
-🧠 Concepts Used
-
-React Hooks (useState, useEffect, useCallback)
-
-Context API (AuthContext)
-
-Axios + Interceptors مع Bearer Token
-
-Protected Routes
-
-Debounced Search
-
-Reusable Components
-
-Clean API Integration
-
-Error Handling & Notifications
-
-Laravel Eloquent Relationships & Transactions
-
-ERP Accounting Concepts: Payments, Refunds, Journal Entries
-
-🛠️ Tech Stack
-
-Frontend
-
-React.js, React Router, Axios, Context API
-
-Backend
-
-Laravel, Sanctum Authentication
-
-RESTful APIs
-
-Mail (Mailtrap)
-
-ERP Modules (Orders, Invoices, Payments, Refunds, Finance, Journal Entries)
-
-📂 Project Structure (Simplified)
 src/
 │── pages/
 │ ├── Login.jsx
 │ ├── Admin/
-│ │ ├── Dashboard.jsx
-│ │ ├── CrudForm.jsx
-│ │ └── CrudTable.jsx
+│ ├── Dashboard.jsx
+│ ├── CrudForm.jsx
+│ └── CrudTable.jsx
 │── components/
 │ ├── AdminLayout.jsx
-│ └── AdminNavbar.jsx
+│ ├── AdminNavbar.jsx
 │── context/
 │ └── AuthContext.jsx
 │── services/
@@ -163,31 +73,27 @@ src/
 │── utils/
 │ └── notify.js
 
-🔐 Environment Setup
+## 🔐 Environment Setup
+
 REACT_APP_API_URL=https://caffeinecoveapi-production-a107.up.railway.app/api
 
-تأكد من تخزين token بعد تسجيل الدخول وإرساله تلقائيًا مع كل طلب ERP.
+- تأكد من تخزين token بعد تسجيل الدخول وإرساله تلقائيًا مع كل طلب ERP.
 
-▶️ Run Project
+## ▶️ Run Project
+
+```bash
 npm install
 npm start
-php artisan migrate
-php artisan serve
-
-⚠️ Common Issues Handled
-
+⚠️ Common Issues
 401 Unauthorized → Token أو Password خطأ
 
 403 Forbidden → صلاحية محدودة (ERP)
-
-429 Too Many Requests → Debounce
 
 Route [login] not defined → Middleware Sanctum
 
 بطء Dashboard → تقليل عدد الـ API calls
 
 📌 Future Improvements
-
 Role Permissions (RBAC)
 
 Export data (Excel / PDF)
@@ -197,6 +103,5 @@ Advanced filters
 Real-time notifications
 
 👨‍💻 Author
-
-Mohamed Berik
-Junior Full Stack Web Developer Laravel | React | REST APIs | ERP Extensions
+Mohamed Berik – Junior Full Stack Web Developer
+```

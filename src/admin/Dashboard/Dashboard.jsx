@@ -340,8 +340,8 @@ const Dashboard = () => {
                             🔍
                           </button>
                         )}
-                        {order.status === "confirmed" && (
-                          <button onClick={() => handleCreateInvoice(order.id)}>
+                        {table === "orders" && item.status === "confirmed" && (
+                          <button onClick={() => handleCreateInvoice(item.id)}>
                             Create Invoice
                           </button>
                         )}

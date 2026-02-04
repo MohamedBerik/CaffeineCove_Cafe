@@ -345,6 +345,16 @@ const Dashboard = () => {
                             <i class="fa-solid fa-file-invoice"></i>
                           </button>
                         )}
+                        {table === "orders" && (
+                          <>
+                            <button onClick={() => handleConfirm(item.id)}>
+                              ✔
+                            </button>
+                            <button onClick={() => handleCancel(item.id)}>
+                              ✖
+                            </button>
+                          </>
+                        )}
                       </td>
                     </tr>
                   ))}

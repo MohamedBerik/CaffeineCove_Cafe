@@ -195,6 +195,28 @@ const Dashboard = () => {
     }
   };
 
+  const handleCreateInvoice = async (orderId) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to create an invoice for this order?",
+      )
+    )
+      return;
+    try {
+      const res = await api.post(`/erp/orders/${orderId}/invoice`);
+      notifySuccess(
+        `Invoice created successfully (ID: ${res.data.invoice_id})`,
+      );
+      // تحديث Dashboard / Orders بعد الإنشاء
+      fetchDashboard(); // لو في Dashboard
+      // أو fetchOrders(); لو في Orders page
+    } catch (err) {
+      console.error(err);
+      const msg = err.response?.data?.msg || "Failed to create invoice";
+      notifyError(msg);
+    }
+  };
+
   // =====================
   // Render
   // =====================
@@ -316,6 +338,11 @@ const Dashboard = () => {
                             }
                           >
                             🔍
+                          </button>
+                        )}
+                        {order.status === "confirmed" && (
+                          <button onClick={() => handleCreateInvoice(order.id)}>
+                            Create Invoice
                           </button>
                         )}
                       </td>

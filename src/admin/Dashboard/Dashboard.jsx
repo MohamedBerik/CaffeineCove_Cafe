@@ -324,10 +324,10 @@ const Dashboard = () => {
                         {table === "reservations" && (
                           <>
                             <button onClick={() => handleConfirm(item.id)}>
-                              ✔
+                              <i class="fa-solid fa-circle-check"></i>
                             </button>
                             <button onClick={() => handleCancel(item.id)}>
-                              ✖
+                              <i class="fa-solid fa-rectangle-xmark"></i>
                             </button>
                           </>
                         )}
@@ -348,10 +348,10 @@ const Dashboard = () => {
                         {table === "orders" && (
                           <>
                             <button onClick={() => handleConfirm(item.id)}>
-                              ✔
+                              <i class="fa-solid fa-circle-check"></i>
                             </button>
                             <button onClick={() => handleCancel(item.id)}>
-                              ✖
+                              <i class="fa-solid fa-rectangle-xmark"></i>
                             </button>
                           </>
                         )}

@@ -53,7 +53,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/logout" element={<Logout />} />
 
         <Route
-          path="/erp/orders/create"
+          path="/admin/erp/orders/create"
           element={
             <AdminRoute>
               <CreateOrder />

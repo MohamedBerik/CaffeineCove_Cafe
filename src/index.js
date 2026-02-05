@@ -9,6 +9,7 @@ import AllAbout from "./pages/About/AllAbout";
 import AllMenu from "./pages/Menu/AllMenu";
 import AllTestimonials from "./pages/Testimonials/AllTestimonials";
 import AllContact from "./pages/Contact/AllContact";
+import CreateOrder from "./pages/erp/CreateOrder";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -51,12 +52,32 @@ createRoot(document.getElementById("root")).render(
         <Route path="/register" element={<Register />} />
         <Route path="/logout" element={<Logout />} />
 
+        <Route
+          path="/erp/orders/create"
+          element={
+            <AdminRoute>
+              <CreateOrder />
+            </AdminRoute>
+          }
+        />
+
         {/* Generic admin CRUD (لو انت لسه مستخدمها مباشرة) */}
         <Route
           path="/admin/:table"
           element={
             <AdminRoute>
               <CrudTable />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/orders/create"
+          element={
+            <AdminRoute>
+              <p style={{ padding: 20 }}>
+                Orders are created from ERP screen only.
+              </p>
             </AdminRoute>
           }
         />

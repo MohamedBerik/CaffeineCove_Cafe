@@ -72,7 +72,7 @@ const tableSchemas = {
   },
 };
 
-const ERP_TABLES = ["orders", "invoices", "purchase-orders"];
+const ERP_TABLES = ["invoices", "purchase-orders"];
 
 const CrudForm = () => {
   const navigate = useNavigate();

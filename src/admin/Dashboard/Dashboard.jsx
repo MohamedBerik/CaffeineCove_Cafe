@@ -12,7 +12,7 @@ const TABLES = [
   "categories",
   "products",
   "customers",
-  "order_items",
+  // "order_items",
   "orders",
   "employees",
   "sales",

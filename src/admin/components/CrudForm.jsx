@@ -27,14 +27,16 @@ const tableSchemas = {
   },
   customers: { name: "", email: "", password: "", status: "1" },
   orders: {
-    title_en: "",
-    title_ar: "",
-    description_en: "",
-    description_ar: "",
-    price: 0,
-    quantity: 1,
+    quantity: "",
     customer_id: "",
     status: "pending", // ERP field
+    total: "",
+  },
+  order_items: {
+    order_id: "",
+    product_id: "",
+    quantity: "",
+    unit_price: "",
     total: "",
   },
   invoices: {

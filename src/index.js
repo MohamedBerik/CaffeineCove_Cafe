@@ -36,6 +36,7 @@ import { ProtectedRoute, AdminRoute } from "./admin/routes/ProtectedRoute";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import InvoiceDetails from "./admin/erp/components/InvoiceDetails";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>

@@ -31,6 +31,7 @@ const tableSchemas = {
     customer_id: "",
     status: "pending", // ERP field
     total: "",
+    created_by: "",
   },
   order_items: {
     order_id: "",

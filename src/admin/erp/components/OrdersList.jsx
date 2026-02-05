@@ -10,7 +10,7 @@ const OrdersList = () => {
   useEffect(() => {
     api
       .get("/erp/orders")
-      .then((res) => setOrders(res.data.data))
+      .then((res) => setOrders(res.data))
       .catch((err) => {
         console.error(err);
         notifyError("Failed to fetch orders");

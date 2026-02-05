@@ -21,7 +21,7 @@ const OrdersList = () => {
   if (loading) return <p>Loading orders...</p>;
 
   return (
-    <div>
+    <div className="mt-4 pt-4">
       <h3>Orders List</h3>
       <table className="table table-striped">
         <thead>

@@ -6,7 +6,9 @@ import { notifyError, notifySuccess } from "../../../utils/notify";
 const OrdersList = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState(null); // لتحديد الأوردر الجاري معالجته
 
+  // Fetch Orders
   const fetchOrders = () => {
     setLoading(true);
     api
@@ -23,27 +25,35 @@ const OrdersList = () => {
     fetchOrders();
   }, []);
 
-  const handleConfirm = async (id) => {
+  const handleConfirm = async (orderId) => {
+    if (!window.confirm("Are you sure you want to confirm this order?")) return;
+
+    setProcessingId(orderId);
     try {
-      await api.post(`/erp/orders/${id}/confirm`);
+      await api.post(`/erp/orders/${orderId}/confirm`);
       notifySuccess("Order confirmed successfully");
-      fetchOrders();
+      fetchOrders(); // تحديث القائمة بعد التأكيد
     } catch (err) {
       console.error(err);
-      notifyError(err?.response?.data?.msg || "Failed to confirm order");
+      notifyError(err.response?.data?.msg || "Failed to confirm order");
+    } finally {
+      setProcessingId(null);
     }
   };
 
-  const handleCancel = async (id) => {
+  const handleCancel = async (orderId) => {
     if (!window.confirm("Are you sure you want to cancel this order?")) return;
 
+    setProcessingId(orderId);
     try {
-      await api.post(`/erp/orders/${id}/cancel`);
+      await api.post(`/erp/orders/${orderId}/cancel`);
       notifySuccess("Order cancelled successfully");
-      fetchOrders();
+      fetchOrders(); // تحديث القائمة بعد الإلغاء
     } catch (err) {
       console.error(err);
-      notifyError(err?.response?.data?.msg || "Failed to cancel order");
+      notifyError(err.response?.data?.msg || "Failed to cancel order");
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -52,7 +62,6 @@ const OrdersList = () => {
   return (
     <div className="mt-4 pt-4">
       <h3>Orders List</h3>
-
       <table className="table table-striped">
         <thead>
           <tr>
@@ -60,56 +69,44 @@ const OrdersList = () => {
             <th>Customer</th>
             <th>Total</th>
             <th>Status</th>
-            <th style={{ width: 180 }}>Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
-
         <tbody>
-          {orders.length === 0 && (
-            <tr>
-              <td colSpan="5" className="text-center">
-                No orders found
-              </td>
-            </tr>
-          )}
-
           {orders.map((o) => (
             <tr key={o.id}>
               <td>{o.id}</td>
-              <td>{o.customer?.name}</td>
+              <td>{o.customer?.name || "N/A"}</td>
               <td>{o.total}</td>
+              <td>{o.status}</td>
               <td>
-                <span
-                  className={`badge ${
-                    o.status === "confirmed"
-                      ? "badge-success"
-                      : o.status === "cancelled"
-                        ? "badge-danger"
-                        : "badge-secondary"
-                  }`}
-                >
-                  {o.status}
-                </span>
-              </td>
+                {o.status === "pending" && (
+                  <>
+                    <button
+                      className="btn btn-sm btn-success mr-2"
+                      onClick={() => handleConfirm(o.id)}
+                      disabled={processingId === o.id}
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => handleCancel(o.id)}
+                      disabled={processingId === o.id}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                )}
 
-              <td>
-                {/* Confirm */}
-                <button
-                  className="btn btn-sm btn-success mr-2"
-                  disabled={o.status !== "pending"}
-                  onClick={() => handleConfirm(o.id)}
-                >
-                  Confirm
-                </button>
-
-                {/* Cancel */}
-                <button
-                  className="btn btn-sm btn-danger"
-                  disabled={o.status === "cancelled"}
-                  onClick={() => handleCancel(o.id)}
-                >
-                  Cancel
-                </button>
+                {o.status === "confirmed" && o.invoice && (
+                  <a
+                    href={`/admin/erp/invoices/${o.invoice.id}`}
+                    className="btn btn-sm btn-primary"
+                  >
+                    View Invoice
+                  </a>
+                )}
               </td>
             </tr>
           ))}

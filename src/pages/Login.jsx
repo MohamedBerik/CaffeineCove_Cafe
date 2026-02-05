@@ -25,7 +25,7 @@ function Login() {
 
       // توجيه المستخدم حسب الـ role
       if (res.data.user.role === "admin") {
-        navigate("/erp/admin"); // Admin يدخل لوحة التحكم
+        navigate("/admin/erp"); // Admin يدخل لوحة التحكم
       } else {
         navigate("/"); // المستخدم العادي يدخل الصفحة الرئيسية
       }

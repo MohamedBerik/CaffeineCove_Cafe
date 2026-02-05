@@ -9,12 +9,12 @@ const InvoicesList = () => {
   useEffect(() => {
     api
       .get("/erp/invoices")
-      .then((res) => setInvoices(res.data.data))
+      .then((res) => setInvoices(res.data))
       .catch((err) => notifyError("Failed to fetch invoices"));
   }, []);
 
   return (
-    <div>
+    <div className="mt-4 pt-4">
       <h3>Invoices</h3>
       <table className="table table-striped">
         <thead>

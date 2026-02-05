@@ -72,6 +72,7 @@ createRoot(document.getElementById("root")).render(
             </AdminRoute>
           }
         >
+          <Route index element={<OrdersList />} />
           <Route path="orders" element={<OrdersList />} />
           <Route path="orders/create" element={<CreateOrder />} />
           <Route path="invoices" element={<InvoicesList />} />

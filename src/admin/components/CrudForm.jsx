@@ -27,7 +27,6 @@ const tableSchemas = {
   },
   customers: { name: "", email: "", password: "", status: "1" },
   orders: {
-    quantity: "",
     customer_id: "",
     status: "pending", // ERP field
     total: "",

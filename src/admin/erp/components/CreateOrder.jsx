@@ -41,7 +41,7 @@ const CreateOrder = () => {
   };
 
   return (
-    <div>
+    <div className="mt-5">
       <h3>Create ERP Order</h3>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">

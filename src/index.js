@@ -5,22 +5,33 @@ import { AuthProvider } from "./context/AuthContext";
 
 import App from "./App";
 
+// Public Pages
 import AllAbout from "./pages/About/AllAbout";
 import AllMenu from "./pages/Menu/AllMenu";
 import AllTestimonials from "./pages/Testimonials/AllTestimonials";
 import AllContact from "./pages/Contact/AllContact";
-import CreateOrder from "./pages/erp/CreateOrder";
 
+// Auth
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
 
-import CrudForm from "./admin/components/CrudForm";
-import CrudTable from "./admin/components/CrudTable";
+// Admin / ERP
+import ERPDashboard from "./admin/erp/ERPDashboard";
+import OrdersList from "./admin/erp/components/OrdersList";
+import CreateOrder from "./admin/erp/components/CreateOrder";
+import InvoicesList from "./admin/erp/components/InvoicesList";
+import PurchaseOrdersList from "./admin/erp/components/PurchaseOrdersList";
 
+// Generic CRUD (temporary)
+import CrudTable from "./admin/components/CrudTable";
+import CrudForm from "./admin/components/CrudForm";
+
+// Old Admin Dashboard
 import AdminDashboard from "./admin/Dashboard/Dashboard";
 import AdminLayout from "./admin/layouts/AdminLayout";
 
+// Route Guards
 import { ProtectedRoute, AdminRoute } from "./admin/routes/ProtectedRoute";
 
 import { ToastContainer } from "react-toastify";
@@ -52,16 +63,22 @@ createRoot(document.getElementById("root")).render(
         <Route path="/register" element={<Register />} />
         <Route path="/logout" element={<Logout />} />
 
+        {/* ERP Dashboard */}
         <Route
-          path="/admin/erp/orders/create"
+          path="/admin/erp/*"
           element={
             <AdminRoute>
-              <CreateOrder />
+              <ERPDashboard />
             </AdminRoute>
           }
-        />
+        >
+          <Route path="orders" element={<OrdersList />} />
+          <Route path="orders/create" element={<CreateOrder />} />
+          <Route path="invoices" element={<InvoicesList />} />
+          <Route path="purchase-orders" element={<PurchaseOrdersList />} />
+        </Route>
 
-        {/* Generic admin CRUD (لو انت لسه مستخدمها مباشرة) */}
+        {/* Generic admin CRUD (temporary) */}
         <Route
           path="/admin/:table"
           element={
@@ -70,18 +87,6 @@ createRoot(document.getElementById("root")).render(
             </AdminRoute>
           }
         />
-
-        <Route
-          path="/admin/orders/create"
-          element={
-            <AdminRoute>
-              <p style={{ padding: 20 }}>
-                Orders are created from ERP screen only.
-              </p>
-            </AdminRoute>
-          }
-        />
-
         <Route
           path="/admin/:table/create"
           element={
@@ -90,7 +95,6 @@ createRoot(document.getElementById("root")).render(
             </AdminRoute>
           }
         />
-
         <Route
           path="/admin/:table/:id/edit"
           element={
@@ -99,7 +103,6 @@ createRoot(document.getElementById("root")).render(
             </AdminRoute>
           }
         />
-
         <Route
           path="/admin/:table/:id/show"
           element={
@@ -109,17 +112,7 @@ createRoot(document.getElementById("root")).render(
           }
         />
 
-        {/* Admin layout (لو محتاجه بشكل مباشر) */}
-        <Route
-          path="/adminLayout"
-          element={
-            <AdminRoute>
-              <AdminLayout />
-            </AdminRoute>
-          }
-        />
-
-        {/* Main admin dashboard (ERP + nested routes inside it) */}
+        {/* Old Admin Dashboard */}
         <Route
           path="/admin/dashboard/*"
           element={
@@ -129,8 +122,21 @@ createRoot(document.getElementById("root")).render(
           }
         />
 
-        {/* Not found */}
-        <Route path="*" element={<p>Page not found</p>} />
+        {/* AdminLayout direct access (optional) */}
+        <Route
+          path="/adminLayout"
+          element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }
+        />
+
+        {/* 404 */}
+        <Route
+          path="*"
+          element={<p style={{ padding: 20 }}>Page not found</p>}
+        />
       </Routes>
     </BrowserRouter>
   </AuthProvider>,

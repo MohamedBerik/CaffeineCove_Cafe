@@ -1,66 +1,64 @@
+// src/admin/erp/ERPDashboard.jsx
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import AdminLayout from "../layouts/AdminLayout";
+import "../styles/erpDashboard.css"; // لو عندك CSS مخصص للـ ERP
 
-const erpMenu = [
-  {
-    label: "Orders",
-    path: "orders",
-    icon: "fas fa-shopping-cart",
-  },
-  {
-    label: "Create Order",
-    path: "orders/create",
-    icon: "fas fa-plus-circle",
-  },
-  {
-    label: "Invoices",
-    path: "invoices",
-    icon: "fas fa-file-invoice",
-  },
-  {
-    label: "Purchase Orders",
-    path: "purchase-orders",
-    icon: "fas fa-truck-loading",
-  },
-];
-
-export default function ERPDashboard() {
+const ERPDashboard = () => {
   return (
-    <AdminLayout>
-      <div className="container-fluid">
-        <div className="row">
-          {/* ERP Sidebar */}
-          <div className="col-md-2 p-0 border-right bg-light">
-            <div className="p-3 font-weight-bold text-uppercase text-muted">
-              ERP
-            </div>
+    <div className="erp-dashboard d-flex">
+      {/* Sidebar */}
+      <nav className="erp-sidebar bg-dark text-white p-3">
+        <h4 className="text-center mb-4">ERP Dashboard</h4>
+        <ul className="list-unstyled">
+          <li className="mb-2">
+            <NavLink
+              to="orders"
+              className={({ isActive }) =>
+                isActive ? "active-link text-white" : "text-white"
+              }
+            >
+              Orders
+            </NavLink>
+          </li>
+          <li className="mb-2">
+            <NavLink
+              to="orders/create"
+              className={({ isActive }) =>
+                isActive ? "active-link text-white" : "text-white"
+              }
+            >
+              Create Order
+            </NavLink>
+          </li>
+          <li className="mb-2">
+            <NavLink
+              to="invoices"
+              className={({ isActive }) =>
+                isActive ? "active-link text-white" : "text-white"
+              }
+            >
+              Invoices
+            </NavLink>
+          </li>
+          <li className="mb-2">
+            <NavLink
+              to="purchase-orders"
+              className={({ isActive }) =>
+                isActive ? "active-link text-white" : "text-white"
+              }
+            >
+              Purchase Orders
+            </NavLink>
+          </li>
+        </ul>
+      </nav>
 
-            <ul className="nav flex-column">
-              {erpMenu.map((item) => (
-                <li className="nav-item" key={item.path}>
-                  <NavLink
-                    to={item.path}
-                    end
-                    className={({ isActive }) =>
-                      "nav-link d-flex align-items-center " +
-                      (isActive ? "active font-weight-bold" : "")
-                    }
-                  >
-                    <i className={`${item.icon} mr-2`} />
-                    {item.label}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* ERP Content */}
-          <div className="col-md-10 pt-3">
-            <Outlet />
-          </div>
-        </div>
-      </div>
-    </AdminLayout>
+      {/* Main Content */}
+      <main className="erp-content flex-grow-1 p-4">
+        <Outlet />
+      </main>
+    </div>
   );
-}
+};
+
+export default ERPDashboard;

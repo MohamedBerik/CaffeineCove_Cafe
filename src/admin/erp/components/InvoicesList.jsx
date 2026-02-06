@@ -5,10 +5,10 @@ import { notifyError, notifySuccess } from "../../../utils/notify";
 const InvoicesList = () => {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [payAmount, setPayAmount] = useState(0);
+
+  const [payAmounts, setPayAmounts] = useState({});
+  const [refundAmounts, setRefundAmounts] = useState({});
   const [payMethod, setPayMethod] = useState("cash");
-  const [refundAmount, setRefundAmount] = useState(0);
-  const [refundMethod, setRefundMethod] = useState("cash");
 
   const fetchInvoices = () => {
     setLoading(true);
@@ -27,9 +27,10 @@ const InvoicesList = () => {
   }, []);
 
   const handlePay = async (invoiceId) => {
+    const amount = payAmounts[invoiceId];
     try {
       const res = await api.post(`/erp/invoices/${invoiceId}/pay`, {
-        amount: payAmount,
+        amount,
         method: payMethod,
       });
       notifySuccess(res.data.msg);
@@ -41,11 +42,11 @@ const InvoicesList = () => {
   };
 
   const handleRefund = async (paymentId) => {
+    const amount = refundAmounts[paymentId];
     try {
       const res = await api.post(`/erp/payments/${paymentId}/refund`, {
-        amount: refundAmount,
+        amount,
       });
-
       notifySuccess(res.data.msg);
       fetchInvoices();
     } catch (err) {
@@ -84,12 +85,18 @@ const InvoicesList = () => {
               <td>{inv.status}</td>
               <td>
                 <div className="d-flex flex-column">
+                  {/* Pay Section */}
                   <div className="mb-2">
                     <input
                       type="number"
                       placeholder="Pay amount"
-                      value={payAmount}
-                      onChange={(e) => setPayAmount(e.target.value)}
+                      value={payAmounts[inv.id] || ""}
+                      onChange={(e) =>
+                        setPayAmounts({
+                          ...payAmounts,
+                          [inv.id]: e.target.value,
+                        })
+                      }
                       className="form-control mb-1"
                     />
                     <select
@@ -110,31 +117,37 @@ const InvoicesList = () => {
                     </button>
                   </div>
 
-                  <div>
-                    <input
-                      type="number"
-                      placeholder="Refund amount"
-                      value={refundAmount}
-                      onChange={(e) => setRefundAmount(e.target.value)}
-                      className="form-control mb-1"
-                    />
-                    <select
-                      value={refundMethod}
-                      onChange={(e) => setRefundMethod(e.target.value)}
-                      className="form-control mb-1"
-                    >
-                      <option value="cash">Cash</option>
-                      <option value="card">Card</option>
-                      <option value="bank">Bank</option>
-                    </select>
-                    <button
-                      className="btn btn-warning btn-sm"
-                      onClick={() => handleRefund(inv.id)}
-                      disabled={inv.status === "unpaid" && inv.total_paid === 0}
-                    >
-                      Refund
-                    </button>
-                  </div>
+                  {/* Refund Section */}
+                  {inv.payments &&
+                    inv.payments.length > 0 &&
+                    inv.payments.map((p) => (
+                      <div
+                        key={p.id}
+                        className="d-flex align-items-center mb-1"
+                      >
+                        <span className="me-2">
+                          #{p.id} - {p.amount}
+                        </span>
+                        <input
+                          type="number"
+                          placeholder="Refund amount"
+                          value={refundAmounts[p.id] || ""}
+                          onChange={(e) =>
+                            setRefundAmounts({
+                              ...refundAmounts,
+                              [p.id]: e.target.value,
+                            })
+                          }
+                          className="form-control me-1"
+                        />
+                        <button
+                          className="btn btn-warning btn-sm"
+                          onClick={() => handleRefund(p.id)}
+                        >
+                          Refund
+                        </button>
+                      </div>
+                    ))}
                 </div>
               </td>
             </tr>

@@ -40,12 +40,12 @@ const InvoicesList = () => {
     }
   };
 
-  const handleRefund = async (invoiceId) => {
+  const handleRefund = async (paymentId) => {
     try {
-      const res = await api.post(`/erp/invoices/${invoiceId}/refund`, {
+      const res = await api.post(`/erp/payments/${paymentId}/refund`, {
         amount: refundAmount,
-        method: refundMethod,
       });
+
       notifySuccess(res.data.msg);
       fetchInvoices();
     } catch (err) {

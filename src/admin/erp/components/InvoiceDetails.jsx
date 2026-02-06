@@ -28,6 +28,17 @@ const InvoiceDetails = () => {
 
   if (loading) return <p>Loading invoice...</p>;
   if (!invoice) return <p>Invoice not found</p>;
+  const paidAmount = invoice.payments.reduce(
+    (sum, p) => sum + Number(p.amount),
+    0,
+  );
+
+  const refundedAmount = invoice.refunds.reduce(
+    (sum, r) => sum + Number(r.amount),
+    0,
+  );
+
+  const netPaid = paidAmount - refundedAmount;
 
   return (
     <div className="container mt-4 pt-4">
@@ -57,6 +68,32 @@ const InvoiceDetails = () => {
           <div>
             <strong>Customer ID:</strong> {invoice.customer_id}
           </div>
+        </div>
+      </div>
+
+      <div className="card mb-3">
+        <div className="card-body">
+          <div>
+            <strong>Total:</strong> {invoice.total}
+          </div>
+          <div>
+            <strong>Paid:</strong> {paidAmount}
+          </div>
+          <div>
+            <strong>Refunded:</strong> {refundedAmount}
+          </div>
+          <div>
+            <strong>Net paid:</strong> {netPaid}
+          </div>
+
+          {netPaid < invoice.total && (
+            <button
+              className="btn btn-success mt-2"
+              onClick={() => navigate(`/admin/erp/invoices/${invoice.id}/pay`)}
+            >
+              Receive payment
+            </button>
+          )}
         </div>
       </div>
 

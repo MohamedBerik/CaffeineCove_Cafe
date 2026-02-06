@@ -1,3 +1,5 @@
+// src/index.jsx
+
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -5,38 +7,37 @@ import { AuthProvider } from "./context/AuthContext";
 
 import App from "./App";
 
-// Public Pages
+/* Public Pages */
 import AllAbout from "./pages/About/AllAbout";
 import AllMenu from "./pages/Menu/AllMenu";
 import AllTestimonials from "./pages/Testimonials/AllTestimonials";
 import AllContact from "./pages/Contact/AllContact";
 
-// Auth
+/* Auth */
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
 
-// Admin / ERP
+/* ERP */
 import ERPDashboard from "./admin/erp/ERPDashboard";
 import OrdersList from "./admin/erp/components/OrdersList";
 import CreateOrder from "./admin/erp/components/CreateOrder";
 import InvoicesList from "./admin/erp/components/InvoicesList";
 import PurchaseOrdersList from "./admin/erp/components/PurchaseOrdersList";
 
-// Generic CRUD (temporary)
+/* Generic CRUD (temporary – old system) */
 import CrudTable from "./admin/components/CrudTable";
 import CrudForm from "./admin/components/CrudForm";
 
-// Old Admin Dashboard
+/* Old admin dashboard */
 import AdminDashboard from "./admin/Dashboard/Dashboard";
 import AdminLayout from "./admin/layouts/AdminLayout";
 
-// Route Guards
+/* Route guards */
 import { ProtectedRoute, AdminRoute } from "./admin/routes/ProtectedRoute";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import InvoiceDetails from "./admin/erp/components/InvoiceDetails";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -52,36 +53,38 @@ createRoot(document.getElementById("root")).render(
       />
 
       <Routes>
-        {/* Public site */}
+        {/* ================= Public ================= */}
         <Route path="/" element={<App />} />
         <Route path="/about" element={<AllAbout />} />
         <Route path="/menu" element={<AllMenu />} />
         <Route path="/testimonials" element={<AllTestimonials />} />
         <Route path="/contact" element={<AllContact />} />
 
-        {/* Auth */}
+        {/* ================= Auth ================= */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/logout" element={<Logout />} />
 
-        {/* ERP Dashboard */}
+        {/* ================= ERP (NEW SYSTEM) ================= */}
         <Route
-          path="/admin/erp/*"
+          path="/admin/erp"
           element={
             <AdminRoute>
               <ERPDashboard />
             </AdminRoute>
           }
         >
+          {/* default ERP page */}
           <Route index element={<OrdersList />} />
+
           <Route path="orders" element={<OrdersList />} />
           <Route path="orders/create" element={<CreateOrder />} />
+
           <Route path="invoices" element={<InvoicesList />} />
-          <Route path="invoices/:id" element={<InvoiceDetails />} />
           <Route path="purchase-orders" element={<PurchaseOrdersList />} />
         </Route>
 
-        {/* Generic admin CRUD (temporary) */}
+        {/* ================= Generic CRUD (OLD – temporary) ================= */}
         <Route
           path="/admin/:table"
           element={
@@ -90,6 +93,7 @@ createRoot(document.getElementById("root")).render(
             </AdminRoute>
           }
         />
+
         <Route
           path="/admin/:table/create"
           element={
@@ -98,6 +102,7 @@ createRoot(document.getElementById("root")).render(
             </AdminRoute>
           }
         />
+
         <Route
           path="/admin/:table/:id/edit"
           element={
@@ -106,6 +111,7 @@ createRoot(document.getElementById("root")).render(
             </AdminRoute>
           }
         />
+
         <Route
           path="/admin/:table/:id/show"
           element={
@@ -115,7 +121,7 @@ createRoot(document.getElementById("root")).render(
           }
         />
 
-        {/* Old Admin Dashboard */}
+        {/* ================= Old dashboard (to be deprecated) ================= */}
         <Route
           path="/admin/dashboard/*"
           element={
@@ -125,7 +131,7 @@ createRoot(document.getElementById("root")).render(
           }
         />
 
-        {/* AdminLayout direct access (optional) */}
+        {/* ================= Direct layout (optional / legacy) ================= */}
         <Route
           path="/adminLayout"
           element={
@@ -135,7 +141,7 @@ createRoot(document.getElementById("root")).render(
           }
         />
 
-        {/* 404 */}
+        {/* ================= 404 ================= */}
         <Route
           path="*"
           element={<p style={{ padding: 20 }}>Page not found</p>}

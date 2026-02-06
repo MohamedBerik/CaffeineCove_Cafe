@@ -41,7 +41,7 @@ const InvoicesList = () => {
     }
 
     try {
-      const res = await api.post(`/erp/invoices/${invoiceId}/pay`, {
+      const res = await api.post(`/erp/invoices/${invoiceId}/payments`, {
         amount: amount,
         method: payMethods[invoiceId] || "cash",
       });

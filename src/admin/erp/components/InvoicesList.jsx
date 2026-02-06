@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
+import { useNavigate } from "react-router-dom";
 
 const InvoicesList = () => {
+  const navigate = useNavigate();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [payAmounts, setPayAmounts] = useState({});
@@ -57,7 +59,14 @@ const InvoicesList = () => {
         <tbody>
           {invoices.map((inv) => (
             <tr key={inv.id}>
-              <td>{inv.id}</td>
+              <td>
+                <button
+                  className="btn btn-link p-0"
+                  onClick={() => navigate(`/admin/erp/invoices/${inv.id}`)}
+                >
+                  {inv.id}
+                </button>
+              </td>
               <td>{inv.customer?.name}</td>
               <td>{inv.total}</td>
               <td>{inv.total_paid}</td>

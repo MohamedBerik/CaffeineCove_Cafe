@@ -21,6 +21,7 @@ import Logout from "./pages/Logout";
 import ERPDashboard from "./admin/erp/ERPDashboard";
 import OrdersList from "./admin/erp/components/OrdersList";
 import CreateOrder from "./admin/erp/components/CreateOrder";
+import OrderDetails from "./admin/erp/components/OrderDetails";
 import InvoicesList from "./admin/erp/components/InvoicesList";
 import PurchaseOrdersList from "./admin/erp/components/PurchaseOrdersList";
 
@@ -79,6 +80,7 @@ createRoot(document.getElementById("root")).render(
           {/* Orders */}
           <Route path="orders" element={<OrdersList />} />
           <Route path="orders/create" element={<CreateOrder />} />
+          <Route path="orders/:id" element={<OrderDetails />} />
 
           {/* Invoices */}
           <Route path="invoices" element={<InvoicesList />} />

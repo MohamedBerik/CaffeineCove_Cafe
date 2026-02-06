@@ -7,9 +7,12 @@ const AdminNavbar = () => {
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
-      <a className="navbar-brand" href="/admin/dashboard">
-        Dashboard
-      </a>
+      <button
+        className="navbar-brand btn btn-link"
+        onClick={() => navigate("/admin/erp")}
+      >
+        ERP Dashboard
+      </button>
 
       <button
         className="navbar-toggler"
@@ -25,7 +28,7 @@ const AdminNavbar = () => {
 
       <div className="collapse navbar-collapse" id="navbarERP">
         <ul className="navbar-nav mr-auto">
-          {/* ERP Dropdown */}
+          {/* ================= ERP ================= */}
           <li className="nav-item dropdown">
             <a
               className="nav-link dropdown-toggle"
@@ -33,58 +36,93 @@ const AdminNavbar = () => {
               id="erpDropdown"
               role="button"
               data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
             >
               ERP Modules ⚙️
             </a>
-            <div className="dropdown-menu" aria-labelledby="erpDropdown">
+
+            <div className="dropdown-menu">
               <button
                 className="dropdown-item"
-                onClick={() => navigate("/admin/orders")}
+                onClick={() => navigate("/admin/erp/orders")}
               >
                 🛒 Orders
               </button>
+
               <button
                 className="dropdown-item"
-                onClick={() => navigate("/admin/invoices")}
+                onClick={() => navigate("/admin/erp/invoices")}
               >
                 💰 Invoices
               </button>
+
               <button
                 className="dropdown-item"
-                onClick={() => navigate("/admin/purchase-orders")}
+                onClick={() => navigate("/admin/erp/purchase-orders")}
               >
                 📦 Purchase Orders
-              </button>
-              <button
-                className="dropdown-item"
-                onClick={() => navigate("/admin/dashboard/finance")}
-              >
-                📊 Finance
               </button>
             </div>
           </li>
 
-          {/* Quick Access Links */}
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/users">
-              👤 Users
+          {/* ================= OLD CRUD ================= */}
+
+          <li className="nav-item dropdown">
+            <a
+              className="nav-link dropdown-toggle"
+              href="#"
+              id="dataDropdown"
+              role="button"
+              data-toggle="dropdown"
+            >
+              Data Tables
             </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/products">
-              📦 Products
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/reservations">
-              📅 Reservations
-            </a>
+
+            <div className="dropdown-menu">
+              <button
+                className="dropdown-item"
+                onClick={() => navigate("/admin/customers")}
+              >
+                👥 Customers
+              </button>
+
+              <button
+                className="dropdown-item"
+                onClick={() => navigate("/admin/users")}
+              >
+                👤 Users
+              </button>
+
+              <button
+                className="dropdown-item"
+                onClick={() => navigate("/admin/products")}
+              >
+                📦 Products
+              </button>
+
+              <button
+                className="dropdown-item"
+                onClick={() => navigate("/admin/suppliers")}
+              >
+                🏭 Suppliers
+              </button>
+
+              <button
+                className="dropdown-item"
+                onClick={() => navigate("/admin/employees")}
+              >
+                🧑‍💼 Employees
+              </button>
+
+              <button
+                className="dropdown-item"
+                onClick={() => navigate("/admin/reservations")}
+              >
+                📅 Reservations
+              </button>
+            </div>
           </li>
         </ul>
 
-        {/* Logout Button */}
         <button className="btn btn-danger ml-auto" onClick={logout}>
           Logout
         </button>

@@ -1,21 +1,32 @@
-// src/admin/erp/components/PurchaseOrdersList.jsx
 import React, { useEffect, useState } from "react";
 import api from "../../../services/axios";
 import { notifyError } from "../../../utils/notify";
 
 const PurchaseOrdersList = () => {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchPOs = () => {
+    setLoading(true);
     api
       .get("/erp/purchase-orders")
-      .then((res) => setOrders(res.data.data))
-      .catch((err) => notifyError("Failed to fetch purchase orders"));
+      .then((res) => setOrders(res.data))
+      .catch((err) => {
+        console.error(err);
+        notifyError("Failed to fetch purchase orders");
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchPOs();
   }, []);
 
+  if (loading) return <p>Loading purchase orders...</p>;
+
   return (
-    <div>
-      <h3>Purchase Orders</h3>
+    <div className="mt-4 pt-4">
+      <h3>Purchase Orders List</h3>
       <table className="table table-striped">
         <thead>
           <tr>
@@ -29,7 +40,7 @@ const PurchaseOrdersList = () => {
           {orders.map((po) => (
             <tr key={po.id}>
               <td>{po.id}</td>
-              <td>{po.supplier.name}</td>
+              <td>{po.supplier?.name}</td>
               <td>{po.total}</td>
               <td>{po.status}</td>
             </tr>

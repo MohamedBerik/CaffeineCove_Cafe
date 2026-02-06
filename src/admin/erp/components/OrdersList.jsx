@@ -1,4 +1,3 @@
-// src/admin/erp/components/OrdersList.jsx
 import React, { useEffect, useState } from "react";
 import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
@@ -6,9 +5,7 @@ import { notifyError, notifySuccess } from "../../../utils/notify";
 const OrdersList = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [processingId, setProcessingId] = useState(null); // لتحديد الأوردر الجاري معالجته
 
-  // Fetch Orders
   const fetchOrders = () => {
     setLoading(true);
     api
@@ -25,35 +22,25 @@ const OrdersList = () => {
     fetchOrders();
   }, []);
 
-  const handleConfirm = async (orderId) => {
-    if (!window.confirm("Are you sure you want to confirm this order?")) return;
-
-    setProcessingId(orderId);
+  const handleConfirm = async (id) => {
     try {
-      await api.post(`/erp/orders/${orderId}/confirm`);
-      notifySuccess("Order confirmed successfully");
-      fetchOrders(); // تحديث القائمة بعد التأكيد
+      const res = await api.post(`/erp/orders/${id}/confirm`);
+      notifySuccess(res.data.msg);
+      fetchOrders();
     } catch (err) {
       console.error(err);
-      notifyError(err.response?.data?.msg || "Failed to confirm order");
-    } finally {
-      setProcessingId(null);
+      notifyError(err.response?.data?.msg || "Confirm failed");
     }
   };
 
-  const handleCancel = async (orderId) => {
-    if (!window.confirm("Are you sure you want to cancel this order?")) return;
-
-    setProcessingId(orderId);
+  const handleCancel = async (id) => {
     try {
-      await api.post(`/erp/orders/${orderId}/cancel`);
-      notifySuccess("Order cancelled successfully");
-      fetchOrders(); // تحديث القائمة بعد الإلغاء
+      const res = await api.post(`/erp/orders/${id}/cancel`);
+      notifySuccess(res.data.msg);
+      fetchOrders();
     } catch (err) {
       console.error(err);
-      notifyError(err.response?.data?.msg || "Failed to cancel order");
-    } finally {
-      setProcessingId(null);
+      notifyError(err.response?.data?.msg || "Cancel failed");
     }
   };
 
@@ -76,37 +63,26 @@ const OrdersList = () => {
           {orders.map((o) => (
             <tr key={o.id}>
               <td>{o.id}</td>
-              <td>{o.customer?.name || "N/A"}</td>
+              <td>{o.customer?.name}</td>
               <td>{o.total}</td>
               <td>{o.status}</td>
               <td>
-                {o.status === "pending" && (
-                  <>
-                    <button
-                      className="btn btn-sm btn-success mr-2"
-                      onClick={() => handleConfirm(o.id)}
-                      disabled={processingId === o.id}
-                    >
-                      Confirm
-                    </button>
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleCancel(o.id)}
-                      disabled={processingId === o.id}
-                    >
-                      Cancel
-                    </button>
-                  </>
-                )}
-
-                {o.status === "confirmed" && o.invoice && (
-                  <a
-                    href={`/admin/erp/invoices/${o.invoice.id}`}
-                    className="btn btn-sm btn-primary"
-                  >
-                    View Invoice
-                  </a>
-                )}
+                <button
+                  className="btn btn-success btn-sm mr-1"
+                  onClick={() => handleConfirm(o.id)}
+                  disabled={
+                    o.status === "confirmed" || o.status === "cancelled"
+                  }
+                >
+                  Confirm
+                </button>
+                <button
+                  className="btn btn-danger btn-sm"
+                  onClick={() => handleCancel(o.id)}
+                  disabled={o.status === "cancelled"}
+                >
+                  Cancel
+                </button>
               </td>
             </tr>
           ))}

@@ -2,14 +2,18 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../../../services/axios";
-import { notifyError } from "../../../utils/notify";
+import { notifyError, notifySuccess } from "../../../utils/notify";
 
 const InvoiceDetails = () => {
   const { id } = useParams();
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [payAmount, setPayAmount] = useState(0);
+  const [refundAmount, setRefundAmount] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
+  const fetchInvoice = () => {
+    setLoading(true);
     api
       .get(`/erp/invoices/${id}`)
       .then((res) => setInvoice(res.data))
@@ -18,6 +22,10 @@ const InvoiceDetails = () => {
         notifyError("Failed to fetch invoice details");
       })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchInvoice();
   }, [id]);
 
   if (loading) return <p>Loading invoice details...</p>;
@@ -28,6 +36,38 @@ const InvoiceDetails = () => {
   const totalPaid = payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
   const totalRefunded = refunds?.reduce((sum, r) => sum + r.amount, 0) || 0;
   const remaining = Math.max(0, total - totalPaid + totalRefunded);
+
+  const handlePay = async () => {
+    if (payAmount <= 0) return notifyError("Enter a valid amount");
+    setSubmitting(true);
+    try {
+      await api.post(`/erp/invoices/${id}/pay`, { amount: payAmount });
+      notifySuccess("Payment registered successfully");
+      setPayAmount(0);
+      fetchInvoice();
+    } catch (err) {
+      console.error(err);
+      notifyError("Failed to register payment");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleRefund = async () => {
+    if (refundAmount <= 0) return notifyError("Enter a valid amount");
+    setSubmitting(true);
+    try {
+      await api.post(`/erp/invoices/${id}/refund`, { amount: refundAmount });
+      notifySuccess("Refund registered successfully");
+      setRefundAmount(0);
+      fetchInvoice();
+    } catch (err) {
+      console.error(err);
+      notifyError("Failed to register refund");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="mt-4 pt-4">
@@ -51,6 +91,7 @@ const InvoiceDetails = () => {
         <strong>Remaining:</strong> {remaining}
       </p>
 
+      {/* Items Table */}
       <h5 className="mt-4">Items</h5>
       <table className="table table-striped">
         <thead>
@@ -73,6 +114,7 @@ const InvoiceDetails = () => {
         </tbody>
       </table>
 
+      {/* Payments Table */}
       <h5 className="mt-4">Payments</h5>
       <table className="table table-striped">
         <thead>
@@ -93,6 +135,7 @@ const InvoiceDetails = () => {
         </tbody>
       </table>
 
+      {/* Refunds Table */}
       <h5 className="mt-4">Refunds</h5>
       <table className="table table-striped">
         <thead>
@@ -112,6 +155,43 @@ const InvoiceDetails = () => {
           ))}
         </tbody>
       </table>
+
+      {/* Payment / Refund Form */}
+      <div className="mt-4">
+        <div className="mb-2">
+          <label>Pay Amount:</label>
+          <input
+            type="number"
+            value={payAmount}
+            onChange={(e) => setPayAmount(Number(e.target.value))}
+            className="form-control mb-2"
+          />
+          <button
+            className="btn btn-success"
+            onClick={handlePay}
+            disabled={submitting || payAmount <= 0}
+          >
+            {submitting ? "Processing..." : "Pay"}
+          </button>
+        </div>
+
+        <div className="mb-2 mt-3">
+          <label>Refund Amount:</label>
+          <input
+            type="number"
+            value={refundAmount}
+            onChange={(e) => setRefundAmount(Number(e.target.value))}
+            className="form-control mb-2"
+          />
+          <button
+            className="btn btn-warning"
+            onClick={handleRefund}
+            disabled={submitting || refundAmount <= 0}
+          >
+            {submitting ? "Processing..." : "Refund"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

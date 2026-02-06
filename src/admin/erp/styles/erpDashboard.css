@@ -1,0 +1,59 @@
+/* src/admin/erp/styles/erpDashboard.css */
+
+.erp-dashboard {
+  min-height: 100vh;
+  background: #f5f6fa;
+}
+
+/* Sidebar */
+
+.erp-sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background-color: #1f2933; /* قريب من ألوان داشبوردات حديثة */
+}
+
+.erp-sidebar h4 {
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+}
+
+/* links */
+
+.erp-sidebar ul {
+  margin: 0;
+  padding: 0;
+}
+
+.erp-sidebar li a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  color: #e5e7eb;
+}
+
+.erp-sidebar li a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+/* Active link from NavLink */
+
+.erp-sidebar .active-link {
+  background: #2563eb;
+  color: #ffffff !important;
+}
+
+/* Main content */
+
+.erp-content {
+  background: #ffffff;
+  min-height: 100vh;
+  padding: 24px;
+  overflow-x: auto;
+}

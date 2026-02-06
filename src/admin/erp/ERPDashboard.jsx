@@ -1,7 +1,7 @@
 // src/admin/erp/ERPDashboard.jsx
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import "../styles/erpDashboard.css"; // لو عندك CSS مخصص للـ ERP
+import "./styles/erpDashboard.css"; // لو عندك CSS مخصص للـ ERP
 
 const ERPDashboard = () => {
   return (

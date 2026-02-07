@@ -94,6 +94,12 @@ const OrdersList = () => {
                 >
                   Cancel
                 </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => navigate(`/admin/erp/orders/${o.id}`)}
+                >
+                  Details
+                </button>
               </td>
             </tr>
           ))}

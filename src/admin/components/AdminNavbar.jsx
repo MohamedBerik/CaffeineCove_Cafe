@@ -43,6 +43,12 @@ const AdminNavbar = () => {
             <div className="dropdown-menu">
               <button
                 className="dropdown-item"
+                onClick={() => navigate("/admin/erp/orders/create")}
+              >
+                + Create Order
+              </button>
+              <button
+                className="dropdown-item"
                 onClick={() => navigate("/admin/erp/orders")}
               >
                 🛒 Orders

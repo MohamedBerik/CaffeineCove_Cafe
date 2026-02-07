@@ -65,15 +65,7 @@ const OrdersList = () => {
         <tbody>
           {orders.map((o) => (
             <tr key={o.id}>
-              <td>
-                <button
-                  className="btn btn-link p-0"
-                  onClick={() => navigate(`/admin/erp/orders/${o.id}`)}
-                >
-                  {o.id}
-                </button>
-              </td>
-
+              <td>{o.id}</td>
               <td>{o.customer?.name}</td>
               <td>{o.total}</td>
               <td>{o.status}</td>

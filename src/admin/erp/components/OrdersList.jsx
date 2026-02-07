@@ -95,7 +95,7 @@ const OrdersList = () => {
                   Cancel
                 </button>
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-primary me-1"
                   onClick={() => navigate(`/admin/erp/orders/${o.id}`)}
                 >
                   Details

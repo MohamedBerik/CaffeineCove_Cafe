@@ -88,14 +88,14 @@ const OrdersList = () => {
                   Confirm
                 </button>
                 <button
-                  className="btn btn-danger btn-sm"
+                  className="btn btn-danger btn-sm mr-1"
                   onClick={() => handleCancel(o.id)}
                   disabled={o.status === "cancelled"}
                 >
                   Cancel
                 </button>
                 <button
-                  className="btn btn-primary ms-1"
+                  className="btn btn-primary"
                   onClick={() => navigate(`/admin/erp/orders/${o.id}`)}
                 >
                   Details

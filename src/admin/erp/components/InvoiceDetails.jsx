@@ -85,15 +85,6 @@ const InvoiceDetails = () => {
           <div>
             <strong>Net paid:</strong> {netPaid}
           </div>
-
-          {netPaid < invoice.total && (
-            <button
-              className="btn btn-success mt-2"
-              onClick={() => navigate(`/admin/erp/invoices/${invoice.id}/pay`)}
-            >
-              Receive payment
-            </button>
-          )}
         </div>
       </div>
 

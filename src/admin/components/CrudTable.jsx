@@ -161,7 +161,7 @@ const CrudTable = () => {
                       Pay
                     </button>
                   )}
-                  {ERP_TABLES.includes(table) && table === "customers" && (
+                  {table === "customers" && (
                     <button
                       className="btn btn-sm btn-info"
                       onClick={() =>

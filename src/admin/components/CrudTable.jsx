@@ -165,7 +165,7 @@ const CrudTable = () => {
                     <button
                       className="btn btn-sm btn-info"
                       onClick={() =>
-                        navigate(`/admin/erp/customers/${c.id}/statement`)
+                        navigate(`/admin/erp/customers/${item.id}/statement`)
                       }
                     >
                       Statement

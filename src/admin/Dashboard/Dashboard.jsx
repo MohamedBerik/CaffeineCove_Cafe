@@ -359,18 +359,6 @@ const Dashboard = () => {
                             </button>
                           </>
                         )}
-                        {table === "customers" && (
-                          <button
-                            className="btn btn-sm btn-info"
-                            onClick={() =>
-                              navigate(
-                                `/admin/erp/customers/${item.id}/statement`,
-                              )
-                            }
-                          >
-                            Statement
-                          </button>
-                        )}
                       </td>
                     </tr>
                   ))}

@@ -90,10 +90,13 @@ createRoot(document.getElementById("root")).render(
 
           {/* Purchase Orders */}
           <Route path="purchase-orders" element={<PurchaseOrdersList />} />
-        </Route>
 
-        {/* Customer statement */}
-        <Route path="customers/:id/statement" element={<CustomerStatement />} />
+          {/* Customer statement */}
+          <Route
+            path="customers/:id/statement"
+            element={<CustomerStatement />}
+          />
+        </Route>
 
         {/* ================= Generic admin CRUD (OLD / temporary) ================= */}
         <Route

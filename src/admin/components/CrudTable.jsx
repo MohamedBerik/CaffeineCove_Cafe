@@ -161,6 +161,16 @@ const CrudTable = () => {
                       Pay
                     </button>
                   )}
+                  {ERP_TABLES.includes(table) && table === "customers" && (
+                    <button
+                      className="btn btn-sm btn-info"
+                      onClick={() =>
+                        navigate(`/admin/erp/customers/${c.id}/statement`)
+                      }
+                    >
+                      Statement
+                    </button>
+                  )}
                   <button
                     onClick={() => navigate(`/admin/${table}/${item.id}/edit`)}
                   >

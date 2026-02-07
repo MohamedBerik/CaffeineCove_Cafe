@@ -25,6 +25,7 @@ import OrderDetails from "./admin/erp/components/OrderDetails";
 import InvoicesList from "./admin/erp/components/InvoicesList";
 import InvoiceDetails from "./admin/erp/components/InvoiceDetails";
 import PurchaseOrdersList from "./admin/erp/components/PurchaseOrdersList";
+import CustomerStatement from "./customers/CustomerStatement";
 
 /* ================= Generic CRUD (temporary) ================= */
 import CrudTable from "./admin/components/CrudTable";
@@ -90,6 +91,12 @@ createRoot(document.getElementById("root")).render(
           {/* Purchase Orders */}
           <Route path="purchase-orders" element={<PurchaseOrdersList />} />
         </Route>
+
+        {/* Customer statement */}
+        <Route
+          path="/admin/erp/customers/:id/statement"
+          element={<CustomerStatement />}
+        />
 
         {/* ================= Generic admin CRUD (OLD / temporary) ================= */}
         <Route

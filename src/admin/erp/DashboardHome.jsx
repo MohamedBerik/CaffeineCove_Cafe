@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import AdminNavbar from "../components/AdminNavbar";
+import axios from "../../services/axios";
 
-// import axios from "@/lib/axios";
-import axios from "axios";
 import {
   LineChart,
   Line,
@@ -40,8 +38,6 @@ export default function ErpDashboard() {
 
   return (
     <div className="p-4 space-y-6">
-      <AdminNavbar />
-
       {/* ================= KPI CARDS ================= */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mt-4">

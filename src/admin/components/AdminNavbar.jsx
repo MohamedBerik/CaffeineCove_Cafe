@@ -17,8 +17,8 @@ const AdminNavbar = () => {
       <button
         className="navbar-toggler"
         type="button"
-        data-toggle="collapse"
-        data-target="#navbarERP"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarERP"
         aria-controls="navbarERP"
         aria-expanded="false"
         aria-label="Toggle navigation"
@@ -35,7 +35,7 @@ const AdminNavbar = () => {
               href="#"
               id="erpDropdown"
               role="button"
-              data-toggle="dropdown"
+              data-bs-toggle="dropdown"
             >
               ERP Modules ⚙️
             </a>
@@ -78,7 +78,7 @@ const AdminNavbar = () => {
               href="#"
               id="dataDropdown"
               role="button"
-              data-toggle="dropdown"
+              data-bs-toggle="dropdown"
             >
               Data Tables
             </a>

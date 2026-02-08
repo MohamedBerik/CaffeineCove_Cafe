@@ -176,6 +176,7 @@ const ERPDashboard = () => {
           </ul>
         </div>
       </div>
+      <Outlet />
     </div>
   );
 };

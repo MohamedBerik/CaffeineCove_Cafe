@@ -40,7 +40,6 @@ import { ProtectedRoute, AdminRoute } from "./admin/routes/ProtectedRoute";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import ERPLayout from "./admin/erp/ERPLayout";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -73,11 +72,11 @@ createRoot(document.getElementById("root")).render(
           path="/admin/erp/*"
           element={
             <AdminRoute>
-              <ERPLayout />
+              <ERPDashboard />
             </AdminRoute>
           }
         >
-          {/* Dashboard كصفحة افتراضية */}
+          {/* Default ERP page */}
           <Route index element={<ERPDashboard />} />
 
           {/* Orders */}

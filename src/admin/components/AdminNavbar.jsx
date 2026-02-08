@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -5,133 +6,150 @@ const AdminNavbar = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
+  const [erpOpen, setErpOpen] = useState(false);
+  const [dataOpen, setDataOpen] = useState(false);
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
-      <button
-        className="navbar-brand btn btn-link"
-        onClick={() => navigate("/admin/erp")}
-      >
-        ERP Dashboard
-      </button>
-
-      <button
-        className="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarERP"
-        aria-controls="navbarERP"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span className="navbar-toggler-icon" />
-      </button>
-
-      <div className="collapse navbar-collapse" id="navbarERP">
-        <ul className="navbar-nav mr-auto">
-          {/* ================= ERP ================= */}
-          <li className="nav-item dropdown">
-            <a
-              className="nav-link dropdown-toggle"
-              href="#"
-              id="erpDropdown"
-              role="button"
-              data-bs-toggle="dropdown"
+    <nav className="bg-white shadow fixed w-full z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          {/* Brand */}
+          <div className="flex-shrink-0 flex items-center">
+            <button
+              className="text-xl font-bold"
+              onClick={() => navigate("/admin/erp")}
             >
-              ERP Modules ⚙️
-            </a>
+              ERP Dashboard
+            </button>
+          </div>
 
-            <div className="dropdown-menu">
+          {/* Links */}
+          <div className="flex space-x-4 items-center">
+            {/* ERP Dropdown */}
+            <div className="relative">
               <button
-                className="dropdown-item"
-                onClick={() => navigate("/admin/erp/orders/create")}
+                onClick={() => setErpOpen(!erpOpen)}
+                className="px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 flex items-center space-x-1"
               >
-                📦 Create Order
+                <span>ERP Modules ⚙️</span>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
               </button>
-              <button
-                className="dropdown-item"
-                onClick={() => navigate("/admin/erp/orders")}
-              >
-                🛒 Orders
-              </button>
-
-              <button
-                className="dropdown-item"
-                onClick={() => navigate("/admin/erp/invoices")}
-              >
-                💰 Invoices
-              </button>
-
-              <button
-                className="dropdown-item"
-                onClick={() => navigate("/admin/erp/purchase-orders")}
-              >
-                📦 Purchase Orders
-              </button>
+              {erpOpen && (
+                <div className="absolute mt-2 w-48 bg-white border rounded-md shadow-lg">
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={() => navigate("/admin/erp/orders/create")}
+                  >
+                    📦 Create Order
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={() => navigate("/admin/erp/orders")}
+                  >
+                    🛒 Orders
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={() => navigate("/admin/erp/invoices")}
+                  >
+                    💰 Invoices
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={() => navigate("/admin/erp/purchase-orders")}
+                  >
+                    📦 Purchase Orders
+                  </button>
+                </div>
+              )}
             </div>
-          </li>
 
-          {/* ================= OLD CRUD ================= */}
+            {/* Data Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setDataOpen(!dataOpen)}
+                className="px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 flex items-center space-x-1"
+              >
+                <span>Data Tables</span>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+              {dataOpen && (
+                <div className="absolute mt-2 w-48 bg-white border rounded-md shadow-lg">
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={() => navigate("/admin/customers")}
+                  >
+                    👥 Customers
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={() => navigate("/admin/users")}
+                  >
+                    👤 Users
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={() => navigate("/admin/products")}
+                  >
+                    📦 Products
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={() => navigate("/admin/suppliers")}
+                  >
+                    🏭 Suppliers
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={() => navigate("/admin/employees")}
+                  >
+                    🧑‍💼 Employees
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={() => navigate("/admin/reservations")}
+                  >
+                    📅 Reservations
+                  </button>
+                </div>
+              )}
+            </div>
 
-          <li className="nav-item dropdown">
-            <a
-              className="nav-link dropdown-toggle"
-              href="#"
-              id="dataDropdown"
-              role="button"
-              data-bs-toggle="dropdown"
+            {/* Logout */}
+            <button
+              className="bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600"
+              onClick={logout}
             >
-              Data Tables
-            </a>
-
-            <div className="dropdown-menu">
-              <button
-                className="dropdown-item"
-                onClick={() => navigate("/admin/customers")}
-              >
-                👥 Customers
-              </button>
-
-              <button
-                className="dropdown-item"
-                onClick={() => navigate("/admin/users")}
-              >
-                👤 Users
-              </button>
-
-              <button
-                className="dropdown-item"
-                onClick={() => navigate("/admin/products")}
-              >
-                📦 Products
-              </button>
-
-              <button
-                className="dropdown-item"
-                onClick={() => navigate("/admin/suppliers")}
-              >
-                🏭 Suppliers
-              </button>
-
-              <button
-                className="dropdown-item"
-                onClick={() => navigate("/admin/employees")}
-              >
-                🧑‍💼 Employees
-              </button>
-
-              <button
-                className="dropdown-item"
-                onClick={() => navigate("/admin/reservations")}
-              >
-                📅 Reservations
-              </button>
-            </div>
-          </li>
-        </ul>
-
-        <button className="btn btn-danger ml-auto" onClick={logout}>
-          Logout
-        </button>
+              Logout
+            </button>
+          </div>
+        </div>
       </div>
     </nav>
   );

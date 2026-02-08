@@ -1,7 +1,4 @@
-// ERPDashboard.jsx
 import React, { useEffect, useState } from "react";
-import AdminNavbar from "../components/AdminNavbar";
-import { Outlet } from "react-router-dom";
 import axios from "axios";
 import {
   LineChart,
@@ -17,20 +14,28 @@ import {
 } from "recharts";
 
 const ERPDashboard = () => {
+  // States للـ KPIs
   const [kpis, setKpis] = useState({
     totalInvoices: 0,
     totalPayments: 0,
     totalRefunded: 0,
     outstanding: 0,
   });
+
+  // States للـ Charts
   const [salesData, setSalesData] = useState([]);
   const [paymentsData, setPaymentsData] = useState([]);
+
+  // States للـ Latest invoices
   const [latestInvoices, setLatestInvoices] = useState([]);
+
+  // States للـ Activity log
   const [activityLog, setActivityLog] = useState([]);
 
+  // جلب البيانات من API عند تحميل الصفحة
   useEffect(() => {
     axios.get("/api/kpis").then((res) => setKpis(res.data));
-    axios.get("/api/sales-last-7-days").then((res) => setSalesData(res.data));
+    axios.get("/erp/sales-last-7-days").then((res) => setSalesData(res.data));
     axios
       .get("/erp/payments-vs-refunds")
       .then((res) => setPaymentsData(res.data));
@@ -43,9 +48,7 @@ const ERPDashboard = () => {
   }, []);
 
   return (
-    <div className="container my-4">
-      <AdminNavbar />
-
+    <div>
       {/* KPI Cards */}
       <div className="row g-3 mb-4 mt-4">
         <div className="col-md-3 col-sm-6">
@@ -58,6 +61,7 @@ const ERPDashboard = () => {
             </div>
           </div>
         </div>
+
         <div className="col-md-3 col-sm-6">
           <div className="card text-center shadow">
             <div className="card-body">
@@ -68,6 +72,7 @@ const ERPDashboard = () => {
             </div>
           </div>
         </div>
+
         <div className="col-md-3 col-sm-6">
           <div className="card text-center shadow">
             <div className="card-body">
@@ -78,6 +83,7 @@ const ERPDashboard = () => {
             </div>
           </div>
         </div>
+
         <div className="col-md-3 col-sm-6">
           <div className="card text-center shadow">
             <div className="card-body">
@@ -111,6 +117,7 @@ const ERPDashboard = () => {
             </ResponsiveContainer>
           </div>
         </div>
+
         <div className="col-lg-6">
           <div className="card shadow p-3">
             <h6 className="mb-3">Payments vs Refunds</h6>
@@ -156,7 +163,7 @@ const ERPDashboard = () => {
             </table>
           </div>
           <div className="text-end mt-2">
-            <a href="/invoices" className="text-decoration-none">
+            <a href="/admin/erp/invoices" className="text-decoration-none">
               View all invoices
             </a>
           </div>
@@ -176,7 +183,6 @@ const ERPDashboard = () => {
           </ul>
         </div>
       </div>
-      <Outlet />
     </div>
   );
 };

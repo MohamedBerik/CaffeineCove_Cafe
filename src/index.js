@@ -72,11 +72,11 @@ createRoot(document.getElementById("root")).render(
           path="/admin/erp/*"
           element={
             <AdminRoute>
-              <ERPDashboard />
+              <ERPLayout />
             </AdminRoute>
           }
         >
-          {/* Default ERP page */}
+          {/* Dashboard كصفحة افتراضية */}
           <Route index element={<ERPDashboard />} />
 
           {/* Orders */}

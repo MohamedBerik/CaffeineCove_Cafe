@@ -22,7 +22,7 @@ export default function DashboardHome() {
   }, []);
 
   const loadDashboard = async () => {
-    const res = await axios.get("/api/erp/dashboard");
+    const res = await axios.get("/erp/dashboard/finance");
     setData(res.data);
   };
 

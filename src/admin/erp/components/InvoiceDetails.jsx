@@ -28,23 +28,20 @@ const InvoiceDetails = () => {
 
   if (loading) return <p>Loading invoice...</p>;
   if (!invoice) return <p>Invoice not found</p>;
-  const paidAmount = invoice.payments.reduce(
-    (sum, p) => sum + Number(p.amount),
-    0,
-  );
 
-  const refundedAmount = invoice.refunds.reduce(
-    (sum, r) => sum + Number(r.amount),
-    0,
-  );
+  // حماية من undefined عند استخدام reduce
+  const paidAmount =
+    invoice.payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+
+  const refundedAmount =
+    invoice.refunds?.reduce((sum, r) => sum + Number(r.amount), 0) || 0;
 
   const netPaid = paidAmount - refundedAmount;
 
   return (
     <div className="container mt-4 pt-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h3>Invoice #{invoice.number}</h3>
-
+      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <h3 className="mb-2 mb-md-0">Invoice #{invoice.number}</h3>
         <button
           className="btn btn-secondary btn-sm"
           onClick={() => navigate(-1)}
@@ -54,46 +51,51 @@ const InvoiceDetails = () => {
       </div>
 
       {/* ===== Basic info ===== */}
-      <div className="card mb-3">
+      <div className="card mb-3 shadow-sm">
         <div className="card-body">
-          <div>
-            <strong>Status:</strong> {invoice.status}
-          </div>
-          <div>
-            <strong>Total:</strong> {invoice.total}
-          </div>
-          <div>
-            <strong>Issued at:</strong> {invoice.issued_at}
-          </div>
-          <div>
-            <strong>Customer ID:</strong> {invoice.customer_id}
+          <div className="row">
+            <div className="col-md-3 mb-2 mb-md-0">
+              <strong>Status:</strong> {invoice.status}
+            </div>
+            <div className="col-md-3 mb-2 mb-md-0">
+              <strong>Total:</strong> {invoice.total}
+            </div>
+            <div className="col-md-3 mb-2 mb-md-0">
+              <strong>Issued at:</strong> {invoice.issued_at}
+            </div>
+            <div className="col-md-3 mb-2 mb-md-0">
+              <strong>Customer ID:</strong> {invoice.customer_id}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="card mb-3">
+      {/* ===== Payments summary ===== */}
+      <div className="card mb-3 shadow-sm">
         <div className="card-body">
-          <div>
-            <strong>Total:</strong> {invoice.total}
-          </div>
-          <div>
-            <strong>Paid:</strong> {paidAmount}
-          </div>
-          <div>
-            <strong>Refunded:</strong> {refundedAmount}
-          </div>
-          <div>
-            <strong>Net paid:</strong> {netPaid}
+          <div className="row text-center">
+            <div className="col-md-3 mb-2 mb-md-0">
+              <strong>Total:</strong> {invoice.total}
+            </div>
+            <div className="col-md-3 mb-2 mb-md-0">
+              <strong>Paid:</strong> {paidAmount}
+            </div>
+            <div className="col-md-3 mb-2 mb-md-0">
+              <strong>Refunded:</strong> {refundedAmount}
+            </div>
+            <div className="col-md-3 mb-2 mb-md-0">
+              <strong>Net paid:</strong> {netPaid}
+            </div>
           </div>
         </div>
       </div>
 
       {/* ===== Items ===== */}
-      <div className="card mb-3">
+      <div className="card mb-3 shadow-sm">
         <div className="card-header">Items</div>
-        <div className="card-body p-0">
-          <table className="table mb-0">
-            <thead>
+        <div className="card-body p-0 table-responsive">
+          <table className="table mb-0 table-striped table-hover">
+            <thead className="thead-light">
               <tr>
                 <th>#</th>
                 <th>Product</th>
@@ -118,14 +120,14 @@ const InvoiceDetails = () => {
       </div>
 
       {/* ===== Payments ===== */}
-      <div className="card mb-3">
+      <div className="card mb-3 shadow-sm">
         <div className="card-header">Payments</div>
-        <div className="card-body p-0">
-          {invoice.payments.length === 0 ? (
+        <div className="card-body p-0 table-responsive">
+          {invoice.payments?.length === 0 ? (
             <p className="p-3 mb-0">No payments yet.</p>
           ) : (
-            <table className="table mb-0">
-              <thead>
+            <table className="table mb-0 table-striped table-hover">
+              <thead className="thead-light">
                 <tr>
                   <th>ID</th>
                   <th>Amount</th>
@@ -149,14 +151,14 @@ const InvoiceDetails = () => {
       </div>
 
       {/* ===== Refunds ===== */}
-      <div className="card mb-3">
+      <div className="card mb-3 shadow-sm">
         <div className="card-header">Refunds</div>
-        <div className="card-body p-0">
-          {invoice.refunds.length === 0 ? (
+        <div className="card-body p-0 table-responsive">
+          {invoice.refunds?.length === 0 ? (
             <p className="p-3 mb-0">No refunds.</p>
           ) : (
-            <table className="table mb-0">
-              <thead>
+            <table className="table mb-0 table-striped table-hover">
+              <thead className="thead-light">
                 <tr>
                   <th>ID</th>
                   <th>Amount</th>
@@ -178,9 +180,9 @@ const InvoiceDetails = () => {
       </div>
 
       {/* ===== Accounting entries ===== */}
-      <div className="card mb-3">
+      <div className="card mb-3 shadow-sm">
         <div className="card-header">Journal entries</div>
-        <div className="card-body p-0">
+        <div className="card-body p-0 table-responsive">
           {invoice.journal_entries?.length === 0 ? (
             <p className="p-3 mb-0">No journal entries.</p>
           ) : (
@@ -190,8 +192,8 @@ const InvoiceDetails = () => {
                   <strong>Entry #{je.id}</strong> – {je.description}
                 </div>
 
-                <table className="table table-sm mb-0 mt-2">
-                  <thead>
+                <table className="table table-sm mb-0 mt-2 table-striped table-hover">
+                  <thead className="thead-light">
                     <tr>
                       <th>Account</th>
                       <th>Debit</th>

@@ -68,9 +68,8 @@ const OrderDetails = () => {
 
   return (
     <div className="container mt-4 pt-4">
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <h3 className="mb-0">Order #{order.id}</h3>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h3>Order #{order.id}</h3>
 
         <button
           className="btn btn-secondary btn-sm"
@@ -80,7 +79,6 @@ const OrderDetails = () => {
         </button>
       </div>
 
-      {/* Order Info */}
       <div className="card mb-3">
         <div className="card-body">
           <p>
@@ -101,35 +99,32 @@ const OrderDetails = () => {
         </div>
       </div>
 
-      {/* Items Table */}
       <h5>Items</h5>
-      <div className="table-responsive">
-        <table className="table table-bordered">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Product</th>
-              <th>Qty</th>
-              <th>Unit price</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {order.items.map((item, i) => (
-              <tr key={item.id}>
-                <td>{i + 1}</td>
-                <td>{item.product?.title_en}</td>
-                <td>{item.quantity}</td>
-                <td>{item.unit_price}</td>
-                <td>{item.total}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
 
-      {/* Actions */}
-      <div className="mt-3 d-flex flex-wrap gap-2">
+      <table className="table table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Unit price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {order.items.map((item, i) => (
+            <tr key={item.id}>
+              <td>{i + 1}</td>
+              <td>{item.product?.title_en}</td>
+              <td>{item.quantity}</td>
+              <td>{item.unit_price}</td>
+              <td>{item.total}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="mt-3 d-flex gap-2">
         <button
           className="btn btn-success"
           disabled={!canConfirm}
@@ -147,7 +142,6 @@ const OrderDetails = () => {
         </button>
       </div>
 
-      {/* Info Alert */}
       {!canConfirm && (
         <div className="alert alert-secondary mt-3">
           Confirm is disabled unless the order is <b>pending</b>, has items and

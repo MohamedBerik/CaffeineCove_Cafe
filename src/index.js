@@ -81,6 +81,7 @@ createRoot(document.getElementById("root")).render(
           <Route index element={<DashboardHome />} />
 
           {/* Orders */}
+          <Route path="dashboard" element={<DashboardHome />} />
           <Route path="orders" element={<OrdersList />} />
           <Route path="orders/create" element={<CreateOrder />} />
           <Route path="orders/:id" element={<OrderDetails />} />

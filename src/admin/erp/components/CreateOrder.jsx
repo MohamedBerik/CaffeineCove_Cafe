@@ -1,4 +1,3 @@
-// src/admin/erp/components/CreateOrder.jsx
 import React, { useState, useEffect } from "react";
 import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
@@ -41,13 +40,14 @@ const CreateOrder = () => {
   };
 
   return (
-    <div className="mt-5">
-      <h3>Create ERP Order</h3>
+    <div className="container mt-5">
+      <h3 className="mb-4">Create ERP Order</h3>
       <form onSubmit={handleSubmit}>
+        {/* Customer Select */}
         <div className="mb-3">
-          <label>Customer</label>
+          <label className="form-label">Customer</label>
           <select
-            className="form-control"
+            className="form-select"
             value={customer_id}
             onChange={(e) => setCustomerId(e.target.value)}
             required
@@ -61,51 +61,60 @@ const CreateOrder = () => {
           </select>
         </div>
 
+        {/* Products List */}
         {items.map((item, idx) => (
-          <div key={idx} className="d-flex align-items-center mb-2">
-            <select
-              className="form-control mr-2"
-              value={item.product_id}
-              onChange={(e) =>
-                handleItemChange(idx, "product_id", e.target.value)
-              }
-              required
-            >
-              <option value="">Select Product</option>
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.title_en} (${p.unit_price})
-                </option>
-              ))}
-            </select>
-            <input
-              type="number"
-              min="1"
-              className="form-control mr-2"
-              value={item.quantity}
-              onChange={(e) =>
-                handleItemChange(idx, "quantity", e.target.value)
-              }
-              required
-            />
-            <button
-              type="button"
-              className="btn btn-danger"
-              onClick={() => removeItem(idx)}
-            >
-              &times;
-            </button>
+          <div key={idx} className="row g-2 align-items-center mb-2">
+            <div className="col-12 col-md-6">
+              <select
+                className="form-select"
+                value={item.product_id}
+                onChange={(e) =>
+                  handleItemChange(idx, "product_id", e.target.value)
+                }
+                required
+              >
+                <option value="">Select Product</option>
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.title_en} (${p.unit_price})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-6 col-md-3">
+              <input
+                type="number"
+                min="1"
+                className="form-control"
+                value={item.quantity}
+                onChange={(e) =>
+                  handleItemChange(idx, "quantity", e.target.value)
+                }
+                required
+              />
+            </div>
+
+            <div className="col-6 col-md-3 d-flex justify-content-end">
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={() => removeItem(idx)}
+              >
+                &times;
+              </button>
+            </div>
           </div>
         ))}
 
-        <button
-          type="button"
-          className="btn btn-secondary mb-3"
-          onClick={addItem}
-        >
-          + Add Product
-        </button>
+        {/* Add Product */}
+        <div className="mb-3">
+          <button type="button" className="btn btn-secondary" onClick={addItem}>
+            + Add Product
+          </button>
+        </div>
 
+        {/* Submit */}
         <div>
           <button
             type="submit"

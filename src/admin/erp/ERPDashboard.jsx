@@ -32,13 +32,13 @@ const ERPDashboard = () => {
     axios.get("/api/kpis").then((res) => setKpis(res.data));
     axios.get("/api/sales-last-7-days").then((res) => setSalesData(res.data));
     axios
-      .get("/api/payments-vs-refunds")
+      .get("/erp/payments-vs-refunds")
       .then((res) => setPaymentsData(res.data));
     axios
-      .get("/api/latest-invoices?limit=5")
+      .get("/erp/latest-invoices?limit=5")
       .then((res) => setLatestInvoices(res.data));
     axios
-      .get("/api/activity-log?limit=5")
+      .get("/erp/activity-log?limit=5")
       .then((res) => setActivityLog(res.data));
   }, []);
 
@@ -47,7 +47,7 @@ const ERPDashboard = () => {
       <AdminNavbar />
 
       {/* KPI Cards */}
-      <div className="row g-3 mb-4">
+      <div className="row g-3 mb-4 mt-4">
         <div className="col-md-3 col-sm-6">
           <div className="card text-center shadow">
             <div className="card-body">

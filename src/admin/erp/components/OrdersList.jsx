@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
-import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 const OrdersList = () => {
@@ -47,56 +46,103 @@ const OrdersList = () => {
     }
   };
 
-  if (loading) return <p>Loading orders...</p>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-gray-500 text-lg animate-pulse">Loading orders...</p>
+      </div>
+    );
 
   return (
-    <div className="mt-4 pt-4">
-      <h3>Orders List</h3>
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Customer</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((o) => (
-            <tr key={o.id}>
-              <td>{o.id}</td>
-              <td>{o.customer?.name}</td>
-              <td>{o.total}</td>
-              <td>{o.status}</td>
-              <td>
-                <button
-                  className="btn btn-success btn-sm mr-1"
-                  onClick={() => handleConfirm(o.id)}
-                  disabled={
-                    o.status === "confirmed" || o.status === "cancelled"
-                  }
-                >
-                  Confirm
-                </button>
-                <button
-                  className="btn btn-danger btn-sm mr-1"
-                  onClick={() => handleCancel(o.id)}
-                  disabled={o.status === "cancelled"}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => navigate(`/admin/erp/orders/${o.id}`)}
-                >
-                  Details
-                </button>
-              </td>
+    <div className="mt-6 px-4 sm:px-6 lg:px-8">
+      <h3 className="text-2xl font-semibold mb-4">Orders List</h3>
+
+      {/* Responsive table wrapper */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 shadow rounded-lg">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                ID
+              </th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                Customer
+              </th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                Total
+              </th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                Status
+              </th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                Actions
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {orders.map((o) => (
+              <tr key={o.id} className="hover:bg-gray-50">
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                  {o.id}
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                  {o.customer?.name || "-"}
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                  ${o.total}
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      o.status === "confirmed"
+                        ? "bg-green-100 text-green-800"
+                        : o.status === "cancelled"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
+                    {o.status}
+                  </span>
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap flex flex-wrap gap-2">
+                  <button
+                    className={`px-2 py-1 rounded text-white text-sm ${
+                      o.status === "confirmed" || o.status === "cancelled"
+                        ? "bg-green-300 cursor-not-allowed"
+                        : "bg-green-600 hover:bg-green-700"
+                    }`}
+                    onClick={() => handleConfirm(o.id)}
+                    disabled={
+                      o.status === "confirmed" || o.status === "cancelled"
+                    }
+                  >
+                    Confirm
+                  </button>
+
+                  <button
+                    className={`px-2 py-1 rounded text-white text-sm ${
+                      o.status === "cancelled"
+                        ? "bg-red-300 cursor-not-allowed"
+                        : "bg-red-600 hover:bg-red-700"
+                    }`}
+                    onClick={() => handleCancel(o.id)}
+                    disabled={o.status === "cancelled"}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    className="px-2 py-1 rounded text-white text-sm bg-blue-600 hover:bg-blue-700"
+                    onClick={() => navigate(`/admin/erp/orders/${o.id}`)}
+                  >
+                    Details
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

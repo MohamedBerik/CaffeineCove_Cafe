@@ -13,7 +13,7 @@ import {
   Bar,
 } from "recharts";
 
-export default function ErpDashboard() {
+export default function DashboardHome() {
   const [stats, setStats] = useState(null);
   const [salesChart, setSalesChart] = useState([]);
   const [paymentsChart, setPaymentsChart] = useState([]);
@@ -25,7 +25,7 @@ export default function ErpDashboard() {
   }, []);
 
   const loadDashboard = async () => {
-    const res = await axios.get("/api/erp/dashboard");
+    const res = await api.get("/erp/dashboard/finance");
 
     setStats(res.data.stats);
     setSalesChart(res.data.sales_chart);
@@ -34,7 +34,7 @@ export default function ErpDashboard() {
     setActivities(res.data.activities);
   };
 
-  if (!stats) return null;
+  if (!stats) return <div>Loading dashboard...</div>;
 
   return (
     <div className="p-4 space-y-6">

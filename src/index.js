@@ -40,6 +40,7 @@ import { ProtectedRoute, AdminRoute } from "./admin/routes/ProtectedRoute";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ERPLayout from "./admin/erp/ERPLayout";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>

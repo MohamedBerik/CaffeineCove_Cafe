@@ -16,7 +16,7 @@ import {
   Legend,
 } from "recharts";
 
-const Dashboard = () => {
+const ERPDashboard = () => {
   // State للـ KPIs
   const [kpis, setKpis] = useState({
     totalInvoices: 0,
@@ -178,4 +178,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default ERPDashboard;

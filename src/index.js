@@ -77,7 +77,7 @@ createRoot(document.getElementById("root")).render(
           }
         >
           {/* Default ERP page */}
-          <Route index element={<OrdersList />} />
+          <Route index element={<ERPDashboard />} />
 
           {/* Orders */}
           <Route path="orders" element={<OrdersList />} />

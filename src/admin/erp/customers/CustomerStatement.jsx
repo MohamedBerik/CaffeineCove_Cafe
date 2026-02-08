@@ -102,7 +102,7 @@ const CustomerStatement = () => {
               </div>
 
               <div className="text-end">
-                <div className="fw-bold">{customer.name}</div>
+                <div className="fw-bold">Name: {customer.name}</div>
                 {customer.code && (
                   <div className="small">Code: {customer.code}</div>
                 )}

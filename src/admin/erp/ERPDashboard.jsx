@@ -1,7 +1,7 @@
-// Dashboard.jsx
+// ERPDashboard.jsx
 import React, { useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
 import AdminNavbar from "../components/AdminNavbar";
+import { Outlet } from "react-router-dom";
 import axios from "axios";
 import {
   LineChart,
@@ -17,162 +17,164 @@ import {
 } from "recharts";
 
 const ERPDashboard = () => {
-  // State للـ KPIs
   const [kpis, setKpis] = useState({
     totalInvoices: 0,
     totalPayments: 0,
     totalRefunded: 0,
     outstanding: 0,
   });
-
-  // State للـ Charts
   const [salesData, setSalesData] = useState([]);
   const [paymentsData, setPaymentsData] = useState([]);
-
-  // State للـ Latest invoices
   const [latestInvoices, setLatestInvoices] = useState([]);
-
-  // State للـ Activity log
   const [activityLog, setActivityLog] = useState([]);
 
-  // جلب البيانات من الـ API عند تحميل الصفحة
   useEffect(() => {
-    // KPIs
     axios.get("/api/kpis").then((res) => setKpis(res.data));
-
-    // Sales chart
     axios.get("/api/sales-last-7-days").then((res) => setSalesData(res.data));
-
-    // Payments vs Refunds chart
     axios
       .get("/api/payments-vs-refunds")
       .then((res) => setPaymentsData(res.data));
-
-    // Latest invoices
     axios
       .get("/api/latest-invoices?limit=5")
       .then((res) => setLatestInvoices(res.data));
-
-    // Activity log
     axios
       .get("/api/activity-log?limit=5")
       .then((res) => setActivityLog(res.data));
   }, []);
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="container my-4">
       <AdminNavbar />
+
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white shadow rounded p-4">
-          <h3 className="text-gray-500 text-sm">Total Invoices Today</h3>
-          <p className="text-2xl font-bold">{kpis.totalInvoices}</p>
+      <div className="row g-3 mb-4">
+        <div className="col-md-3 col-sm-6">
+          <div className="card text-center shadow">
+            <div className="card-body">
+              <h6 className="card-subtitle mb-2 text-muted">
+                Total Invoices Today
+              </h6>
+              <h4 className="card-title">{kpis.totalInvoices}</h4>
+            </div>
+          </div>
         </div>
-        <div className="bg-white shadow rounded p-4">
-          <h3 className="text-gray-500 text-sm">Total Payments Today</h3>
-          <p className="text-2xl font-bold">{kpis.totalPayments}</p>
+        <div className="col-md-3 col-sm-6">
+          <div className="card text-center shadow">
+            <div className="card-body">
+              <h6 className="card-subtitle mb-2 text-muted">
+                Total Payments Today
+              </h6>
+              <h4 className="card-title">{kpis.totalPayments}</h4>
+            </div>
+          </div>
         </div>
-        <div className="bg-white shadow rounded p-4">
-          <h3 className="text-gray-500 text-sm">Total Refunded Today</h3>
-          <p className="text-2xl font-bold">{kpis.totalRefunded}</p>
+        <div className="col-md-3 col-sm-6">
+          <div className="card text-center shadow">
+            <div className="card-body">
+              <h6 className="card-subtitle mb-2 text-muted">
+                Total Refunded Today
+              </h6>
+              <h4 className="card-title">{kpis.totalRefunded}</h4>
+            </div>
+          </div>
         </div>
-        <div className="bg-white shadow rounded p-4">
-          <h3 className="text-gray-500 text-sm">Outstanding Receivables</h3>
-          <p className="text-2xl font-bold">{kpis.outstanding}</p>
+        <div className="col-md-3 col-sm-6">
+          <div className="card text-center shadow">
+            <div className="card-body">
+              <h6 className="card-subtitle mb-2 text-muted">
+                Outstanding Receivables
+              </h6>
+              <h4 className="card-title">{kpis.outstanding}</h4>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white shadow rounded p-4">
-          <h3 className="text-gray-700 font-semibold mb-2">
-            Sales Last 7 Days
-          </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={salesData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="sales"
-                stroke="#4f46e5"
-                strokeWidth={2}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+      <div className="row g-3 mb-4">
+        <div className="col-lg-6">
+          <div className="card shadow p-3">
+            <h6 className="mb-3">Sales Last 7 Days</h6>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={salesData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="sales"
+                  stroke="#0d6efd"
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-
-        <div className="bg-white shadow rounded p-4">
-          <h3 className="text-gray-700 font-semibold mb-2">
-            Payments vs Refunds
-          </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={paymentsData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="payments" fill="#10b981" />
-              <Bar dataKey="refunds" fill="#f87171" />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="col-lg-6">
+          <div className="card shadow p-3">
+            <h6 className="mb-3">Payments vs Refunds</h6>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={paymentsData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="payments" fill="#198754" />
+                <Bar dataKey="refunds" fill="#dc3545" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
       {/* Latest Invoices */}
-      <div className="bg-white shadow rounded p-4">
-        <h3 className="text-gray-700 font-semibold mb-2">Latest Invoices</h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 text-left text-sm text-gray-500">
-                  Number
-                </th>
-                <th className="px-4 py-2 text-left text-sm text-gray-500">
-                  Customer
-                </th>
-                <th className="px-4 py-2 text-left text-sm text-gray-500">
-                  Total
-                </th>
-                <th className="px-4 py-2 text-left text-sm text-gray-500">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {latestInvoices.map((inv) => (
-                <tr key={inv.number} className="border-b">
-                  <td className="px-4 py-2">{inv.number}</td>
-                  <td className="px-4 py-2">{inv.customer}</td>
-                  <td className="px-4 py-2">{inv.total}</td>
-                  <td className="px-4 py-2">{inv.status}</td>
+      <div className="card shadow mb-4">
+        <div className="card-body">
+          <h6 className="card-title mb-3">Latest Invoices</h6>
+          <div className="table-responsive">
+            <table className="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>Number</th>
+                  <th>Customer</th>
+                  <th>Total</th>
+                  <th>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="mt-2 text-right">
-          <a href="/invoices" className="text-blue-600 hover:underline">
-            View all invoices
-          </a>
+              </thead>
+              <tbody>
+                {latestInvoices.map((inv) => (
+                  <tr key={inv.number}>
+                    <td>{inv.number}</td>
+                    <td>{inv.customer}</td>
+                    <td>{inv.total}</td>
+                    <td>{inv.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="text-end mt-2">
+            <a href="/invoices" className="text-decoration-none">
+              View all invoices
+            </a>
+          </div>
         </div>
       </div>
 
       {/* Activity Log */}
-      <div className="bg-white shadow rounded p-4">
-        <h3 className="text-gray-700 font-semibold mb-2">Recent Activity</h3>
-        <ul className="space-y-1">
-          {activityLog.map((act, idx) => (
-            <li key={idx} className="text-gray-600 text-sm">
-              {act.message}{" "}
-              <span className="text-gray-400 text-xs">({act.date})</span>
-            </li>
-          ))}
-        </ul>
+      <div className="card shadow">
+        <div className="card-body">
+          <h6 className="card-title mb-3">Recent Activity</h6>
+          <ul className="list-group list-group-flush">
+            {activityLog.map((act, idx) => (
+              <li key={idx} className="list-group-item">
+                {act.message} <small className="text-muted">({act.date})</small>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

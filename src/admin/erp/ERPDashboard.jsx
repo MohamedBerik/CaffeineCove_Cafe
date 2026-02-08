@@ -34,7 +34,7 @@ const ERPDashboard = () => {
 
   // جلب البيانات من API عند تحميل الصفحة
   useEffect(() => {
-    axios.get("/api/kpis").then((res) => setKpis(res.data));
+    // axios.get("/api/kpis").then((res) => setKpis(res.data));
     axios.get("/erp/sales-last-7-days").then((res) => setSalesData(res.data));
     axios
       .get("/erp/payments-vs-refunds")

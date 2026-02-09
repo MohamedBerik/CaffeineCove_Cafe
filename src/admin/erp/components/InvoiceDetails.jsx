@@ -76,7 +76,7 @@ const InvoiceDetails = () => {
             <strong>Customer ID:</strong> {invoice.customer_id}
           </div>
           <div>
-            <strong>Customer Name:</strong> {customer.name}
+            <strong>Customer Name:</strong> {invoice.customer_name}
           </div>
           <div>
             <strong>Customer Email:</strong> {invoice.customer_email}
@@ -104,7 +104,7 @@ const InvoiceDetails = () => {
           </div>
 
           {overpaid > 0 && (
-            <div className="text-warning">
+            <div>
               <strong>Overpaid:</strong> {overpaid}
             </div>
           )}

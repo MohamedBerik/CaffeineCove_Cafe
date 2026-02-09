@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../services/axios";
 import { notifyError } from "../../../utils/notify";
 
 const InvoiceDetails = () => {
   const { id } = useParams();
-  const printRef = useRef();
   const navigate = useNavigate();
 
   const [invoice, setInvoice] = useState(null);
@@ -26,10 +25,6 @@ const InvoiceDetails = () => {
   useEffect(() => {
     fetchInvoice();
   }, [id]);
-
-  const handlePrint = () => {
-    window.print();
-  };
 
   if (loading) return <p>Loading invoice...</p>;
   if (!invoice) return <p>Invoice not found</p>;
@@ -63,17 +58,7 @@ const InvoiceDetails = () => {
         >
           Back
         </button>
-        <div className="align-self-end ms-auto">
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            onClick={handlePrint}
-          >
-            Print
-          </button>
-        </div>
-      </div>
-      {/* ===== Printable Area ===== */}
-      <div ref={printRef} className="print-area"></div>
+        
       {/* ===== Basic info ===== */}
       <div className="card mb-3">
         <div className="card-body">

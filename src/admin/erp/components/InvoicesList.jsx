@@ -119,7 +119,7 @@ const InvoicesList = () => {
 
                 <td>
                   {/* PAY INVOICE */}
-                  <div>
+                  <div className="d-flex">
                     <div className="border rounded p-2 mb-2">
                       <strong>Pay Invoice</strong>
                       <div className="d-flex flex-wrap gap-2 mt-1">

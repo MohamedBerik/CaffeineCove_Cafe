@@ -76,13 +76,13 @@ const InvoiceDetails = () => {
             <strong>Customer ID:</strong> {invoice.customer_id}
           </div>
           <div>
-            <strong>Customer Name:</strong> {invoice.name}
+            <strong>Customer Name:</strong> {customer.name}
           </div>
           <div>
-            <strong>Customer Email:</strong> {invoice.email}
+            <strong>Customer Email:</strong> {invoice.customer_email}
           </div>
           <div>
-            <strong>Customer Phone:</strong> {invoice.phone}
+            <strong>Customer Phone:</strong> {invoice.customer_phone}
           </div>
         </div>
       </div>

@@ -64,10 +64,10 @@ const InvoiceDetails = () => {
       <div className="card mb-3">
         <div className="card-body">
           <div>
-            <strong>Status:</strong> {invoice.status}
+            <strong>Invoice Status:</strong> {invoice.status}
           </div>
           <div>
-            <strong>Total:</strong> {invoice.total}
+            <strong>Invoice Total:</strong> {invoice.total}
           </div>
           <div>
             <strong>Issued at:</strong> {invoice.issued_at}
@@ -80,9 +80,6 @@ const InvoiceDetails = () => {
 
       <div className="card mb-3">
         <div className="card-body">
-          <div>
-            <strong>Invoice total:</strong> {invoice.total}
-          </div>
           <div>
             <strong>Gross paid:</strong> {grossPaid}
           </div>

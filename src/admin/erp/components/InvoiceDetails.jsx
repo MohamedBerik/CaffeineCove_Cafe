@@ -72,19 +72,21 @@ const InvoiceDetails = () => {
       </div>
 
       {/* ===== Basic info ===== */}
-      <div className="card mb-3">
-        <div className="card-body">
-          <div>
-            <strong>Invoice Status:</strong> {invoice.status}
-          </div>
-          <div>
-            <strong>Invoice Total:</strong> {invoice.total}
-          </div>
-          <div>
-            <strong>Issued at:</strong> {invoice.issued_at}
-          </div>
-          <div>
-            <strong>Customer ID:</strong> {invoice.customer_id}
+      <div ref={printRef} className="print-area">
+        <div className="card mb-3">
+          <div className="card-body">
+            <div>
+              <strong>Invoice Status:</strong> {invoice.status}
+            </div>
+            <div>
+              <strong>Invoice Total:</strong> {invoice.total}
+            </div>
+            <div>
+              <strong>Issued at:</strong> {invoice.issued_at}
+            </div>
+            <div>
+              <strong>Customer ID:</strong> {invoice.customer_id}
+            </div>
           </div>
         </div>
       </div>

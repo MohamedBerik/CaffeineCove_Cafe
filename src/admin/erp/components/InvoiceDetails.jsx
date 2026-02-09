@@ -58,7 +58,7 @@ const InvoiceDetails = () => {
         >
           Back
         </button>
-        
+      </div>
       {/* ===== Basic info ===== */}
       <div className="card mb-3">
         <div className="card-body">

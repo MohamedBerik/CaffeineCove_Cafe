@@ -58,7 +58,7 @@ const InvoiceDetails = () => {
         <h3>Invoice #{invoice.number}</h3>
         <div>
           <button
-            className="btn btn-secondary btn-sm"
+            className="btn btn-secondary btn-sm mr-1"
             onClick={() => navigate(-1)}
           >
             Back

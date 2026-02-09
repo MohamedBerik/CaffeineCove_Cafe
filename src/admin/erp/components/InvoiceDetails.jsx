@@ -58,16 +58,16 @@ const InvoiceDetails = () => {
         <h3>Invoice #{invoice.number}</h3>
         <div>
           <button
-            className="btn btn-secondary btn-sm mr-1"
-            onClick={() => navigate(-1)}
-          >
-            Back
-          </button>
-          <button
-            className="btn btn-outline-secondary btn-sm"
+            className="btn btn-outline-secondary btn-sm mr-1"
             onClick={handlePrint}
           >
             Print
+          </button>
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={() => navigate(-1)}
+          >
+            Back
           </button>
         </div>
       </div>
@@ -156,29 +156,63 @@ const InvoiceDetails = () => {
                   <th>Gross</th>
                   <th>Refunded</th>
                   <th>Net</th>
+
+                  {/* NEW */}
+                  <th>Remaining after payment</th>
+
+                  {/* NEW */}
+                  <th>Overpaid per payment</th>
+
                   <th>Method</th>
                   <th>Paid at</th>
                 </tr>
               </thead>
 
               <tbody>
-                {invoice.payments.map((p) => {
-                  const refundedPerPayment =
-                    p.refunds?.reduce((s, r) => s + Number(r.amount), 0) || 0;
+                {(() => {
+                  // NEW
+                  let runningNet = 0;
 
-                  const netPerPayment = Number(p.amount) - refundedPerPayment;
+                  return invoice.payments.map((p) => {
+                    const refundedPerPayment =
+                      p.refunds?.reduce((s, r) => s + Number(r.amount), 0) || 0;
 
-                  return (
-                    <tr key={p.id}>
-                      <td>{p.id}</td>
-                      <td>{p.amount}</td>
-                      <td>{refundedPerPayment}</td>
-                      <td>{netPerPayment}</td>
-                      <td>{p.method}</td>
-                      <td>{p.paid_at}</td>
-                    </tr>
-                  );
-                })}
+                    const netPerPayment = Number(p.amount) - refundedPerPayment;
+
+                    // NEW
+                    runningNet += netPerPayment;
+
+                    // NEW
+                    const remainingPerPayment = Math.max(
+                      Number(invoice.total) - runningNet,
+                      0,
+                    );
+
+                    // NEW
+                    const overpaidPerPayment = Math.max(
+                      runningNet - Number(invoice.total),
+                      0,
+                    );
+
+                    return (
+                      <tr key={p.id}>
+                        <td>{p.id}</td>
+                        <td>{p.amount}</td>
+                        <td>{refundedPerPayment}</td>
+                        <td>{netPerPayment}</td>
+
+                        {/* NEW */}
+                        <td>{remainingPerPayment}</td>
+
+                        {/* NEW */}
+                        <td>{overpaidPerPayment}</td>
+
+                        <td>{p.method}</td>
+                        <td>{p.paid_at}</td>
+                      </tr>
+                    );
+                  });
+                })()}
               </tbody>
             </table>
           )}

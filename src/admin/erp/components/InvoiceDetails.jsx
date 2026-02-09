@@ -84,10 +84,10 @@ const InvoiceDetails = () => {
             <strong>Total:</strong> {invoice.total}
           </div>
           <div>
-            <strong>Paid:</strong> {paidAmount}
+            <strong>Paid:</strong> {grossPaid}
           </div>
           <div>
-            <strong>Refunded:</strong> {refundedAmount}
+            <strong>Refunded:</strong> {refundedTotal}
           </div>
           <div>
             <strong>Net paid:</strong> {netPaid}

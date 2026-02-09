@@ -56,37 +56,35 @@ const InvoiceDetails = () => {
     <div className="container mt-4 pt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h3>Invoice #{invoice.number}</h3>
-
-        <button
-          className="btn btn-secondary btn-sm"
-          onClick={() => navigate(-1)}
-        >
-          Back
-        </button>
-        <button
-          className="btn btn-outline-secondary btn-sm"
-          onClick={handlePrint}
-        >
-          Print
-        </button>
+        <div>
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={() => navigate(-1)}
+          >
+            Back
+          </button>
+          <button
+            className="btn btn-outline-secondary btn-sm"
+            onClick={handlePrint}
+          >
+            Print
+          </button>
+        </div>
       </div>
-
       {/* ===== Basic info ===== */}
-      <div ref={printRef} className="print-area">
-        <div className="card mb-3">
-          <div className="card-body">
-            <div>
-              <strong>Invoice Status:</strong> {invoice.status}
-            </div>
-            <div>
-              <strong>Invoice Total:</strong> {invoice.total}
-            </div>
-            <div>
-              <strong>Issued at:</strong> {invoice.issued_at}
-            </div>
-            <div>
-              <strong>Customer ID:</strong> {invoice.customer_id}
-            </div>
+      <div className="card mb-3">
+        <div className="card-body">
+          <div>
+            <strong>Invoice Status:</strong> {invoice.status}
+          </div>
+          <div>
+            <strong>Invoice Total:</strong> {invoice.total}
+          </div>
+          <div>
+            <strong>Issued at:</strong> {invoice.issued_at}
+          </div>
+          <div>
+            <strong>Customer ID:</strong> {invoice.customer_id}
           </div>
         </div>
       </div>

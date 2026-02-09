@@ -63,12 +63,14 @@ const InvoiceDetails = () => {
         >
           Back
         </button>
-        <button
-          className="btn btn-outline-secondary btn-sm"
-          onClick={handlePrint}
-        >
-          Print
-        </button>
+        <div className="align-self-end ms-auto">
+          <button
+            className="btn btn-outline-secondary btn-sm"
+            onClick={handlePrint}
+          >
+            Print
+          </button>
+        </div>
       </div>
       {/* ===== Printable Area ===== */}
       <div ref={printRef} className="print-area"></div>

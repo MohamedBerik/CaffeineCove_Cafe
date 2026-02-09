@@ -83,8 +83,17 @@ const InvoiceDetails = () => {
           <div>
             <strong>Issued at:</strong> {invoice.issued_at}
           </div>
-          <div>
-            <strong>Customer ID:</strong> {invoice.customer_id}
+          <div className="text-end">
+            <div className="small">Name: {customer.name}</div>
+            {customer.code && (
+              <div className="small">Code: {customer.code}</div>
+            )}
+            {customer.phone && (
+              <div className="small">Phone: {customer.phone}</div>
+            )}
+            {customer.email && (
+              <div className="small">Email: {customer.email}</div>
+            )}
           </div>
         </div>
       </div>

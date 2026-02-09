@@ -81,7 +81,7 @@ const CustomerStatement = () => {
 
         <div className="align-self-end ms-auto">
           <button
-            className="btn btn-outline-secondary btn-sm"
+            className="btn btn-outline-secondary btn-sm mr-1"
             onClick={handlePrint}
           >
             Print

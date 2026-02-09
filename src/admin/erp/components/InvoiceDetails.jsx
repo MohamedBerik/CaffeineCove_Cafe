@@ -32,11 +32,20 @@ const InvoiceDetails = () => {
 
   const refunds = payments.flatMap((p) => p.refunds || []);
 
-  const paidAmount = payments.reduce((sum, p) => sum + Number(p.amount), 0);
+  const grossPaid = invoice.payments.reduce(
+    (sum, p) => sum + Number(p.amount),
+    0,
+  );
 
-  const refundedAmount = refunds.reduce((sum, r) => sum + Number(r.amount), 0);
+  const refundedTotal = invoice.payments.reduce(
+    (sum, p) =>
+      sum + (p.refunds?.reduce((s, r) => s + Number(r.amount), 0) || 0),
+    0,
+  );
 
-  const netPaid = paidAmount - refundedAmount;
+  const netPaid = grossPaid - refundedTotal;
+  const remaining = Math.max(Number(invoice.total) - netPaid, 0);
+  const overpaid = Math.max(netPaid - Number(invoice.total), 0);
 
   return (
     <div className="container mt-4 pt-4">
@@ -85,6 +94,32 @@ const InvoiceDetails = () => {
           </div>
         </div>
       </div>
+      <div className="card mb-3">
+        <div className="card-body">
+          <div>
+            <strong>Invoice total:</strong> {invoice.total}
+          </div>
+          <div>
+            <strong>Gross paid:</strong> {grossPaid}
+          </div>
+          <div>
+            <strong>Refunded:</strong> {refundedTotal}
+          </div>
+          <div>
+            <strong>Net paid:</strong> {netPaid}
+          </div>
+
+          <div>
+            <strong>Remaining balance:</strong> {remaining}
+          </div>
+
+          {overpaid > 0 && (
+            <div className="text-warning">
+              <strong>Overpaid:</strong> {overpaid}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* ===== Items ===== */}
       <div className="card mb-3">
@@ -126,20 +161,32 @@ const InvoiceDetails = () => {
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Amount</th>
+                  <th>Gross</th>
+                  <th>Refunded</th>
+                  <th>Net</th>
                   <th>Method</th>
                   <th>Paid at</th>
                 </tr>
               </thead>
+
               <tbody>
-                {invoice.payments.map((p) => (
-                  <tr key={p.id}>
-                    <td>{p.id}</td>
-                    <td>{p.amount}</td>
-                    <td>{p.method}</td>
-                    <td>{p.paid_at}</td>
-                  </tr>
-                ))}
+                {invoice.payments.map((p) => {
+                  const refundedPerPayment =
+                    p.refunds?.reduce((s, r) => s + Number(r.amount), 0) || 0;
+
+                  const netPerPayment = Number(p.amount) - refundedPerPayment;
+
+                  return (
+                    <tr key={p.id}>
+                      <td>{p.id}</td>
+                      <td>{p.amount}</td>
+                      <td>{refundedPerPayment}</td>
+                      <td>{netPerPayment}</td>
+                      <td>{p.method}</td>
+                      <td>{p.paid_at}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}

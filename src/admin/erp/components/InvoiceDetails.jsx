@@ -81,22 +81,6 @@ const InvoiceDetails = () => {
       <div className="card mb-3">
         <div className="card-body">
           <div>
-            <strong>Total:</strong> {invoice.total}
-          </div>
-          <div>
-            <strong>Paid:</strong> {grossPaid}
-          </div>
-          <div>
-            <strong>Refunded:</strong> {refundedTotal}
-          </div>
-          <div>
-            <strong>Net paid:</strong> {netPaid}
-          </div>
-        </div>
-      </div>
-      <div className="card mb-3">
-        <div className="card-body">
-          <div>
             <strong>Invoice total:</strong> {invoice.total}
           </div>
           <div>

@@ -27,63 +27,44 @@ const InvoiceDetails = () => {
     fetchInvoice();
   }, [id]);
 
-  const handlePrint = () => {
-    const printContents = printRef.current.innerHTML;
-    const win = window.open("", "", "width=900,height=700");
+  /* ================= SAFE DEFAULTS (before any return) ================= */
 
-    win.document.write(`
-      <html>
-        <head>
-          <title>Invoice ${invoice?.number}</title>
-          <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-          />
-          <style>
-            body { padding:20px; }
-            .no-print { display:none !important; }
-          </style>
-        </head>
-        <body>
-          ${printContents}
-        </body>
-      </html>
-    `);
+  const payments = invoice?.payments || [];
+  const items = invoice?.items || [];
 
-    win.document.close();
-    win.focus();
-    win.print();
-    win.close();
-  };
+  const refunds = useMemo(() => {
+    return payments.flatMap((p) => p.refunds || []);
+  }, [payments]);
 
-  if (loading) return <p className="p-4">Loading invoice...</p>;
-  if (!invoice) return <p className="p-4">Invoice not found</p>;
+  const grossPaid = useMemo(() => {
+    return payments.reduce((sum, p) => sum + Number(p.amount), 0);
+  }, [payments]);
 
-  const payments = invoice.payments || [];
+  const refundedTotal = useMemo(() => {
+    return payments.reduce(
+      (sum, p) =>
+        sum + (p.refunds?.reduce((s, r) => s + Number(r.amount), 0) || 0),
+      0,
+    );
+  }, [payments]);
 
-  const refunds = payments.flatMap((p) => p.refunds || []);
+  const netPaid = useMemo(() => {
+    return grossPaid - refundedTotal;
+  }, [grossPaid, refundedTotal]);
 
-  const grossPaid = payments.reduce((sum, p) => sum + Number(p.amount), 0);
+  const remaining = useMemo(() => {
+    if (!invoice) return 0;
+    return Math.max(Number(invoice.total) - netPaid, 0);
+  }, [invoice, netPaid]);
 
-  const refundedTotal = payments.reduce(
-    (sum, p) =>
-      sum + (p.refunds?.reduce((s, r) => s + Number(r.amount), 0) || 0),
-    0,
-  );
+  const overpaid = useMemo(() => {
+    if (!invoice) return 0;
+    return Math.max(netPaid - Number(invoice.total), 0);
+  }, [invoice, netPaid]);
 
-  const netPaid = grossPaid - refundedTotal;
-
-  const remaining = Math.max(Number(invoice.total) - netPaid, 0);
-  const overpaid = Math.max(netPaid - Number(invoice.total), 0);
-
-  /*
-    Build payment rows with:
-    - refunded per payment
-    - net per payment
-    - running paid
-    - remaining after each payment
-  */
   const paymentRows = useMemo(() => {
+    if (!invoice) return [];
+
     let runningNet = 0;
 
     return payments.map((p) => {
@@ -104,16 +85,57 @@ const InvoiceDetails = () => {
         remainingAfter,
       };
     });
-  }, [payments, invoice.total]);
+  }, [payments, invoice]);
+
+  /* ================= PRINT ================= */
+
+  const handlePrint = () => {
+    if (!printRef.current) return;
+
+    const printContents = printRef.current.innerHTML;
+    const win = window.open("", "", "width=900,height=700");
+
+    win.document.write(`
+      <html>
+        <head>
+          <title>Invoice ${invoice?.number}</title>
+          <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+          />
+          <style>
+            body { padding:20px; }
+            .no-print { display:none !important; }
+            table { font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          ${printContents}
+        </body>
+      </html>
+    `);
+
+    win.document.close();
+    win.focus();
+    win.print();
+    win.close();
+  };
+
+  /* ================= STATES ================= */
+
+  if (loading) return <p className="p-4">Loading invoice...</p>;
+  if (!invoice) return <p className="p-4">Invoice not found</p>;
+
+  /* ================= UI ================= */
 
   return (
-    <div className="container mt-4 pt-4">
+    <div className="container-fluid mt-4 px-3">
       {/* ================= Header ================= */}
 
-      <div className="d-flex justify-content-between align-items-center mb-3 no-print">
-        <h4 className="mb-0">Invoice details</h4>
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 no-print">
+        <h4 className="mb-2 mb-md-0">Invoice details</h4>
 
-        <div>
+        <div className="d-flex">
           <button
             className="btn btn-outline-secondary btn-sm mr-2"
             onClick={() => navigate(-1)}
@@ -131,7 +153,7 @@ const InvoiceDetails = () => {
         {/* ================= Invoice header ================= */}
 
         <div className="mb-3">
-          <h5>Invoice #{invoice.number}</h5>
+          <h5 className="mb-0">Invoice #{invoice.number}</h5>
         </div>
 
         {/* ================= Basic info ================= */}
@@ -141,25 +163,27 @@ const InvoiceDetails = () => {
             Invoice information
           </div>
 
-          <div className="card-body row">
-            <div className="col-md-3">
-              <div className="text-muted">Status</div>
-              <div className="font-weight-bold">{invoice.status}</div>
-            </div>
+          <div className="card-body">
+            <div className="row">
+              <div className="col-sm-6 col-md-3 mb-3">
+                <div className="text-muted">Status</div>
+                <div className="font-weight-bold">{invoice.status}</div>
+              </div>
 
-            <div className="col-md-3">
-              <div className="text-muted">Invoice total</div>
-              <div className="font-weight-bold">{invoice.total}</div>
-            </div>
+              <div className="col-sm-6 col-md-3 mb-3">
+                <div className="text-muted">Invoice total</div>
+                <div className="font-weight-bold">{invoice.total}</div>
+              </div>
 
-            <div className="col-md-3">
-              <div className="text-muted">Issued at</div>
-              <div>{invoice.issued_at}</div>
-            </div>
+              <div className="col-sm-6 col-md-3 mb-3">
+                <div className="text-muted">Issued at</div>
+                <div>{invoice.issued_at}</div>
+              </div>
 
-            <div className="col-md-3">
-              <div className="text-muted">Customer</div>
-              <div>{invoice.customer?.name ?? `#${invoice.customer_id}`}</div>
+              <div className="col-sm-6 col-md-3 mb-3">
+                <div className="text-muted">Customer</div>
+                <div>{invoice.customer?.name ?? `#${invoice.customer_id}`}</div>
+              </div>
             </div>
           </div>
         </div>
@@ -169,32 +193,34 @@ const InvoiceDetails = () => {
         <div className="card mb-3">
           <div className="card-header font-weight-bold">Financial summary</div>
 
-          <div className="card-body row">
-            <div className="col-md-3 mb-2">
-              <div className="text-muted">Gross paid</div>
-              <div className="font-weight-bold">{grossPaid}</div>
-            </div>
-
-            <div className="col-md-3 mb-2">
-              <div className="text-muted">Refunded</div>
-              <div className="font-weight-bold">{refundedTotal}</div>
-            </div>
-
-            <div className="col-md-3 mb-2">
-              <div className="text-muted">Net paid</div>
-              <div className="font-weight-bold">{netPaid}</div>
-            </div>
-
-            <div className="col-md-3 mb-2">
-              <div className="text-muted">Remaining balance</div>
-              <div className="font-weight-bold">{remaining}</div>
-            </div>
-
-            {overpaid > 0 && (
-              <div className="col-12 mt-2 text-danger">
-                Overpaid: {overpaid}
+          <div className="card-body">
+            <div className="row">
+              <div className="col-sm-6 col-md-3 mb-3">
+                <div className="text-muted">Gross paid</div>
+                <div className="font-weight-bold">{grossPaid}</div>
               </div>
-            )}
+
+              <div className="col-sm-6 col-md-3 mb-3">
+                <div className="text-muted">Refunded</div>
+                <div className="font-weight-bold">{refundedTotal}</div>
+              </div>
+
+              <div className="col-sm-6 col-md-3 mb-3">
+                <div className="text-muted">Net paid</div>
+                <div className="font-weight-bold">{netPaid}</div>
+              </div>
+
+              <div className="col-sm-6 col-md-3 mb-3">
+                <div className="text-muted">Remaining balance</div>
+                <div className="font-weight-bold">{remaining}</div>
+              </div>
+
+              {overpaid > 0 && (
+                <div className="col-12 text-danger font-weight-bold">
+                  Overpaid: {overpaid}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -203,7 +229,7 @@ const InvoiceDetails = () => {
         <div className="card mb-3">
           <div className="card-header font-weight-bold">Invoice items</div>
 
-          <div className="card-body p-0">
+          <div className="table-responsive">
             <table className="table mb-0">
               <thead>
                 <tr>
@@ -215,7 +241,7 @@ const InvoiceDetails = () => {
                 </tr>
               </thead>
               <tbody>
-                {invoice.items.map((item, i) => (
+                {items.map((item, i) => (
                   <tr key={item.id}>
                     <td>{i + 1}</td>
                     <td>{item.product?.title_en}</td>
@@ -236,7 +262,7 @@ const InvoiceDetails = () => {
             Payments & settlement
           </div>
 
-          <div className="card-body p-0">
+          <div className="table-responsive">
             {paymentRows.length === 0 ? (
               <p className="p-3 mb-0">No payments yet.</p>
             ) : (
@@ -280,7 +306,7 @@ const InvoiceDetails = () => {
             Refund transactions
           </div>
 
-          <div className="card-body p-0">
+          <div className="table-responsive">
             {refunds.length === 0 ? (
               <p className="p-3 mb-0">No refunds.</p>
             ) : (
@@ -323,24 +349,26 @@ const InvoiceDetails = () => {
                     <strong>Entry #{je.id}</strong> – {je.description}
                   </div>
 
-                  <table className="table table-sm mb-0">
-                    <thead>
-                      <tr>
-                        <th>Account</th>
-                        <th className="text-right">Debit</th>
-                        <th className="text-right">Credit</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {je.lines.map((l) => (
-                        <tr key={l.id}>
-                          <td>{l.account?.name ?? l.account_id}</td>
-                          <td className="text-right">{l.debit}</td>
-                          <td className="text-right">{l.credit}</td>
+                  <div className="table-responsive">
+                    <table className="table table-sm mb-0">
+                      <thead>
+                        <tr>
+                          <th>Account</th>
+                          <th className="text-right">Debit</th>
+                          <th className="text-right">Credit</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {je.lines.map((l) => (
+                          <tr key={l.id}>
+                            <td>{l.account?.name ?? l.account_id}</td>
+                            <td className="text-right">{l.debit}</td>
+                            <td className="text-right">{l.credit}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               ))
             )}

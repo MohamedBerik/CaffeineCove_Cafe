@@ -119,100 +119,102 @@ const InvoicesList = () => {
 
                 <td>
                   {/* PAY INVOICE */}
-                  <div className="border rounded p-2 mb-2">
-                    <strong>Pay Invoice</strong>
-                    <div className="d-flex flex-wrap gap-2 mt-1">
-                      <input
-                        type="number"
-                        className="form-control form-control-sm"
-                        placeholder="Amount"
-                        value={payAmounts[inv.id] || ""}
-                        onChange={(e) =>
-                          setPayAmounts({
-                            ...payAmounts,
-                            [inv.id]: e.target.value,
-                          })
-                        }
-                      />
+                  <div>
+                    <div className="border rounded p-2 mb-2">
+                      <strong>Pay Invoice</strong>
+                      <div className="d-flex flex-wrap gap-2 mt-1">
+                        <input
+                          type="number"
+                          className="form-control form-control-sm"
+                          placeholder="Amount"
+                          value={payAmounts[inv.id] || ""}
+                          onChange={(e) =>
+                            setPayAmounts({
+                              ...payAmounts,
+                              [inv.id]: e.target.value,
+                            })
+                          }
+                        />
 
-                      <select
-                        className="form-control form-control-sm"
-                        value={payMethods[inv.id] || "cash"}
-                        onChange={(e) =>
-                          setPayMethods({
-                            ...payMethods,
-                            [inv.id]: e.target.value,
-                          })
-                        }
-                      >
-                        <option value="cash">Cash</option>
-                        <option value="card">Card</option>
-                        <option value="bank">Bank</option>
-                      </select>
+                        <select
+                          className="form-control form-control-sm"
+                          value={payMethods[inv.id] || "cash"}
+                          onChange={(e) =>
+                            setPayMethods({
+                              ...payMethods,
+                              [inv.id]: e.target.value,
+                            })
+                          }
+                        >
+                          <option value="cash">Cash</option>
+                          <option value="card">Card</option>
+                          <option value="bank">Bank</option>
+                        </select>
 
-                      <button
-                        className="btn btn-success btn-sm"
-                        disabled={inv.remaining <= 0}
-                        onClick={() => handlePay(inv.id)}
-                      >
-                        Pay
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* PAYMENTS + REFUNDS */}
-                  <div className="border rounded p-2">
-                    <strong>Payments</strong>
-                    {inv.payments && inv.payments.length > 0 ? (
-                      inv.payments.map((p) => {
-                        const refundable =
-                          Number(p.amount) - Number(p.refunded_amount || 0);
-
-                        return (
-                          <div
-                            key={p.id}
-                            className="border rounded p-2 my-2 d-flex flex-wrap gap-2 align-items-center"
-                          >
-                            <div className="small flex-grow-1">
-                              <div>
-                                <strong>Payment #{p.id}</strong>
-                              </div>
-                              <div>Amount: {p.amount}</div>
-                              <div>Refunded: {p.refunded_amount || 0}</div>
-                              <div>Remaining: {refundable}</div>
-                              <div>Method: {p.method}</div>
-                            </div>
-
-                            {refundable > 0 && (
-                              <>
-                                <input
-                                  type="number"
-                                  className="form-control form-control-sm"
-                                  placeholder="Refund amount"
-                                  value={refundAmounts[p.id] || ""}
-                                  onChange={(e) =>
-                                    setRefundAmounts({
-                                      ...refundAmounts,
-                                      [p.id]: e.target.value,
-                                    })
-                                  }
-                                />
-                                <button
-                                  className="btn btn-warning btn-sm"
-                                  onClick={() => handleRefund(p.id)}
-                                >
-                                  Refund
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="text-muted small mt-1">
-                        No payments yet
+                        <button
+                          className="btn btn-success btn-sm"
+                          disabled={inv.remaining <= 0}
+                          onClick={() => handlePay(inv.id)}
+                        >
+                          Pay
+                        </button>
                       </div>
-                    )}
+                    </div>
+
+                    {/* PAYMENTS + REFUNDS */}
+                    <div className="border rounded p-2">
+                      <strong>Payments</strong>
+                      {inv.payments && inv.payments.length > 0 ? (
+                        inv.payments.map((p) => {
+                          const refundable =
+                            Number(p.amount) - Number(p.refunded_amount || 0);
+
+                          return (
+                            <div
+                              key={p.id}
+                              className="border rounded p-2 my-2 d-flex flex-wrap gap-2 align-items-center"
+                            >
+                              <div className="small flex-grow-1">
+                                <div>
+                                  <strong>Payment #{p.id}</strong>
+                                </div>
+                                <div>Amount: {p.amount}</div>
+                                <div>Refunded: {p.refunded_amount || 0}</div>
+                                <div>Remaining: {refundable}</div>
+                                <div>Method: {p.method}</div>
+                              </div>
+
+                              {refundable > 0 && (
+                                <>
+                                  <input
+                                    type="number"
+                                    className="form-control form-control-sm"
+                                    placeholder="Refund amount"
+                                    value={refundAmounts[p.id] || ""}
+                                    onChange={(e) =>
+                                      setRefundAmounts({
+                                        ...refundAmounts,
+                                        [p.id]: e.target.value,
+                                      })
+                                    }
+                                  />
+                                  <button
+                                    className="btn btn-warning btn-sm"
+                                    onClick={() => handleRefund(p.id)}
+                                  >
+                                    Refund
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="text-muted small mt-1">
+                          No payments yet
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </td>
               </tr>

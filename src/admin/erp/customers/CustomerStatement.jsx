@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../services/axios";
 import { notifyError } from "../../../utils/notify";
 
 const CustomerStatement = () => {
   const { id } = useParams();
   const printRef = useRef();
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
@@ -84,6 +85,12 @@ const CustomerStatement = () => {
             onClick={handlePrint}
           >
             Print
+          </button>
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={() => navigate(-1)}
+          >
+            Back
           </button>
         </div>
       </div>

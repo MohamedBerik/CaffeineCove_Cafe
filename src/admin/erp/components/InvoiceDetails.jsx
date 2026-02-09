@@ -33,6 +33,8 @@ const InvoiceDetails = () => {
   };
   if (loading) return <p>Loading invoice...</p>;
   if (!invoice) return <p>Invoice not found</p>;
+  const { customer } = data;
+
   const payments = invoice.payments || [];
 
   const refunds = payments.flatMap((p) => p.refunds || []);

@@ -35,6 +35,25 @@ const AdminNavbar = () => {
     navigate(path);
   };
 
+  // أضف هذا useEffect لإغلاق القوائم المنسدلة عند النقر خارجها
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // إذا كان النقر خارج القوائم المنسدلة والنافبار
+      if (
+        !event.target.closest(".nav-item") &&
+        !event.target.closest(".navbar-toggler")
+      ) {
+        setErpOpen(false);
+        setDataOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
   const handleLogout = () => {
     logout();
   };

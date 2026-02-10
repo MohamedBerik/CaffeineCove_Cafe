@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
 import { useNavigate } from "react-router-dom";
+import "./OrdersList.css";
 
 const OrdersList = () => {
   const navigate = useNavigate();

@@ -31,19 +31,24 @@ export default function DashboardHome() {
   const { stats } = data;
 
   return (
-    <div className="p-4 space-y-8">
+    <div className="container-fluid py-4">
       {/* ===================================================== */}
       {/* Operational KPIs */}
       {/* ===================================================== */}
 
-      <section>
+      <section className="mb-4">
         <h2 className="text-lg font-semibold mb-3">Today overview</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          <KpiCard title="Sales today" value={stats.sales_today} />
-          <KpiCard title="Payments today" value={stats.payments_today} />
-          <KpiCard title="Refunds today" value={stats.refunds_today} />
-          <KpiCard title="Outstanding receivables" value={stats.outstanding} />
+        <div className="row g-3">
+          <div className="col-12 col-md-6 col-xl-3">
+            <KpiCard title="Sales today" value={stats.sales_today} />
+            <KpiCard title="Payments today" value={stats.payments_today} />
+            <KpiCard title="Refunds today" value={stats.refunds_today} />
+            <KpiCard
+              title="Outstanding receivables"
+              value={stats.outstanding}
+            />
+          </div>
         </div>
       </section>
 
@@ -51,13 +56,17 @@ export default function DashboardHome() {
       {/* Financial snapshot (old data) */}
       {/* ===================================================== */}
 
-      <section>
+      <section className="mb-4">
         <h2 className="text-lg font-semibold mb-3">Financial snapshot</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4">
           <SmallCard title="Total sales" value={data.total_sales} />
-          <SmallCard title="Collected" value={data.total_collected} />
+          <SmallCard title="Gross collected" value={data.gross_collected} />
+          <SmallCard title="Refunds total" value={data.refunds_total} />
+          <SmallCard title="Net collected" value={data.net_collected} />
           <SmallCard title="Receivables" value={data.receivables} />
+          <SmallCard title="Collected" value={data.total_collected} />
+
           <SmallCard title="Total purchases" value={data.total_purchases} />
           <SmallCard
             title="Paid to suppliers"
@@ -148,9 +157,14 @@ export default function DashboardHome() {
 
           <ul className="space-y-3">
             {data.activities.map((a) => (
-              <li key={a.id} className="text-sm border-b last:border-0 pb-2">
-                <div className="font-medium">{a.description}</div>
-                <div className="text-xs text-gray-500">{a.created_at}</div>
+              <li key={a.id} className="text-sm border-bottom pb-2">
+                <div className="fw-semibold">{a.description}</div>
+
+                {a.subject_type && (
+                  <div className="small text-muted">{a.subject_type}</div>
+                )}
+
+                <div className="small text-muted">{a.created_at}</div>
               </li>
             ))}
           </ul>

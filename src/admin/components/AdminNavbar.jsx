@@ -1,32 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
-import "./AdminNavbar.css";
+import { useNavigate } from "react-router-dom";
 
 const AdminNavbar = () => {
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [erpOpen, setErpOpen] = useState(false);
   const [dataOpen, setDataOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [activePath, setActivePath] = useState("");
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-
-    // Update active path
-    setActivePath(location.pathname);
-
-    // Close dropdowns on route change
-    setErpOpen(false);
-    setDataOpen(false);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, [location]);
 
   const go = (path) => {
     setMenuOpen(false);
@@ -36,185 +18,143 @@ const AdminNavbar = () => {
   };
 
   const handleLogout = () => {
+    setMenuOpen(false);
+    setErpOpen(false);
+    setDataOpen(false);
     logout();
   };
 
-  const isActive = (path) => {
-    return activePath.includes(path) ? "active" : "";
-  };
-
-  const NavItem = ({ path, icon, label, children, isDropdown }) => {
-    if (isDropdown) {
-      return (
-        <li className={`nav-item dropdown ${isActive(path)}`}>
-          <button
-            className={`nav-link dropdown-toggle ${erpOpen || dataOpen ? "show" : ""}`}
-            onClick={() => {
-              if (path === "/admin/erp") {
-                setErpOpen(!erpOpen);
-                setDataOpen(false);
-              } else {
-                setDataOpen(!dataOpen);
-                setErpOpen(false);
-              }
-            }}
-            aria-expanded={erpOpen || dataOpen}
-          >
-            <i className={icon}></i>
-            <span>{label}</span>
-          </button>
-          {children}
-        </li>
-      );
-    }
-
-    return (
-      <li className={`nav-item ${isActive(path)}`}>
-        <button className="nav-link" onClick={() => go(path)}>
-          <i className={icon}></i>
-          <span>{label}</span>
-        </button>
-      </li>
-    );
-  };
-
-  const DropdownMenu = ({ items, isOpen, type }) => (
-    <div className={`dropdown-menu ${isOpen ? "show" : ""}`}>
-      {items.map((item) => (
-        <button
-          key={item.path}
-          className={`dropdown-item ${activePath === item.path ? "active" : ""}`}
-          onClick={() => go(item.path)}
-        >
-          <i className={item.icon}></i>
-          <span>{item.label}</span>
-          {activePath === item.path && <i className="fas fa-check ms-auto"></i>}
-        </button>
-      ))}
-    </div>
-  );
-
-  const erpItems = [
-    {
-      path: "/admin/erp/orders/create",
-      icon: "fas fa-plus-circle",
-      label: "Create Order",
-    },
-    {
-      path: "/admin/erp/orders",
-      icon: "fas fa-shopping-cart",
-      label: "Orders",
-    },
-    {
-      path: "/admin/erp/invoices",
-      icon: "fas fa-file-invoice-dollar",
-      label: "Invoices",
-    },
-    {
-      path: "/admin/erp/purchase-orders",
-      icon: "fas fa-clipboard-list",
-      label: "Purchase Orders",
-    },
-  ];
-
-  const dataItems = [
-    { path: "/admin/customers", icon: "fas fa-users", label: "Customers" },
-    { path: "/admin/users", icon: "fas fa-user", label: "Users" },
-    { path: "/admin/products", icon: "fas fa-box", label: "Products" },
-    { path: "/admin/suppliers", icon: "fas fa-industry", label: "Suppliers" },
-    { path: "/admin/employees", icon: "fas fa-user-tie", label: "Employees" },
-    {
-      path: "/admin/reservations",
-      icon: "fas fa-calendar-alt",
-      label: "Reservations",
-    },
-  ];
-
   return (
-    <>
-      <nav className="admin-navbar">
-        <div className="navbar-container">
-          {/* Brand */}
-          <div className="navbar-brand" onClick={() => go("/admin/erp")}>
-            <i className="fas fa-chart-line"></i>
-            <div className="brand-text">
-              <span className="brand-title">ERP System</span>
-              <span className="brand-subtitle">Admin Panel</span>
-            </div>
-          </div>
+    <nav className="navbar navbar-expand-sm bg-white shadow-sm fixed-top">
+      <div className="container-fluid">
+        {/* Brand */}
+        <button
+          className="navbar-brand btn btn-link text-decoration-none fw-bold"
+          onClick={() => go("/admin/erp")}
+        >
+          ERP Dashboard
+        </button>
 
-          {/* Toggle for mobile */}
-          <button
-            className="navbar-toggler"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle navigation"
-          >
-            <i className={`fas fa-${menuOpen ? "times" : "bars"}`}></i>
-          </button>
+        {/* Toggler */}
+        <button
+          className="navbar-toggler"
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+        >
+          <span className="navbar-toggler-icon" />
+        </button>
 
-          {/* Navigation Items */}
-          <div className={`navbar-collapse ${menuOpen ? "show" : ""}`}>
-            <ul className="navbar-nav">
-              <NavItem
-                path="/admin/erp"
-                icon="fas fa-tachometer-alt"
-                label="Dashboard"
-                isDropdown={false}
-              />
-
-              <NavItem
-                path="/admin/erp"
-                icon="fas fa-cogs"
-                label="ERP Modules"
-                isDropdown={true}
-              >
-                <DropdownMenu items={erpItems} isOpen={erpOpen} type="erp" />
-              </NavItem>
-
-              <NavItem
-                path="/admin/data"
-                icon="fas fa-database"
-                label="Data Management"
-                isDropdown={true}
-              >
-                <DropdownMenu items={dataItems} isOpen={dataOpen} type="data" />
-              </NavItem>
-            </ul>
-
-            {/* User Section */}
-            <div className="navbar-user">
-              <div className="user-info">
-                <div className="user-avatar">
-                  <i className="fas fa-user-circle"></i>
-                </div>
-                <div className="user-details">
-                  <span className="user-name">
-                    {user?.name || "Administrator"}
-                  </span>
-                  <span className="user-role">Admin</span>
-                </div>
-              </div>
+        <div className={`collapse navbar-collapse ${menuOpen ? "show" : ""}`}>
+          <ul className="navbar-nav me-auto mb-2 mb-sm-0">
+            {/* ERP */}
+            <li className="nav-item dropdown">
               <button
-                className="logout-btn"
-                onClick={handleLogout}
-                title="Logout"
+                className="nav-link dropdown-toggle btn btn-link text-decoration-none"
+                onClick={() => {
+                  setErpOpen((v) => !v);
+                  setDataOpen(false);
+                }}
               >
-                <i className="fas fa-sign-out-alt"></i>
-                {!isMobile && <span>Logout</span>}
+                ERP Modules ⚙️
               </button>
-            </div>
+
+              <div className={`dropdown-menu ${erpOpen ? "show" : ""}`}>
+                <button
+                  className="dropdown-item"
+                  onClick={() => go("/admin/erp/orders/create")}
+                >
+                  📦 Create Order
+                </button>
+
+                <button
+                  className="dropdown-item"
+                  onClick={() => go("/admin/erp/orders")}
+                >
+                  🛒 Orders
+                </button>
+
+                <button
+                  className="dropdown-item"
+                  onClick={() => go("/admin/erp/invoices")}
+                >
+                  💰 Invoices
+                </button>
+
+                <button
+                  className="dropdown-item"
+                  onClick={() => go("/admin/erp/purchase-orders")}
+                >
+                  📦 Purchase Orders
+                </button>
+              </div>
+            </li>
+
+            {/* DATA */}
+            <li className="nav-item dropdown">
+              <button
+                className="nav-link dropdown-toggle btn btn-link text-decoration-none"
+                onClick={() => {
+                  setDataOpen((v) => !v);
+                  setErpOpen(false);
+                }}
+              >
+                Data Tables
+              </button>
+
+              <div className={`dropdown-menu ${dataOpen ? "show" : ""}`}>
+                <button
+                  className="dropdown-item"
+                  onClick={() => go("/admin/customers")}
+                >
+                  👥 Customers
+                </button>
+
+                <button
+                  className="dropdown-item"
+                  onClick={() => go("/admin/users")}
+                >
+                  👤 Users
+                </button>
+
+                <button
+                  className="dropdown-item"
+                  onClick={() => go("/admin/products")}
+                >
+                  📦 Products
+                </button>
+
+                <button
+                  className="dropdown-item"
+                  onClick={() => go("/admin/suppliers")}
+                >
+                  🏭 Suppliers
+                </button>
+
+                <button
+                  className="dropdown-item"
+                  onClick={() => go("/admin/employees")}
+                >
+                  🧑‍💼 Employees
+                </button>
+
+                <button
+                  className="dropdown-item"
+                  onClick={() => go("/admin/reservations")}
+                >
+                  📅 Reservations
+                </button>
+              </div>
+            </li>
+          </ul>
+
+          <div className="d-flex">
+            <button className="btn btn-danger" onClick={handleLogout}>
+              Logout
+            </button>
           </div>
         </div>
-
-        {/* Mobile Overlay */}
-        {isMobile && menuOpen && (
-          <div className="navbar-overlay" onClick={() => setMenuOpen(false)} />
-        )}
-      </nav>
-
-      {/* Spacer for fixed navbar */}
-      <div className="navbar-spacer"></div>
-    </>
+      </div>
+    </nav>
   );
 };
 

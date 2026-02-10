@@ -1,0 +1,308 @@
+/* InvoicesList Styles */
+.invoices-container {
+  padding: 1rem;
+}
+
+.invoices-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.invoices-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: #666;
+}
+
+.no-data {
+  text-align: center;
+  padding: 3rem;
+  color: #6c757d;
+}
+
+.no-data i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #dee2e6;
+}
+
+/* Table Styles */
+.invoices-table {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.invoices-table th {
+  background: #f8f9fa;
+  padding: 1rem;
+  font-weight: 600;
+  color: #495057;
+  text-align: left;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.invoices-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+  vertical-align: top;
+}
+
+.invoice-row:hover {
+  background-color: #f8f9fa;
+}
+
+/* Button Styles */
+.btn-invoice-id {
+  background: none;
+  border: none;
+  color: #0d6efd;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.btn-invoice-id:hover {
+  color: #0b5ed7;
+}
+
+.invoice-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-paid {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-overdue {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Payment Section */
+.payment-section-row {
+  background-color: #f8f9fa;
+}
+
+.payment-section {
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background: white;
+}
+
+.payment-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.remaining-badge {
+  padding: 0.5rem 1rem;
+  background: #e7f1ff;
+  border-radius: 4px;
+  color: #0d6efd;
+  font-size: 0.9rem;
+}
+
+.payment-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.payment-input-group {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+.input-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+.input-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.input-row > * {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* Payments List */
+.payments-list {
+  margin-top: 1rem;
+}
+
+.payments-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+.payment-item {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.payment-info {
+  margin-bottom: 1rem;
+}
+
+.payment-method {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+}
+
+.payment-amounts {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+  color: #495057;
+}
+
+.refund-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.refund-controls > * {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* Mobile Styles */
+.mobile-invoice-card {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 0.5rem 0;
+}
+
+.mobile-invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.mobile-customer {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.mobile-invoice-details {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+  color: #495057;
+}
+
+.remaining-amount {
+  font-weight: 600;
+  color: #dc3545;
+}
+
+.mobile-invoice-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .invoices-container {
+    padding: 0.5rem;
+  }
+
+  .invoices-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .invoices-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .input-row,
+  .refund-controls {
+    flex-direction: column;
+  }
+
+  .payment-amounts {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .payment-section-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 576px) {
+  .mobile-invoice-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .invoice-actions,
+  .mobile-invoice-actions {
+    justify-content: space-between;
+  }
+}

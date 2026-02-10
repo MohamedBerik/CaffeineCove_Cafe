@@ -11,23 +11,19 @@ const AdminNavbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [erpOpen, setErpOpen] = useState(false);
   const [dataOpen, setDataOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
-  const [activeModule, setActiveModule] = useState("");
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [activePath, setActivePath] = useState("");
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 992);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
 
-    // Set active module based on current path
-    const path = location.pathname;
-    if (path.includes("/erp/orders")) setActiveModule("orders");
-    else if (path.includes("/erp/invoices")) setActiveModule("invoices");
-    else if (path.includes("/erp/purchase-orders"))
-      setActiveModule("purchase-orders");
-    else if (path.includes("/customers")) setActiveModule("customers");
-    else if (path.includes("/products")) setActiveModule("products");
-    else if (path.includes("/users")) setActiveModule("users");
-    else setActiveModule("dashboard");
+    // Update active path
+    setActivePath(location.pathname);
+
+    // Close dropdowns on route change
+    setErpOpen(false);
+    setDataOpen(false);
 
     return () => window.removeEventListener("resize", handleResize);
   }, [location]);
@@ -40,228 +36,185 @@ const AdminNavbar = () => {
   };
 
   const handleLogout = () => {
-    setMenuOpen(false);
     logout();
   };
 
-  const closeAllMenus = () => {
-    setErpOpen(false);
-    setDataOpen(false);
-    if (isMobile) setMenuOpen(false);
+  const isActive = (path) => {
+    return activePath.includes(path) ? "active" : "";
   };
 
-  const NavLink = ({ path, icon, label, badge }) => (
-    <button
-      className={`nav-link ${location.pathname.includes(path) ? "active" : ""}`}
-      onClick={() => go(path)}
-    >
-      <i className={icon}></i>
-      <span>{label}</span>
-      {badge && <span className="nav-badge">{badge}</span>}
-    </button>
+  const NavItem = ({ path, icon, label, children, isDropdown }) => {
+    if (isDropdown) {
+      return (
+        <li className={`nav-item dropdown ${isActive(path)}`}>
+          <button
+            className={`nav-link dropdown-toggle ${erpOpen || dataOpen ? "show" : ""}`}
+            onClick={() => {
+              if (path === "/admin/erp") {
+                setErpOpen(!erpOpen);
+                setDataOpen(false);
+              } else {
+                setDataOpen(!dataOpen);
+                setErpOpen(false);
+              }
+            }}
+            aria-expanded={erpOpen || dataOpen}
+          >
+            <i className={icon}></i>
+            <span>{label}</span>
+          </button>
+          {children}
+        </li>
+      );
+    }
+
+    return (
+      <li className={`nav-item ${isActive(path)}`}>
+        <button className="nav-link" onClick={() => go(path)}>
+          <i className={icon}></i>
+          <span>{label}</span>
+        </button>
+      </li>
+    );
+  };
+
+  const DropdownMenu = ({ items, isOpen, type }) => (
+    <div className={`dropdown-menu ${isOpen ? "show" : ""}`}>
+      {items.map((item) => (
+        <button
+          key={item.path}
+          className={`dropdown-item ${activePath === item.path ? "active" : ""}`}
+          onClick={() => go(item.path)}
+        >
+          <i className={item.icon}></i>
+          <span>{item.label}</span>
+          {activePath === item.path && <i className="fas fa-check ms-auto"></i>}
+        </button>
+      ))}
+    </div>
   );
 
+  const erpItems = [
+    {
+      path: "/admin/erp/orders/create",
+      icon: "fas fa-plus-circle",
+      label: "Create Order",
+    },
+    {
+      path: "/admin/erp/orders",
+      icon: "fas fa-shopping-cart",
+      label: "Orders",
+    },
+    {
+      path: "/admin/erp/invoices",
+      icon: "fas fa-file-invoice-dollar",
+      label: "Invoices",
+    },
+    {
+      path: "/admin/erp/purchase-orders",
+      icon: "fas fa-clipboard-list",
+      label: "Purchase Orders",
+    },
+  ];
+
+  const dataItems = [
+    { path: "/admin/customers", icon: "fas fa-users", label: "Customers" },
+    { path: "/admin/users", icon: "fas fa-user", label: "Users" },
+    { path: "/admin/products", icon: "fas fa-box", label: "Products" },
+    { path: "/admin/suppliers", icon: "fas fa-industry", label: "Suppliers" },
+    { path: "/admin/employees", icon: "fas fa-user-tie", label: "Employees" },
+    {
+      path: "/admin/reservations",
+      icon: "fas fa-calendar-alt",
+      label: "Reservations",
+    },
+  ];
+
   return (
-    <nav className="admin-navbar">
-      {/* Mobile Header */}
-      {isMobile && (
-        <div className="mobile-nav-header">
+    <>
+      <nav className="admin-navbar">
+        <div className="navbar-container">
+          {/* Brand */}
+          <div className="navbar-brand" onClick={() => go("/admin/erp")}>
+            <i className="fas fa-chart-line"></i>
+            <div className="brand-text">
+              <span className="brand-title">ERP System</span>
+              <span className="brand-subtitle">Admin Panel</span>
+            </div>
+          </div>
+
+          {/* Toggle for mobile */}
           <button
-            className="menu-toggle"
+            className="navbar-toggler"
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle navigation"
           >
             <i className={`fas fa-${menuOpen ? "times" : "bars"}`}></i>
           </button>
-          <div className="mobile-brand" onClick={() => go("/admin/erp")}>
-            <i className="fas fa-chart-line"></i>
-            <span>ERP System</span>
-          </div>
-          <button className="user-menu" onClick={handleLogout}>
-            <i className="fas fa-sign-out-alt"></i>
-          </button>
-        </div>
-      )}
 
-      {/* Desktop Sidebar */}
-      {!isMobile && (
-        <div className="desktop-sidebar">
-          <div className="sidebar-header" onClick={() => go("/admin/erp")}>
-            <i className="fas fa-chart-line"></i>
-            <div className="brand-text">
-              <h3>ERP System</h3>
-              <p>Admin Panel</p>
-            </div>
-          </div>
-
-          <div className="user-info">
-            <div className="user-avatar">
-              <i className="fas fa-user-circle"></i>
-            </div>
-            <div className="user-details">
-              <h4>{user?.name || "Admin"}</h4>
-              <p>Administrator</p>
-            </div>
-          </div>
-
-          <div className="nav-section">
-            <h4 className="section-title">ERP Modules</h4>
-            <NavLink
-              path="/admin/erp"
-              icon="fas fa-tachometer-alt"
-              label="Dashboard"
-            />
-            <NavLink
-              path="/admin/erp/orders/create"
-              icon="fas fa-plus-circle"
-              label="Create Order"
-            />
-            <NavLink
-              path="/admin/erp/orders"
-              icon="fas fa-shopping-cart"
-              label="Orders"
-              badge={activeModule === "orders" ? "●" : ""}
-            />
-            <NavLink
-              path="/admin/erp/invoices"
-              icon="fas fa-file-invoice-dollar"
-              label="Invoices"
-              badge={activeModule === "invoices" ? "●" : ""}
-            />
-            <NavLink
-              path="/admin/erp/purchase-orders"
-              icon="fas fa-clipboard-list"
-              label="Purchase Orders"
-              badge={activeModule === "purchase-orders" ? "●" : ""}
-            />
-          </div>
-
-          <div className="nav-section">
-            <h4 className="section-title">Data Management</h4>
-            <NavLink
-              path="/admin/customers"
-              icon="fas fa-users"
-              label="Customers"
-              badge={activeModule === "customers" ? "●" : ""}
-            />
-            <NavLink
-              path="/admin/users"
-              icon="fas fa-user"
-              label="Users"
-              badge={activeModule === "users" ? "●" : ""}
-            />
-            <NavLink
-              path="/admin/products"
-              icon="fas fa-box"
-              label="Products"
-              badge={activeModule === "products" ? "●" : ""}
-            />
-            <NavLink
-              path="/admin/suppliers"
-              icon="fas fa-industry"
-              label="Suppliers"
-            />
-            <NavLink
-              path="/admin/employees"
-              icon="fas fa-user-tie"
-              label="Employees"
-            />
-            <NavLink
-              path="/admin/reservations"
-              icon="fas fa-calendar-alt"
-              label="Reservations"
-            />
-          </div>
-
-          <div className="nav-footer">
-            <button className="logout-btn" onClick={handleLogout}>
-              <i className="fas fa-sign-out-alt"></i>
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Mobile Sidebar */}
-      {isMobile && menuOpen && (
-        <div
-          className="mobile-sidebar-overlay"
-          onClick={() => setMenuOpen(false)}
-        >
-          <div className="mobile-sidebar" onClick={(e) => e.stopPropagation()}>
-            <div className="mobile-sidebar-header">
-              <div className="user-info-mobile">
-                <div className="user-avatar-mobile">
-                  <i className="fas fa-user-circle"></i>
-                </div>
-                <div>
-                  <h4>{user?.name || "Admin"}</h4>
-                  <p>Administrator</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mobile-nav-section">
-              <h5>ERP Modules</h5>
-              <NavLink
+          {/* Navigation Items */}
+          <div className={`navbar-collapse ${menuOpen ? "show" : ""}`}>
+            <ul className="navbar-nav">
+              <NavItem
                 path="/admin/erp"
                 icon="fas fa-tachometer-alt"
                 label="Dashboard"
+                isDropdown={false}
               />
-              <NavLink
-                path="/admin/erp/orders/create"
-                icon="fas fa-plus-circle"
-                label="Create Order"
-              />
-              <NavLink
-                path="/admin/erp/orders"
-                icon="fas fa-shopping-cart"
-                label="Orders"
-              />
-              <NavLink
-                path="/admin/erp/invoices"
-                icon="fas fa-file-invoice-dollar"
-                label="Invoices"
-              />
-              <NavLink
-                path="/admin/erp/purchase-orders"
-                icon="fas fa-clipboard-list"
-                label="Purchase Orders"
-              />
-            </div>
 
-            <div className="mobile-nav-section">
-              <h5>Data Management</h5>
-              <NavLink
-                path="/admin/customers"
-                icon="fas fa-users"
-                label="Customers"
-              />
-              <NavLink path="/admin/users" icon="fas fa-user" label="Users" />
-              <NavLink
-                path="/admin/products"
-                icon="fas fa-box"
-                label="Products"
-              />
-              <NavLink
-                path="/admin/suppliers"
-                icon="fas fa-industry"
-                label="Suppliers"
-              />
-              <NavLink
-                path="/admin/employees"
-                icon="fas fa-user-tie"
-                label="Employees"
-              />
-              <NavLink
-                path="/admin/reservations"
-                icon="fas fa-calendar-alt"
-                label="Reservations"
-              />
+              <NavItem
+                path="/admin/erp"
+                icon="fas fa-cogs"
+                label="ERP Modules"
+                isDropdown={true}
+              >
+                <DropdownMenu items={erpItems} isOpen={erpOpen} type="erp" />
+              </NavItem>
+
+              <NavItem
+                path="/admin/data"
+                icon="fas fa-database"
+                label="Data Management"
+                isDropdown={true}
+              >
+                <DropdownMenu items={dataItems} isOpen={dataOpen} type="data" />
+              </NavItem>
+            </ul>
+
+            {/* User Section */}
+            <div className="navbar-user">
+              <div className="user-info">
+                <div className="user-avatar">
+                  <i className="fas fa-user-circle"></i>
+                </div>
+                <div className="user-details">
+                  <span className="user-name">
+                    {user?.name || "Administrator"}
+                  </span>
+                  <span className="user-role">Admin</span>
+                </div>
+              </div>
+              <button
+                className="logout-btn"
+                onClick={handleLogout}
+                title="Logout"
+              >
+                <i className="fas fa-sign-out-alt"></i>
+                {!isMobile && <span>Logout</span>}
+              </button>
             </div>
           </div>
         </div>
-      )}
-    </nav>
+
+        {/* Mobile Overlay */}
+        {isMobile && menuOpen && (
+          <div className="navbar-overlay" onClick={() => setMenuOpen(false)} />
+        )}
+      </nav>
+
+      {/* Spacer for fixed navbar */}
+      <div className="navbar-spacer"></div>
+    </>
   );
 };
 

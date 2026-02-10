@@ -93,6 +93,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
+  flex-direction: row;
 }
 
 .nav-item {
@@ -168,7 +169,7 @@
   visibility: hidden;
   transform: translateY(-10px);
   transition: all 0.3s ease-out;
-  z-index: 1001;
+  z-index: 1002;
 }
 
 .dropdown-menu.show {
@@ -356,6 +357,7 @@
     transition: all 0.3s ease-out;
     max-height: calc(100vh - 64px);
     overflow-y: auto;
+    z-index: 1001; /* إصلاح: زيادة z-index */
   }
 
   .navbar-collapse.show {
@@ -406,6 +408,7 @@
     display: none;
     border-left: 4px solid #ddd;
     margin-left: 1rem;
+    z-index: 1003; /* إصلاح: زيادة أكثر للقوائم المنسدلة */
   }
 
   .dropdown-menu.show {
@@ -454,5 +457,26 @@
 
   .navbar-overlay {
     top: 56px;
+  }
+}
+/* 5. إصلاح: جعل زر النافبار التوجر يظهر فقط في الجوال */
+@media (min-width: 769px) {
+  .navbar-toggler {
+    display: none;
+  }
+
+  .navbar-overlay {
+    display: none;
+  }
+}
+
+/* 6. إصلاح: إخفاء النص الفرعي في الشاشات الصغيرة فقط */
+@media (max-width: 992px) {
+  .brand-text .brand-subtitle {
+    display: none;
+  }
+
+  .brand-text .brand-title {
+    font-size: 1rem;
   }
 }

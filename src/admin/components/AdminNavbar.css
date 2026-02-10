@@ -41,7 +41,7 @@
 }
 
 .brand-text {
-  display: flex;
+  display: none;
   flex-direction: column;
   line-height: 1.2;
 }
@@ -168,7 +168,7 @@
   visibility: hidden;
   transform: translateY(-10px);
   transition: all 0.3s ease-out;
-  z-index: 1001;
+  z-index: 1002;
 }
 
 .dropdown-menu.show {

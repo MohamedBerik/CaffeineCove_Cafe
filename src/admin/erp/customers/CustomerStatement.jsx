@@ -241,18 +241,16 @@ const CustomerStatement = () => {
               </div>
 
               <div className="entry-amounts">
-                {Number(row.debit) > 0 && (
-                  <div className="amount debit">
-                    <span>Debit</span>
-                    <span>{Number(row.debit).toFixed(2)}</span>
-                  </div>
-                )}
-                {Number(row.credit) > 0 && (
-                  <div className="amount credit">
-                    <span>Credit</span>
-                    <span>{Number(row.credit).toFixed(2)}</span>
-                  </div>
-                )}
+                <div className="amount debit">
+                  <span>Debit</span>
+                  <span>{Number(row.debit).toFixed(2)}</span>
+                </div>
+
+                <div className="amount credit">
+                  <span>Credit</span>
+                  <span>{Number(row.credit).toFixed(2)}</span>
+                </div>
+
                 <div className="amount balance">
                   <span>Balance</span>
                   <span>{Number(row.balance).toFixed(2)}</span>
@@ -474,11 +472,10 @@ const CustomerStatement = () => {
                         </span>
                       </td>
                       <td className="text-right debit-col">
-                        {Number(row.debit) > 0 && Number(row.debit).toFixed(2)}
+                        {Number(row.debit).toFixed(2)}
                       </td>
                       <td className="text-right credit-col">
-                        {Number(row.credit) > 0 &&
-                          Number(row.credit).toFixed(2)}
+                        {Number(row.credit).toFixed(2)}
                       </td>
                       <td className="text-right balance-col">
                         {Number(row.balance).toFixed(2)}

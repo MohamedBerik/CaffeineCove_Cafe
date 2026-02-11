@@ -34,13 +34,13 @@ const InvoiceDetails = () => {
 
   const handlePrint = () => window.print();
 
-  // if (loading)
-  //   return (
-  //     <div className="loading-screen">
-  //       <div className="spinner"></div>
-  //       <p>Loading invoice details...</p>
-  //     </div>
-  //   );
+  if (loading)
+    return (
+      <div className="loading-screen">
+        <div className="spinner"></div>
+        <p>Loading invoice details...</p>
+      </div>
+    );
 
   if (!invoice)
     return (

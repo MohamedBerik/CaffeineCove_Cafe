@@ -34,6 +34,8 @@ const PurchaseOrdersList = () => {
             <th>Supplier</th>
             <th>Total</th>
             <th>Status</th>
+            <th>Paid</th>
+            <th>Remaining</th>
           </tr>
         </thead>
         <tbody>
@@ -43,6 +45,16 @@ const PurchaseOrdersList = () => {
               <td>{po.supplier?.name}</td>
               <td>{po.total}</td>
               <td>{po.status}</td>
+              <td>{po.total_paid}</td>
+              <td>{po.remaining}</td>
+              <td>
+                <button
+                  className="btn btn-sm btn-outline-primary"
+                  onClick={() => navigate(`/erp/purchase-orders/${po.id}`)}
+                >
+                  View
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>

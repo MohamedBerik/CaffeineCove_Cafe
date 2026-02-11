@@ -97,6 +97,10 @@ createRoot(document.getElementById("root")).render(
             path="customers/:id/statement"
             element={<CustomerStatement />}
           />
+          <Route
+            path="purchase-orders/:id"
+            element={<PurchaseOrderDetails />}
+          />
         </Route>
 
         {/* ================= Generic admin CRUD (OLD / temporary) ================= */}

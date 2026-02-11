@@ -12,7 +12,7 @@ const TABLES = [
   "categories",
   "products",
   "customers",
-  // "order_items",
+  "suppliers",
   "orders",
   "employees",
   "sales",
@@ -29,7 +29,7 @@ const Dashboard = () => {
     categories: 0,
     products: 0,
     customers: 0,
-    // order_items: 0,
+    suppliers: 0,
     orders: 0,
     employees: 0,
     sales: 0,
@@ -54,7 +54,7 @@ const Dashboard = () => {
     categories: "📁",
     products: "📦",
     customers: "👤",
-    // order_items: "📦",
+    suppliers: "👤",
     orders: "🛒",
     employees: "💼",
     sales: "📈",
@@ -81,6 +81,7 @@ const Dashboard = () => {
         categories: data.statistics?.categories ?? 0,
         products: data.statistics?.products ?? 0,
         customers: data.statistics?.customers ?? 0,
+        suppliers: data.statistics?.suppliers ?? 0,
         order_items: data.statistics?.order_items ?? 0,
         orders: data.statistics?.orders ?? 0,
         employees: data.statistics?.employees ?? 0,
@@ -389,9 +390,9 @@ const Dashboard = () => {
       </div>
 
       {/* Nested Route for Invoice Details */}
-      <Routes>
+      {/* <Routes>
         <Route path="invoices/:id" element={<InvoiceDetails />} />
-      </Routes>
+      </Routes> */}
     </div>
   );
 };

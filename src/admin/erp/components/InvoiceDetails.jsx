@@ -47,7 +47,10 @@ const InvoiceDetails = () => {
       <div className="error-screen">
         <i className="fas fa-file-invoice-dollar"></i>
         <h3>Invoice not found</h3>
-        <button className="btn btn-primary" onClick={() => navigate(-1)}>
+        <button
+          className="btn btn-primary"
+          onClick={() => navigate("/erp/invoices")}
+        >
           Go Back
         </button>
       </div>

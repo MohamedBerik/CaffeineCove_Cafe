@@ -170,6 +170,7 @@
   transform: translateY(-10px);
   transition: all 0.3s ease-out;
   z-index: 1002;
+  margin-top: 10px;
 }
 
 .dropdown-menu.show {

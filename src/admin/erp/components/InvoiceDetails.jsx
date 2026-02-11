@@ -47,10 +47,7 @@ const InvoiceDetails = () => {
       <div className="error-screen">
         <i className="fas fa-file-invoice-dollar"></i>
         <h3>Invoice not found</h3>
-        <button
-          className="btn btn-primary"
-          onClick={() => navigate("/erp/invoices")}
-        >
+        <button className="btn btn-primary" onClick={() => navigate(-1)}>
           Go Back
         </button>
       </div>
@@ -106,7 +103,7 @@ const InvoiceDetails = () => {
   const renderMobileView = () => (
     <div className="invoice-details-mobile">
       <div className="mobile-header">
-        <button className="btn-back" onClick={() => navigate(-1)}>
+        <button className="btn-back" onClick={() => navigate("/erp/invoices")}>
           <i className="fas fa-arrow-left"></i>
         </button>
         <h2>Invoice #{invoice.number}</h2>
@@ -315,7 +312,10 @@ const InvoiceDetails = () => {
     <div className="invoice-details-desktop">
       <div className="invoice-header">
         <div className="header-left">
-          <button className="btn-back" onClick={() => navigate(-1)}>
+          <button
+            className="btn-back"
+            onClick={() => navigate("/erp/invoices")}
+          >
             <i className="fas fa-arrow-left"></i> Back
           </button>
           <h1>Invoice #{invoice.number}</h1>

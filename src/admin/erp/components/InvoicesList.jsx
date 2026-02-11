@@ -3,7 +3,6 @@ import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
 import { useNavigate } from "react-router-dom";
 import "./InvoicesList.css";
-import { useLocation } from "react-router-dom";
 
 const InvoicesList = () => {
   const navigate = useNavigate();
@@ -32,9 +31,8 @@ const InvoicesList = () => {
       })
       .finally(() => setLoading(false));
   };
-  const location = useLocation();
 
-  useEffect(() => fetchInvoices(), [location.key]);
+  useEffect(() => fetchInvoices(), []);
 
   const handlePay = async (invoiceId) => {
     const amount = payAmounts[invoiceId];

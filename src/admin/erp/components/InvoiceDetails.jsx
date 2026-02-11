@@ -103,7 +103,10 @@ const InvoiceDetails = () => {
   const renderMobileView = () => (
     <div className="invoice-details-mobile">
       <div className="mobile-header">
-        <button className="btn-back" onClick={() => navigate(-1)}>
+        <button
+          className="btn-back"
+          onClick={() => navigate("/admin/erp/invoices")}
+        >
           <i className="fas fa-arrow-left"></i>
         </button>
         <h2>Invoice #{invoice.number}</h2>
@@ -312,7 +315,10 @@ const InvoiceDetails = () => {
     <div className="invoice-details-desktop">
       <div className="invoice-header">
         <div className="header-left">
-          <button className="btn-back" onClick={() => navigate(-1)}>
+          <button
+            className="btn-back"
+            onClick={() => navigate("/admin/erp/invoices")}
+          >
             <i className="fas fa-arrow-left"></i> Back
           </button>
           <h1>Invoice #{invoice.number}</h1>

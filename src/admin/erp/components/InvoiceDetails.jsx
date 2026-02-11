@@ -30,7 +30,7 @@ const InvoiceDetails = () => {
     }
   };
 
-  useEffect(() => fetchInvoice(), [location.key]);
+  useEffect(() => fetchInvoice(), [id]);
 
   const handlePrint = () => window.print();
 

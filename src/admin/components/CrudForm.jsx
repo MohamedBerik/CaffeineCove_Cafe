@@ -32,13 +32,6 @@ const tableSchemas = {
     total: "",
     created_by: "",
   },
-  // order_items: {
-  //   order_id: "",
-  //   product_id: "",
-  //   quantity: "",
-  //   unit_price: "",
-  //   total: "",
-  // },
   invoices: {
     title: "",
     total: 0,
@@ -69,6 +62,11 @@ const tableSchemas = {
     date: "",
     time: "",
     message: "",
+  },
+  suppliers: {
+    name: "",
+    email: "",
+    phone: "",
   },
 };
 

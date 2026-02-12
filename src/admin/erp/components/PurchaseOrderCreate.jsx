@@ -90,7 +90,7 @@ const PurchaseOrderCreate = () => {
 
       notifySuccess("Purchase order created");
 
-      navigate("/erp/purchase-orders");
+      navigate("/erp/admin/purchase-orders");
     } catch (e) {
       console.error(e);
       notifyError(

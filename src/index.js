@@ -42,6 +42,7 @@ import { ProtectedRoute, AdminRoute } from "./admin/routes/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PurchaseOrderDetails from "./admin/erp/components/PurchaseOrderDetails";
+import SupplierStatement from "./admin/erp/suppliers/SupplierStatement";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -101,6 +102,10 @@ createRoot(document.getElementById("root")).render(
           <Route
             path="purchase-orders/:id"
             element={<PurchaseOrderDetails />}
+          />
+          <Route
+            path="suppliers/:id/statement"
+            element={<SupplierStatement />}
           />
         </Route>
 

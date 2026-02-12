@@ -26,7 +26,10 @@ import OrderDetails from "./admin/erp/components/OrderDetails";
 import InvoicesList from "./admin/erp/components/InvoicesList";
 import InvoiceDetails from "./admin/erp/components/InvoiceDetails";
 import PurchaseOrdersList from "./admin/erp/components/PurchaseOrdersList";
+import PurchaseOrderCreate from "./admin/erp/components/PurchaseOrderCreate";
+import PurchaseOrderDetails from "./admin/erp/components/PurchaseOrderDetails";
 import CustomerStatement from "./admin/erp/customers/CustomerStatement";
+import SupplierStatement from "./admin/erp/suppliers/SupplierStatement";
 
 /* ================= Generic CRUD (temporary) ================= */
 import CrudTable from "./admin/components/CrudTable";
@@ -41,9 +44,6 @@ import { ProtectedRoute, AdminRoute } from "./admin/routes/ProtectedRoute";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import PurchaseOrderDetails from "./admin/erp/components/PurchaseOrderDetails";
-import SupplierStatement from "./admin/erp/suppliers/SupplierStatement";
-import PurchaseOrderCreate from "./admin/erp/components/PurchaseOrderCreate";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -102,6 +102,8 @@ createRoot(document.getElementById("root")).render(
             path="purchase-orders/:id"
             element={<PurchaseOrderDetails />}
           />
+
+          {/* Supplier statement */}
           <Route
             path="suppliers/:id/statement"
             element={<SupplierStatement />}

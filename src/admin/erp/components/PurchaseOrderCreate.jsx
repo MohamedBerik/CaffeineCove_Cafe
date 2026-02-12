@@ -27,8 +27,8 @@ const PurchaseOrderCreate = () => {
         api.get("/admin/products"),
       ]);
 
-      setSuppliers(supRes.data);
-      setProducts(prodRes.data);
+      setSuppliers(supRes.data.data ?? supRes.data);
+      setSuppliers(supRes.data.data ?? supRes.data);
     } catch (e) {
       console.error(e);
       notifyError("Failed to load suppliers or products");

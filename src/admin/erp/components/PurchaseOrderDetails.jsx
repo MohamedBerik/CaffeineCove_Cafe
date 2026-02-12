@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../services/axios";
-import { notifyError } from "../../../utils/notify";
+import { notifyError, notifySuccess } from "../../../utils/notify";
 
 const PurchaseOrderDetails = () => {
   const { id } = useParams();
@@ -10,9 +10,15 @@ const PurchaseOrderDetails = () => {
   const [po, setPo] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [payAmount, setPayAmount] = useState("");
+  const [payMethod, setPayMethod] = useState("cash");
+  const [payLoading, setPayLoading] = useState(false);
+  const [receiveLoading, setReceiveLoading] = useState(false);
+
   const fetchPO = async () => {
     try {
-      const res = await api.get(`/erp/purchase-orders/${id}`);
+      setLoading(true);
+      const res = await api.get(`/erp/purchase-orders/${id}/erp`);
       setPo(res.data);
     } catch (e) {
       console.error(e);
@@ -26,13 +32,51 @@ const PurchaseOrderDetails = () => {
     fetchPO();
   }, [id]);
 
+  const handleReceive = async () => {
+    if (!window.confirm("Receive this purchase order and add stock?")) return;
+
+    try {
+      setReceiveLoading(true);
+      const res = await api.post(`/erp/purchase-orders/${id}/receive`);
+      notifySuccess(res.data.msg || "Received successfully");
+      fetchPO();
+    } catch (e) {
+      console.error(e);
+      notifyError(e.response?.data?.msg || "Receive failed");
+    } finally {
+      setReceiveLoading(false);
+    }
+  };
+
+  const handlePay = async () => {
+    if (!payAmount || Number(payAmount) <= 0) {
+      notifyError("Enter valid amount");
+      return;
+    }
+
+    try {
+      setPayLoading(true);
+
+      const res = await api.post(`/erp/purchase-orders/${id}/pay`, {
+        amount: payAmount,
+        method: payMethod,
+      });
+
+      notifySuccess(res.data.msg || "Payment recorded");
+
+      setPayAmount("");
+      fetchPO();
+    } catch (e) {
+      console.error(e);
+      notifyError(e.response?.data?.msg || "Payment failed");
+    } finally {
+      setPayLoading(false);
+    }
+  };
+
   if (loading) return <p>Loading purchase order...</p>;
 
   if (!po) return <p>Purchase order not found</p>;
-
-  const totalPaid = po.payments?.reduce((s, p) => s + Number(p.amount), 0) || 0;
-
-  const remaining = Math.max(Number(po.total) - totalPaid, 0);
 
   return (
     <div className="container mt-4">
@@ -49,10 +93,70 @@ const PurchaseOrderDetails = () => {
         <br />
         <strong>Total:</strong> ${Number(po.total).toFixed(2)}
         <br />
-        <strong>Paid:</strong> ${totalPaid.toFixed(2)}
+        <strong>Paid:</strong> ${Number(po.total_paid).toFixed(2)}
         <br />
-        <strong>Remaining:</strong> ${remaining.toFixed(2)}
+        <strong>Remaining:</strong> ${Number(po.remaining).toFixed(2)}
+        <br />
+        <strong>Received:</strong> {po.is_received ? "Yes" : "No"}
       </div>
+
+      <hr />
+
+      {/* Receive section */}
+      {!po.is_received && (
+        <div className="mb-4">
+          <button
+            className="btn btn-outline-success"
+            disabled={receiveLoading}
+            onClick={handleReceive}
+          >
+            {receiveLoading ? "Receiving..." : "Receive items to stock"}
+          </button>
+        </div>
+      )}
+
+      {/* Pay section */}
+      {Number(po.remaining) > 0 && (
+        <div className="card p-3 mb-4">
+          <h5>Pay supplier</h5>
+
+          <div className="row">
+            <div className="col-md-4">
+              <input
+                type="number"
+                className="form-control"
+                placeholder="Amount"
+                value={payAmount}
+                onChange={(e) => setPayAmount(e.target.value)}
+                min="0"
+                step="0.01"
+              />
+            </div>
+
+            <div className="col-md-4">
+              <select
+                className="form-select"
+                value={payMethod}
+                onChange={(e) => setPayMethod(e.target.value)}
+              >
+                <option value="cash">Cash</option>
+                <option value="bank">Bank</option>
+                <option value="card">Card</option>
+              </select>
+            </div>
+
+            <div className="col-md-4">
+              <button
+                className="btn btn-primary w-100"
+                disabled={payLoading}
+                onClick={handlePay}
+              >
+                {payLoading ? "Saving..." : "Pay"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <hr />
 

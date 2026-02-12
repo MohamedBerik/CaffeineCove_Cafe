@@ -130,6 +130,11 @@ const AdminNavbar = () => {
       label: "Invoices",
     },
     {
+      path: "/admin/erp/purchase-orders/create",
+      icon: "fas fa-clipboard-list",
+      label: "Create Purchase Order",
+    },
+    {
       path: "/admin/erp/purchase-orders",
       icon: "fas fa-clipboard-list",
       label: "Purchase Orders",

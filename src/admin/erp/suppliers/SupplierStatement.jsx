@@ -52,7 +52,7 @@ const SupplierStatement = () => {
     <div className="supplier-statement-page">
       <div className="statement-header">
         <div>
-          <h3>Supplier Statement – {statement.supplier.name}</h3>
+          <h3>Supplier Statement</h3>
           <div className="supplier-info">
             <strong>{supplier?.name}</strong>
             {supplier?.phone && <span> | {supplier.phone}</span>}

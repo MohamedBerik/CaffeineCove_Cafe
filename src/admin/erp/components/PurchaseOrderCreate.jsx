@@ -28,7 +28,7 @@ const PurchaseOrderCreate = () => {
       ]);
 
       setSuppliers(supRes.data.data ?? supRes.data);
-      setSuppliers(supRes.data.data ?? supRes.data);
+      setProducts(prodRes.data.data ?? prodRes.data);
     } catch (e) {
       console.error(e);
       notifyError("Failed to load suppliers or products");

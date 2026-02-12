@@ -79,7 +79,7 @@ const PurchaseOrderCreate = () => {
     try {
       setLoading(true);
 
-      await api.post("/admin/purchase-orders", {
+      await api.post("/erp/purchase-orders", {
         supplier_id: supplierId,
         items: cleanItems.map((i) => ({
           product_id: i.product_id,

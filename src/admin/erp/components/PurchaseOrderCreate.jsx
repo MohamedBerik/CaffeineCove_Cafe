@@ -23,8 +23,8 @@ const PurchaseOrderCreate = () => {
   const fetchInitialData = async () => {
     try {
       const [supRes, prodRes] = await Promise.all([
-        api.get("/erp/suppliers"),
-        api.get("/erp/products"),
+        api.get("/admin/suppliers"),
+        api.get("/admin/products"),
       ]);
 
       setSuppliers(supRes.data);
@@ -79,7 +79,7 @@ const PurchaseOrderCreate = () => {
     try {
       setLoading(true);
 
-      await api.post("/erp/purchase-orders", {
+      await api.post("/admin/purchase-orders", {
         supplier_id: supplierId,
         items: cleanItems.map((i) => ({
           product_id: i.product_id,
@@ -90,7 +90,7 @@ const PurchaseOrderCreate = () => {
 
       notifySuccess("Purchase order created");
 
-      navigate("/admin/erp/purchase-orders");
+      navigate("/admin/purchase-orders");
     } catch (e) {
       console.error(e);
       notifyError(

@@ -52,7 +52,7 @@ const PurchaseOrdersList = () => {
               <td>
                 <button
                   className="btn btn-sm btn-outline-primary"
-                  onClick={() => navigate(`/erp/purchase-orders/${po.id}`)}
+                  onClick={() => navigate(`/admin/purchase-orders/${po.id}`)}
                 >
                   View
                 </button>

@@ -18,7 +18,7 @@ const PurchaseOrderDetails = () => {
   const fetchPO = async () => {
     try {
       setLoading(true);
-      const res = await api.get(`/erp/purchase-orders/${id}/erp`);
+      const res = await api.get(`/erp/purchase-orders/${id}`);
       setPo(res.data);
     } catch (e) {
       console.error(e);

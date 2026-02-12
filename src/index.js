@@ -93,11 +93,9 @@ createRoot(document.getElementById("root")).render(
 
           {/* Purchase Orders */}
           <Route path="purchase-orders" element={<PurchaseOrdersList />} />
-
-          {/* Customer statement */}
           <Route
-            path="customers/:id/statement"
-            element={<CustomerStatement />}
+            path="purchase-orders/create"
+            element={<PurchaseOrderCreate />}
           />
           <Route
             path="purchase-orders/:id"
@@ -106,6 +104,12 @@ createRoot(document.getElementById("root")).render(
           <Route
             path="suppliers/:id/statement"
             element={<SupplierStatement />}
+          />
+
+          {/* Customer statement */}
+          <Route
+            path="customers/:id/statement"
+            element={<CustomerStatement />}
           />
         </Route>
 

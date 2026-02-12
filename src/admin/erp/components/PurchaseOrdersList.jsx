@@ -53,6 +53,7 @@ const PurchaseOrdersList = () => {
                 <button
                   className="btn btn-sm btn-outline-primary"
                   onClick={() => navigate(`admin/erp/purchase-orders/${po.id}`)}
+                  title="View details"
                 >
                   View
                 </button>

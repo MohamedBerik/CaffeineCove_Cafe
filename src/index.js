@@ -93,11 +93,11 @@ createRoot(document.getElementById("root")).render(
           <Route path="invoices/:id" element={<InvoiceDetails />} />
 
           {/* Purchase Orders */}
-          <Route path="purchase-orders" element={<PurchaseOrdersList />} />
           <Route
             path="purchase-orders/create"
             element={<PurchaseOrderCreate />}
           />
+          <Route path="purchase-orders" element={<PurchaseOrdersList />} />
           <Route
             path="purchase-orders/:id"
             element={<PurchaseOrderDetails />}

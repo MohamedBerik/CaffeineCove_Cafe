@@ -284,6 +284,19 @@ const CrudTable = () => {
                                 <i className="fa-solid fa-file-invoice"></i>
                               </button>
                             )}
+                            {table === "suppliers" && (
+                              <button
+                                className="btn-icon btn-info"
+                                onClick={() =>
+                                  navigate(
+                                    `/admin/erp/suppliers/${item.id}/statement`,
+                                  )
+                                }
+                                title="View statement"
+                              >
+                                <i className="fa-solid fa-file-invoice"></i>
+                              </button>
+                            )}
                             <button
                               className="btn-icon btn-warning"
                               onClick={() =>

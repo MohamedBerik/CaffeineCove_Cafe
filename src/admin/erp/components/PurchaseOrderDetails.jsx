@@ -208,9 +208,17 @@ const PurchaseOrderDetails = () => {
                 <td>${Number(p.amount).toFixed(2)}</td>
                 <td>{p.method}</td>
                 <td>{p.paid_at}</td>
-                <Link to={`/purchase-orders/${po.id}/returns`}>
-                  <button>مرتجعات</button>
-                </Link>
+                <td>
+                  <button
+                    className="btn btn-sm btn-outline-primary"
+                    onClick={() =>
+                      navigate(`/admin/erp/purchase-orders/${po.id}/returns`)
+                    }
+                    title="Returns"
+                  >
+                    Returns
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

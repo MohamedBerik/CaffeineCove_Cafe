@@ -206,6 +206,15 @@ const PurchaseOrderDetails = () => {
                 <td>${Number(p.amount).toFixed(2)}</td>
                 <td>{p.method}</td>
                 <td>{p.paid_at}</td>
+                <td>
+                  <button
+                    className="btn btn-sm btn-outline-primary"
+                    onClick={() => navigate(`/admin/erp/ReturnItems`)}
+                    title="View details"
+                  >
+                    View
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

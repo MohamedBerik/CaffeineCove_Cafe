@@ -102,6 +102,7 @@ createRoot(document.getElementById("root")).render(
             path="purchase-orders/:id"
             element={<PurchaseOrderDetails />}
           />
+          <Route path="ReturnItems" element={<ReturnItems />} />
 
           {/* Supplier statement */}
           <Route

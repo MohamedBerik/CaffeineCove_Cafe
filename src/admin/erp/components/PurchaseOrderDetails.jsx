@@ -209,7 +209,7 @@ const PurchaseOrderDetails = () => {
                 <td>
                   <button
                     className="btn btn-sm btn-outline-primary"
-                    onClick={() => navigate(`/admin/erp/ReturnItems`)}
+                    onClick={() => navigate(`/admin/erp/returnItems`)}
                     title="View details"
                   >
                     View

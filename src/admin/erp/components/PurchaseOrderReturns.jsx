@@ -10,7 +10,9 @@ export default function PurchaseOrderReturns() {
   const loadItems = async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/purchase-orders/${id}/returnable-items`);
+      const res = await api.get(
+        `/erp/purchase-orders/${id}/getReturnableItems`,
+      );
 
       const rows = res.data.items.map((i) => ({
         ...i,
@@ -38,7 +40,7 @@ export default function PurchaseOrderReturns() {
     }
 
     try {
-      await api.post(`/purchase-orders/${id}/return`, {
+      await api.post(`/erp/purchase-orders/${id}/return`, {
         product_id: row.product_id,
         quantity: qty,
       });

@@ -10,9 +10,7 @@ export default function PurchaseOrderReturns() {
   const loadItems = async () => {
     setLoading(true);
     try {
-      const res = await api.get(
-        `/erp/purchase-orders/${id}/getReturnableItems`,
-      );
+      const res = await api.get(`/erp/purchase-orders/${id}/returnable-items`);
 
       const rows = res.data.items.map((i) => ({
         ...i,

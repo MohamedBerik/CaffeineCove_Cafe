@@ -28,7 +28,7 @@ import InvoiceDetails from "./admin/erp/components/InvoiceDetails";
 import PurchaseOrdersList from "./admin/erp/components/PurchaseOrdersList";
 import PurchaseOrderCreate from "./admin/erp/components/PurchaseOrderCreate";
 import PurchaseOrderDetails from "./admin/erp/components/PurchaseOrderDetails";
-import PurchaseOrderReturns from "./admin/erp/components/ReturnItems";
+import PurchaseOrderReturns from "./admin/erp/components/PurchaseOrderReturns";
 import CustomerStatement from "./admin/erp/customers/CustomerStatement";
 import SupplierStatement from "./admin/erp/suppliers/SupplierStatement";
 

@@ -181,6 +181,17 @@ const PurchaseOrderDetails = () => {
               <td>{item.quantity}</td>
               <td>${Number(item.unit_cost).toFixed(2)}</td>
               <td>${Number(item.total).toFixed(2)}</td>
+              <td>
+                <button
+                  className="btn btn-sm btn-outline-primary"
+                  onClick={() =>
+                    navigate(`/admin/erp/purchase-orders/${po.id}/returns`)
+                  }
+                  title="Returns"
+                >
+                  Returns
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -207,17 +218,6 @@ const PurchaseOrderDetails = () => {
                 <td>${Number(p.amount).toFixed(2)}</td>
                 <td>{p.method}</td>
                 <td>{p.paid_at}</td>
-                <td>
-                  <button
-                    className="btn btn-sm btn-outline-primary"
-                    onClick={() =>
-                      navigate(`/admin/erp/purchase-orders/${po.id}/returns`)
-                    }
-                    title="Returns"
-                  >
-                    Returns
-                  </button>
-                </td>
               </tr>
             ))}
           </tbody>

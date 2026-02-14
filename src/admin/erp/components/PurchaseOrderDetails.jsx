@@ -191,6 +191,16 @@ const PurchaseOrderDetails = () => {
                 >
                   Returns
                 </button>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() =>
+                    navigate(
+                      `/admin/erp/purchase-orders/${po.id}/returns-history`,
+                    )
+                  }
+                >
+                  Returns Log
+                </button>
               </td>
             </tr>
           ))}

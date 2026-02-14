@@ -37,7 +37,7 @@ export default function PurchaseOrderReturns() {
       return;
     }
     if (qty > row.available_to_return) {
-      alert("الكمية أكبر من المتاح للإرجاع");
+      alert("Quantity exceeds the available return quantity");
       return;
     }
 
@@ -48,27 +48,30 @@ export default function PurchaseOrderReturns() {
       });
 
       await loadItems();
-      alert("تم تسجيل المرتجع بنجاح");
+      alert("Return recorded successfully");
     } catch (e) {
-      alert(e.response?.data?.msg || "حدث خطأ أثناء تنفيذ المرتجع");
+      alert(
+        e.response?.data?.msg ||
+          "An error occurred while processing the return",
+      );
     }
   };
 
   return (
     <div>
-      <h3>مرتجعات أمر الشراء</h3>
+      <h3>Purchase Order Returns</h3>
 
-      {loading && <p>جاري التحميل ...</p>}
+      {loading && <p>Loading ...</p>}
 
       {!loading && (
         <table border="1" cellPadding="6">
           <thead>
             <tr>
-              <th>الصنف</th>
-              <th>تم استلامه</th>
-              <th>تم إرجاعه</th>
-              <th>المتاح للإرجاع</th>
-              <th>الكمية</th>
+              <th>Item</th>
+              <th>Received</th>
+              <th>Returned</th>
+              <th>Available for Return</th>
+              <th>Quantity</th>
               <th></th>
             </tr>
           </thead>
@@ -104,7 +107,7 @@ export default function PurchaseOrderReturns() {
                     onClick={() => handleReturn(row)}
                     disabled={row.available_to_return <= 0}
                   >
-                    إرجاع
+                    Return
                   </button>
                 </td>
               </tr>
@@ -112,7 +115,7 @@ export default function PurchaseOrderReturns() {
 
             {items.length === 0 && (
               <tr>
-                <td colSpan="6">لا توجد أصناف</td>
+                <td colSpan="6">No items available</td>
               </tr>
             )}
           </tbody>

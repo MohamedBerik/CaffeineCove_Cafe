@@ -277,7 +277,7 @@ const CustomerStatement = () => {
       <div className="statement-header">
         <div className="header-left">
           <button className="btn-back" onClick={() => navigate(-1)}>
-            <i className="fas fa-arrow-left"></i> Back
+            <i className="fas fa-arrow-left"></i>
           </button>
           <div>
             <h1>Customer Statement</h1>

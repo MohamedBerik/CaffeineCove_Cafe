@@ -168,7 +168,6 @@
 .supplier-info {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
 }
 
 .amount {
@@ -334,7 +333,7 @@
 /* Order Cards */
 .orders-list {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 1rem;
 }
 

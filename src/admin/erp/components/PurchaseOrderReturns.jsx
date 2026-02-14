@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom"; // إضافة هذا
 import api from "services/axios";
 
-export default function PurchaseOrderReturns({ purchaseOrderId }) {
+export default function PurchaseOrderReturns() {
+  const { id } = useParams(); // استخدام useParams بدلاً من props
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const loadItems = async () => {
     setLoading(true);
     try {
-      const res = await api.get(
-        `/purchase-orders/${purchaseOrderId}/returnable-items`,
-      );
+      const res = await api.get(`/purchase-orders/${id}/returnable-items`);
 
       const rows = res.data.items.map((i) => ({
         ...i,
@@ -24,8 +24,11 @@ export default function PurchaseOrderReturns({ purchaseOrderId }) {
   };
 
   useEffect(() => {
-    loadItems();
-  }, [purchaseOrderId]);
+    if (id) {
+      // التحقق من وجود id
+      loadItems();
+    }
+  }, [id]); // استخدام id بدلاً من purchaseOrderId
 
   const handleReturn = async (row) => {
     const qty = Number(row.return_qty);

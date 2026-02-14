@@ -218,7 +218,6 @@ const PurchaseOrderDetails = () => {
       ) : (
         <p>No payments yet</p>
       )}
-      <PurchaseOrderReturns purchaseOrderId={po.id} />
     </div>
   );
 };

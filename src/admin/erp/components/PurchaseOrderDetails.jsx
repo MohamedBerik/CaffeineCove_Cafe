@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
 import PurchaseOrderReturns from "./ReturnItems";
+import { Link } from "react-router-dom";
 
 const PurchaseOrderDetails = () => {
   const { id } = useParams();
@@ -207,15 +208,9 @@ const PurchaseOrderDetails = () => {
                 <td>${Number(p.amount).toFixed(2)}</td>
                 <td>{p.method}</td>
                 <td>{p.paid_at}</td>
-                {/* <td>
-                  <button
-                    className="btn btn-sm btn-outline-primary"
-                    onClick={() => navigate(`/admin/erp/returnItems`)}
-                    title="View details"
-                  >
-                    View
-                  </button>
-                </td> */}
+                <Link to={`/purchase-orders/${po.id}/returns`}>
+                  <button>مرتجعات</button>
+                </Link>
               </tr>
             ))}
           </tbody>

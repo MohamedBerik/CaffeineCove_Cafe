@@ -33,7 +33,7 @@ export default function PurchaseOrderReturns() {
     const qty = Number(row.return_qty);
 
     if (!qty || qty <= 0) {
-      alert("ادخل كمية صحيحة");
+      alert("Enter a valid quantity");
       return;
     }
     if (qty > row.available_to_return) {

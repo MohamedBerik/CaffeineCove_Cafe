@@ -104,7 +104,7 @@ createRoot(document.getElementById("root")).render(
             element={<PurchaseOrderDetails />}
           />
           <Route
-            path="/purchase-orders/:id/returns"
+            path="purchase-orders/:id/returns"
             element={<PurchaseOrderReturns />}
           />
 

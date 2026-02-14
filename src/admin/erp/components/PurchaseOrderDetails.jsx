@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
+import PurchaseOrderReturns from "./ReturnItems";
 
 const PurchaseOrderDetails = () => {
   const { id } = useParams();
@@ -206,7 +207,7 @@ const PurchaseOrderDetails = () => {
                 <td>${Number(p.amount).toFixed(2)}</td>
                 <td>{p.method}</td>
                 <td>{p.paid_at}</td>
-                <td>
+                {/* <td>
                   <button
                     className="btn btn-sm btn-outline-primary"
                     onClick={() => navigate(`/admin/erp/returnItems`)}
@@ -214,7 +215,7 @@ const PurchaseOrderDetails = () => {
                   >
                     View
                   </button>
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>
@@ -222,6 +223,7 @@ const PurchaseOrderDetails = () => {
       ) : (
         <p>No payments yet</p>
       )}
+      <PurchaseOrderReturns purchaseOrderId={po.id} />
     </div>
   );
 };

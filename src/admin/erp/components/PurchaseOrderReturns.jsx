@@ -38,7 +38,7 @@ export default function PurchaseOrderReturns() {
     }
 
     try {
-      await api.post(`/erp/purchase-orders/${id}/returnable-items`, {
+      await api.post(`/erp/purchase-orders/${id}/return`, {
         product_id: row.product_id,
         quantity: qty,
       });

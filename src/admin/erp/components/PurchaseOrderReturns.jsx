@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "services/axios";
 
 export default function PurchaseOrderReturns({ purchaseOrderId }) {
   const [items, setItems] = useState([]);
@@ -8,7 +8,7 @@ export default function PurchaseOrderReturns({ purchaseOrderId }) {
   const loadItems = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(
+      const res = await api.get(
         `/purchase-orders/${purchaseOrderId}/returnable-items`,
       );
 
@@ -36,7 +36,7 @@ export default function PurchaseOrderReturns({ purchaseOrderId }) {
     }
 
     try {
-      await axios.post(`/purchase-orders/${purchaseOrderId}/return`, {
+      await api.post(`/purchase-orders/${purchaseOrderId}/return`, {
         product_id: row.product_id,
         quantity: qty,
       });

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
-import PurchaseOrderReturns from "./ReturnItems";
 import { Link } from "react-router-dom";
 
 const PurchaseOrderDetails = () => {

@@ -36,6 +36,10 @@ export default function PurchaseOrderReturns() {
       alert("ادخل كمية صحيحة");
       return;
     }
+    if (qty > row.available_to_return) {
+      alert("الكمية أكبر من المتاح للإرجاع");
+      return;
+    }
 
     try {
       await api.post(`/erp/purchase-orders/${id}/return`, {

@@ -335,7 +335,7 @@ const PurchaseOrderDetails = () => {
         <div className="header-left">
           <button className="btn-back" onClick={() => navigate(-1)}>
             <i className="fas fa-arrow-left me-2"></i>
-            Back
+            {/* Back */}
           </button>
           <div className="header-info">
             <h2>Purchase Order #{po.number}</h2>

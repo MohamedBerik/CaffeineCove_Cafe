@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"; // إضافة هذا
+import { useParams } from "react-router-dom";
 import api from "services/axios";
 
 export default function PurchaseOrderReturns() {
-  const { id } = useParams(); // استخدام useParams بدلاً من props
+  const { id } = useParams();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -25,10 +25,9 @@ export default function PurchaseOrderReturns() {
 
   useEffect(() => {
     if (id) {
-      // التحقق من وجود id
       loadItems();
     }
-  }, [id]); // استخدام id بدلاً من purchaseOrderId
+  }, [id]);
 
   const handleReturn = async (row) => {
     const qty = Number(row.return_qty);
@@ -39,7 +38,7 @@ export default function PurchaseOrderReturns() {
     }
 
     try {
-      await api.post(`/purchase-orders/${purchaseOrderId}/return`, {
+      await api.post(`/purchase-orders/${id}/return`, {
         product_id: row.product_id,
         quantity: qty,
       });

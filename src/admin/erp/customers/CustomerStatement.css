@@ -789,7 +789,7 @@
   gap: 0.5rem;
 }
 
-.amount {
+.entry-amounts.amount {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -797,17 +797,17 @@
   border-radius: 6px;
 }
 
-.amount.debit {
+.entry-amounts.amount.debit {
   background: #fde8e8;
   color: #e74c3c;
 }
 
-.amount.credit {
+.entry-amounts.amount.credit {
   background: #e8f5e9;
   color: #27ae60;
 }
 
-.amount.balance {
+.entry-amounts.amount.balance {
   background: #e3f2fd;
   color: #2c3e50;
   font-weight: 600;

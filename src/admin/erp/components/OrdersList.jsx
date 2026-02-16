@@ -213,7 +213,7 @@ const OrdersList = () => {
                       #{order.id}
                     </button>
                   </td>
-                  <td>{order.companyId}</td>
+                  <td>{order.company_id}</td>
                   <td>{order.customer?.name || "-"}</td>
                   <td className="total-cell">
                     ${parseFloat(order.total).toFixed(2)}

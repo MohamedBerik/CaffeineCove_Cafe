@@ -23,11 +23,13 @@ function Login() {
       // ✅ هنا نخزن بيانات المستخدم بما فيها role
       login(res.data.user, res.data.token);
 
-      // توجيه المستخدم حسب الـ role
-      if (res.data.user.role === "admin") {
-        navigate("/admin/erp"); // Admin يدخل لوحة التحكم
+      // ✅ توجيه المستخدم حسب النوع
+      if (res.data.user.is_super_admin) {
+        navigate("/admin/dashboard"); // 🟢 Super Admin
+      } else if (res.data.user.role === "admin") {
+        navigate("/admin/erp"); // 🟡 Company Admin
       } else {
-        navigate("/"); // المستخدم العادي يدخل الصفحة الرئيسية
+        navigate("/"); // 🔵 User عادي
       }
     } catch (err) {
       console.error(err);

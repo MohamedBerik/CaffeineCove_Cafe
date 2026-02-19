@@ -188,7 +188,7 @@ const CrudTable = () => {
             </button>
             <button
               className="btn-secondary"
-              onClick={() => navigate(`/admin/dashboard`)}
+              onClick={() => navigate(`/admin/erp`)}
             >
               <i className="fa-solid fa-dashboard"></i>
               {!isMobile && " Dashboard"}

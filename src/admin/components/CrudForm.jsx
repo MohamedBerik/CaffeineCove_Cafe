@@ -122,7 +122,7 @@ const CrudForm = () => {
         await api.post(`${baseUrl}/${table}`, formData);
         notifySuccess("Created successfully ✅");
       }
-      navigate("/admin/dashboard");
+      navigate("/admin/erp");
     } catch (err) {
       notifyError("Something went wrong ❌");
       console.error(err);

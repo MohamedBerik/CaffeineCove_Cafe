@@ -132,7 +132,7 @@ const Dashboard = () => {
 
   const fetchTableData = async (table) => {
     try {
-      const res = await api.get(`/admin/${table}`, {
+      const res = await api.get(`/${table}`, {
         params: { search: debouncedSearch[table] || "", per_page: 6 },
       });
       setLatest((prev) => ({ ...prev, [table]: res.data.data ?? res.data }));

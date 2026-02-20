@@ -14,7 +14,7 @@ const tableSchemas = {
     description_en: "",
     description_ar: "",
     unit_price: 0,
-    // quantity: 0,
+    quantity: 0,
     category_id: "",
     product_image: "",
   },

@@ -145,6 +145,7 @@ const AdminNavbar = () => {
     { path: "/admin/customers", icon: "fas fa-users", label: "Customers" },
     { path: "/admin/suppliers", icon: "fas fa-industry", label: "Suppliers" },
     { path: "/admin/users", icon: "fas fa-user", label: "Users" },
+    { path: "/admin/categories", icon: "fas fa-box", label: "Categories" },
     { path: "/admin/products", icon: "fas fa-box", label: "Products" },
     { path: "/admin/employees", icon: "fas fa-user-tie", label: "Employees" },
     {

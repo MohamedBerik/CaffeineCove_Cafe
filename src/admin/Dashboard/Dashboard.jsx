@@ -132,7 +132,7 @@ const Dashboard = () => {
 
   const fetchTableData = async (table) => {
     try {
-      const res = await api.get(`/${table}`, {
+      const res = await api.get(`/admin/${table}`, {
         params: { search: debouncedSearch[table] || "", per_page: 6 },
       });
       setLatest((prev) => ({ ...prev, [table]: res.data.data ?? res.data }));
@@ -388,11 +388,6 @@ const Dashboard = () => {
           </ul>
         )}
       </div>
-
-      {/* Nested Route for Invoice Details */}
-      {/* <Routes>
-        <Route path="invoices/:id" element={<InvoiceDetails />} />
-      </Routes> */}
     </div>
   );
 };

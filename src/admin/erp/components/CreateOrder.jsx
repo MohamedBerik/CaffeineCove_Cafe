@@ -20,7 +20,7 @@ const CreateOrder = () => {
 
   useEffect(() => {
     api.get("/admin/customers").then((res) => setCustomers(res.data.data));
-    api.get("/admin/products").then((res) => setProducts(res.data.data));
+    api.get("/admin/products").then((res) => setProducts(res.data));
   }, []);
 
   const handleItemChange = (index, field, value) => {

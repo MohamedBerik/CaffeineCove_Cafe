@@ -19,11 +19,11 @@ const tableSchemas = {
     product_image: "",
   },
   categories: {
+    cate_image: "",
     title_en: "",
     title_ar: "",
     description_en: "",
     description_ar: "",
-    cate_image: "",
   },
   customers: { name: "", email: "", password: "", status: "1" },
   orders: {

@@ -245,7 +245,7 @@ const OrderDetails = () => {
       <div className="order-header">
         <div className="header-left">
           <button className="btn-back" onClick={() => navigate(-1)}>
-            <i className="fas fa-arrow-left"></i> Back to Orders
+            <i className="fas fa-arrow-left"></i>
           </button>
           <div className="header-info">
             <h1>Order #{order.id}</h1>

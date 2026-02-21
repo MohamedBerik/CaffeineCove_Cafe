@@ -186,7 +186,6 @@ const OrdersList = () => {
           <thead>
             <tr>
               <th>ID</th>
-              {/* <th>Company_ID</th> */}
               <th>Customer</th>
               <th>Total</th>
               <th>Status</th>
@@ -213,7 +212,6 @@ const OrdersList = () => {
                       #{order.id}
                     </button>
                   </td>
-                  {/* <td>{order.company_id}</td> */}
                   <td>{order.customer?.name || "-"}</td>
                   <td className="total-cell">
                     ${parseFloat(order.total).toFixed(2)}

@@ -71,6 +71,14 @@ const tableSchemas = {
     email: "",
     phone: "",
   },
+  appointments: {
+    patient_id: "",
+    doctor_name: "",
+    appointment_date: "",
+    appointment_time: "",
+    status: "scheduled",
+    notes: "",
+  },
 };
 
 // ERP endpoints base (/erp) vs admin endpoints base (/admin)

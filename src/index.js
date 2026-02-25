@@ -3,7 +3,6 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-
 import App from "./App";
 
 /* ================= Public Pages ================= */
@@ -29,6 +28,7 @@ import PurchaseOrdersList from "./admin/erp/components/PurchaseOrdersList";
 import PurchaseOrderCreate from "./admin/erp/components/PurchaseOrderCreate";
 import PurchaseOrderDetails from "./admin/erp/components/PurchaseOrderDetails";
 import PurchaseOrderReturns from "./admin/erp/components/PurchaseOrderReturns";
+import PurchaseOrderReturnsHistory from "./admin/erp/components/PurchaseOrderReturnsHistory";
 import CustomerStatement from "./admin/erp/customers/CustomerStatement";
 import SupplierStatement from "./admin/erp/suppliers/SupplierStatement";
 
@@ -45,7 +45,6 @@ import { ProtectedRoute, AdminRoute } from "./admin/routes/ProtectedRoute";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import PurchaseOrderReturnsHistory from "./admin/erp/components/PurchaseOrderReturnsHistory";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -119,9 +118,15 @@ createRoot(document.getElementById("root")).render(
             element={<SupplierStatement />}
           />
 
-          {/* Customer statement */}
+          {/* Customer statement (legacy route) */}
           <Route
             path="customers/:id/statement"
+            element={<CustomerStatement />}
+          />
+
+          {/* ✅ Patient statement (UI route) */}
+          <Route
+            path="patients/:id/statement"
             element={<CustomerStatement />}
           />
         </Route>
@@ -135,6 +140,7 @@ createRoot(document.getElementById("root")).render(
             </AdminRoute>
           }
         />
+
         <Route
           path="/admin/:table/create"
           element={
@@ -143,6 +149,7 @@ createRoot(document.getElementById("root")).render(
             </AdminRoute>
           }
         />
+
         <Route
           path="/admin/:table/:id/edit"
           element={
@@ -151,6 +158,7 @@ createRoot(document.getElementById("root")).render(
             </AdminRoute>
           }
         />
+
         <Route
           path="/admin/:table/:id/show"
           element={

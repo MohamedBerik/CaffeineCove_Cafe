@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import api from "../../../services/axios";
 import { notifyError } from "../../../utils/notify";
 import "./CustomerStatement.css";
@@ -7,6 +7,14 @@ import "./CustomerStatement.css";
 const CustomerStatement = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // ✅ لو المسار فيه patients يبقى UI Patient (لكن الـ API يفضل customers)
+  const uiEntity = useMemo(() => {
+    return location.pathname.includes("/patients/") ? "patient" : "customer";
+  }, [location.pathname]);
+
+  const uiTitle = uiEntity === "patient" ? "Patient" : "Customer";
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
@@ -24,11 +32,12 @@ const CustomerStatement = () => {
   const fetchStatement = async (params = {}) => {
     setLoading(true);
     try {
+      // ✅ الـ API ثابت (customers) حتى لو UI patients
       const res = await api.get(`/erp/customers/${id}/statement`, { params });
       setData(res.data);
     } catch (e) {
       console.error(e);
-      notifyError("Failed to load customer statement");
+      notifyError(`Failed to load ${uiEntity} statement`);
     } finally {
       setLoading(false);
     }
@@ -36,7 +45,8 @@ const CustomerStatement = () => {
 
   useEffect(() => {
     fetchStatement();
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, uiEntity]);
 
   const handleFilter = () => {
     fetchStatement({
@@ -77,7 +87,7 @@ const CustomerStatement = () => {
     return (
       <div className="statement-loading">
         <div className="loading-spinner"></div>
-        <p>Loading customer statement...</p>
+        <p>Loading {uiEntity} statement...</p>
       </div>
     );
 
@@ -100,7 +110,7 @@ const CustomerStatement = () => {
         <button className="btn-back" onClick={() => navigate(-1)}>
           <i className="fas fa-arrow-left"></i>
         </button>
-        <h3>Statement</h3>
+        <h3>{uiTitle} Statement</h3>
         <button className="btn-print" onClick={handlePrint}>
           <i className="fas fa-print"></i>
         </button>
@@ -280,7 +290,7 @@ const CustomerStatement = () => {
             <i className="fas fa-arrow-left"></i>
           </button>
           <div>
-            <h1>Customer Statement</h1>
+            <h1>{uiTitle} Statement</h1>
             <p className="header-subtitle">
               Account summary and transaction details
             </p>

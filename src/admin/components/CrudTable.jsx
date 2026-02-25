@@ -67,7 +67,7 @@ const CrudTable = () => {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchTerm, fetchTableData]);
+  }, [searchTerm, fetchTableData, page]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
@@ -148,7 +148,7 @@ const CrudTable = () => {
               onClick={() =>
                 document
                   .querySelector(".crud-controls")
-                  .classList.toggle("show")
+                  ?.classList.toggle("show")
               }
             >
               <i className="fa-solid fa-bars"></i>
@@ -186,6 +186,7 @@ const CrudTable = () => {
               <i className="fa-solid fa-plus"></i>
               {!isMobile && " Add New"}
             </button>
+
             <button
               className="btn-secondary"
               onClick={() => navigate(`/admin/erp`)}
@@ -225,6 +226,7 @@ const CrudTable = () => {
                   )}
                 </tr>
               </thead>
+
               <tbody>
                 {data.map((item) => (
                   <tr key={item.id} className="data-row">
@@ -240,8 +242,10 @@ const CrudTable = () => {
                             </div>
                           </td>
                         ))}
+
                         <td className="actions-cell">
                           <div className="action-buttons-group">
+                            {/* Orders actions */}
                             {ERP_TABLES.includes(table) &&
                               table === "orders" && (
                                 <>
@@ -261,6 +265,8 @@ const CrudTable = () => {
                                   </button>
                                 </>
                               )}
+
+                            {/* Invoice pay action */}
                             {ERP_TABLES.includes(table) &&
                               table === "invoices" && (
                                 <button
@@ -271,12 +277,15 @@ const CrudTable = () => {
                                   <i className="fa-solid fa-credit-card"></i>
                                 </button>
                               )}
-                            {table === "customers" && (
+
+                            {/* ✅ Statement button for customers OR patients */}
+                            {(table === "customers" ||
+                              table === "patients") && (
                               <button
                                 className="btn-icon btn-info"
                                 onClick={() =>
                                   navigate(
-                                    `/admin/erp/customers/${item.id}/statement`,
+                                    `/admin/erp/patients/${item.id}/statement`,
                                   )
                                 }
                                 title="View statement"
@@ -284,6 +293,8 @@ const CrudTable = () => {
                                 <i className="fa-solid fa-file-invoice"></i>
                               </button>
                             )}
+
+                            {/* Supplier statement */}
                             {table === "suppliers" && (
                               <button
                                 className="btn-icon btn-info"
@@ -297,6 +308,7 @@ const CrudTable = () => {
                                 <i className="fa-solid fa-file-invoice"></i>
                               </button>
                             )}
+
                             <button
                               className="btn-icon btn-warning"
                               onClick={() =>
@@ -306,6 +318,7 @@ const CrudTable = () => {
                             >
                               <i className="fa-solid fa-pen-to-square"></i>
                             </button>
+
                             <button
                               className="btn-icon btn-danger"
                               onClick={() => handleDelete(item.id)}
@@ -321,8 +334,9 @@ const CrudTable = () => {
                         <td className="mobile-cell">
                           <div className="mobile-item">
                             <div className="mobile-item-id">ID: {item.id}</div>
+
                             <div className="mobile-item-preview">
-                              {columns.slice(0, 2).map((col, idx) => (
+                              {columns.slice(0, 2).map((col) => (
                                 <div key={col} className="preview-field">
                                   <span className="field-label">
                                     {formatColumnName(col)}:
@@ -335,6 +349,7 @@ const CrudTable = () => {
                             </div>
                           </div>
                         </td>
+
                         <td className="actions-cell mobile-actions">
                           <div className="mobile-action-buttons">
                             <button
@@ -346,6 +361,7 @@ const CrudTable = () => {
                             >
                               <i className="fa-solid fa-pen-to-square"></i>
                             </button>
+
                             <button
                               className="btn-icon btn-danger"
                               onClick={() => handleDelete(item.id)}
@@ -353,6 +369,7 @@ const CrudTable = () => {
                             >
                               <i className="fa-solid fa-trash"></i>
                             </button>
+
                             {ERP_TABLES.includes(table) &&
                               table === "orders" && (
                                 <button
@@ -363,6 +380,21 @@ const CrudTable = () => {
                                   <i className="fa-solid fa-check"></i>
                                 </button>
                               )}
+
+                            {(table === "customers" ||
+                              table === "patients") && (
+                              <button
+                                className="btn-icon btn-info"
+                                onClick={() =>
+                                  navigate(
+                                    `/admin/erp/patients/${item.id}/statement`,
+                                  )
+                                }
+                                title="Statement"
+                              >
+                                <i className="fa-solid fa-file-invoice"></i>
+                              </button>
+                            )}
                           </div>
                         </td>
                       </>

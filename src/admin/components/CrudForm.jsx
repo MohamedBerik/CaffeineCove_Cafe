@@ -1,5 +1,5 @@
 // src/pages/admin/CrudForm.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../services/axios";
 import { notifyError, notifySuccess } from "../../utils/notify";
@@ -26,16 +26,19 @@ const tableSchemas = {
     description_ar: "",
   },
   customers: { name: "", email: "", password: "", status: "1" },
+
+  // NOTE: لو انت بتستخدم ERP module للأوامر والفواتير… ده مكانه
   orders: {
     customer_id: "",
-    status: "pending", // ERP field
+    status: "pending",
     total: "",
     created_by: "",
   },
+
   invoices: {
     title: "",
     total: 0,
-    status: "pending", // pending, partial, paid
+    status: "pending",
     customer_id: "",
   },
   "purchase-orders": {
@@ -70,44 +73,83 @@ const tableSchemas = {
   },
 };
 
-const ERP_TABLES = ["invoices", "purchase-orders"];
+// ERP endpoints base (/erp) vs admin endpoints base (/admin)
+const ERP_TABLES = ["orders", "invoices", "purchase-orders"];
+
+// UI route alias -> API resource mapping
+const TABLE_ALIAS = {
+  patients: "customers",
+};
+
+// optional nice labels
+const UI_LABELS = {
+  patients: "Patients",
+  customers: "Customers",
+};
 
 const CrudForm = () => {
   const navigate = useNavigate();
   const { table, id } = useParams();
   const isEdit = Boolean(id);
 
+  // Resolve alias: route table -> api table
+  const apiTable = useMemo(() => TABLE_ALIAS[table] ?? table, [table]);
+
+  // Resolve schema by apiTable (NOT route table)
+  const schema = useMemo(() => tableSchemas[apiTable], [apiTable]);
+
+  // Determine base url by apiTable
+  const baseUrl = useMemo(
+    () => (ERP_TABLES.includes(apiTable) ? "/erp" : "/admin"),
+    [apiTable],
+  );
+
+  const pageTitle = useMemo(
+    () => UI_LABELS[table] ?? table.replace(/_/g, " "),
+    [table],
+  );
+
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const baseUrl = ERP_TABLES.includes(table) ? "/erp" : "/admin";
-
   // === Load Data for Edit ===
   useEffect(() => {
-    if (!tableSchemas[table]) {
-      console.error("Unknown table:", table);
+    if (!schema) {
+      console.error("Unknown table:", table, "-> apiTable:", apiTable);
       return;
     }
 
     if (isEdit) {
       setLoading(true);
       api
-        .get(`${baseUrl}/${table}/${id}`)
-        .then((res) => setFormData(res.data))
+        .get(`${baseUrl}/${apiTable}/${id}`)
+        .then((res) => {
+          // بعض الـ APIs بتلف الداتا داخل data
+          const payload = res.data?.data ?? res.data;
+          setFormData(payload);
+        })
         .catch((err) => {
           console.error(err);
           notifyError("Failed to load data");
         })
         .finally(() => setLoading(false));
     } else {
-      setFormData(tableSchemas[table]);
+      setFormData(schema);
     }
-  }, [table, id, isEdit]);
+  }, [table, apiTable, id, isEdit, baseUrl, schema]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // convert number fields if schema says number
+    const shouldBeNumber =
+      schema && typeof schema[name] === "number" && value !== "";
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: shouldBeNumber ? Number(value) : value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -116,13 +158,15 @@ const CrudForm = () => {
 
     try {
       if (isEdit) {
-        await api.put(`${baseUrl}/${table}/${id}`, formData);
+        await api.put(`${baseUrl}/${apiTable}/${id}`, formData);
         notifySuccess("Updated successfully ✅");
       } else {
-        await api.post(`${baseUrl}/${table}`, formData);
+        await api.post(`${baseUrl}/${apiTable}`, formData);
         notifySuccess("Created successfully ✅");
       }
-      navigate("/admin/erp");
+
+      // رجّع المستخدم لنفس القائمة اللي كان فيها (patients أو customers…)
+      navigate(`/admin/${table}`);
     } catch (err) {
       notifyError("Something went wrong ❌");
       console.error(err);
@@ -136,14 +180,26 @@ const CrudForm = () => {
   // === Determine select options for ERP-specific fields ===
   const getOptions = (key) => {
     if (key === "status") {
-      if (table === "orders") return ["pending", "confirmed", "cancelled"];
-      if (table === "invoices") return ["pending", "partial", "paid"];
-      if (table === "purchase-orders") return ["pending", "received", "paid"];
+      if (apiTable === "orders") return ["pending", "confirmed", "cancelled"];
+      if (apiTable === "invoices")
+        return ["unpaid", "partially_paid", "paid", "cancelled"];
+      if (apiTable === "purchase-orders")
+        return ["pending", "received", "paid"];
       return ["active", "blocked"];
     }
     if (key === "role") return ["user", "admin"];
     return null;
   };
+
+  // guard: schema missing
+  if (!schema) {
+    return (
+      <div className="container-fluid">
+        <AdminLayout />
+        <p className="p-6">Unknown table: {String(table)}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container-fluid">
@@ -156,9 +212,10 @@ const CrudForm = () => {
                 <i
                   className={`fas fa-${isEdit ? "edit" : "plus-square"} mr-2`}
                 ></i>
-                {isEdit ? "Edit" : "New"} {table.replace(/_/g, " ")}
+                {isEdit ? "Edit" : "New"} {pageTitle}
               </h3>
             </div>
+
             <div className="card-body">
               <form onSubmit={handleSubmit}>
                 <div className="form-row">
@@ -169,10 +226,11 @@ const CrudForm = () => {
                         <label className="small font-weight-bold text-uppercase text-muted">
                           {key.replace(/_/g, " ")}
                         </label>
+
                         {options ? (
                           <select
                             name={key}
-                            value={formData[key] || ""}
+                            value={formData[key] ?? ""}
                             onChange={handleChange}
                             className="form-control shadow-sm"
                           >
@@ -185,12 +243,12 @@ const CrudForm = () => {
                         ) : (
                           <input
                             type={
-                              typeof formData[key] === "number"
+                              typeof schema[key] === "number"
                                 ? "number"
                                 : "text"
                             }
                             name={key}
-                            value={formData[key] || ""}
+                            value={formData[key] ?? ""}
                             onChange={handleChange}
                             className="form-control shadow-sm"
                             placeholder={`${key.replace(/_/g, " ")}...`}

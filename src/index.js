@@ -18,7 +18,7 @@ import Logout from "./pages/Logout";
 
 /* ================= ERP ================= */
 import ERPDashboard from "./admin/erp/ERPDashboard";
-import DashboardHome from "./admin/erp/DashboardHome";
+import ErpDashboardHome from "./admin/erp/ErpDashboardHome";
 import OrdersList from "./admin/erp/components/OrdersList";
 import CreateOrder from "./admin/erp/components/CreateOrder";
 import OrderDetails from "./admin/erp/components/OrderDetails";
@@ -82,7 +82,7 @@ createRoot(document.getElementById("root")).render(
           }
         >
           {/* Default ERP page */}
-          <Route index element={<DashboardHome />} />
+          <Route index element={<ErpDashboardHome />} />
 
           {/* Orders */}
           <Route path="orders" element={<OrdersList />} />

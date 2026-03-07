@@ -116,27 +116,6 @@ export default function ErpDashboardHome() {
           </p>
         </div>
 
-        <Link to="/admin/erp/patients" className="btn btn-outline-primary me-2">
-          View Patients
-        </Link>
-        <Link
-          to="/admin/erp/appointments"
-          className="btn btn-outline-secondary me-2"
-        >
-          View Appointments
-        </Link>
-        <Link
-          to="/admin/erp/treatment-plans"
-          className="btn btn-outline-warning me-2"
-        >
-          Treatment Plans
-        </Link>
-        <Link
-          to="/admin/erp/dental-records"
-          className="btn btn-outline-info me-2"
-        >
-          Dental Records
-        </Link>
         <button className="btn btn-primary" onClick={loadDashboard}>
           Refresh
         </button>

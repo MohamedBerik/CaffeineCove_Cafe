@@ -48,6 +48,7 @@ import "react-toastify/dist/ReactToastify.css";
 import PatientsList from "./admin/erp/customers/PatientsList";
 import PatientProfilePage from "./admin/erp/customers/PatientProfilePage";
 import PatientTimelinePage from "./admin/erp/customers/PatientTimelinePage";
+import AppointmentsListPage from "./admin/erp/appointments/AppointmentsListPage";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -139,6 +140,7 @@ createRoot(document.getElementById("root")).render(
             path="patients/:id/timeline"
             element={<PatientTimelinePage />}
           />
+          <Route path="appointments" element={<AppointmentsListPage />} />
         </Route>
 
         {/* ================= Generic admin CRUD (OLD / temporary) ================= */}

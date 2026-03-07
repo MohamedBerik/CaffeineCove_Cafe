@@ -51,6 +51,7 @@ import PatientTimelinePage from "./admin/erp/customers/PatientTimelinePage";
 import AppointmentsListPage from "./admin/erp/appointments/AppointmentsListPage";
 import TreatmentPlanDetailsPage from "./admin/erp/treatment-plans/TreatmentPlanDetailsPage";
 import TreatmentPlansListPage from "./admin/erp/treatment-plans/TreatmentPlansListPage";
+import DentalRecordsListPage from "./admin/erp/dental-records/DentalRecordsListPage";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -148,6 +149,7 @@ createRoot(document.getElementById("root")).render(
             path="treatment-plans/:id"
             element={<TreatmentPlanDetailsPage />}
           />
+          <Route path="dental-records" element={<DentalRecordsListPage />} />
         </Route>
 
         {/* ================= Generic admin CRUD (OLD / temporary) ================= */}

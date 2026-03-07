@@ -140,6 +140,7 @@ createRoot(document.getElementById("root")).render(
             element={<PatientTimelinePage />}
           />
         </Route>
+
         {/* ================= Generic admin CRUD (OLD / temporary) ================= */}
         <Route
           path="/admin/:table"

@@ -45,6 +45,7 @@ import { ProtectedRoute, AdminRoute } from "./admin/routes/ProtectedRoute";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import PatientsList from "./admin/erp/customers/PatientsList";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -131,6 +132,7 @@ createRoot(document.getElementById("root")).render(
           />
         </Route>
 
+        <Route path="patients" element={<PatientsList />} />
         {/* ================= Generic admin CRUD (OLD / temporary) ================= */}
         <Route
           path="/admin/:table"

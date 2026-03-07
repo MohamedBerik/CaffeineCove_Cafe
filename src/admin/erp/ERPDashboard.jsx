@@ -1,5 +1,3 @@
-// src/admin/erp/ERPDashboard.jsx
-
 import React from "react";
 import { Outlet } from "react-router-dom";
 import AdminNavbar from "../components/AdminNavbar";

@@ -130,9 +130,10 @@ createRoot(document.getElementById("root")).render(
             path="patients/:id/statement"
             element={<CustomerStatement />}
           />
-        </Route>
 
-        <Route path="patients" element={<PatientsList />} />
+          <Route path="patients" element={<PatientsList />} />
+          <Route path="patients/:id/profile" element={<PatientProfilePage />} />
+        </Route>
         {/* ================= Generic admin CRUD (OLD / temporary) ================= */}
         <Route
           path="/admin/:table"

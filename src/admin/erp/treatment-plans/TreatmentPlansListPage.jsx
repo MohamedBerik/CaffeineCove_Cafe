@@ -88,9 +88,18 @@ export default function TreatmentPlansListPage() {
           </p>
         </div>
 
-        <button className="btn btn-primary" onClick={loadPlans}>
-          Refresh
-        </button>
+        <div className="d-flex gap-2">
+          <Link
+            to="/admin/erp/treatment-plans/create"
+            className="btn btn-outline-primary"
+          >
+            Create Treatment Plan
+          </Link>
+
+          <button className="btn btn-primary" onClick={loadPlans}>
+            Refresh
+          </button>
+        </div>
       </div>
 
       {error ? (

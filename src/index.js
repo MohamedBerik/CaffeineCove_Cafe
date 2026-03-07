@@ -53,6 +53,7 @@ import TreatmentPlanDetailsPage from "./admin/erp/treatment-plans/TreatmentPlanD
 import TreatmentPlansListPage from "./admin/erp/treatment-plans/TreatmentPlansListPage";
 import DentalRecordsListPage from "./admin/erp/dental-records/DentalRecordsListPage";
 import CreateDentalRecordPage from "./admin/erp/dental-records/CreateDentalRecordPage";
+import CreateTreatmentPlanPage from "./admin/erp/treatment-plans/CreateTreatmentPlanPage";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -154,6 +155,10 @@ createRoot(document.getElementById("root")).render(
           <Route
             path="dental-records/create"
             element={<CreateDentalRecordPage />}
+          />
+          <Route
+            path="treatment-plans/create"
+            element={<CreateTreatmentPlanPage />}
           />
         </Route>
 

@@ -131,6 +131,12 @@ export default function ErpDashboardHome() {
         >
           Treatment Plans
         </Link>
+        <Link
+          to="/admin/erp/dental-records"
+          className="btn btn-outline-info me-2"
+        >
+          Dental Records
+        </Link>
         <button className="btn btn-primary" onClick={loadDashboard}>
           Refresh
         </button>

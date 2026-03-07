@@ -291,9 +291,19 @@ export default function AppointmentsListPage() {
             Daily schedule, doctor bookings, and patient appointments
           </p>
         </div>
-        <button className="btn btn-primary" onClick={loadAll}>
-          Refresh
-        </button>
+
+        <div className="d-flex gap-2">
+          <Link
+            to="/admin/erp/appointments/create"
+            className="btn btn-outline-primary"
+          >
+            Book Appointment
+          </Link>
+
+          <button className="btn btn-primary" onClick={loadAll}>
+            Refresh
+          </button>
+        </div>
       </div>
 
       {error ? (

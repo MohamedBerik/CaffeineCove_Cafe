@@ -154,8 +154,8 @@ export default function PatientProfilePage() {
               {appointments.map((a) => (
                 <tr key={a.id}>
                   <td>{a.appointment_date}</td>
-                  <td>{a.appointment_time}</td>
-                  <td>{a.doctor_name}</td>
+                  <td>{String(a.appointment_time || "").slice(0, 5) || "-"}</td>
+                  <td>{a.doctor?.name || a.doctor_name || "-"}</td>
                   <td>{a.status}</td>
                 </tr>
               ))}

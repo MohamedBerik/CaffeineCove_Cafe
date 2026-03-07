@@ -123,7 +123,82 @@ export default function ErpDashboardHome() {
           Refresh
         </button>
       </div>
+      <div className="row g-3 mb-4">
+        <div className="col-12 col-md-6 col-xl-3">
+          <Link to="/admin/erp/patients" className="text-decoration-none">
+            <div className="card border-0 shadow-sm h-100">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-start">
+                  <div>
+                    <div className="text-muted small mb-1">Patients</div>
+                    <div className="fs-5 fw-bold">Open Patients List</div>
+                  </div>
+                  <div className="text-primary bg-primary bg-opacity-10 rounded p-2">
+                    <i className="fas fa-users"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
 
+        <div className="col-12 col-md-6 col-xl-3">
+          <Link to="/admin/erp/invoices" className="text-decoration-none">
+            <div className="card border-0 shadow-sm h-100">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-start">
+                  <div>
+                    <div className="text-muted small mb-1">Invoices</div>
+                    <div className="fs-5 fw-bold">Open Invoices</div>
+                  </div>
+                  <div className="text-success bg-success bg-opacity-10 rounded p-2">
+                    <i className="fas fa-file-invoice-dollar"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
+
+        <div className="col-12 col-md-6 col-xl-3">
+          <Link to="/admin/erp/orders" className="text-decoration-none">
+            <div className="card border-0 shadow-sm h-100">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-start">
+                  <div>
+                    <div className="text-muted small mb-1">Orders</div>
+                    <div className="fs-5 fw-bold">Open Orders</div>
+                  </div>
+                  <div className="text-warning bg-warning bg-opacity-10 rounded p-2">
+                    <i className="fas fa-shopping-cart"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
+
+        <div className="col-12 col-md-6 col-xl-3">
+          <Link
+            to="/admin/erp/purchase-orders"
+            className="text-decoration-none"
+          >
+            <div className="card border-0 shadow-sm h-100">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-start">
+                  <div>
+                    <div className="text-muted small mb-1">Purchase Orders</div>
+                    <div className="fs-5 fw-bold">Open Purchases</div>
+                  </div>
+                  <div className="text-info bg-info bg-opacity-10 rounded p-2">
+                    <i className="fas fa-truck-loading"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </div>
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-lg-3">
           <KpiCard
@@ -239,7 +314,18 @@ export default function ErpDashboardHome() {
                     <tbody>
                       {recentAppointments.map((item) => (
                         <tr key={item.id}>
-                          <td>{item.patient?.name || "-"}</td>
+                          <td>
+                            {item.patient?.id ? (
+                              <Link
+                                to={`/admin/erp/patients/${item.patient.id}/profile`}
+                                className="text-decoration-none fw-semibold"
+                              >
+                                {item.patient?.name || "-"}
+                              </Link>
+                            ) : (
+                              "-"
+                            )}
+                          </td>
                           <td>
                             {item.doctor?.name || item.doctor_name || "-"}
                           </td>
@@ -282,7 +368,14 @@ export default function ErpDashboardHome() {
                     <tbody>
                       {recentInvoices.map((item) => (
                         <tr key={item.id}>
-                          <td>{item.number}</td>
+                          <td>
+                            <Link
+                              to={`/admin/erp/invoices/${item.id}`}
+                              className="text-decoration-none fw-semibold"
+                            >
+                              {item.number}
+                            </Link>
+                          </td>
                           <td>{formatCurrency(item.total)}</td>
                           <td>
                             <StatusBadge status={item.status} />
@@ -322,7 +415,14 @@ export default function ErpDashboardHome() {
                     <tbody>
                       {recentPayments.map((item) => (
                         <tr key={item.id}>
-                          <td>#{item.invoice_id}</td>
+                          <td>
+                            <Link
+                              to={`/admin/erp/invoices/${item.invoice_id}`}
+                              className="text-decoration-none"
+                            >
+                              #{item.invoice_id}
+                            </Link>
+                          </td>
                           <td>{formatCurrency(item.applied_amount)}</td>
                           <td className="text-capitalize">
                             {item.method || "-"}

@@ -21,8 +21,12 @@ export default function PatientsList() {
       const res = await axios.get("/erp/customers");
       const payload = res.data || {};
 
-      setRows(payload.data || []);
-      setMeta(payload.meta || null);
+      const rowsData = Array.isArray(payload.data)
+        ? payload.data
+        : payload.data?.data || [];
+
+      setRows(rowsData);
+      setMeta(payload.meta || payload.data?.meta || null);
     } catch (err) {
       setError(
         err?.response?.data?.message ||

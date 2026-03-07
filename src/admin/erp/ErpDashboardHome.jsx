@@ -116,12 +116,12 @@ export default function ErpDashboardHome() {
           </p>
         </div>
 
-        <button className="btn btn-primary" onClick={loadDashboard}>
-          Refresh
-        </button>
         <Link to="/admin/erp/patients" className="btn btn-outline-primary">
           View Patients
         </Link>
+        <button className="btn btn-primary" onClick={loadDashboard}>
+          Refresh
+        </button>
       </div>
 
       <div className="row g-3 mb-4">

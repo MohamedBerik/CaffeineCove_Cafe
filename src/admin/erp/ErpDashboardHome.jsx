@@ -125,6 +125,12 @@ export default function ErpDashboardHome() {
         >
           View Appointments
         </Link>
+        <Link
+          to="/admin/erp/treatment-plans"
+          className="btn btn-outline-warning me-2"
+        >
+          Treatment Plans
+        </Link>
         <button className="btn btn-primary" onClick={loadDashboard}>
           Refresh
         </button>

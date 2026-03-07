@@ -46,6 +46,7 @@ import { ProtectedRoute, AdminRoute } from "./admin/routes/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PatientsList from "./admin/erp/customers/PatientsList";
+import PatientProfilePage from "./admin/erp/customers/PatientProfilePage";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>

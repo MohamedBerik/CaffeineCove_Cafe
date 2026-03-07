@@ -1,14 +1,25 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import AdminNavbar from "../components/AdminNavbar";
+import ErpNav from "./components/ErpNav";
 
 const ERPDashboard = () => {
   return (
     <>
       <AdminNavbar />
 
-      <div style={{ paddingTop: 70, paddingLeft: 20, paddingRight: 20 }}>
-        <Outlet />
+      <div className="container-fluid" style={{ paddingTop: 86 }}>
+        <div className="row g-3">
+          <div className="col-12 col-xl-3">
+            <div style={{ position: "sticky", top: 86 }}>
+              <ErpNav />
+            </div>
+          </div>
+
+          <div className="col-12 col-xl-9">
+            <Outlet />
+          </div>
+        </div>
       </div>
     </>
   );

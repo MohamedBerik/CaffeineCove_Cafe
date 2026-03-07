@@ -9,8 +9,22 @@ export default function TreatmentPlanDetailsPage() {
   const [items, setItems] = useState([]);
   const [summary, setSummary] = useState(null);
   const [cashSummary, setCashSummary] = useState(null);
+  const [procedures, setProcedures] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [itemForm, setItemForm] = useState({
+    procedure_id: "",
+    tooth_number: "",
+    surface: "",
+    notes: "",
+    price: "",
+  });
+
+  const [savingItem, setSavingItem] = useState(false);
+  const [itemError, setItemError] = useState("");
+  const [itemSuccess, setItemSuccess] = useState("");
 
   useEffect(() => {
     loadAll();
@@ -20,18 +34,28 @@ export default function TreatmentPlanDetailsPage() {
     try {
       setLoading(true);
       setError("");
+      setItemError("");
+      setItemSuccess("");
 
-      const [planRes, itemsRes, summaryRes, cashRes] = await Promise.all([
-        axios.get(`/erp/treatment-plans/${id}`),
-        axios.get(`/erp/treatment-plans/${id}/items`),
-        axios.get(`/erp/treatment-plans/${id}/summary`),
-        axios.get(`/erp/treatment-plans/${id}/cash-summary`),
-      ]);
+      const [planRes, itemsRes, summaryRes, cashRes, proceduresRes] =
+        await Promise.all([
+          axios.get(`/erp/treatment-plans/${id}`),
+          axios.get(`/erp/treatment-plans/${id}/items`),
+          axios.get(`/erp/treatment-plans/${id}/summary`),
+          axios.get(`/erp/treatment-plans/${id}/cash-summary`),
+          axios.get(`/erp/procedures`),
+        ]);
 
       setPlan(planRes.data || null);
       setItems(itemsRes.data?.data || []);
       setSummary(summaryRes.data?.data || null);
       setCashSummary(cashRes.data?.data || null);
+
+      const proceduresPayload = proceduresRes.data || {};
+      const proceduresRows = Array.isArray(proceduresPayload.data)
+        ? proceduresPayload.data
+        : proceduresPayload.data?.data || [];
+      setProcedures(proceduresRows);
     } catch (err) {
       setError(
         err?.response?.data?.message ||
@@ -40,6 +64,84 @@ export default function TreatmentPlanDetailsPage() {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleItemChange = (e) => {
+    const { name, value } = e.target;
+    setItemForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const addItem = async (e) => {
+    e.preventDefault();
+
+    try {
+      setSavingItem(true);
+      setItemError("");
+      setItemSuccess("");
+
+      const payload = {
+        procedure_id: Number(itemForm.procedure_id),
+        tooth_number: itemForm.tooth_number || null,
+        surface: itemForm.surface || null,
+        notes: itemForm.notes || null,
+      };
+
+      if (itemForm.price !== "") {
+        payload.price = Number(itemForm.price);
+      }
+
+      await axios.post(`/erp/treatment-plans/${id}/items`, payload);
+
+      setItemSuccess("Item added successfully.");
+
+      setItemForm({
+        procedure_id: "",
+        tooth_number: "",
+        surface: "",
+        notes: "",
+        price: "",
+      });
+
+      await loadAll();
+    } catch (err) {
+      const errors = err?.response?.data?.errors;
+      if (errors) {
+        const firstError = Object.values(errors)?.[0]?.[0];
+        setItemError(firstError || "Failed to add item.");
+      } else {
+        setItemError(
+          err?.response?.data?.message ||
+            err?.response?.data?.msg ||
+            "Failed to add item.",
+        );
+      }
+    } finally {
+      setSavingItem(false);
+    }
+  };
+
+  const deleteItem = async (itemId) => {
+    const confirmed = window.confirm("Delete this item?");
+    if (!confirmed) return;
+
+    try {
+      setItemError("");
+      setItemSuccess("");
+
+      await axios.delete(`/erp/treatment-plan-items/${itemId}`);
+
+      setItemSuccess("Item deleted successfully.");
+      await loadAll();
+    } catch (err) {
+      setItemError(
+        err?.response?.data?.message ||
+          err?.response?.data?.msg ||
+          "Failed to delete item.",
+      );
     }
   };
 
@@ -175,6 +277,109 @@ export default function TreatmentPlanDetailsPage() {
       </div>
 
       <div className="row g-4">
+        <div className="col-12">
+          <div className="card shadow-sm border-0">
+            <div className="card-header bg-white">
+              <h5 className="mb-0">Add Plan Item</h5>
+            </div>
+            <div className="card-body">
+              {itemError ? (
+                <div className="alert alert-danger py-2">{itemError}</div>
+              ) : null}
+
+              {itemSuccess ? (
+                <div className="alert alert-success py-2">{itemSuccess}</div>
+              ) : null}
+
+              <form className="row g-3" onSubmit={addItem}>
+                <div className="col-12 col-md-4">
+                  <label className="form-label fw-semibold">Procedure</label>
+                  <select
+                    className="form-select"
+                    name="procedure_id"
+                    value={itemForm.procedure_id}
+                    onChange={handleItemChange}
+                    required
+                  >
+                    <option value="">Select procedure</option>
+                    {procedures.map((procedure) => (
+                      <option key={procedure.id} value={procedure.id}>
+                        {procedure.name}
+                        {procedure.default_price != null
+                          ? ` (${money(procedure.default_price)})`
+                          : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="col-12 col-md-2">
+                  <label className="form-label fw-semibold">Tooth</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="tooth_number"
+                    value={itemForm.tooth_number}
+                    onChange={handleItemChange}
+                    placeholder="16"
+                  />
+                </div>
+
+                <div className="col-12 col-md-2">
+                  <label className="form-label fw-semibold">Surface</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="surface"
+                    value={itemForm.surface}
+                    onChange={handleItemChange}
+                    placeholder="occlusal"
+                  />
+                </div>
+
+                <div className="col-12 col-md-2">
+                  <label className="form-label fw-semibold">Price</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    className="form-control"
+                    name="price"
+                    value={itemForm.price}
+                    onChange={handleItemChange}
+                    placeholder="Optional"
+                  />
+                </div>
+
+                <div className="col-12 col-md-2 d-grid">
+                  <label className="form-label fw-semibold invisible">
+                    Add
+                  </label>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={savingItem}
+                  >
+                    {savingItem ? "Adding..." : "Add Item"}
+                  </button>
+                </div>
+
+                <div className="col-12">
+                  <label className="form-label fw-semibold">Notes</label>
+                  <textarea
+                    className="form-control"
+                    rows="2"
+                    name="notes"
+                    value={itemForm.notes}
+                    onChange={handleItemChange}
+                    placeholder="Optional notes..."
+                  />
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
         <div className="col-12 col-xl-6">
           <div className="card shadow-sm border-0 h-100">
             <div className="card-header bg-white">
@@ -193,6 +398,7 @@ export default function TreatmentPlanDetailsPage() {
                         <th>Surface</th>
                         <th>Price</th>
                         <th>Notes</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -205,6 +411,14 @@ export default function TreatmentPlanDetailsPage() {
                           <td>{item.surface || "-"}</td>
                           <td>{money(item.price)}</td>
                           <td>{item.notes || "-"}</td>
+                          <td>
+                            <button
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() => deleteItem(item.id)}
+                            >
+                              Delete
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>

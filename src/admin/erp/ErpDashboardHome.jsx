@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "../../services/axios";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 export default function ErpDashboardHome() {
   const [data, setData] = useState(null);
@@ -116,11 +116,7 @@ export default function ErpDashboardHome() {
           </p>
         </div>
 
-        <Link
-          to="/admin/erp/patients"
-          className="btn btn-outline-primary me-2"
-          style={{ borderWidth: "2px" }}
-        >
+        <Link to="/admin/erp/patients" className="btn btn-outline-primary me-2">
           View Patients
         </Link>
         <button className="btn btn-primary" onClick={loadDashboard}>

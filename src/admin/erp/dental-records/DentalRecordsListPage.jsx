@@ -85,7 +85,12 @@ export default function DentalRecordsListPage() {
             Review patient chart records, procedures, teeth, and statuses
           </p>
         </div>
-
+        <Link
+          to="/admin/erp/dental-records/create"
+          className="btn btn-outline-primary"
+        >
+          Create Dental Record
+        </Link>
         <button className="btn btn-primary" onClick={loadRecords}>
           Refresh
         </button>

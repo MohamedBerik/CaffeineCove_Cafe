@@ -5,28 +5,48 @@ import axios from "../../../services/axios";
 export default function DentalRecordsListPage() {
   const [rows, setRows] = useState([]);
   const [meta, setMeta] = useState(null);
+  const [plans, setPlans] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
+  const [openConvertId, setOpenConvertId] = useState(null);
+  const [selectedPlanId, setSelectedPlanId] = useState("");
+  const [actionMessage, setActionMessage] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [converting, setConverting] = useState(false);
+
   useEffect(() => {
-    loadRecords();
+    loadRecordsAndPlans();
   }, []);
 
-  const loadRecords = async () => {
+  const loadRecordsAndPlans = async () => {
     try {
       setLoading(true);
       setError("");
+      setActionMessage("");
+      setActionError("");
 
-      const res = await axios.get("/erp/dental-records");
-      const payload = res.data || {};
+      const [recordsRes, plansRes] = await Promise.all([
+        axios.get("/erp/dental-records"),
+        axios.get("/erp/treatment-plans"),
+      ]);
 
-      const rowsData = Array.isArray(payload.data)
-        ? payload.data
-        : payload.data?.data || [];
+      const recordsPayload = recordsRes.data || {};
+      const plansPayload = plansRes.data || {};
 
-      setRows(rowsData);
-      setMeta(payload.meta || payload.data?.meta || null);
+      const recordRows = Array.isArray(recordsPayload.data)
+        ? recordsPayload.data
+        : recordsPayload.data?.data || [];
+
+      const planRows = Array.isArray(plansPayload.data)
+        ? plansPayload.data
+        : plansPayload.data?.data || [];
+
+      setRows(recordRows);
+      setMeta(recordsPayload.meta || recordsPayload.data?.meta || null);
+      setPlans(planRows);
     } catch (err) {
       setError(
         err?.response?.data?.message ||
@@ -63,6 +83,66 @@ export default function DentalRecordsListPage() {
     });
   }, [rows, search]);
 
+  const openConvert = (record) => {
+    setOpenConvertId(record.id);
+    setSelectedPlanId("");
+    setActionMessage("");
+    setActionError("");
+  };
+
+  const closeConvert = () => {
+    setOpenConvertId(null);
+    setSelectedPlanId("");
+    setActionMessage("");
+    setActionError("");
+  };
+
+  const availablePlansForRecord = (record) => {
+    return plans.filter(
+      (plan) => String(plan.customer_id) === String(record.customer?.id),
+    );
+  };
+
+  const convertRecord = async (recordId) => {
+    try {
+      if (!selectedPlanId) {
+        setActionError("Please select a treatment plan first.");
+        return;
+      }
+
+      setConverting(true);
+      setActionMessage("");
+      setActionError("");
+
+      await axios.post(
+        `/erp/dental-records/${recordId}/to-treatment-plan-item`,
+        {
+          treatment_plan_id: Number(selectedPlanId),
+        },
+      );
+
+      setActionMessage(
+        "Dental record converted to treatment plan item successfully.",
+      );
+      await loadRecordsAndPlans();
+      closeConvert();
+    } catch (err) {
+      const errors = err?.response?.data?.errors;
+      if (errors) {
+        const firstError = Object.values(errors)?.[0]?.[0];
+        setActionError(firstError || "Failed to convert dental record.");
+      } else {
+        setActionError(
+          err?.response?.data?.message ||
+            err?.response?.data?.msg ||
+            "Failed to convert dental record.",
+        );
+      }
+    } finally {
+      setConverting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div
@@ -85,15 +165,19 @@ export default function DentalRecordsListPage() {
             Review patient chart records, procedures, teeth, and statuses
           </p>
         </div>
-        <Link
-          to="/admin/erp/dental-records/create"
-          className="btn btn-outline-primary"
-        >
-          Create Dental Record
-        </Link>
-        <button className="btn btn-primary" onClick={loadRecords}>
-          Refresh
-        </button>
+
+        <div className="d-flex gap-2">
+          <Link
+            to="/admin/erp/dental-records/create"
+            className="btn btn-outline-primary"
+          >
+            Create Dental Record
+          </Link>
+
+          <button className="btn btn-primary" onClick={loadRecordsAndPlans}>
+            Refresh
+          </button>
+        </div>
       </div>
 
       {error ? (
@@ -101,11 +185,18 @@ export default function DentalRecordsListPage() {
           <span>{error}</span>
           <button
             className="btn btn-sm btn-outline-danger"
-            onClick={loadRecords}
+            onClick={loadRecordsAndPlans}
           >
             Retry
           </button>
         </div>
+      ) : null}
+
+      {actionMessage ? (
+        <div className="alert alert-success">{actionMessage}</div>
+      ) : null}
+      {actionError ? (
+        <div className="alert alert-danger">{actionError}</div>
       ) : null}
 
       <div className="card shadow-sm border-0 mb-4">
@@ -151,51 +242,122 @@ export default function DentalRecordsListPage() {
                     <th style={{ minWidth: 120 }}>Surface</th>
                     <th style={{ minWidth: 120 }}>Status</th>
                     <th style={{ minWidth: 220 }}>Notes</th>
-                    <th style={{ minWidth: 180 }}>Actions</th>
+                    <th style={{ minWidth: 260 }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredRows.map((record) => (
-                    <tr key={record.id}>
-                      <td>
-                        <div className="fw-semibold">
-                          {record.customer?.name || "-"}
-                        </div>
-                        <div className="small text-muted">
-                          {record.customer?.email || "-"}
-                        </div>
-                      </td>
+                  {filteredRows.map((record) => {
+                    const matchingPlans = availablePlansForRecord(record);
 
-                      <td>{record.procedure?.name || "-"}</td>
-                      <td>{record.tooth_number || "-"}</td>
-                      <td>{record.surface || "-"}</td>
-                      <td>
-                        <StatusBadge status={record.status} />
-                      </td>
-                      <td>{record.notes || "-"}</td>
-                      <td>
-                        <div className="d-flex flex-wrap gap-2">
-                          {record.customer?.id ? (
-                            <Link
-                              to={`/admin/erp/patients/${record.customer.id}/profile`}
-                              className="btn btn-sm btn-outline-primary"
-                            >
-                              Patient
-                            </Link>
-                          ) : null}
+                    return (
+                      <>
+                        <tr key={record.id}>
+                          <td>
+                            <div className="fw-semibold">
+                              {record.customer?.name || "-"}
+                            </div>
+                            <div className="small text-muted">
+                              {record.customer?.email || "-"}
+                            </div>
+                          </td>
 
-                          {record.customer?.id ? (
-                            <Link
-                              to={`/admin/erp/patients/${record.customer.id}/timeline`}
-                              className="btn btn-sm btn-outline-info"
-                            >
-                              Timeline
-                            </Link>
-                          ) : null}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                          <td>{record.procedure?.name || "-"}</td>
+                          <td>{record.tooth_number || "-"}</td>
+                          <td>{record.surface || "-"}</td>
+                          <td>
+                            <StatusBadge status={record.status} />
+                          </td>
+                          <td>{record.notes || "-"}</td>
+                          <td>
+                            <div className="d-flex flex-wrap gap-2">
+                              {record.customer?.id ? (
+                                <Link
+                                  to={`/admin/erp/patients/${record.customer.id}/profile`}
+                                  className="btn btn-sm btn-outline-primary"
+                                >
+                                  Patient
+                                </Link>
+                              ) : null}
+
+                              {record.customer?.id ? (
+                                <Link
+                                  to={`/admin/erp/patients/${record.customer.id}/timeline`}
+                                  className="btn btn-sm btn-outline-info"
+                                >
+                                  Timeline
+                                </Link>
+                              ) : null}
+
+                              <button
+                                className="btn btn-sm btn-outline-success"
+                                onClick={() => openConvert(record)}
+                              >
+                                Convert
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+
+                        {openConvertId === record.id ? (
+                          <tr>
+                            <td colSpan="7" className="bg-light">
+                              <div className="p-3">
+                                <div className="row g-3 align-items-end">
+                                  <div className="col-12 col-md-8">
+                                    <label className="form-label fw-semibold">
+                                      Select Treatment Plan
+                                    </label>
+                                    <select
+                                      className="form-select"
+                                      value={selectedPlanId}
+                                      onChange={(e) =>
+                                        setSelectedPlanId(e.target.value)
+                                      }
+                                    >
+                                      <option value="">Select plan</option>
+                                      {matchingPlans.map((plan) => (
+                                        <option key={plan.id} value={plan.id}>
+                                          {plan.title} - {plan.status}
+                                        </option>
+                                      ))}
+                                    </select>
+                                    {matchingPlans.length === 0 ? (
+                                      <div className="small text-danger mt-2">
+                                        No treatment plans found for this
+                                        patient.
+                                      </div>
+                                    ) : null}
+                                  </div>
+
+                                  <div className="col-12 col-md-4 d-flex gap-2">
+                                    <button
+                                      className="btn btn-success"
+                                      onClick={() => convertRecord(record.id)}
+                                      disabled={
+                                        converting || matchingPlans.length === 0
+                                      }
+                                    >
+                                      {converting
+                                        ? "Converting..."
+                                        : "Confirm Convert"}
+                                    </button>
+
+                                    <button
+                                      className="btn btn-outline-secondary"
+                                      onClick={closeConvert}
+                                      type="button"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        ) : null}
+                      </>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

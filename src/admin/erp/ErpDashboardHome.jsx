@@ -115,7 +115,36 @@ export default function ErpDashboardHome() {
             Clinic operations, billing, and payment overview
           </p>
         </div>
+        <div className="d-flex flex-wrap gap-2 mt-3">
+          <Link
+            to="/admin/erp/appointments/create"
+            className="btn btn-success btn-sm"
+          >
+            <i className="fas fa-calendar-plus me-1"></i>
+            New Appointment
+          </Link>
 
+          <Link
+            to="/admin/erp/customers/create"
+            className="btn btn-primary btn-sm"
+          >
+            <i className="fas fa-user-plus me-1"></i>
+            New Patient
+          </Link>
+
+          <Link to="/admin/erp/invoices" className="btn btn-warning btn-sm">
+            <i className="fas fa-file-invoice me-1"></i>
+            Invoices
+          </Link>
+
+          <Link
+            to="/admin/erp/appointments/calendar"
+            className="btn btn-outline-dark btn-sm"
+          >
+            <i className="fas fa-calendar-alt me-1"></i>
+            Calendar
+          </Link>
+        </div>
         <button className="btn btn-primary" onClick={loadDashboard}>
           Refresh
         </button>
@@ -128,6 +157,7 @@ export default function ErpDashboardHome() {
             value={kpis.today_appointments_count ?? 0}
             icon="fas fa-calendar-day"
             color="primary"
+            link="/admin/erp/appointments/calendar"
           />
         </div>
 
@@ -164,6 +194,7 @@ export default function ErpDashboardHome() {
             value={kpis.unpaid_invoices_count ?? 0}
             icon="fas fa-file-invoice"
             color="warning"
+            link="/admin/erp/invoices"
           />
         </div>
 
@@ -200,6 +231,7 @@ export default function ErpDashboardHome() {
             value={formatCurrency(kpis.credit_balance_total)}
             icon="fas fa-wallet"
             color="primary"
+            link="/admin/erp/customers"
           />
         </div>
 
@@ -209,6 +241,7 @@ export default function ErpDashboardHome() {
             value={kpis.paid_invoices_count ?? 0}
             icon="fas fa-check-double"
             color="success"
+            link="/admin/erp/invoices"
           />
         </div>
       </div>
@@ -216,8 +249,15 @@ export default function ErpDashboardHome() {
       <div className="row g-4">
         <div className="col-12 col-xl-4">
           <div className="card shadow-sm h-100">
-            <div className="card-header bg-white">
+            <div className="card-header bg-white d-flex justify-content-between align-items-center">
               <h5 className="mb-0">Recent Appointments</h5>
+
+              <Link
+                to="/admin/erp/appointments/calendar"
+                className="btn btn-sm btn-outline-secondary"
+              >
+                Calendar
+              </Link>
             </div>
             <div className="card-body p-0">
               {recentAppointments.length === 0 ? (
@@ -366,8 +406,8 @@ export default function ErpDashboardHome() {
   );
 }
 
-function KpiCard({ title, value, icon, color = "primary" }) {
-  return (
+function KpiCard({ title, value, icon, color = "primary", link }) {
+  const card = (
     <div className="card border-0 shadow-sm h-100">
       <div className="card-body">
         <div className="d-flex justify-content-between align-items-start">
@@ -384,6 +424,14 @@ function KpiCard({ title, value, icon, color = "primary" }) {
         </div>
       </div>
     </div>
+  );
+
+  if (!link) return card;
+
+  return (
+    <Link to={link} className="text-decoration-none text-dark">
+      {card}
+    </Link>
   );
 }
 

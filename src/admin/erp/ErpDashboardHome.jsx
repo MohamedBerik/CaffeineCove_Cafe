@@ -115,41 +115,41 @@ export default function ErpDashboardHome() {
             Clinic operations, billing, and payment overview
           </p>
         </div>
-        <div className="d-flex flex-wrap gap-2 mt-3">
-          <Link
-            to="/admin/erp/appointments/create"
-            className="btn btn-success btn-sm"
-          >
-            <i className="fas fa-calendar-plus me-1"></i>
-            New Appointment
-          </Link>
 
-          <Link
-            to="/admin/erp/customers/create"
-            className="btn btn-primary btn-sm"
-          >
-            <i className="fas fa-user-plus me-1"></i>
-            New Patient
-          </Link>
-
-          <Link to="/admin/erp/invoices" className="btn btn-warning btn-sm">
-            <i className="fas fa-file-invoice me-1"></i>
-            Invoices
-          </Link>
-
-          <Link
-            to="/admin/erp/appointments/calendar"
-            className="btn btn-outline-dark btn-sm"
-          >
-            <i className="fas fa-calendar-alt me-1"></i>
-            Calendar
-          </Link>
-        </div>
         <button className="btn btn-primary" onClick={loadDashboard}>
           Refresh
         </button>
       </div>
+      <div className="d-flex flex-wrap gap-2 mt-3">
+        <Link
+          to="/admin/erp/appointments/create"
+          className="btn btn-success btn-sm"
+        >
+          <i className="fas fa-calendar-plus me-1"></i>
+          New Appointment
+        </Link>
 
+        <Link
+          to="/admin/erp/customers/create"
+          className="btn btn-primary btn-sm"
+        >
+          <i className="fas fa-user-plus me-1"></i>
+          New Patient
+        </Link>
+
+        <Link to="/admin/erp/invoices" className="btn btn-warning btn-sm">
+          <i className="fas fa-file-invoice me-1"></i>
+          Invoices
+        </Link>
+
+        <Link
+          to="/admin/erp/appointments/calendar"
+          className="btn btn-outline-dark btn-sm"
+        >
+          <i className="fas fa-calendar-alt me-1"></i>
+          Calendar
+        </Link>
+      </div>
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-lg-3">
           <KpiCard

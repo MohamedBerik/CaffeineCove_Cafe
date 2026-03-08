@@ -7,6 +7,11 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const logoutLocal = () => {
+    localStorage.clear();
+    setUser(null);
+  };
+
   const loadUser = async (token) => {
     try {
       const res = await api.get("/me", {
@@ -24,6 +29,8 @@ export function AuthProvider({ children }) {
     } catch (err) {
       console.error("Failed to load user", err);
       logoutLocal();
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,15 +44,10 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const login = async (userData, token) => {
+  const login = async (_userData, token) => {
     localStorage.setItem("token", token);
-
+    setLoading(true);
     await loadUser(token);
-  };
-
-  const logoutLocal = () => {
-    localStorage.clear();
-    setUser(null);
   };
 
   const logout = async () => {

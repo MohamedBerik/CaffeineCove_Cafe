@@ -177,8 +177,8 @@ createRoot(document.getElementById("root")).render(
             path="doctors/:id/availability"
             element={<DoctorAvailabilityPage />}
           />
-          <Route path="patients/create" element={<PatientFormPage />} />
-          <Route path="patients/:id/edit" element={<PatientFormPage />} />
+          <Route path="customers/create" element={<PatientFormPage />} />
+          <Route path="customers/:id/edit" element={<PatientFormPage />} />
         </Route>
 
         {/* ================= Generic admin CRUD (OLD / temporary) ================= */}

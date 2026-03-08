@@ -88,7 +88,10 @@ export default function PatientsList() {
           </p>
         </div>
         <div className="d-flex gap-2">
-          <Link to="/admin/erp/customers/create" className="btn btn-primary">
+          <Link
+            to="/admin/erp/customers/create"
+            className="btn btn-outline-primary"
+          >
             New Patient
           </Link>
           <button className="btn btn-primary" onClick={loadPatients}>

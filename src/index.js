@@ -66,6 +66,7 @@ import ReportsDashboardPage from "./admin/erp/reports/ReportsDashboardPage";
 import RevenueReportPage from "./admin/erp/reports/RevenueReportPage";
 import AppointmentsReportPage from "./admin/erp/reports/AppointmentsReportPage";
 import DoctorPerformanceReportPage from "./admin/erp/reports/DoctorPerformanceReportPage";
+import AnalyticsDashboardPage from "./admin/erp/reports/AnalyticsDashboardPage";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -200,6 +201,10 @@ createRoot(document.getElementById("root")).render(
           <Route
             path="reports/doctors"
             element={<DoctorPerformanceReportPage />}
+          />
+          <Route
+            path="reports/analytics"
+            element={<AnalyticsDashboardPage />}
           />
         </Route>
 

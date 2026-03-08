@@ -36,6 +36,14 @@ export default function ReportsDashboardPage() {
         to: "/admin/erp/reports/doctors",
       },
       {
+        title: "Analytics Dashboard",
+        description:
+          "Visual charts for revenue, appointments, doctor load, and collections.",
+        icon: "fas fa-chart-line",
+        color: "primary",
+        to: "/admin/erp/reports/analytics",
+      },
+      {
         title: "Payments Report",
         description: "Analyze payments, refunds, and payment methods.",
         icon: "fas fa-credit-card",

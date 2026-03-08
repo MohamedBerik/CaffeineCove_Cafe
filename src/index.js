@@ -56,6 +56,7 @@ import CreateDentalRecordPage from "./admin/erp/dental-records/CreateDentalRecor
 import CreateTreatmentPlanPage from "./admin/erp/treatment-plans/CreateTreatmentPlanPage";
 import AppointmentActivityPage from "./admin/erp/appointments/AppointmentActivityPage";
 import BookAppointmentPage from "./admin/erp/appointments/BookAppointmentPage";
+import ClinicSettingsPage from "./admin/erp/settings/ClinicSettingsPage";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -167,6 +168,7 @@ createRoot(document.getElementById("root")).render(
             element={<AppointmentActivityPage />}
           />
           <Route path="appointments/create" element={<BookAppointmentPage />} />
+          <Route path="settings/clinic" element={<ClinicSettingsPage />} />
         </Route>
 
         {/* ================= Generic admin CRUD (OLD / temporary) ================= */}

@@ -51,6 +51,12 @@ const navItems = [
     icon: "fas fa-truck-loading",
     permission: "finance.view",
   },
+  {
+    to: "/admin/erp/settings/clinic",
+    label: "Clinic Settings",
+    icon: "fas fa-hospital",
+    permission: "appointments.manage",
+  },
 ];
 
 export default function ErpNav() {

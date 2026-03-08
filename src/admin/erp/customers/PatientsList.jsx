@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Links } from "react-router-dom";
 import axios from "../../../services/axios";
 
 export default function PatientsList() {
@@ -87,7 +87,9 @@ export default function PatientsList() {
             Manage patients, open profile, timeline, and statement
           </p>
         </div>
-
+        <Link to="/admin/erp/customers/create" className="btn btn-primary">
+          New Patient
+        </Link>
         <button className="btn btn-primary" onClick={loadPatients}>
           Refresh
         </button>

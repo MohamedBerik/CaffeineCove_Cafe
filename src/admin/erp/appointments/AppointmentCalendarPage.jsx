@@ -1,0 +1,325 @@
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import axios from "../../../services/axios";
+
+export default function AppointmentCalendarPage() {
+  const [appointments, setAppointments] = useState([]);
+  const [doctors, setDoctors] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  const [selectedDate, setSelectedDate] = useState(todayStr);
+  const [selectedDoctorId, setSelectedDoctorId] = useState("");
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const [appointmentsRes, doctorsRes] = await Promise.all([
+        axios.get("/erp/appointments"),
+        axios.get("/erp/doctors"),
+      ]);
+
+      const appointmentsPayload = appointmentsRes.data || {};
+      const doctorsPayload = doctorsRes.data || {};
+
+      const appointmentRows = Array.isArray(appointmentsPayload.data)
+        ? appointmentsPayload.data
+        : appointmentsPayload.data?.data || [];
+
+      const doctorRows = Array.isArray(doctorsPayload.data)
+        ? doctorsPayload.data
+        : doctorsPayload.data?.data || [];
+
+      setAppointments(appointmentRows);
+      setDoctors(doctorRows);
+    } catch (err) {
+      setError(
+        err?.response?.data?.message ||
+          err?.response?.data?.msg ||
+          "Failed to load appointment calendar.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const visibleAppointments = useMemo(() => {
+    return appointments
+      .filter((item) => {
+        const sameDate = String(item.appointment_date || "") === selectedDate;
+        const sameDoctor = selectedDoctorId
+          ? String(item.doctor_id || "") === String(selectedDoctorId)
+          : true;
+
+        return sameDate && sameDoctor;
+      })
+      .sort((a, b) => {
+        const ta = String(a.appointment_time || "");
+        const tb = String(b.appointment_time || "");
+        return ta.localeCompare(tb);
+      });
+  }, [appointments, selectedDate, selectedDoctorId]);
+
+  const groupedByHour = useMemo(() => {
+    const groups = {};
+
+    visibleAppointments.forEach((item) => {
+      const rawTime = String(item.appointment_time || "");
+      const hhmm = rawTime.slice(0, 5) || "00:00";
+      const hourKey = hhmm.slice(0, 2) + ":00";
+
+      if (!groups[hourKey]) groups[hourKey] = [];
+      groups[hourKey].push(item);
+    });
+
+    return groups;
+  }, [visibleAppointments]);
+
+  const hours = useMemo(() => {
+    const result = [];
+    for (let h = 8; h <= 20; h += 1) {
+      result.push(`${String(h).padStart(2, "0")}:00`);
+    }
+    return result;
+  }, []);
+
+  const changeDay = (direction) => {
+    const current = new Date(selectedDate);
+    current.setDate(current.getDate() + direction);
+    setSelectedDate(current.toISOString().slice(0, 10));
+  };
+
+  const formatDateLabel = (value) => {
+    if (!value) return "-";
+    try {
+      return new Date(value).toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    } catch {
+      return value;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "320px" }}
+      >
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container-fluid px-0">
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+          <h3 className="fw-bold mb-1">Appointment Calendar</h3>
+          <p className="text-muted mb-0">
+            Daily clinic schedule by date and doctor
+          </p>
+        </div>
+
+        <div className="d-flex gap-2">
+          <Link
+            to="/admin/erp/appointments/create"
+            className="btn btn-outline-success"
+          >
+            Book Appointment
+          </Link>
+
+          <button className="btn btn-primary" onClick={loadData}>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      {error ? <div className="alert alert-danger">{error}</div> : null}
+
+      <div className="card shadow-sm border-0 mb-4">
+        <div className="card-body">
+          <div className="row g-3 align-items-end">
+            <div className="col-12 col-md-3">
+              <label className="form-label fw-semibold">Date</label>
+              <input
+                type="date"
+                className="form-control"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+              />
+            </div>
+
+            <div className="col-12 col-md-4">
+              <label className="form-label fw-semibold">Doctor</label>
+              <select
+                className="form-select"
+                value={selectedDoctorId}
+                onChange={(e) => setSelectedDoctorId(e.target.value)}
+              >
+                <option value="">All Doctors</option>
+                {doctors.map((doctor) => (
+                  <option key={doctor.id} value={doctor.id}>
+                    {doctor.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-12 col-md-5">
+              <div className="d-flex gap-2">
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => changeDay(-1)}
+                >
+                  Previous Day
+                </button>
+
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => setSelectedDate(todayStr)}
+                >
+                  Today
+                </button>
+
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => changeDay(1)}
+                >
+                  Next Day
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3">
+            <div className="small text-muted">Selected Day</div>
+            <div className="fw-semibold">{formatDateLabel(selectedDate)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="card shadow-sm border-0">
+        <div className="card-header bg-white d-flex justify-content-between align-items-center">
+          <h5 className="mb-0">Daily Schedule</h5>
+          <span className="badge bg-light text-dark">
+            {visibleAppointments.length} appointments
+          </span>
+        </div>
+
+        <div className="card-body">
+          {visibleAppointments.length === 0 ? (
+            <div className="text-muted">
+              No appointments scheduled for this selection.
+            </div>
+          ) : (
+            <div className="d-flex flex-column gap-3">
+              {hours.map((hour) => {
+                const items = groupedByHour[hour] || [];
+
+                return (
+                  <div key={hour} className="row g-3 align-items-start">
+                    <div className="col-12 col-md-2">
+                      <div className="fw-bold text-muted">{hour}</div>
+                    </div>
+
+                    <div className="col-12 col-md-10">
+                      {items.length === 0 ? (
+                        <div className="text-muted small border rounded p-3 bg-light">
+                          No appointments
+                        </div>
+                      ) : (
+                        <div className="d-flex flex-column gap-2">
+                          {items.map((item) => (
+                            <div
+                              key={item.id}
+                              className="border rounded p-3 bg-light"
+                            >
+                              <div className="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                                <div>
+                                  <div className="fw-bold">
+                                    {item.patient?.name || "Unknown Patient"}
+                                  </div>
+                                  <div className="small text-muted">
+                                    {String(item.appointment_time || "").slice(
+                                      0,
+                                      5,
+                                    )}{" "}
+                                    |{" "}
+                                    {item.doctor?.name ||
+                                      item.doctor_name ||
+                                      "-"}
+                                  </div>
+                                </div>
+
+                                <StatusBadge status={item.status} />
+                              </div>
+
+                              <div className="mt-2 small">
+                                <div>
+                                  <strong>Email:</strong>{" "}
+                                  {item.patient?.email || "-"}
+                                </div>
+                                <div>
+                                  <strong>Notes:</strong> {item.notes || "-"}
+                                </div>
+                              </div>
+
+                              <div className="mt-3 d-flex flex-wrap gap-2">
+                                {item.patient?.id ? (
+                                  <Link
+                                    to={`/admin/erp/patients/${item.patient.id}/profile`}
+                                    className="btn btn-sm btn-outline-primary"
+                                  >
+                                    Patient
+                                  </Link>
+                                ) : null}
+
+                                <Link
+                                  to={`/admin/erp/appointments/${item.id}/activity`}
+                                  className="btn btn-sm btn-outline-secondary"
+                                >
+                                  Activity
+                                </Link>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatusBadge({ status }) {
+  const value = String(status || "").toLowerCase();
+
+  let cls = "secondary";
+  if (["completed"].includes(value)) cls = "success";
+  else if (["cancelled", "no_show"].includes(value)) cls = "danger";
+  else if (["scheduled"].includes(value)) cls = "warning";
+  else if (["in_progress"].includes(value)) cls = "info";
+
+  return <span className={`badge bg-${cls}`}>{status}</span>;
+}

@@ -294,6 +294,12 @@ export default function AppointmentsListPage() {
 
         <div className="d-flex gap-2">
           <Link
+            to="/admin/erp/appointments/calendar"
+            className="btn btn-outline-secondary"
+          >
+            Calendar
+          </Link>
+          <Link
             to="/admin/erp/appointments/create"
             className="btn btn-outline-primary"
           >

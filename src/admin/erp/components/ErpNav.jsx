@@ -58,6 +58,12 @@ const navItems = [
     permission: "appointments.view",
   },
   {
+    to: "/admin/erp/appointments/calendar",
+    label: "Calendar",
+    icon: "fas fa-calendar-alt",
+    permission: "appointments.view",
+  },
+  {
     to: "/admin/erp/settings/clinic",
     label: "Clinic Settings",
     icon: "fas fa-hospital",

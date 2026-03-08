@@ -87,12 +87,14 @@ export default function PatientsList() {
             Manage patients, open profile, timeline, and statement
           </p>
         </div>
-        <Link to="/admin/erp/customers/create" className="btn btn-primary">
-          New Patient
-        </Link>
-        <button className="btn btn-primary" onClick={loadPatients}>
-          Refresh
-        </button>
+        <div className="d-flex gap-2">
+          <Link to="/admin/erp/customers/create" className="btn btn-primary">
+            New Patient
+          </Link>
+          <button className="btn btn-primary" onClick={loadPatients}>
+            Refresh
+          </button>
+        </div>
       </div>
 
       {error ? (

@@ -61,6 +61,7 @@ import DoctorsListPage from "./admin/erp/doctors/DoctorsListPage";
 import DoctorAvailabilityPage from "./admin/erp/doctors/DoctorAvailabilityPage";
 import PatientFormPage from "./admin/erp/customers/PatientFormPage";
 import AppointmentCalendarPage from "./admin/erp/appointments/AppointmentCalendarPage";
+import DoctorFormPage from "./admin/erp/doctors/DoctorFormPage";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -184,6 +185,8 @@ createRoot(document.getElementById("root")).render(
             path="appointments/calendar"
             element={<AppointmentCalendarPage />}
           />
+          <Route path="doctors/create" element={<DoctorFormPage />} />
+          <Route path="doctors/:id/edit" element={<DoctorFormPage />} />
         </Route>
 
         {/* ================= Generic admin CRUD (OLD / temporary) ================= */}

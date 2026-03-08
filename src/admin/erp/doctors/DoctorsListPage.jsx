@@ -84,9 +84,18 @@ export default function DoctorsListPage() {
           </p>
         </div>
 
-        <button className="btn btn-primary" onClick={loadDoctors}>
-          Refresh
-        </button>
+        <div className="d-flex gap-2">
+          <Link
+            to="/admin/erp/doctors/create"
+            className="btn btn-outline-primary"
+          >
+            New Doctor
+          </Link>
+
+          <button className="btn btn-primary" onClick={loadDoctors}>
+            Refresh
+          </button>
+        </div>
       </div>
 
       {error ? (
@@ -181,6 +190,13 @@ export default function DoctorsListPage() {
                             className="btn btn-sm btn-outline-primary"
                           >
                             Availability
+                          </Link>
+
+                          <Link
+                            to={`/admin/erp/doctors/${doctor.id}/edit`}
+                            className="btn btn-sm btn-outline-warning"
+                          >
+                            Edit
                           </Link>
 
                           <Link

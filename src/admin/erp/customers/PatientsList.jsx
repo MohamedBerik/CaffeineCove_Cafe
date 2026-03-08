@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, Links } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
 
 export default function PatientsList() {

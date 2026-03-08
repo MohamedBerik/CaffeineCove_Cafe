@@ -57,6 +57,8 @@ import CreateTreatmentPlanPage from "./admin/erp/treatment-plans/CreateTreatment
 import AppointmentActivityPage from "./admin/erp/appointments/AppointmentActivityPage";
 import BookAppointmentPage from "./admin/erp/appointments/BookAppointmentPage";
 import ClinicSettingsPage from "./admin/erp/settings/ClinicSettingsPage";
+import DoctorsListPage from "./admin/erp/doctors/DoctorsListPage";
+import DoctorAvailabilityPage from "./admin/erp/doctors/DoctorAvailabilityPage";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -169,6 +171,11 @@ createRoot(document.getElementById("root")).render(
           />
           <Route path="appointments/create" element={<BookAppointmentPage />} />
           <Route path="settings/clinic" element={<ClinicSettingsPage />} />
+          <Route path="doctors" element={<DoctorsListPage />} />
+          <Route
+            path="doctors/:id/availability"
+            element={<DoctorAvailabilityPage />}
+          />
         </Route>
 
         {/* ================= Generic admin CRUD (OLD / temporary) ================= */}

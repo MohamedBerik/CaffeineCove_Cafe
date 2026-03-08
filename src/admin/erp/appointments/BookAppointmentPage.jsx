@@ -7,6 +7,7 @@ export default function BookAppointmentPage() {
   const [searchParams] = useSearchParams();
 
   const presetPatientId = searchParams.get("customer_id") || "";
+  const presetDoctorId = searchParams.get("doctor_id") || "";
 
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
@@ -22,7 +23,7 @@ export default function BookAppointmentPage() {
 
   const [form, setForm] = useState({
     patient_id: presetPatientId,
-    doctor_id: "",
+    doctor_id: presetDoctorId,
     appointment_date: "",
     appointment_time: "",
     notes: "",

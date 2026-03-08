@@ -52,6 +52,12 @@ const navItems = [
     permission: "finance.view",
   },
   {
+    to: "/admin/erp/doctors",
+    label: "Doctors",
+    icon: "fas fa-user-md",
+    permission: "appointments.view",
+  },
+  {
     to: "/admin/erp/settings/clinic",
     label: "Clinic Settings",
     icon: "fas fa-hospital",

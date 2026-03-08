@@ -1,19 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "../../../services/axios";
 
 export default function ClinicSettingsPage() {
   const [data, setData] = useState(null);
   const [form, setForm] = useState({
     clinic_name: "",
-    clinic_name_ar: "",
     phone: "",
     email: "",
-    address: "",
-    working_days: "",
-    work_start: "",
-    work_end: "",
-    slot_minutes: "",
-    notes: "",
+    currency: "",
+    timezone: "",
+    invoice_prefix: "",
+    invoice_start_number: "",
+    language: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -29,18 +27,17 @@ export default function ClinicSettingsPage() {
     const src = payload?.data || payload || {};
 
     return {
-      clinic_name: src.clinic_name ?? src.name ?? src.title ?? "",
-      clinic_name_ar: src.clinic_name_ar ?? src.name_ar ?? src.title_ar ?? "",
+      clinic_name: src.clinic_name ?? "",
       phone: src.phone ?? "",
       email: src.email ?? "",
-      address: src.address ?? "",
-      working_days: Array.isArray(src.working_days)
-        ? src.working_days.join(", ")
-        : (src.working_days ?? ""),
-      work_start: src.work_start ?? "",
-      work_end: src.work_end ?? "",
-      slot_minutes: src.slot_minutes != null ? String(src.slot_minutes) : "",
-      notes: src.notes ?? "",
+      currency: src.currency ?? "USD",
+      timezone: src.timezone ?? "UTC",
+      invoice_prefix: src.invoice_prefix ?? "INV",
+      invoice_start_number:
+        src.invoice_start_number != null
+          ? String(src.invoice_start_number)
+          : "1",
+      language: src.language ?? "en",
     };
   };
 
@@ -84,17 +81,14 @@ export default function ClinicSettingsPage() {
       setSuccess("");
 
       const payload = {
-        clinic_name: form.clinic_name || null,
-        clinic_name_ar: form.clinic_name_ar || null,
+        clinic_name: form.clinic_name || "",
         phone: form.phone || null,
         email: form.email || null,
-        address: form.address || null,
-        working_days: form.working_days || null,
-        work_start: form.work_start || null,
-        work_end: form.work_end || null,
-        slot_minutes:
-          form.slot_minutes !== "" ? Number(form.slot_minutes) : null,
-        notes: form.notes || null,
+        currency: form.currency || "USD",
+        timezone: form.timezone || "UTC",
+        invoice_prefix: form.invoice_prefix || "INV",
+        invoice_start_number: Number(form.invoice_start_number || 1),
+        language: form.language || "en",
       };
 
       const res = await axios.put("/erp/clinic-settings", payload);
@@ -125,18 +119,6 @@ export default function ClinicSettingsPage() {
     }
   };
 
-  const summary = useMemo(() => {
-    return [
-      form.clinic_name || "-",
-      form.phone || "-",
-      form.email || "-",
-      form.work_start && form.work_end
-        ? `${form.work_start} → ${form.work_end}`
-        : "-",
-      form.slot_minutes ? `${form.slot_minutes} min` : "-",
-    ];
-  }, [form]);
-
   if (loading) {
     return (
       <div
@@ -156,7 +138,7 @@ export default function ClinicSettingsPage() {
         <div>
           <h3 className="fw-bold mb-1">Clinic Settings</h3>
           <p className="text-muted mb-0">
-            Manage clinic profile, schedule, and appointment defaults
+            Manage clinic profile, invoice settings, and defaults
           </p>
         </div>
 
@@ -185,21 +167,7 @@ export default function ClinicSettingsPage() {
                     name="clinic_name"
                     value={form.clinic_name}
                     onChange={handleChange}
-                    placeholder="Caffeine Cove Clinic"
-                  />
-                </div>
-
-                <div className="col-12 col-md-6">
-                  <label className="form-label fw-semibold">
-                    Clinic Name (AR)
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="clinic_name_ar"
-                    value={form.clinic_name_ar}
-                    onChange={handleChange}
-                    placeholder="اسم العيادة"
+                    placeholder="My Clinic"
                   />
                 </div>
 
@@ -227,78 +195,68 @@ export default function ClinicSettingsPage() {
                   />
                 </div>
 
-                <div className="col-12">
-                  <label className="form-label fw-semibold">Address</label>
-                  <textarea
-                    className="form-control"
-                    rows="2"
-                    name="address"
-                    value={form.address}
-                    onChange={handleChange}
-                    placeholder="Clinic address..."
-                  />
-                </div>
-
-                <div className="col-12 col-md-4">
-                  <label className="form-label fw-semibold">Work Start</label>
-                  <input
-                    type="time"
-                    className="form-control"
-                    name="work_start"
-                    value={form.work_start}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="col-12 col-md-4">
-                  <label className="form-label fw-semibold">Work End</label>
-                  <input
-                    type="time"
-                    className="form-control"
-                    name="work_end"
-                    value={form.work_end}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="col-12 col-md-4">
-                  <label className="form-label fw-semibold">Slot Minutes</label>
-                  <input
-                    type="number"
-                    min="5"
-                    step="5"
-                    className="form-control"
-                    name="slot_minutes"
-                    value={form.slot_minutes}
-                    onChange={handleChange}
-                    placeholder="30"
-                  />
-                </div>
-
-                <div className="col-12">
-                  <label className="form-label fw-semibold">Working Days</label>
+                <div className="col-12 col-md-6">
+                  <label className="form-label fw-semibold">Currency</label>
                   <input
                     type="text"
                     className="form-control"
-                    name="working_days"
-                    value={form.working_days}
+                    name="currency"
+                    value={form.currency}
                     onChange={handleChange}
-                    placeholder="Sat, Sun, Mon, Tue, Wed, Thu"
+                    placeholder="USD"
                   />
-                  <div className="form-text">
-                    Use a comma-separated list if your API stores text.
-                  </div>
                 </div>
 
-                <div className="col-12">
-                  <label className="form-label fw-semibold">Notes</label>
-                  <textarea
+                <div className="col-12 col-md-6">
+                  <label className="form-label fw-semibold">Timezone</label>
+                  <input
+                    type="text"
                     className="form-control"
-                    rows="3"
-                    name="notes"
-                    value={form.notes}
+                    name="timezone"
+                    value={form.timezone}
                     onChange={handleChange}
-                    placeholder="Internal clinic notes..."
+                    placeholder="UTC"
+                  />
+                </div>
+
+                <div className="col-12 col-md-6">
+                  <label className="form-label fw-semibold">Language</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="language"
+                    value={form.language}
+                    onChange={handleChange}
+                    placeholder="en"
+                  />
+                </div>
+
+                <div className="col-12 col-md-6">
+                  <label className="form-label fw-semibold">
+                    Invoice Prefix
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="invoice_prefix"
+                    value={form.invoice_prefix}
+                    onChange={handleChange}
+                    placeholder="INV"
+                  />
+                </div>
+
+                <div className="col-12 col-md-6">
+                  <label className="form-label fw-semibold">
+                    Invoice Start Number
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    className="form-control"
+                    name="invoice_start_number"
+                    value={form.invoice_start_number}
+                    onChange={handleChange}
+                    placeholder="1"
                   />
                 </div>
 
@@ -332,40 +290,30 @@ export default function ClinicSettingsPage() {
             </div>
 
             <div className="card-body">
-              <div className="small text-muted mb-1">Clinic</div>
-              <div className="fw-semibold mb-3">{summary[0]}</div>
-
-              <div className="small text-muted mb-1">Phone</div>
-              <div className="fw-semibold mb-3">{summary[1]}</div>
-
-              <div className="small text-muted mb-1">Email</div>
-              <div className="fw-semibold mb-3">{summary[2]}</div>
-
-              <div className="small text-muted mb-1">Working Hours</div>
-              <div className="fw-semibold mb-3">{summary[3]}</div>
-
-              <div className="small text-muted mb-1">Slot Duration</div>
-              <div className="fw-semibold">{summary[4]}</div>
-
-              {data ? (
-                <div className="mt-4">
-                  <div className="small text-muted mb-2">Raw Loaded Data</div>
-                  <pre
-                    className="mb-0 p-3 bg-light border rounded"
-                    style={{
-                      whiteSpace: "pre-wrap",
-                      wordBreak: "break-word",
-                      fontSize: "0.8rem",
-                    }}
-                  >
-                    {JSON.stringify(data, null, 2)}
-                  </pre>
-                </div>
-              ) : null}
+              <SummaryItem label="Clinic Name" value={form.clinic_name} />
+              <SummaryItem label="Phone" value={form.phone} />
+              <SummaryItem label="Email" value={form.email} />
+              <SummaryItem label="Currency" value={form.currency} />
+              <SummaryItem label="Timezone" value={form.timezone} />
+              <SummaryItem label="Language" value={form.language} />
+              <SummaryItem label="Invoice Prefix" value={form.invoice_prefix} />
+              <SummaryItem
+                label="Invoice Start Number"
+                value={form.invoice_start_number}
+              />
             </div>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function SummaryItem({ label, value }) {
+  return (
+    <div className="mb-3">
+      <div className="small text-muted">{label}</div>
+      <div className="fw-semibold">{value || "-"}</div>
     </div>
   );
 }

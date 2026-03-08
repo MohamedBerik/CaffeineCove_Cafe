@@ -1,385 +1,268 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../../../services/axios";
-import { notifyError, notifySuccess } from "../../../utils/notify";
-import { useNavigate } from "react-router-dom";
-import "./InvoicesList.css";
 
-const InvoicesList = () => {
-  const navigate = useNavigate();
-  const [invoices, setInvoices] = useState([]);
+export default function InvoicesList() {
+  const [rows, setRows] = useState([]);
+  const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [payAmounts, setPayAmounts] = useState({});
-  const [payMethods, setPayMethods] = useState({});
-  const [refundAmounts, setRefundAmounts] = useState({});
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [expandedPayments, setExpandedPayments] = useState({});
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    loadInvoices();
   }, []);
 
-  const fetchInvoices = () => {
-    setLoading(true);
-    api
-      .get("/erp/invoices")
-      .then((res) => setInvoices(res.data))
-      .catch((err) => {
-        console.error(err);
-        notifyError("Failed to fetch invoices");
-      })
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => fetchInvoices(), []);
-
-  const handlePay = async (invoiceId) => {
-    const amount = payAmounts[invoiceId];
-    if (!amount || Number(amount) <= 0) {
-      notifyError("Enter valid payment amount");
-      return;
-    }
+  const loadInvoices = async () => {
     try {
-      const res = await api.post(`/erp/invoices/${invoiceId}/payments`, {
-        amount: amount,
-        method: payMethods[invoiceId] || "cash",
-      });
-      notifySuccess(res.data.msg);
-      setPayAmounts((prev) => ({ ...prev, [invoiceId]: "" }));
-      fetchInvoices();
+      setLoading(true);
+      setError("");
+
+      const res = await api.get("/erp/invoices");
+      const payload = res.data || {};
+
+      const rowsData = Array.isArray(payload.data)
+        ? payload.data
+        : payload.data?.data || payload.invoices || [];
+
+      setRows(rowsData);
+      setMeta(payload.meta || payload.data?.meta || null);
     } catch (err) {
-      console.error(err);
-      notifyError(err.response?.data?.msg || "Payment failed");
+      setError(
+        err?.response?.data?.message ||
+          err?.response?.data?.msg ||
+          "Failed to load invoices.",
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleRefund = async (paymentId) => {
-    const amount = refundAmounts[paymentId];
-    if (!amount || Number(amount) <= 0) {
-      notifyError("Enter valid refund amount");
-      return;
-    }
+  const filteredRows = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return rows;
+
+    return rows.filter((item) => {
+      const number = String(item.number || item.id || "").toLowerCase();
+      const customerName = String(item.customer?.name || "").toLowerCase();
+      const customerEmail = String(item.customer?.email || "").toLowerCase();
+      const status = String(item.status || "").toLowerCase();
+      const issuedAt = String(
+        item.issued_at || item.created_at || "",
+      ).toLowerCase();
+
+      return (
+        number.includes(q) ||
+        customerName.includes(q) ||
+        customerEmail.includes(q) ||
+        status.includes(q) ||
+        issuedAt.includes(q)
+      );
+    });
+  }, [rows, search]);
+
+  const money = (value) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(Number(value || 0));
+
+  const formatDate = (value) => {
+    if (!value) return "-";
     try {
-      const res = await api.post(`/erp/payments/${paymentId}/refund`, {
-        amount: amount,
+      return new Date(value).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
       });
-      notifySuccess(res.data.msg);
-      setRefundAmounts((prev) => ({ ...prev, [paymentId]: "" }));
-      fetchInvoices();
-    } catch (err) {
-      console.error(err);
-      notifyError(err.response?.data?.msg || "Refund failed");
+    } catch {
+      return value;
     }
   };
 
-  const togglePaymentView = (invoiceId) => {
-    setExpandedPayments((prev) => ({
-      ...prev,
-      [invoiceId]: !prev[invoiceId],
-    }));
-  };
-
-  if (loading)
+  if (loading) {
     return (
-      <div className="loading-container">
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "320px" }}
+      >
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
-        <p className="mt-2">Loading invoices...</p>
       </div>
     );
+  }
 
   return (
-    <div className="invoices-container">
-      <div className="invoices-header">
-        <h2>Invoices Management</h2>
-        <button
-          className="btn btn-primary"
-          onClick={() => navigate("/admin/erp/invoices/create")}
-        >
-          <i className="fas fa-plus"></i>
-          {!isMobile && " New Invoice"}
+    <div className="container-fluid px-0">
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+          <h3 className="fw-bold mb-1">Invoices</h3>
+          <p className="text-muted mb-0">
+            Review invoice balances, payment status, and customer billing
+          </p>
+        </div>
+
+        <button className="btn btn-primary" onClick={loadInvoices}>
+          Refresh
         </button>
       </div>
 
-      {invoices.length === 0 ? (
-        <div className="no-data">
-          <i className="fas fa-file-invoice-dollar"></i>
-          <p>No invoices found</p>
+      {error ? (
+        <div className="alert alert-danger d-flex justify-content-between align-items-center">
+          <span>{error}</span>
+          <button
+            className="btn btn-sm btn-outline-danger"
+            onClick={loadInvoices}
+          >
+            Retry
+          </button>
         </div>
-      ) : (
-        <div className="table-responsive">
-          <table className="invoices-table">
-            <thead>
-              <tr>
-                {!isMobile && (
-                  <>
-                    <th>ID</th>
-                    <th>Customer</th>
-                    <th>Total</th>
-                    <th>Paid</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </>
-                )}
-                {isMobile && <th>Invoice Details</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {invoices.map((inv) => (
-                <React.Fragment key={inv.id}>
-                  <tr className="invoice-row">
-                    {!isMobile ? (
-                      <>
-                        <td>
-                          <button
-                            className="btn-invoice-id"
-                            onClick={() =>
-                              navigate(`/admin/erp/invoices/${inv.id}`)
-                            }
-                            title="View details"
-                          >
-                            #{inv.id}
-                          </button>
-                        </td>
-                        <td>{inv.customer?.name || "N/A"}</td>
-                        <td>${parseFloat(inv.total).toFixed(2)}</td>
-                        <td>${parseFloat(inv.total_paid).toFixed(2)}</td>
-                        <td>
-                          <span className={`status-badge status-${inv.status}`}>
-                            {inv.status}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="invoice-actions">
-                            <button
-                              className="btn btn-sm btn-outline-primary"
-                              onClick={() =>
-                                navigate(`/admin/erp/invoices/${inv.id}`)
-                              }
-                              title="View"
-                            >
-                              <i className="fas fa-eye"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-warning"
-                              onClick={() =>
-                                navigate(`/admin/erp/invoices/${inv.id}/edit`)
-                              }
-                              title="Edit"
-                            >
-                              <i className="fas fa-edit"></i>
-                            </button>
-                          </div>
-                        </td>
-                      </>
-                    ) : (
-                      <td>
-                        <div className="mobile-invoice-card">
-                          <div className="mobile-invoice-header">
-                            <div>
-                              <strong>Invoice #{inv.id}</strong>
-                              <div className="mobile-customer">
-                                {inv.customer?.name}
-                              </div>
-                            </div>
-                            <span
-                              className={`status-badge status-${inv.status}`}
-                            >
-                              {inv.status}
-                            </span>
-                          </div>
+      ) : null}
 
-                          <div className="mobile-invoice-details">
-                            <div className="detail-row">
-                              <span>Total:</span>
-                              <span>${parseFloat(inv.total).toFixed(2)}</span>
-                            </div>
-                            <div className="detail-row">
-                              <span>Paid:</span>
-                              <span>
-                                ${parseFloat(inv.total_paid).toFixed(2)}
-                              </span>
-                            </div>
-                            <div className="detail-row">
-                              <span>Remaining:</span>
-                              <span className="remaining-amount">
-                                ${parseFloat(inv.remaining).toFixed(2)}
-                              </span>
-                            </div>
-                          </div>
+      <div className="card shadow-sm border-0 mb-4">
+        <div className="card-body">
+          <div className="row g-3 align-items-center">
+            <div className="col-12 col-lg-8">
+              <label className="form-label fw-semibold">Search</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Invoice number, customer, email, status..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
 
-                          <div className="mobile-invoice-actions">
-                            <button
-                              className="btn btn-sm btn-outline-primary"
-                              onClick={() =>
-                                navigate(`/admin/erp/invoices/${inv.id}`)
-                              }
-                            >
-                              <i className="fas fa-eye"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-warning"
-                              onClick={() =>
-                                navigate(`/admin/erp/invoices/${inv.id}/edit`)
-                              }
-                            >
-                              <i className="fas fa-edit"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-info"
-                              onClick={() => togglePaymentView(inv.id)}
-                            >
-                              <i
-                                className={`fas fa-chevron-${expandedPayments[inv.id] ? "up" : "down"}`}
-                              ></i>
-                            </button>
-                          </div>
-                        </div>
-                      </td>
-                    )}
+            <div className="col-12 col-lg-4">
+              <label className="form-label fw-semibold">Total Loaded</label>
+              <div className="form-control bg-light">
+                {meta?.total ?? rows.length}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="card shadow-sm border-0">
+        <div className="card-header bg-white">
+          <h5 className="mb-0">Invoices List</h5>
+        </div>
+
+        <div className="card-body p-0">
+          {filteredRows.length === 0 ? (
+            <div className="p-4 text-muted">No invoices found.</div>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-hover align-middle mb-0">
+                <thead className="table-light">
+                  <tr>
+                    <th style={{ minWidth: 160 }}>Invoice</th>
+                    <th style={{ minWidth: 220 }}>Customer</th>
+                    <th style={{ minWidth: 120 }}>Total</th>
+                    <th style={{ minWidth: 120 }}>Paid</th>
+                    <th style={{ minWidth: 120 }}>Remaining</th>
+                    <th style={{ minWidth: 140 }}>Status</th>
+                    <th style={{ minWidth: 140 }}>Issued</th>
+                    <th style={{ minWidth: 220 }}>Actions</th>
                   </tr>
+                </thead>
+                <tbody>
+                  {filteredRows.map((inv) => {
+                    const total = Number(inv.total || 0);
+                    const totalPaid = Number(
+                      inv.net_paid ?? inv.total_paid ?? 0,
+                    );
+                    const remaining =
+                      inv.remaining != null
+                        ? Number(inv.remaining)
+                        : Math.max(total - totalPaid, 0);
 
-                  {/* Payment and Refund Section */}
-                  {(!isMobile || expandedPayments[inv.id]) && (
-                    <tr className="payment-section-row">
-                      <td colSpan={isMobile ? 1 : 6}>
-                        <div className="payment-section">
-                          <div className="payment-section-header">
-                            <h5>Payment & Refund Management</h5>
-                            <div className="remaining-badge">
-                              Remaining:{" "}
-                              <strong>
-                                ${parseFloat(inv.remaining).toFixed(2)}
-                              </strong>
-                            </div>
-                          </div>
-
-                          <div className="payment-controls">
-                            <div className="payment-input-group">
-                              <div className="input-label">Pay Invoice</div>
-                              <div className="input-row">
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  placeholder="Amount"
-                                  value={payAmounts[inv.id] || ""}
-                                  onChange={(e) =>
-                                    setPayAmounts({
-                                      ...payAmounts,
-                                      [inv.id]: e.target.value,
-                                    })
-                                  }
-                                  min="0"
-                                  step="0.01"
-                                />
-                                <select
-                                  className="form-select"
-                                  value={payMethods[inv.id] || "cash"}
-                                  onChange={(e) =>
-                                    setPayMethods({
-                                      ...payMethods,
-                                      [inv.id]: e.target.value,
-                                    })
-                                  }
-                                >
-                                  <option value="cash">Cash</option>
-                                  <option value="card">Card</option>
-                                  <option value="bank">Bank</option>
-                                </select>
-                                <button
-                                  className="btn btn-success"
-                                  disabled={inv.remaining <= 0}
-                                  onClick={() => handlePay(inv.id)}
-                                >
-                                  <i className="fas fa-money-check-alt"></i>
-                                  Pay
-                                </button>
-                              </div>
-                            </div>
-
-                            {inv.payments && inv.payments.length > 0 && (
-                              <div className="payments-list">
-                                <div className="payments-label">
-                                  Existing Payments:
-                                </div>
-                                {inv.payments.map((p) => {
-                                  const refundable =
-                                    Number(p.amount) -
-                                    Number(p.refunded_amount || 0);
-
-                                  return (
-                                    <div key={p.id} className="payment-item">
-                                      <div className="payment-info">
-                                        <div>
-                                          <strong>Payment #{p.id}</strong>
-                                          <span className="payment-method">
-                                            ({p.method})
-                                          </span>
-                                        </div>
-                                        <div className="payment-amounts">
-                                          <span>
-                                            Amount: $
-                                            {parseFloat(p.amount).toFixed(2)}
-                                          </span>
-                                          <span>
-                                            Refunded: $
-                                            {parseFloat(
-                                              p.refunded_amount || 0,
-                                            ).toFixed(2)}
-                                          </span>
-                                          <span>
-                                            Refundable: $
-                                            {parseFloat(refundable).toFixed(2)}
-                                          </span>
-                                        </div>
-                                      </div>
-
-                                      {refundable > 0 && (
-                                        <div className="refund-controls">
-                                          <input
-                                            type="number"
-                                            className="form-control"
-                                            placeholder="Refund amount"
-                                            value={refundAmounts[p.id] || ""}
-                                            onChange={(e) =>
-                                              setRefundAmounts({
-                                                ...refundAmounts,
-                                                [p.id]: e.target.value,
-                                              })
-                                            }
-                                            min="0"
-                                            max={refundable}
-                                            step="0.01"
-                                          />
-                                          <button
-                                            className="btn btn-warning"
-                                            onClick={() => handleRefund(p.id)}
-                                          >
-                                            <i className="fas fa-undo"></i>
-                                            Refund
-                                          </button>
-                                        </div>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
+                    return (
+                      <tr key={inv.id}>
+                        <td>
+                          <div className="fw-semibold">
+                            {inv.number ? (
+                              <Link
+                                to={`/admin/erp/invoices/${inv.id}`}
+                                className="text-decoration-none"
+                              >
+                                {inv.number}
+                              </Link>
+                            ) : (
+                              `#${inv.id}`
                             )}
                           </div>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
+                          <div className="small text-muted">ID: {inv.id}</div>
+                        </td>
+
+                        <td>
+                          <div className="fw-semibold">
+                            {inv.customer?.name || "-"}
+                          </div>
+                          <div className="small text-muted">
+                            {inv.customer?.email || "-"}
+                          </div>
+                        </td>
+
+                        <td>{money(total)}</td>
+                        <td>{money(totalPaid)}</td>
+                        <td>{money(remaining)}</td>
+
+                        <td>
+                          <StatusBadge status={inv.status} />
+                        </td>
+
+                        <td>{formatDate(inv.issued_at || inv.created_at)}</td>
+
+                        <td>
+                          <div className="d-flex flex-wrap gap-2">
+                            <Link
+                              to={`/admin/erp/invoices/${inv.id}`}
+                              className="btn btn-sm btn-outline-primary"
+                            >
+                              View
+                            </Link>
+
+                            {inv.customer_id ? (
+                              <Link
+                                to={`/admin/erp/patients/${inv.customer_id}/profile`}
+                                className="btn btn-sm btn-outline-secondary"
+                              >
+                                Patient
+                              </Link>
+                            ) : null}
+
+                            {inv.treatment_plan_id ? (
+                              <Link
+                                to={`/admin/erp/treatment-plans/${inv.treatment_plan_id}`}
+                                className="btn btn-sm btn-outline-info"
+                              >
+                                Plan
+                              </Link>
+                            ) : null}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
-};
+}
 
-export default InvoicesList;
+function StatusBadge({ status }) {
+  const value = String(status || "").toLowerCase();
+
+  let cls = "secondary";
+  if (["paid"].includes(value)) cls = "success";
+  else if (["unpaid", "cancelled"].includes(value)) cls = "danger";
+  else if (["partially_paid"].includes(value)) cls = "warning";
+
+  return <span className={`badge bg-${cls}`}>{status}</span>;
+}

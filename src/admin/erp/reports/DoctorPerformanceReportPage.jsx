@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
+import { exportToCsv } from "./utils/exportCsv";
 
 export default function DoctorPerformanceReportPage() {
   const today = new Date().toISOString().slice(0, 10);
@@ -109,6 +110,24 @@ export default function DoctorPerformanceReportPage() {
     );
   }
 
+  const exportRows = () => {
+    const csvRows = rows.map((row) => ({
+      doctor_name: row.name,
+      specialty: row.specialty,
+      total_appointments: row.total,
+      completed: row.completed,
+      scheduled: row.scheduled,
+      cancelled: row.cancelled,
+      no_show: row.no_show,
+      completion_rate: `${row.completionRate}%`,
+    }));
+
+    exportToCsv("doctor-performance-report.csv", csvRows);
+  };
+
+  const printReport = () => {
+    window.print();
+  };
   return (
     <div className="container-fluid px-0">
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
@@ -123,6 +142,14 @@ export default function DoctorPerformanceReportPage() {
           <Link to="/admin/erp/reports" className="btn btn-outline-secondary">
             Back to Reports
           </Link>
+
+          <button className="btn btn-outline-dark" onClick={printReport}>
+            Print
+          </button>
+
+          <button className="btn btn-outline-success" onClick={exportRows}>
+            Export CSV
+          </button>
 
           <button className="btn btn-primary" onClick={loadReport}>
             Refresh

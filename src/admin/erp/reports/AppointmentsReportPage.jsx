@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
+import { exportToCsv } from "./utils/exportCsv";
 
 export default function AppointmentsReportPage() {
   const today = new Date().toISOString().slice(0, 10);
@@ -152,6 +153,23 @@ export default function AppointmentsReportPage() {
     );
   }
 
+  const exportRows = () => {
+    const csvRows = rows.map((row) => ({
+      patient_name: row.patient?.name || "",
+      patient_email: row.patient?.email || "",
+      doctor_name: row.doctor?.name || row.doctor_name || "",
+      appointment_date: row.appointment_date,
+      appointment_time: row.appointment_time,
+      status: row.status,
+      notes: row.notes || "",
+    }));
+
+    exportToCsv("appointments-report.csv", csvRows);
+  };
+
+  const printReport = () => {
+    window.print();
+  };
   return (
     <div className="container-fluid px-0">
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
@@ -167,6 +185,14 @@ export default function AppointmentsReportPage() {
           <Link to="/admin/erp/reports" className="btn btn-outline-secondary">
             Back to Reports
           </Link>
+
+          <button className="btn btn-outline-dark" onClick={printReport}>
+            Print
+          </button>
+
+          <button className="btn btn-outline-success" onClick={exportRows}>
+            Export CSV
+          </button>
 
           <button className="btn btn-primary" onClick={loadReport}>
             Refresh

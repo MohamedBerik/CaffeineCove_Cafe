@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
+import { exportToCsv } from "./utils/exportCsv";
 
 export default function RevenueReportPage() {
   const today = new Date().toISOString().slice(0, 10);
@@ -161,6 +162,25 @@ export default function RevenueReportPage() {
     );
   }
 
+  const exportRows = () => {
+    const csvRows = rows.map((row) => ({
+      invoice_number: row.number,
+      customer_name: row.customer_name,
+      invoiced: row.total,
+      gross_paid: row.gross_paid,
+      refunded: row.refunded,
+      net_paid: row.net_paid,
+      remaining: row.remaining,
+      status: row.status,
+      issued_at: row.issued_at,
+    }));
+
+    exportToCsv("revenue-report.csv", csvRows);
+  };
+
+  const printReport = () => {
+    window.print();
+  };
   return (
     <div className="container-fluid px-0">
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
@@ -175,6 +195,14 @@ export default function RevenueReportPage() {
           <Link to="/admin/erp/reports" className="btn btn-outline-secondary">
             Back to Reports
           </Link>
+
+          <button className="btn btn-outline-dark" onClick={printReport}>
+            Print
+          </button>
+
+          <button className="btn btn-outline-success" onClick={exportRows}>
+            Export CSV
+          </button>
 
           <button className="btn btn-primary" onClick={loadRevenueReport}>
             Refresh

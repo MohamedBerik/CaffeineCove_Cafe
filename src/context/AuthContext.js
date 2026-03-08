@@ -7,19 +7,45 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
-    if (storedUser && token) {
-      setUser({ ...JSON.parse(storedUser), token });
+  const loadUser = async (token) => {
+    try {
+      const res = await api.get("/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const userData = res.data;
+
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      setUser({
+        ...userData,
+        token,
+      });
+    } catch (err) {
+      console.error("Failed to load user", err);
+      logoutLocal();
     }
-    setLoading(false);
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      loadUser(token);
+    } else {
+      setLoading(false);
+    }
   }, []);
 
-  const login = (userData, token) => {
+  const login = async (userData, token) => {
     localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(userData));
-    setUser({ ...userData, token });
+
+    await loadUser(token);
+  };
+
+  const logoutLocal = () => {
+    localStorage.clear();
+    setUser(null);
   };
 
   const logout = async () => {
@@ -27,11 +53,11 @@ export function AuthProvider({ children }) {
       await api.post(
         "/logout",
         {},
-        { headers: { Authorization: `Bearer ${user.token}` } }
+        { headers: { Authorization: `Bearer ${user?.token}` } },
       );
     } catch (e) {}
-    localStorage.clear();
-    setUser(null);
+
+    logoutLocal();
   };
 
   return (

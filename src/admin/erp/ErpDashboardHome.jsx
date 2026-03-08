@@ -149,6 +149,13 @@ export default function ErpDashboardHome() {
           <i className="fas fa-calendar-alt me-1"></i>
           Calendar
         </Link>
+        <Link
+          to="/admin/erp/reports"
+          className="btn btn-outline-primary btn-sm"
+        >
+          <i className="fas fa-chart-bar me-1"></i>
+          Reports
+        </Link>
       </div>
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-lg-3">

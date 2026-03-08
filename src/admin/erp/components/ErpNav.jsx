@@ -22,6 +22,12 @@ const navItems = [
     permission: "appointments.view",
   },
   {
+    to: "/admin/erp/appointments/calendar",
+    label: "Calendar",
+    icon: "fas fa-calendar-alt",
+    permission: "appointments.view",
+  },
+  {
     to: "/admin/erp/dental-records",
     label: "Dental Records",
     icon: "fas fa-tooth",
@@ -55,12 +61,6 @@ const navItems = [
     to: "/admin/erp/doctors",
     label: "Doctors",
     icon: "fas fa-user-md",
-    permission: "appointments.view",
-  },
-  {
-    to: "/admin/erp/appointments/calendar",
-    label: "Calendar",
-    icon: "fas fa-calendar-alt",
     permission: "appointments.view",
   },
   {

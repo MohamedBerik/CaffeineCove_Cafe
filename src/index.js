@@ -64,6 +64,8 @@ import AppointmentCalendarPage from "./admin/erp/appointments/AppointmentCalenda
 import DoctorFormPage from "./admin/erp/doctors/DoctorFormPage";
 import ReportsDashboardPage from "./admin/erp/reports/ReportsDashboardPage";
 import RevenueReportPage from "./admin/erp/reports/RevenueReportPage";
+import AppointmentsReportPage from "./admin/erp/reports/AppointmentsReportPage";
+import DoctorPerformanceReportPage from "./admin/erp/reports/DoctorPerformanceReportPage";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -191,6 +193,14 @@ createRoot(document.getElementById("root")).render(
           <Route path="doctors/:id/edit" element={<DoctorFormPage />} />
           <Route path="reports" element={<ReportsDashboardPage />} />
           <Route path="reports/revenue" element={<RevenueReportPage />} />
+          <Route
+            path="reports/appointments"
+            element={<AppointmentsReportPage />}
+          />
+          <Route
+            path="reports/doctors"
+            element={<DoctorPerformanceReportPage />}
+          />
         </Route>
 
         {/* ================= Generic admin CRUD (OLD / temporary) ================= */}

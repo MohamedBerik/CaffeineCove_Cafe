@@ -123,7 +123,9 @@ const CustomerStatement = () => {
           </div>
           <div>
             <h4>{customer.name}</h4>
-            <p className="customer-code">{customer.code || "No code"}</p>
+            <p className="customer-code">
+              {customer.patient_code || "No code"}
+            </p>
           </div>
         </div>
         <div className="customer-details">
@@ -312,7 +314,9 @@ const CustomerStatement = () => {
             <div className="profile-info">
               <h3>{customer.name}</h3>
               <div className="profile-details">
-                {customer.code && <span>Code: {customer.code}</span>}
+                {customer.patient_code && (
+                  <span>Code: {customer.patient_code}</span>
+                )}
                 {customer.phone && (
                   <span>
                     <i className="fas fa-phone"></i> {customer.phone}

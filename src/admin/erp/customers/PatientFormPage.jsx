@@ -13,7 +13,8 @@ export default function PatientFormPage() {
     email: "",
     phone: "",
     gender: "",
-    birth_date: "",
+    address: "",
+    date_of_birth: "",
     notes: "",
   });
 
@@ -35,7 +36,8 @@ export default function PatientFormPage() {
         email: data.email || "",
         phone: data.phone || "",
         gender: data.gender || "",
-        birth_date: data.birth_date || "",
+        address: data.address || "",
+        date_of_birth: data.date_of_birth || "",
         notes: data.notes || "",
       });
     } catch (err) {

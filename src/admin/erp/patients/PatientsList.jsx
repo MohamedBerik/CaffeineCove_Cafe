@@ -169,32 +169,35 @@ export default function PatientsList() {
                       </td>
                       <td>
                         <div className="d-flex flex-wrap gap-2">
-                          <Link
-                            to={`/admin/erp/patients/${patient.id}/profile`}
-                            className="btn btn-sm btn-outline-primary"
-                          >
-                            Profile
-                          </Link>
+                          <div className="d-flex flex-wrap gap-2">
+                            <Link
+                              to={`/admin/erp/patients/${patient.id}/profile`}
+                              className="btn btn-sm btn-outline-primary"
+                            >
+                              Profile
+                            </Link>
 
-                          <Link
-                            to={`/admin/erp/patients/${patient.id}/timeline`}
-                            className="btn btn-sm btn-outline-info"
-                          >
-                            Timeline
-                          </Link>
+                            <Link
+                              to={`/admin/erp/patients/${patient.id}/edit`}
+                              className="btn btn-sm btn-outline-warning"
+                            >
+                              Edit
+                            </Link>
 
-                          <Link
-                            to={`/admin/erp/patients/${patient.id}/statement`}
-                            className="btn btn-sm btn-outline-success"
-                          >
-                            Statement
-                          </Link>
-                          <Link
-                            to={`/admin/erp/patients/${patient.id}/edit`}
-                            className="btn btn-sm btn-outline-warning"
-                          >
-                            <i className="fas fa-edit me-1"></i> Edit
-                          </Link>
+                            <Link
+                              to={`/admin/erp/patients/${patient.id}/timeline`}
+                              className="btn btn-sm btn-outline-info"
+                            >
+                              Timeline
+                            </Link>
+
+                            <Link
+                              to={`/admin/erp/patients/${patient.id}/statement`}
+                              className="btn btn-sm btn-outline-success"
+                            >
+                              Statement
+                            </Link>
+                          </div>
                         </div>
                       </td>
                     </tr>

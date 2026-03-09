@@ -212,7 +212,6 @@ export default function PatientsList() {
                               Statement
                             </Link>
 
-                            {/* 👇 أضف زر التعديل هنا 👇 */}
                             <Link
                               to={`/admin/erp/patients/edit/${patient.id}`}
                               className="btn btn-sm btn-outline-warning"
@@ -220,7 +219,6 @@ export default function PatientsList() {
                               <i className="fas fa-edit me-1"></i> Edit
                             </Link>
 
-                            {/* أو إذا تريد زر للحذف أيضاً */}
                             <button
                               onClick={() => handleDelete(patient.id)}
                               className="btn btn-sm btn-outline-danger"

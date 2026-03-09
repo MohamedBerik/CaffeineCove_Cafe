@@ -159,8 +159,8 @@ export default function PatientFormPage() {
               <input
                 type="date"
                 className="form-control"
-                name="birth_date"
-                value={form.birth_date}
+                name="date_of_birth"
+                value={form.date_of_birth}
                 onChange={handleChange}
               />
             </div>

@@ -29,7 +29,7 @@ import PurchaseOrderCreate from "./admin/erp/components/PurchaseOrderCreate";
 import PurchaseOrderDetails from "./admin/erp/components/PurchaseOrderDetails";
 import PurchaseOrderReturns from "./admin/erp/components/PurchaseOrderReturns";
 import PurchaseOrderReturnsHistory from "./admin/erp/components/PurchaseOrderReturnsHistory";
-import CustomerStatement from "./admin/erp/patients/PatientStatement";
+import PatientStatement from "./admin/erp/patients/PatientStatement";
 import SupplierStatement from "./admin/erp/suppliers/SupplierStatement";
 
 /* ================= Generic CRUD (temporary) ================= */

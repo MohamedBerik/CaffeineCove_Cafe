@@ -4,7 +4,7 @@ import api from "../../../services/axios";
 import { notifyError } from "../../../utils/notify";
 import "./PatientStatement.css";
 
-const CustomerStatement = () => {
+const PatientStatement = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -517,4 +517,4 @@ const CustomerStatement = () => {
   return isMobile ? renderMobileView() : renderDesktopView();
 };
 
-export default CustomerStatement;
+export default PatientStatement;

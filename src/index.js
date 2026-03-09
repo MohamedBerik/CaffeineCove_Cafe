@@ -29,7 +29,7 @@ import PurchaseOrderCreate from "./admin/erp/components/PurchaseOrderCreate";
 import PurchaseOrderDetails from "./admin/erp/components/PurchaseOrderDetails";
 import PurchaseOrderReturns from "./admin/erp/components/PurchaseOrderReturns";
 import PurchaseOrderReturnsHistory from "./admin/erp/components/PurchaseOrderReturnsHistory";
-import CustomerStatement from "./admin/erp/patients/CustomerStatement";
+import CustomerStatement from "./admin/erp/patients/PatientStatement";
 import SupplierStatement from "./admin/erp/suppliers/SupplierStatement";
 
 /* ================= Generic CRUD (temporary) ================= */
@@ -147,10 +147,7 @@ createRoot(document.getElementById("root")).render(
           /> */}
 
           {/* ✅ Patient statement (UI route) */}
-          <Route
-            path="patients/:id/statement"
-            element={<CustomerStatement />}
-          />
+          <Route path="patients/:id/statement" element={<PatientStatement />} />
           <Route path="patients" element={<PatientsList />} />
           <Route path="patients/:id/profile" element={<PatientProfilePage />} />
           <Route

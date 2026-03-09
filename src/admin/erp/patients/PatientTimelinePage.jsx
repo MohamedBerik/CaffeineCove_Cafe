@@ -104,14 +104,14 @@ export default function PatientTimelinePage() {
 
         <div className="d-flex flex-wrap gap-2">
           <Link
-            to={`/admin/erp/customers/${id}/profile`}
+            to={`/admin/erp/patients/${id}/profile`}
             className="btn btn-outline-primary"
           >
             Profile
           </Link>
 
           <Link
-            to={`/admin/erp/customers/${id}/statement`}
+            to={`/admin/erp/patients/${id}/statement`}
             className="btn btn-outline-success"
           >
             Statement

@@ -73,7 +73,7 @@ export default function PatientFormPage() {
         await axios.post("/erp/customers", form);
       }
 
-      navigate("/admin/erp/patients");
+      navigate("/admin/erp/customers");
     } catch (err) {
       const errors = err?.response?.data?.errors;
       if (errors) {
@@ -111,7 +111,7 @@ export default function PatientFormPage() {
 
         <button
           className="btn btn-outline-secondary"
-          onClick={() => navigate("/admin/erp/patients")}
+          onClick={() => navigate("/admin/erp/customers")}
         >
           Back
         </button>

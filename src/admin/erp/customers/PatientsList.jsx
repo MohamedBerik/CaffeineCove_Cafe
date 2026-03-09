@@ -171,28 +171,28 @@ export default function PatientsList() {
                         <div className="d-flex flex-wrap gap-2">
                           <div className="d-flex flex-wrap gap-2">
                             <Link
-                              to={`/admin/erp/patients/${patient.id}/profile`}
+                              to={`/admin/erp/customers/${patient.id}/profile`}
                               className="btn btn-sm btn-outline-primary"
                             >
                               Profile
                             </Link>
 
                             <Link
-                              to={`/admin/erp/patients/${patient.id}/edit`}
+                              to={`/admin/erp/customers/${patient.id}/edit`}
                               className="btn btn-sm btn-outline-warning"
                             >
                               Edit
                             </Link>
 
                             <Link
-                              to={`/admin/erp/patients/${patient.id}/timeline`}
+                              to={`/admin/erp/customers/${patient.id}/timeline`}
                               className="btn btn-sm btn-outline-info"
                             >
                               Timeline
                             </Link>
 
                             <Link
-                              to={`/admin/erp/patients/${patient.id}/statement`}
+                              to={`/admin/erp/customers/${patient.id}/statement`}
                               className="btn btn-sm btn-outline-success"
                             >
                               Statement

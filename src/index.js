@@ -29,7 +29,7 @@ import PurchaseOrderCreate from "./admin/erp/components/PurchaseOrderCreate";
 import PurchaseOrderDetails from "./admin/erp/components/PurchaseOrderDetails";
 import PurchaseOrderReturns from "./admin/erp/components/PurchaseOrderReturns";
 import PurchaseOrderReturnsHistory from "./admin/erp/components/PurchaseOrderReturnsHistory";
-import CustomerStatement from "./admin/erp/patients/CustomerStatement";
+import CustomerStatement from "./admin/erp/customers/CustomerStatement";
 import SupplierStatement from "./admin/erp/suppliers/SupplierStatement";
 
 /* ================= Generic CRUD (temporary) ================= */
@@ -45,9 +45,9 @@ import { ProtectedRoute, AdminRoute } from "./admin/routes/ProtectedRoute";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import PatientsList from "./admin/erp/patients/PatientsList";
-import PatientProfilePage from "./admin/erp/patients/PatientProfilePage";
-import PatientTimelinePage from "./admin/erp/patients/PatientTimelinePage";
+import PatientsList from "./admin/erp/customers/PatientsList";
+import PatientProfilePage from "./admin/erp/customers/PatientProfilePage";
+import PatientTimelinePage from "./admin/erp/customers/PatientTimelinePage";
 import AppointmentsListPage from "./admin/erp/appointments/AppointmentsListPage";
 import TreatmentPlanDetailsPage from "./admin/erp/treatment-plans/TreatmentPlanDetailsPage";
 import TreatmentPlansListPage from "./admin/erp/treatment-plans/TreatmentPlansListPage";
@@ -59,7 +59,7 @@ import BookAppointmentPage from "./admin/erp/appointments/BookAppointmentPage";
 import ClinicSettingsPage from "./admin/erp/settings/ClinicSettingsPage";
 import DoctorsListPage from "./admin/erp/doctors/DoctorsListPage";
 import DoctorAvailabilityPage from "./admin/erp/doctors/DoctorAvailabilityPage";
-import PatientFormPage from "./admin/erp/patients/PatientFormPage";
+import PatientFormPage from "./admin/erp/customers/PatientFormPage";
 import AppointmentCalendarPage from "./admin/erp/appointments/AppointmentCalendarPage";
 import DoctorFormPage from "./admin/erp/doctors/DoctorFormPage";
 import ReportsDashboardPage from "./admin/erp/reports/ReportsDashboardPage";

@@ -190,7 +190,7 @@ export default function PatientsList() {
                             Statement
                           </Link>
                           <Link
-                            to={`/admin/erp/patients/edit/${patient.id}`}
+                            to={`/admin/erp/patients/${patient.id}/edit`}
                             className="btn btn-sm btn-outline-warning"
                           >
                             <i className="fas fa-edit me-1"></i> Edit

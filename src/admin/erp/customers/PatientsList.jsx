@@ -189,43 +189,20 @@ export default function PatientsList() {
                           >
                             Statement
                           </Link>
-                          <div className="d-flex flex-wrap gap-2">
-                            {/* الأزرار الموجودة */}
-                            <Link
-                              to={`/admin/erp/patients/${patient.id}/profile`}
-                              className="btn btn-sm btn-outline-primary"
-                            >
-                              Profile
-                            </Link>
+                          <Link
+                            to={`/admin/erp/patients/edit/${patient.id}`}
+                            className="btn btn-sm btn-outline-warning"
+                          >
+                            <i className="fas fa-edit me-1"></i> Edit
+                          </Link>
 
-                            <Link
-                              to={`/admin/erp/patients/${patient.id}/timeline`}
-                              className="btn btn-sm btn-outline-info"
-                            >
-                              Timeline
-                            </Link>
-
-                            <Link
-                              to={`/admin/erp/patients/${patient.id}/statement`}
-                              className="btn btn-sm btn-outline-success"
-                            >
-                              Statement
-                            </Link>
-
-                            <Link
-                              to={`/admin/erp/patients/edit/${patient.id}`}
-                              className="btn btn-sm btn-outline-warning"
-                            >
-                              <i className="fas fa-edit me-1"></i> Edit
-                            </Link>
-
-                            <button
-                              onClick={() => handleDelete(patient.id)}
-                              className="btn btn-sm btn-outline-danger"
-                            >
-                              <i className="fas fa-trash me-1"></i> Delete
-                            </button>
-                          </div>
+                          {/* أو إذا تريد زر للحذف أيضاً */}
+                          <button
+                            onClick={() => handleDelete(patient.id)}
+                            className="btn btn-sm btn-outline-danger"
+                          >
+                            <i className="fas fa-trash me-1"></i> Delete
+                          </button>
                         </div>
                       </td>
                     </tr>

@@ -5,7 +5,6 @@ import axios from "../../../services/axios";
 export default function PatientFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const isEdit = Boolean(id);
 
   const [form, setForm] = useState({
@@ -28,6 +27,9 @@ export default function PatientFormPage() {
 
   const loadPatient = async () => {
     try {
+      setLoading(true);
+      setError("");
+
       const res = await axios.get(`/erp/customers/${id}`);
       const data = res.data?.data || res.data;
 
@@ -41,7 +43,11 @@ export default function PatientFormPage() {
         notes: data.notes || "",
       });
     } catch (err) {
-      setError("Failed to load patient.");
+      setError(
+        err?.response?.data?.message ||
+          err?.response?.data?.msg ||
+          "Failed to load patient.",
+      );
     } finally {
       setLoading(false);
     }
@@ -69,11 +75,17 @@ export default function PatientFormPage() {
 
       navigate("/admin/erp/patients");
     } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-          err?.response?.data?.msg ||
-          "Failed to save patient.",
-      );
+      const errors = err?.response?.data?.errors;
+      if (errors) {
+        const firstError = Object.values(errors)?.[0]?.[0];
+        setError(firstError || "Failed to save patient.");
+      } else {
+        setError(
+          err?.response?.data?.message ||
+            err?.response?.data?.msg ||
+            "Failed to save patient.",
+        );
+      }
     } finally {
       setSaving(false);
     }
@@ -145,7 +157,7 @@ export default function PatientFormPage() {
             <div className="col-md-3">
               <label className="form-label fw-semibold">Gender</label>
               <select
-                className="form-control"
+                className="form-select"
                 name="gender"
                 value={form.gender}
                 onChange={handleChange}
@@ -167,7 +179,7 @@ export default function PatientFormPage() {
               />
             </div>
 
-            <div className="col-md-3">
+            <div className="col-12">
               <label className="form-label fw-semibold">Address</label>
               <input
                 className="form-control"

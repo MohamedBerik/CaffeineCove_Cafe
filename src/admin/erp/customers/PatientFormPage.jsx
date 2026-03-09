@@ -165,6 +165,16 @@ export default function PatientFormPage() {
               />
             </div>
 
+            <div className="col-md-3">
+              <label className="form-label fw-semibold">Address</label>
+              <input
+                className="form-control"
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+              />
+            </div>
+
             <div className="col-12">
               <label className="form-label fw-semibold">Notes</label>
               <textarea

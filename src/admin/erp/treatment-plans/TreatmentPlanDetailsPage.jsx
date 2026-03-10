@@ -55,6 +55,7 @@ export default function TreatmentPlanDetailsPage() {
       const proceduresRows = Array.isArray(proceduresPayload.data)
         ? proceduresPayload.data
         : proceduresPayload.data?.data || [];
+
       setProcedures(proceduresRows);
     } catch (err) {
       setError(
@@ -154,11 +155,7 @@ export default function TreatmentPlanDetailsPage() {
   const formatDate = (value) => {
     if (!value) return "-";
     try {
-      return new Date(value).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-      });
+      return new Date(value).toLocaleDateString("en-US");
     } catch {
       return value;
     }
@@ -170,22 +167,13 @@ export default function TreatmentPlanDetailsPage() {
         className="d-flex justify-content-center align-items-center"
         style={{ minHeight: "320px" }}
       >
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
+        <div className="spinner-border text-primary"></div>
       </div>
     );
   }
 
   if (error) {
-    return (
-      <div className="alert alert-danger d-flex justify-content-between align-items-center">
-        <span>{error}</span>
-        <button className="btn btn-sm btn-outline-danger" onClick={loadAll}>
-          Retry
-        </button>
-      </div>
-    );
+    return <div className="alert alert-danger">{error}</div>;
   }
 
   const planData = plan?.data || plan || {};
@@ -197,46 +185,48 @@ export default function TreatmentPlanDetailsPage() {
 
   return (
     <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Treatment Plan Details</h3>
-          <p className="text-muted mb-0">
-            Review plan items, invoices, summary, and cash flow
-          </p>
-        </div>
+      {/* HEADER */}
 
-        <div className="d-flex flex-wrap gap-2">
+      <div className="d-flex justify-content-between mb-4">
+        <h3 className="fw-bold">Treatment Plan Details</h3>
+
+        <div className="d-flex gap-2">
           <Link
             to="/admin/erp/treatment-plans"
             className="btn btn-outline-secondary"
           >
-            Back to Plans
+            Back
           </Link>
 
-          {customer.id ? (
+          {customer.id && (
             <Link
               to={`/admin/erp/patients/${customer.id}/profile`}
               className="btn btn-outline-primary"
             >
-              Patient Profile
+              Patient
             </Link>
-          ) : null}
-
-          <button className="btn btn-primary" onClick={loadAll}>
-            Refresh
-          </button>
+          )}
         </div>
       </div>
 
-      <div className="card shadow-sm border-0 mb-4">
+      {/* PLAN INFO */}
+
+      <div className="card shadow-sm mb-4">
         <div className="card-body">
           <div className="row g-3">
             <InfoItem label="Title" value={planData.title} />
+
             <InfoItem label="Patient" value={customer.name} />
-            <InfoItem label="Email" value={customer.email} />
-            <InfoItem label="Status" value={planData.status} />
+
+            <InfoItem
+              label="Status"
+              value={<StatusBadge status={planData.status} />}
+            />
+
             <InfoItem label="Total Cost" value={money(planData.total_cost)} />
+
             <InfoItem label="Created" value={formatDate(planData.created_at)} />
+
             <div className="col-12">
               <div className="small text-muted">Notes</div>
               <div className="fw-semibold">{planData.notes || "-"}</div>
@@ -245,261 +235,126 @@ export default function TreatmentPlanDetailsPage() {
         </div>
       </div>
 
+      {/* KPI */}
+
       <div className="row g-3 mb-4">
-        <KpiCard
-          title="Total Invoiced"
-          value={money(totals.total_invoiced)}
-          color="primary"
-        />
+        <KpiCard title="Total Invoiced" value={money(totals.total_invoiced)} />
+
         <KpiCard
           title="Total Paid"
           value={money(totals.total_paid)}
           color="success"
         />
-        <KpiCard
-          title="Total Refunded"
-          value={money(totals.total_refunded)}
-          color="danger"
-        />
-        <KpiCard title="Net Paid" value={money(totals.net_paid)} color="info" />
+
         <KpiCard
           title="Remaining"
           value={money(totals.remaining_on_plan)}
           color="warning"
         />
-        <KpiCard title="Cash In" value={money(cash.cash_in)} color="success" />
+
         <KpiCard title="Net Cash" value={money(cash.net_cash)} color="dark" />
-        <KpiCard
-          title="Customer Credit"
-          value={money(credit.net_credit)}
-          color="secondary"
-        />
       </div>
 
-      <div className="row g-4">
-        <div className="col-12">
-          <div className="card shadow-sm border-0">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Add Plan Item</h5>
-            </div>
-            <div className="card-body">
-              {itemError ? (
-                <div className="alert alert-danger py-2">{itemError}</div>
-              ) : null}
+      {/* PLAN ITEMS */}
 
-              {itemSuccess ? (
-                <div className="alert alert-success py-2">{itemSuccess}</div>
-              ) : null}
-
-              <form className="row g-3" onSubmit={addItem}>
-                <div className="col-12 col-md-4">
-                  <label className="form-label fw-semibold">Procedure</label>
-                  <select
-                    className="form-select"
-                    name="procedure_id"
-                    value={itemForm.procedure_id}
-                    onChange={handleItemChange}
-                    required
-                  >
-                    <option value="">Select procedure</option>
-                    {procedures.map((procedure) => (
-                      <option key={procedure.id} value={procedure.id}>
-                        {procedure.name}
-                        {procedure.default_price != null
-                          ? ` (${money(procedure.default_price)})`
-                          : ""}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="col-12 col-md-2">
-                  <label className="form-label fw-semibold">Tooth</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="tooth_number"
-                    value={itemForm.tooth_number}
-                    onChange={handleItemChange}
-                    placeholder="16"
-                  />
-                </div>
-
-                <div className="col-12 col-md-2">
-                  <label className="form-label fw-semibold">Surface</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="surface"
-                    value={itemForm.surface}
-                    onChange={handleItemChange}
-                    placeholder="occlusal"
-                  />
-                </div>
-
-                <div className="col-12 col-md-2">
-                  <label className="form-label fw-semibold">Price</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    className="form-control"
-                    name="price"
-                    value={itemForm.price}
-                    onChange={handleItemChange}
-                    placeholder="Optional"
-                  />
-                </div>
-
-                <div className="col-12 col-md-2 d-grid">
-                  <label className="form-label fw-semibold invisible">
-                    Add
-                  </label>
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={savingItem}
-                  >
-                    {savingItem ? "Adding..." : "Add Item"}
-                  </button>
-                </div>
-
-                <div className="col-12">
-                  <label className="form-label fw-semibold">Notes</label>
-                  <textarea
-                    className="form-control"
-                    rows="2"
-                    name="notes"
-                    value={itemForm.notes}
-                    onChange={handleItemChange}
-                    placeholder="Optional notes..."
-                  />
-                </div>
-              </form>
-            </div>
-          </div>
+      <div className="card shadow-sm mb-4">
+        <div className="card-header">
+          <h5 className="mb-0">Plan Items</h5>
         </div>
 
-        <div className="col-12 col-xl-6">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Plan Items</h5>
-            </div>
-            <div className="card-body p-0">
-              {items.length === 0 ? (
-                <div className="p-3 text-muted">No items found.</div>
-              ) : (
-                <div className="table-responsive">
-                  <table className="table table-hover mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th>Procedure</th>
-                        <th>Tooth</th>
-                        <th>Surface</th>
-                        <th>Price</th>
-                        <th>Notes</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {items.map((item) => (
-                        <tr key={item.id}>
-                          <td>
-                            {item.procedureRef?.name || item.procedure || "-"}
-                          </td>
-                          <td>{item.tooth_number || "-"}</td>
-                          <td>{item.surface || "-"}</td>
-                          <td>{money(item.price)}</td>
-                          <td>{item.notes || "-"}</td>
-                          <td>
-                            <button
-                              className="btn btn-sm btn-outline-danger"
-                              onClick={() => deleteItem(item.id)}
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
+        <div className="card-body p-0">
+          {items.length === 0 ? (
+            <div className="p-3 text-muted">No items found.</div>
+          ) : (
+            <table className="table table-hover mb-0">
+              <thead className="table-light">
+                <tr>
+                  <th>Procedure</th>
+                  <th>Tooth</th>
+                  <th>Surface</th>
+                  <th>Price</th>
+                  <th>Notes</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.procedureRef?.name || item.procedure}</td>
+
+                    <td>{item.tooth_number || "-"}</td>
+
+                    <td>{item.surface || "-"}</td>
+
+                    <td>{money(item.price)}</td>
+
+                    <td>{item.notes || "-"}</td>
+
+                    <td>
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => deleteItem(item.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
+      {/* INVOICES */}
+
+      <div className="card shadow-sm">
+        <div className="card-header">
+          <h5 className="mb-0">Linked Invoices</h5>
         </div>
 
-        <div className="col-12 col-xl-6">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Linked Invoices</h5>
-            </div>
-            <div className="card-body p-0">
-              {invoices.length === 0 ? (
-                <div className="p-3 text-muted">
-                  No invoices linked to this plan.
-                </div>
-              ) : (
-                <div className="table-responsive">
-                  <table className="table table-hover mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th>Number</th>
-                        <th>Total</th>
-                        <th>Net Paid</th>
-                        <th>Remaining</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {invoices.map((inv) => (
-                        <tr key={inv.id}>
-                          <td>{inv.number}</td>
-                          <td>{money(inv.total)}</td>
-                          <td>{money(inv.net_paid)}</td>
-                          <td>{money(inv.remaining)}</td>
-                          <td>
-                            <StatusBadge status={inv.status} />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <div className="card-body p-0">
+          {invoices.length === 0 ? (
+            <div className="p-3 text-muted">No invoices linked.</div>
+          ) : (
+            <table className="table table-hover mb-0">
+              <thead className="table-light">
+                <tr>
+                  <th>Number</th>
+                  <th>Total</th>
+                  <th>Net Paid</th>
+                  <th>Remaining</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
 
-        <div className="col-12">
-          <div className="card shadow-sm border-0">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Cash Summary</h5>
-            </div>
-            <div className="card-body">
-              <div className="row g-3">
-                <InfoItem label="Cash In" value={money(cash.cash_in)} />
-                <InfoItem
-                  label="Invoice Refunds"
-                  value={money(cash.cash_out_invoice_refunds)}
-                />
-                <InfoItem
-                  label="Credit Refunds"
-                  value={money(cash.cash_out_credit_refunds)}
-                />
-                <InfoItem label="Net Cash" value={money(cash.net_cash)} />
-                <InfoItem
-                  label="Credit Issued"
-                  value={money(credit.credit_issued)}
-                />
-                <InfoItem
-                  label="Credit Used"
-                  value={money(credit.credit_used)}
-                />
-                <InfoItem label="Net Credit" value={money(credit.net_credit)} />
-              </div>
-            </div>
-          </div>
+              <tbody>
+                {invoices.map((inv) => (
+                  <tr key={inv.id}>
+                    <td>
+                      <Link
+                        to={`/admin/erp/invoices/${inv.id}`}
+                        className="text-decoration-none"
+                      >
+                        {inv.number}
+                      </Link>
+                    </td>
+
+                    <td>{money(inv.total)}</td>
+
+                    <td>{money(inv.net_paid)}</td>
+
+                    <td>{money(inv.remaining)}</td>
+
+                    <td>
+                      <StatusBadge status={inv.status} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
@@ -508,11 +363,11 @@ export default function TreatmentPlanDetailsPage() {
 
 function KpiCard({ title, value, color = "primary" }) {
   return (
-    <div className="col-12 col-sm-6 col-xl-3">
-      <div className="card border-0 shadow-sm h-100">
+    <div className="col-md-3">
+      <div className="card shadow-sm">
         <div className="card-body">
-          <div className="text-muted small mb-1">{title}</div>
-          <div className={`fs-4 fw-bold text-${color}`}>{value}</div>
+          <div className="text-muted small">{title}</div>
+          <div className={`fw-bold text-${color}`}>{value}</div>
         </div>
       </div>
     </div>
@@ -521,7 +376,7 @@ function KpiCard({ title, value, color = "primary" }) {
 
 function InfoItem({ label, value }) {
   return (
-    <div className="col-12 col-md-6">
+    <div className="col-md-4">
       <div className="small text-muted">{label}</div>
       <div className="fw-semibold">{value || "-"}</div>
     </div>
@@ -532,9 +387,10 @@ function StatusBadge({ status }) {
   const value = String(status || "").toLowerCase();
 
   let cls = "secondary";
-  if (["completed", "paid"].includes(value)) cls = "success";
-  else if (["cancelled", "unpaid"].includes(value)) cls = "danger";
-  else if (["active", "partially_paid"].includes(value)) cls = "warning";
+
+  if (value === "completed") cls = "success";
+  else if (value === "cancelled") cls = "danger";
+  else if (value === "active") cls = "warning";
 
   return <span className={`badge bg-${cls}`}>{status}</span>;
 }

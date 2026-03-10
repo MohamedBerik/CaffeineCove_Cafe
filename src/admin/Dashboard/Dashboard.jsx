@@ -5,7 +5,7 @@ import { notifyError, notifySuccess } from "../../utils/notify";
 import api from "../../services/axios";
 import useDebounce from "../../hooks/useDebounce";
 import "./Dashboard.css";
-import InvoiceDetails from "../erp/components/InvoiceDetails";
+import InvoiceDetails from "../erp/invoices/InvoiceDetails";
 
 const TABLES = [
   "users",

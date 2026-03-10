@@ -175,13 +175,14 @@ export default function AppointmentsListPage() {
       setActingId(`complete-${appointmentId}`);
 
       const payload = {
-        total: Number(completeForm.total),
         doctor_name: completeForm.doctor_name || null,
         notes: completeForm.notes || null,
       };
 
       if (completeForm.treatment_plan_id) {
         payload.treatment_plan_id = Number(completeForm.treatment_plan_id);
+      } else {
+        payload.total = Number(completeForm.total);
       }
 
       await axios.post(`/erp/appointments/${appointmentId}/complete`, payload);
@@ -430,6 +431,12 @@ function AppointmentRow({
   const isCompleteOpen = openCompleteId === item.id;
   const isRescheduleOpen = openRescheduleId === item.id;
 
+  const status = String(item.status || "").toLowerCase();
+  const canComplete = status === "scheduled";
+  const canCancel = status === "scheduled";
+  const canNoShow = status === "scheduled";
+  const canReschedule = ["scheduled", "cancelled", "no_show"].includes(status);
+
   return (
     <>
       <tr>
@@ -475,38 +482,42 @@ function AppointmentRow({
               Activity
             </Link>
 
-            {item.status !== "completed" ? (
-              <>
-                <button
-                  className="btn btn-sm btn-outline-danger"
-                  onClick={() => onCancel(item)}
-                  disabled={actingId === `/erp/appointments/${item.id}/cancel`}
-                >
-                  Cancel
-                </button>
+            {canCancel ? (
+              <button
+                className="btn btn-sm btn-outline-danger"
+                onClick={() => onCancel(item)}
+                disabled={actingId === `/erp/appointments/${item.id}/cancel`}
+              >
+                Cancel
+              </button>
+            ) : null}
 
-                <button
-                  className="btn btn-sm btn-outline-warning"
-                  onClick={() => onNoShow(item)}
-                  disabled={actingId === `/erp/appointments/${item.id}/no-show`}
-                >
-                  No Show
-                </button>
+            {canNoShow ? (
+              <button
+                className="btn btn-sm btn-outline-warning"
+                onClick={() => onNoShow(item)}
+                disabled={actingId === `/erp/appointments/${item.id}/no-show`}
+              >
+                No Show
+              </button>
+            ) : null}
 
-                <button
-                  className="btn btn-sm btn-outline-success"
-                  onClick={() => onOpenComplete(item)}
-                >
-                  Complete
-                </button>
+            {canComplete ? (
+              <button
+                className="btn btn-sm btn-outline-success"
+                onClick={() => onOpenComplete(item)}
+              >
+                Complete
+              </button>
+            ) : null}
 
-                <button
-                  className="btn btn-sm btn-outline-info"
-                  onClick={() => onOpenReschedule(item)}
-                >
-                  Reschedule
-                </button>
-              </>
+            {canReschedule ? (
+              <button
+                className="btn btn-sm btn-outline-info"
+                onClick={() => onOpenReschedule(item)}
+              >
+                Reschedule
+              </button>
             ) : null}
           </div>
         </td>
@@ -532,7 +543,8 @@ function AppointmentRow({
                         total: e.target.value,
                       }))
                     }
-                    placeholder="150"
+                    placeholder="Required if no treatment plan"
+                    disabled={Boolean(completeForm.treatment_plan_id)}
                   />
                 </div>
 
@@ -563,6 +575,7 @@ function AppointmentRow({
                       setCompleteForm((prev) => ({
                         ...prev,
                         treatment_plan_id: e.target.value,
+                        total: e.target.value ? "" : prev.total,
                       }))
                     }
                     placeholder="Optional"
@@ -574,6 +587,7 @@ function AppointmentRow({
                     className="btn btn-success"
                     onClick={() => onSubmitComplete(item.id)}
                     disabled={actingId === `complete-${item.id}`}
+                    type="button"
                   >
                     {actingId === `complete-${item.id}`
                       ? "Completing..."
@@ -671,6 +685,7 @@ function AppointmentRow({
                     className="btn btn-info text-white"
                     onClick={() => onSubmitReschedule(item.id)}
                     disabled={actingId === `reschedule-${item.id}`}
+                    type="button"
                   >
                     {actingId === `reschedule-${item.id}`
                       ? "Saving..."

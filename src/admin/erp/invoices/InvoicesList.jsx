@@ -167,7 +167,9 @@ export default function InvoicesList() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredRows.map((inv) => {
+                  {filteredRows.map((inv, index) => {
+                    const invoiceId =
+                      inv.id ?? inv.invoice_id ?? inv.invoice?.id ?? null;
                     const total = Number(inv.total || 0);
                     const totalPaid = Number(
                       inv.net_paid ?? inv.total_paid ?? 0,
@@ -178,21 +180,23 @@ export default function InvoicesList() {
                         : Math.max(total - totalPaid, 0);
 
                     return (
-                      <tr key={inv.id}>
+                      <tr key={invoiceId ?? inv.number ?? index}>
                         <td>
                           <div className="fw-semibold">
-                            {inv.number ? (
+                            {invoiceId ? (
                               <Link
-                                to={`/admin/erp/invoices/${inv.id}`}
+                                to={`/admin/erp/invoices/${invoiceId}`}
                                 className="text-decoration-none"
                               >
-                                {inv.number}
+                                {inv.number || `#${invoiceId}`}
                               </Link>
                             ) : (
-                              `#${inv.id}`
+                              inv.number || "-"
                             )}
                           </div>
-                          <div className="small text-muted">ID: {inv.id}</div>
+                          <div className="small text-muted">
+                            ID: {invoiceId ?? "-"}
+                          </div>
                         </td>
 
                         <td>
@@ -216,12 +220,14 @@ export default function InvoicesList() {
 
                         <td>
                           <div className="d-flex flex-wrap gap-2">
-                            <Link
-                              to={`/admin/erp/invoices/${inv.id}`}
-                              className="btn btn-sm btn-outline-primary"
-                            >
-                              View
-                            </Link>
+                            {invoiceId ? (
+                              <Link
+                                to={`/admin/erp/invoices/${invoiceId}`}
+                                className="btn btn-sm btn-outline-primary"
+                              >
+                                View
+                              </Link>
+                            ) : null}
 
                             {inv.customer_id ? (
                               <Link

@@ -34,7 +34,16 @@ export default function InvoiceDetails() {
       setActionSuccess("");
 
       const res = await api.get(`/erp/invoices/${id}/full`);
-      setInvoice(res.data?.invoice || null);
+      const payload = res.data || {};
+
+      const invoiceData =
+        payload.invoice ||
+        payload.data ||
+        payload.data?.invoice ||
+        payload.invoice?.data ||
+        null;
+
+      setInvoice(invoiceData);
     } catch (err) {
       setError(
         err?.response?.data?.message ||
@@ -520,6 +529,7 @@ export default function InvoiceDetails() {
                                   refundable <= 0 ||
                                   refundLoadingId === payment.id
                                 }
+                                type="button"
                               >
                                 {refundLoadingId === payment.id
                                   ? "Processing..."
@@ -676,7 +686,7 @@ function InfoItem({ label, value }) {
   return (
     <div className="col-12 col-md-4">
       <div className="small text-muted">{label}</div>
-      <div className="fw-semibold">{value || "-"}</div>
+      <div className="fw-semibold">{value ?? "-"}</div>
     </div>
   );
 }

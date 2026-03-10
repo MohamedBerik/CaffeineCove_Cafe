@@ -21,12 +21,11 @@ export default function InvoicesList() {
       const res = await api.get("/erp/invoices");
       const payload = res.data || {};
 
-      const rowsData = Array.isArray(payload.data)
-        ? payload.data
-        : payload.data?.data || payload.invoices || [];
+      const rowsData = extractInvoiceRows(payload);
+      const metaData = extractMeta(payload, rowsData);
 
       setRows(rowsData);
-      setMeta(payload.meta || payload.data?.meta || null);
+      setMeta(metaData);
     } catch (err) {
       setError(
         err?.response?.data?.message ||
@@ -253,6 +252,25 @@ export default function InvoicesList() {
         </div>
       </div>
     </div>
+  );
+}
+
+function extractInvoiceRows(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.data)) return payload.data;
+  if (Array.isArray(payload.data?.data)) return payload.data.data;
+  if (Array.isArray(payload.invoices)) return payload.invoices;
+  if (Array.isArray(payload.invoices?.data)) return payload.invoices.data;
+  return [];
+}
+
+function extractMeta(payload, rowsData) {
+  return (
+    payload.meta ||
+    payload.data?.meta ||
+    payload.invoices?.meta || {
+      total: rowsData.length,
+    }
   );
 }
 

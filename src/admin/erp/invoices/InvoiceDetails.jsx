@@ -37,13 +37,13 @@ export default function InvoiceDetails() {
       const payload = res.data || {};
 
       const invoiceData =
-        payload.invoice ||
-        payload.data ||
-        payload.data?.invoice ||
-        payload.invoice?.data ||
-        null;
+        payload.data?.invoice || payload.invoice || payload.data || payload;
 
-      setInvoice(invoiceData);
+      setInvoice(
+        invoiceData && (invoiceData.id || invoiceData.number)
+          ? invoiceData
+          : null,
+      );
     } catch (err) {
       setError(
         err?.response?.data?.message ||

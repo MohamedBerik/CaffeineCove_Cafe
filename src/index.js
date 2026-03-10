@@ -186,7 +186,7 @@ createRoot(document.getElementById("root")).render(
 
           {/* Doctors */}
           <Route path="doctors/create" element={<DoctorFormPage />} />
-          <Route path="doctors/:id" element={<DoctorDetailsPage />} />
+          {/* <Route path="doctors/:id" element={<DoctorDetailsPage />} /> */}
           <Route path="doctors/:id/edit" element={<DoctorFormPage />} />
           <Route path="doctors" element={<DoctorsListPage />} />
           <Route

@@ -6,8 +6,10 @@ export default function BookAppointmentPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const presetPatientId = searchParams.get("customer_id") || "";
+  const presetPatientId =
+    searchParams.get("customer_id") || searchParams.get("patient_id") || "";
   const presetDoctorId = searchParams.get("doctor_id") || "";
+  const today = new Date().toISOString().split("T")[0];
 
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
@@ -19,7 +21,6 @@ export default function BookAppointmentPage() {
 
   const [error, setError] = useState("");
   const [slotError, setSlotError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const [form, setForm] = useState({
     patient_id: presetPatientId,
@@ -32,6 +33,15 @@ export default function BookAppointmentPage() {
   useEffect(() => {
     loadRefs();
   }, []);
+
+  useEffect(() => {
+    if (form.doctor_id && form.appointment_date) {
+      loadSlots();
+    } else {
+      setSlots([]);
+      setSlotError("");
+    }
+  }, [form.doctor_id, form.appointment_date]);
 
   const loadRefs = async () => {
     try {
@@ -128,17 +138,23 @@ export default function BookAppointmentPage() {
   }, [doctors, form.doctor_id]);
 
   const normalizedSlots = useMemo(() => {
-    return slots.map((slot) => {
-      if (typeof slot === "string") {
-        return { value: slot, label: slot };
-      }
+    return slots
+      .map((slot) => {
+        if (typeof slot === "string") {
+          return {
+            value: slot,
+            label: slot,
+            available: true,
+          };
+        }
 
-      return {
-        value: slot.time || slot.value || "",
-        label: slot.time || slot.label || slot.value || "",
-        available: slot.available ?? true,
-      };
-    });
+        return {
+          value: slot.time || slot.value || "",
+          label: slot.label || slot.time || slot.value || "",
+          available: slot.available ?? true,
+        };
+      })
+      .filter((slot) => slot.value);
   }, [slots]);
 
   const submit = async (e) => {
@@ -147,7 +163,26 @@ export default function BookAppointmentPage() {
     try {
       setSaving(true);
       setError("");
-      setSuccess("");
+
+      if (!form.patient_id) {
+        setError("Please select a patient.");
+        return;
+      }
+
+      if (!form.doctor_id) {
+        setError("Please select a doctor.");
+        return;
+      }
+
+      if (!form.appointment_date) {
+        setError("Please select appointment date.");
+        return;
+      }
+
+      if (!form.appointment_time) {
+        setError("Please select appointment time.");
+        return;
+      }
 
       const payload = {
         patient_id: Number(form.patient_id),
@@ -159,7 +194,6 @@ export default function BookAppointmentPage() {
 
       await axios.post("/erp/appointments/book", payload);
 
-      setSuccess("Appointment booked successfully.");
       navigate("/admin/erp/appointments");
     } catch (err) {
       const errors = err?.response?.data?.errors;
@@ -212,7 +246,6 @@ export default function BookAppointmentPage() {
       </div>
 
       {error ? <div className="alert alert-danger">{error}</div> : null}
-      {success ? <div className="alert alert-success">{success}</div> : null}
 
       <div className="card shadow-sm border-0 mb-4">
         <div className="card-body">
@@ -262,6 +295,7 @@ export default function BookAppointmentPage() {
                 name="appointment_date"
                 value={form.appointment_date}
                 onChange={handleChange}
+                min={today}
                 required
               />
             </div>
@@ -273,9 +307,11 @@ export default function BookAppointmentPage() {
                   type="button"
                   className="btn btn-outline-primary"
                   onClick={loadSlots}
-                  disabled={loadingSlots}
+                  disabled={
+                    loadingSlots || !form.doctor_id || !form.appointment_date
+                  }
                 >
-                  {loadingSlots ? "Loading Slots..." : "Load Slots"}
+                  {loadingSlots ? "Loading Slots..." : "Reload Slots"}
                 </button>
               </div>
             </div>
@@ -288,6 +324,7 @@ export default function BookAppointmentPage() {
                 value={form.appointment_time}
                 onChange={handleChange}
                 required
+                disabled={!normalizedSlots.length}
               >
                 <option value="">Select slot</option>
                 {normalizedSlots.map((slot, index) => (
@@ -297,6 +334,7 @@ export default function BookAppointmentPage() {
                     disabled={slot.available === false}
                   >
                     {slot.label}
+                    {slot.available === false ? " (Unavailable)" : ""}
                   </option>
                 ))}
               </select>
@@ -324,6 +362,7 @@ export default function BookAppointmentPage() {
               <div className="col-12">
                 <div className="alert alert-light border mb-0">
                   <div className="fw-semibold mb-1">Booking Summary</div>
+
                   {selectedPatient ? (
                     <div>
                       Patient: {selectedPatient.name}
@@ -332,12 +371,15 @@ export default function BookAppointmentPage() {
                         : ""}
                     </div>
                   ) : null}
+
                   {selectedDoctor ? (
                     <div>Doctor: {selectedDoctor.name}</div>
                   ) : null}
+
                   {form.appointment_date ? (
                     <div>Date: {form.appointment_date}</div>
                   ) : null}
+
                   {form.appointment_time ? (
                     <div>Time: {form.appointment_time}</div>
                   ) : null}

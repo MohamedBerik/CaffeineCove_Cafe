@@ -3,13 +3,20 @@ import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
 
 export default function AppointmentCalendarPage() {
+  const getLocalDateString = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const todayStr = getLocalDateString();
+
   const [appointments, setAppointments] = useState([]);
   const [doctors, setDoctors] = useState([]);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const todayStr = new Date().toISOString().slice(0, 10);
 
   const [selectedDate, setSelectedDate] = useState(todayStr);
   const [selectedDoctorId, setSelectedDoctorId] = useState("");
@@ -52,10 +59,40 @@ export default function AppointmentCalendarPage() {
     }
   };
 
+  const normalizeDate = (value) => {
+    if (!value) return "";
+
+    const raw = String(value).trim();
+
+    if (raw.length >= 10) {
+      return raw.slice(0, 10);
+    }
+
+    try {
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) return raw;
+
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+
+      return `${year}-${month}-${day}`;
+    } catch {
+      return raw;
+    }
+  };
+
+  const normalizeTime = (value) => {
+    if (!value) return "";
+    return String(value).slice(0, 5);
+  };
+
   const visibleAppointments = useMemo(() => {
     return appointments
       .filter((item) => {
-        const sameDate = String(item.appointment_date || "") === selectedDate;
+        const sameDate =
+          normalizeDate(item.appointment_date) === normalizeDate(selectedDate);
+
         const sameDoctor = selectedDoctorId
           ? String(item.doctor_id || "") === String(selectedDoctorId)
           : true;
@@ -63,9 +100,9 @@ export default function AppointmentCalendarPage() {
         return sameDate && sameDoctor;
       })
       .sort((a, b) => {
-        const ta = String(a.appointment_time || "");
-        const tb = String(b.appointment_time || "");
-        return ta.localeCompare(tb);
+        return normalizeTime(a.appointment_time).localeCompare(
+          normalizeTime(b.appointment_time),
+        );
       });
   }, [appointments, selectedDate, selectedDoctorId]);
 
@@ -73,9 +110,8 @@ export default function AppointmentCalendarPage() {
     const groups = {};
 
     visibleAppointments.forEach((item) => {
-      const rawTime = String(item.appointment_time || "");
-      const hhmm = rawTime.slice(0, 5) || "00:00";
-      const hourKey = hhmm.slice(0, 2) + ":00";
+      const hhmm = normalizeTime(item.appointment_time) || "00:00";
+      const hourKey = `${hhmm.slice(0, 2)}:00`;
 
       if (!groups[hourKey]) groups[hourKey] = [];
       groups[hourKey].push(item);
@@ -93,15 +129,21 @@ export default function AppointmentCalendarPage() {
   }, []);
 
   const changeDay = (direction) => {
-    const current = new Date(selectedDate);
+    const current = new Date(`${selectedDate}T12:00:00`);
     current.setDate(current.getDate() + direction);
-    setSelectedDate(current.toISOString().slice(0, 10));
+
+    const year = current.getFullYear();
+    const month = String(current.getMonth() + 1).padStart(2, "0");
+    const day = String(current.getDate()).padStart(2, "0");
+
+    setSelectedDate(`${year}-${month}-${day}`);
   };
 
   const formatDateLabel = (value) => {
     if (!value) return "-";
+
     try {
-      return new Date(value).toLocaleDateString("en-US", {
+      return new Date(`${value}T12:00:00`).toLocaleDateString("en-US", {
         weekday: "long",
         year: "numeric",
         month: "short",
@@ -149,7 +191,14 @@ export default function AppointmentCalendarPage() {
         </div>
       </div>
 
-      {error ? <div className="alert alert-danger">{error}</div> : null}
+      {error ? (
+        <div className="alert alert-danger d-flex justify-content-between align-items-center">
+          <span>{error}</span>
+          <button className="btn btn-sm btn-outline-danger" onClick={loadData}>
+            Retry
+          </button>
+        </div>
+      ) : null}
 
       <div className="card shadow-sm border-0 mb-4">
         <div className="card-body">
@@ -181,8 +230,9 @@ export default function AppointmentCalendarPage() {
             </div>
 
             <div className="col-12 col-md-5">
-              <div className="d-flex gap-2">
+              <div className="d-flex flex-wrap gap-2">
                 <button
+                  type="button"
                   className="btn btn-outline-secondary"
                   onClick={() => changeDay(-1)}
                 >
@@ -190,6 +240,7 @@ export default function AppointmentCalendarPage() {
                 </button>
 
                 <button
+                  type="button"
                   className="btn btn-outline-secondary"
                   onClick={() => setSelectedDate(todayStr)}
                 >
@@ -197,6 +248,7 @@ export default function AppointmentCalendarPage() {
                 </button>
 
                 <button
+                  type="button"
                   className="btn btn-outline-secondary"
                   onClick={() => changeDay(1)}
                 >
@@ -254,12 +306,9 @@ export default function AppointmentCalendarPage() {
                                   <div className="fw-bold">
                                     {item.patient?.name || "Unknown Patient"}
                                   </div>
+
                                   <div className="small text-muted">
-                                    {String(item.appointment_time || "").slice(
-                                      0,
-                                      5,
-                                    )}{" "}
-                                    |{" "}
+                                    {normalizeTime(item.appointment_time)} |{" "}
                                     {item.doctor?.name ||
                                       item.doctor_name ||
                                       "-"}
@@ -314,12 +363,11 @@ export default function AppointmentCalendarPage() {
 
 function StatusBadge({ status }) {
   const value = String(status || "").toLowerCase();
-
   let cls = "secondary";
+
   if (["completed"].includes(value)) cls = "success";
   else if (["cancelled", "no_show"].includes(value)) cls = "danger";
   else if (["scheduled"].includes(value)) cls = "warning";
-  else if (["in_progress"].includes(value)) cls = "info";
 
   return <span className={`badge bg-${cls}`}>{status}</span>;
 }

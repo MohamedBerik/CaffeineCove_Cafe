@@ -120,43 +120,7 @@ export default function ErpDashboardHome() {
           Refresh
         </button>
       </div>
-      <div className="d-flex flex-wrap gap-2 mt-3">
-        <Link
-          to="/admin/erp/appointments/create"
-          className="btn btn-success btn-sm"
-        >
-          <i className="fas fa-calendar-plus me-1"></i>
-          New Appointment
-        </Link>
 
-        <Link
-          to="/admin/erp/customers/create"
-          className="btn btn-primary btn-sm"
-        >
-          <i className="fas fa-user-plus me-1"></i>
-          New Patient
-        </Link>
-
-        <Link to="/admin/erp/invoices" className="btn btn-warning btn-sm">
-          <i className="fas fa-file-invoice me-1"></i>
-          Invoices
-        </Link>
-
-        <Link
-          to="/admin/erp/appointments/calendar"
-          className="btn btn-outline-dark btn-sm"
-        >
-          <i className="fas fa-calendar-alt me-1"></i>
-          Calendar
-        </Link>
-        <Link
-          to="/admin/erp/reports"
-          className="btn btn-outline-primary btn-sm"
-        >
-          <i className="fas fa-chart-bar me-1"></i>
-          Reports
-        </Link>
-      </div>
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-lg-3">
           <KpiCard
@@ -238,7 +202,7 @@ export default function ErpDashboardHome() {
             value={formatCurrency(kpis.credit_balance_total)}
             icon="fas fa-wallet"
             color="primary"
-            link="/admin/erp/customers"
+            link="/admin/erp/patients"
           />
         </div>
 
@@ -258,7 +222,6 @@ export default function ErpDashboardHome() {
           <div className="card shadow-sm h-100">
             <div className="card-header bg-white d-flex justify-content-between align-items-center">
               <h5 className="mb-0">Recent Appointments</h5>
-
               <Link
                 to="/admin/erp/appointments/calendar"
                 className="btn btn-sm btn-outline-secondary"
@@ -266,6 +229,7 @@ export default function ErpDashboardHome() {
                 Calendar
               </Link>
             </div>
+
             <div className="card-body p-0">
               {recentAppointments.length === 0 ? (
                 <EmptyState text="No recent appointments." />
@@ -320,6 +284,7 @@ export default function ErpDashboardHome() {
             <div className="card-header bg-white">
               <h5 className="mb-0">Recent Invoices</h5>
             </div>
+
             <div className="card-body p-0">
               {recentInvoices.length === 0 ? (
                 <EmptyState text="No recent invoices." />
@@ -367,6 +332,7 @@ export default function ErpDashboardHome() {
             <div className="card-header bg-white">
               <h5 className="mb-0">Recent Payments</h5>
             </div>
+
             <div className="card-body p-0">
               {recentPayments.length === 0 ? (
                 <EmptyState text="No recent payments." />
@@ -448,13 +414,11 @@ function EmptyState({ text }) {
 
 function StatusBadge({ status }) {
   const value = String(status || "").toLowerCase();
-
   let cls = "secondary";
 
   if (["paid", "completed"].includes(value)) cls = "success";
   else if (["unpaid", "cancelled", "no_show"].includes(value)) cls = "danger";
   else if (["partially_paid", "scheduled"].includes(value)) cls = "warning";
-  else if (["in_progress"].includes(value)) cls = "info";
 
   return <span className={`badge bg-${cls}`}>{status}</span>;
 }

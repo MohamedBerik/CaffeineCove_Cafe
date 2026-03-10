@@ -41,7 +41,7 @@ import AdminDashboard from "./admin/Dashboard/Dashboard";
 import AdminLayout from "./admin/layouts/AdminLayout";
 
 /* ================= Route Guards ================= */
-import { ProtectedRoute, AdminRoute } from "./admin/routes/ProtectedRoute";
+import { AdminRoute } from "./admin/routes/ProtectedRoute";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -140,12 +140,6 @@ createRoot(document.getElementById("root")).render(
             element={<SupplierStatement />}
           />
 
-          {/* Customer statement (legacy route) */}
-          {/* <Route
-            path="customers/:id/statement"
-            element={<CustomerStatement />}
-          /> */}
-
           {/* ✅ Patient statement (UI route) */}
           <Route path="patients/:id/statement" element={<PatientStatement />} />
           <Route path="patients" element={<PatientsList />} />
@@ -157,38 +151,50 @@ createRoot(document.getElementById("root")).render(
           <Route path="patients/create" element={<PatientFormPage />} />
           <Route path="patients/:id/edit" element={<PatientFormPage />} />
 
+          {/* Appointments */}
           <Route path="appointments" element={<AppointmentsListPage />} />
-          <Route path="treatment-plans" element={<TreatmentPlansListPage />} />
-          <Route
-            path="treatment-plans/:id"
-            element={<TreatmentPlanDetailsPage />}
-          />
-          <Route path="dental-records" element={<DentalRecordsListPage />} />
-          <Route
-            path="dental-records/create"
-            element={<CreateDentalRecordPage />}
-          />
-          <Route
-            path="treatment-plans/create"
-            element={<CreateTreatmentPlanPage />}
-          />
           <Route
             path="appointments/:id/activity"
             element={<AppointmentActivityPage />}
           />
           <Route path="appointments/create" element={<BookAppointmentPage />} />
+          <Route
+            path="appointments/calendar"
+            element={<AppointmentCalendarPage />}
+          />
+
+          {/* TreamentPlans */}
+          <Route path="treatment-plans" element={<TreatmentPlansListPage />} />
+          <Route
+            path="treatment-plans/:id"
+            element={<TreatmentPlanDetailsPage />}
+          />
+          <Route
+            path="treatment-plans/create"
+            element={<CreateTreatmentPlanPage />}
+          />
+
+          {/* DentalRecords */}
+          <Route path="dental-records" element={<DentalRecordsListPage />} />
+          <Route
+            path="dental-records/create"
+            element={<CreateDentalRecordPage />}
+          />
+
+          {/* Clinic settings */}
           <Route path="settings/clinic" element={<ClinicSettingsPage />} />
+
+          {/* Doctors */}
+          <Route path="doctors/create" element={<DoctorFormPage />} />
+          <Route path="doctors/:id" element={<DoctorDetailsPage />} />
+          <Route path="doctors/:id/edit" element={<DoctorFormPage />} />
           <Route path="doctors" element={<DoctorsListPage />} />
           <Route
             path="doctors/:id/availability"
             element={<DoctorAvailabilityPage />}
           />
-          <Route
-            path="appointments/calendar"
-            element={<AppointmentCalendarPage />}
-          />
-          <Route path="doctors/create" element={<DoctorFormPage />} />
-          <Route path="doctors/:id/edit" element={<DoctorFormPage />} />
+
+          {/* Reports */}
           <Route path="reports" element={<ReportsDashboardPage />} />
           <Route path="reports/revenue" element={<RevenueReportPage />} />
           <Route

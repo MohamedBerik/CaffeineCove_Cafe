@@ -18,7 +18,6 @@ export default function CreateTreatmentPlanPage() {
     customer_id: presetCustomerId,
     title: "",
     notes: "",
-    total_cost: "",
   });
 
   useEffect(() => {
@@ -73,7 +72,6 @@ export default function CreateTreatmentPlanPage() {
         customer_id: Number(form.customer_id),
         title: form.title,
         notes: form.notes || null,
-        total_cost: Number(form.total_cost || 0),
       };
 
       const res = await axios.post("/erp/treatment-plans", payload);
@@ -172,23 +170,6 @@ export default function CreateTreatmentPlanPage() {
               />
             </div>
 
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">
-                Estimated Total Cost
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                className="form-control"
-                name="total_cost"
-                value={form.total_cost}
-                onChange={handleChange}
-                placeholder="700"
-                required
-              />
-            </div>
-
             <div className="col-12">
               <label className="form-label fw-semibold">Notes</label>
               <textarea
@@ -199,6 +180,16 @@ export default function CreateTreatmentPlanPage() {
                 onChange={handleChange}
                 placeholder="Optional notes..."
               />
+            </div>
+
+            <div className="col-12">
+              <div className="alert alert-light border mb-0">
+                <div className="fw-semibold">Plan Cost</div>
+                <div className="small text-muted">
+                  Total cost will be calculated automatically after adding plan
+                  items.
+                </div>
+              </div>
             </div>
 
             {selectedPatient ? (

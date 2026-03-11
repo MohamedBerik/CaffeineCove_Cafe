@@ -34,22 +34,16 @@ const navItems = [
     permission: "appointments.view",
   },
   {
-    to: "/admin/erp/appointments/calendar",
-    label: "Calendar",
-    icon: "fas fa-calendar-alt",
-    permission: "appointments.view",
+    to: "/admin/erp/treatment-plans",
+    label: "Treatment Plans",
+    icon: "fas fa-notes-medical",
+    permission: "treatment_plans.view",
   },
   {
     to: "/admin/erp/dental-records",
     label: "Dental Records",
     icon: "fas fa-tooth",
     permission: "patients.view",
-  },
-  {
-    to: "/admin/erp/treatment-plans",
-    label: "Treatment Plans",
-    icon: "fas fa-notes-medical",
-    permission: "treatment_plans.view",
   },
   {
     to: "/admin/erp/invoices",
@@ -68,6 +62,12 @@ const navItems = [
     label: "Purchase Orders",
     icon: "fas fa-truck-loading",
     permission: "finance.view",
+  },
+  {
+    to: "/admin/erp/appointments/calendar",
+    label: "Calendar",
+    icon: "fas fa-calendar-alt",
+    permission: "appointments.view",
   },
   {
     to: "/admin/erp/reports",

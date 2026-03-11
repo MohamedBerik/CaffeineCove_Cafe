@@ -327,7 +327,7 @@ export default function CreateDentalRecordPage() {
                 name="notes"
                 value={form.notes}
                 onChange={handleChange}
-                placeholder="Clinical findings, diagnosis, and observations..."
+                placeholder="Clinical findings, diagnosis, and observations...."
                 disabled={Boolean(createdRecord)}
               />
             </div>

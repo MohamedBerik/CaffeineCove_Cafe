@@ -208,6 +208,9 @@ export default function CreateDentalRecordPage() {
                 {procedures.map((procedure) => (
                   <option key={procedure.id} value={procedure.id}>
                     {procedure.name}
+                    {procedure.default_price != null
+                      ? ` (${money(procedure.default_price)})`
+                      : ""}
                   </option>
                 ))}
               </select>

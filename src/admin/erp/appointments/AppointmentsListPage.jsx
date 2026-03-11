@@ -181,13 +181,18 @@ export default function AppointmentsListPage() {
 
       if (completeForm.treatment_plan_id) {
         payload.treatment_plan_id = Number(completeForm.treatment_plan_id);
-      } else {
+      }
+
+      if (!completeForm.treatment_plan_id && completeForm.total !== "") {
         payload.total = Number(completeForm.total);
       }
 
-      await axios.post(`/erp/appointments/${appointmentId}/complete`, payload);
+      const res = await axios.post(
+        `/erp/appointments/${appointmentId}/complete`,
+        payload,
+      );
 
-      setActionSuccess("Appointment completed successfully.");
+      setActionSuccess(res?.data?.msg || "Appointment completed successfully.");
       closeInlineForms();
       await loadAll();
     } catch (err) {
@@ -527,10 +532,21 @@ function AppointmentRow({
         <tr>
           <td colSpan="7" className="bg-light">
             <div className="p-3">
-              <div className="fw-semibold mb-3">Complete Appointment</div>
+              <div className="fw-semibold mb-2">Complete Appointment</div>
+
+              <div className="alert alert-light border py-2 small">
+                Leave both <strong>Additional Service Total</strong> and{" "}
+                <strong>Treatment Plan ID</strong> empty to complete a
+                consultation-only visit. Enter a Treatment Plan ID to create a
+                treatment invoice from the plan. Enter Additional Service Total
+                only to create a manual service invoice.
+              </div>
+
               <div className="row g-3 align-items-end">
                 <div className="col-12 col-md-3">
-                  <label className="form-label fw-semibold">Total</label>
+                  <label className="form-label fw-semibold">
+                    Additional Service Total
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -543,7 +559,7 @@ function AppointmentRow({
                         total: e.target.value,
                       }))
                     }
-                    placeholder="Required if no treatment plan"
+                    placeholder="Optional"
                     disabled={Boolean(completeForm.treatment_plan_id)}
                   />
                 </div>

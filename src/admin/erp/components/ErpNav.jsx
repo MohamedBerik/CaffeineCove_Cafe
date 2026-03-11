@@ -16,6 +16,12 @@ const navItems = [
     permission: "appointments.view",
   },
   {
+    to: "/admin/erp/procedures",
+    label: "Procedures",
+    icon: "fas fa-procedures",
+    permission: "appointments.view",
+  },
+  {
     to: "/admin/erp/patients",
     label: "Patients",
     icon: "fas fa-users",

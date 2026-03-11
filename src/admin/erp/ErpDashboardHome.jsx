@@ -15,7 +15,6 @@ export default function ErpDashboardHome() {
     try {
       setLoading(true);
       setError("");
-
       const res = await axios.get("/erp/dashboard");
       setData(res.data?.data ?? null);
     } catch (err) {
@@ -108,7 +107,7 @@ export default function ErpDashboardHome() {
 
   return (
     <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
         <div>
           <h3 className="fw-bold mb-1">ERP Dashboard</h3>
           <p className="text-muted mb-0">
@@ -116,9 +115,73 @@ export default function ErpDashboardHome() {
           </p>
         </div>
 
-        <button className="btn btn-primary" onClick={loadDashboard}>
-          Refresh
-        </button>
+        <div className="d-flex gap-2">
+          <Link to="/admin/erp/visits/start" className="btn btn-success">
+            <i className="fas fa-stethoscope me-1"></i>
+            Start Visit
+          </Link>
+
+          <button className="btn btn-primary" onClick={loadDashboard}>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <div className="d-flex flex-wrap gap-2 mt-3 mb-4">
+        <Link to="/admin/erp/visits/start" className="btn btn-success btn-sm">
+          <i className="fas fa-stethoscope me-1"></i>
+          Start Visit
+        </Link>
+
+        <Link
+          to="/admin/erp/appointments/create"
+          className="btn btn-primary btn-sm"
+        >
+          <i className="fas fa-calendar-plus me-1"></i>
+          New Appointment
+        </Link>
+
+        <Link
+          to="/admin/erp/patients/create"
+          className="btn btn-outline-primary btn-sm"
+        >
+          <i className="fas fa-user-plus me-1"></i>
+          New Patient
+        </Link>
+
+        <Link
+          to="/admin/erp/dental-records/create"
+          className="btn btn-outline-secondary btn-sm"
+        >
+          <i className="fas fa-tooth me-1"></i>
+          New Dental Record
+        </Link>
+
+        <Link
+          to="/admin/erp/treatment-plans/create"
+          className="btn btn-outline-secondary btn-sm"
+        >
+          <i className="fas fa-notes-medical me-1"></i>
+          New Treatment Plan
+        </Link>
+
+        <Link to="/admin/erp/invoices" className="btn btn-warning btn-sm">
+          <i className="fas fa-file-invoice me-1"></i>
+          Invoices
+        </Link>
+
+        <Link
+          to="/admin/erp/appointments/calendar"
+          className="btn btn-outline-dark btn-sm"
+        >
+          <i className="fas fa-calendar-alt me-1"></i>
+          Calendar
+        </Link>
+
+        <Link to="/admin/erp/reports" className="btn btn-outline-info btn-sm">
+          <i className="fas fa-chart-bar me-1"></i>
+          Reports
+        </Link>
       </div>
 
       <div className="row g-3 mb-4">
@@ -388,7 +451,6 @@ function KpiCard({ title, value, icon, color = "primary", link }) {
             <div className="text-muted small mb-1">{title}</div>
             <div className="fs-4 fw-bold">{value}</div>
           </div>
-
           <div
             className={`text-${color} bg-${color} bg-opacity-10 rounded p-2`}
           >
@@ -419,6 +481,7 @@ function StatusBadge({ status }) {
   if (["paid", "completed"].includes(value)) cls = "success";
   else if (["unpaid", "cancelled", "no_show"].includes(value)) cls = "danger";
   else if (["partially_paid", "scheduled"].includes(value)) cls = "warning";
+  else if (["in_progress"].includes(value)) cls = "info";
 
   return <span className={`badge bg-${cls}`}>{status}</span>;
 }

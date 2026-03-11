@@ -69,6 +69,7 @@ import DoctorPerformanceReportPage from "./admin/erp/reports/DoctorPerformanceRe
 import AnalyticsDashboardPage from "./admin/erp/reports/AnalyticsDashboardPage";
 import ProceduresListPage from "./admin/erp/procedures/ProceduresListPage";
 import ProcedureFormPage from "./admin/erp/procedures/ProcedureFormPage";
+import StartVisitPage from "./admin/erp/visits/StartVisitPage";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -214,6 +215,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="procedures" element={<ProceduresListPage />} />
           <Route path="procedures/create" element={<ProcedureFormPage />} />
           <Route path="procedures/:id/edit" element={<ProcedureFormPage />} />
+          <Route path="visits/start" element={<StartVisitPage />} />
         </Route>
 
         {/* ================= Generic admin CRUD (OLD / temporary) ================= */}

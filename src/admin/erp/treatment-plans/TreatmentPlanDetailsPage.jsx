@@ -29,6 +29,10 @@ export default function TreatmentPlanDetailsPage() {
 
   const [openStartItemId, setOpenStartItemId] = useState(null);
   const [startingItem, setStartingItem] = useState(false);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [slotError, setSlotError] = useState("");
+  const [availableSlots, setAvailableSlots] = useState([]);
+
   const [startForm, setStartForm] = useState({
     doctor_id: "",
     appointment_date: "",
@@ -171,6 +175,8 @@ export default function TreatmentPlanDetailsPage() {
   const openStartForm = (item) => {
     setItemError("");
     setItemSuccess("");
+    setSlotError("");
+    setAvailableSlots([]);
     setOpenStartItemId(item.id);
 
     const today = new Date().toISOString().slice(0, 10);
@@ -185,6 +191,8 @@ export default function TreatmentPlanDetailsPage() {
 
   const closeStartForm = () => {
     setOpenStartItemId(null);
+    setSlotError("");
+    setAvailableSlots([]);
     setStartForm({
       doctor_id: "",
       appointment_date: "",
@@ -193,11 +201,51 @@ export default function TreatmentPlanDetailsPage() {
     });
   };
 
+  const loadSlots = async () => {
+    try {
+      setLoadingSlots(true);
+      setSlotError("");
+      setAvailableSlots([]);
+      setStartForm((prev) => ({
+        ...prev,
+        appointment_time: "",
+      }));
+
+      if (!startForm.doctor_id || !startForm.appointment_date) {
+        setSlotError("Please select doctor and date first.");
+        return;
+      }
+
+      const res = await axios.get("/erp/appointments/available-slots", {
+        params: {
+          doctor_id: startForm.doctor_id,
+          date: startForm.appointment_date,
+        },
+      });
+
+      const payload = res.data || {};
+      const slotRows = Array.isArray(payload.data)
+        ? payload.data
+        : payload.data?.slots || payload.data || [];
+
+      setAvailableSlots(Array.isArray(slotRows) ? slotRows : []);
+    } catch (err) {
+      setSlotError(
+        err?.response?.data?.message ||
+          err?.response?.data?.msg ||
+          "Failed to load available slots.",
+      );
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
   const startProcedure = async (itemId) => {
     try {
       setStartingItem(true);
       setItemError("");
       setItemSuccess("");
+      setSlotError("");
 
       const payload = {
         appointment_date: startForm.appointment_date,
@@ -230,6 +278,22 @@ export default function TreatmentPlanDetailsPage() {
       setStartingItem(false);
     }
   };
+
+  const normalizeSlots = (slots) => {
+    return slots.map((slot) => {
+      if (typeof slot === "string") {
+        return { value: slot, label: slot, available: true };
+      }
+
+      return {
+        value: slot.time || slot.value || "",
+        label: slot.time || slot.label || slot.value || "",
+        available: slot.available ?? true,
+      };
+    });
+  };
+
+  const normalizedSlots = normalizeSlots(availableSlots);
 
   const money = (value) =>
     new Intl.NumberFormat("en-US", {
@@ -571,15 +635,18 @@ export default function TreatmentPlanDetailsPage() {
                                           <select
                                             className="form-select"
                                             value={startForm.doctor_id}
-                                            onChange={(e) =>
+                                            onChange={(e) => {
                                               setStartForm((prev) => ({
                                                 ...prev,
                                                 doctor_id: e.target.value,
-                                              }))
-                                            }
+                                                appointment_time: "",
+                                              }));
+                                              setAvailableSlots([]);
+                                              setSlotError("");
+                                            }}
                                           >
                                             <option value="">
-                                              Auto select
+                                              Select doctor
                                             </option>
                                             {doctors.map((doctor) => (
                                               <option
@@ -600,23 +667,43 @@ export default function TreatmentPlanDetailsPage() {
                                             type="date"
                                             className="form-control"
                                             value={startForm.appointment_date}
-                                            onChange={(e) =>
+                                            onChange={(e) => {
                                               setStartForm((prev) => ({
                                                 ...prev,
                                                 appointment_date:
                                                   e.target.value,
-                                              }))
-                                            }
+                                                appointment_time: "",
+                                              }));
+                                              setAvailableSlots([]);
+                                              setSlotError("");
+                                            }}
                                           />
+                                        </div>
+
+                                        <div className="col-12 col-md-3">
+                                          <label className="form-label fw-semibold">
+                                            Available Slots
+                                          </label>
+                                          <div className="d-grid">
+                                            <button
+                                              type="button"
+                                              className="btn btn-outline-primary"
+                                              onClick={loadSlots}
+                                              disabled={loadingSlots}
+                                            >
+                                              {loadingSlots
+                                                ? "Loading Slots..."
+                                                : "Load Slots"}
+                                            </button>
+                                          </div>
                                         </div>
 
                                         <div className="col-12 col-md-3">
                                           <label className="form-label fw-semibold">
                                             Time
                                           </label>
-                                          <input
-                                            type="time"
-                                            className="form-control"
+                                          <select
+                                            className="form-select"
                                             value={startForm.appointment_time}
                                             onChange={(e) =>
                                               setStartForm((prev) => ({
@@ -625,33 +712,35 @@ export default function TreatmentPlanDetailsPage() {
                                                   e.target.value,
                                               }))
                                             }
-                                          />
+                                          >
+                                            <option value="">
+                                              Select slot
+                                            </option>
+                                            {normalizedSlots.map(
+                                              (slot, index) => (
+                                                <option
+                                                  key={`${slot.value}-${index}`}
+                                                  value={slot.value}
+                                                  disabled={
+                                                    slot.available === false
+                                                  }
+                                                >
+                                                  {slot.label}
+                                                </option>
+                                              ),
+                                            )}
+                                          </select>
                                         </div>
 
-                                        <div className="col-12 col-md-3 d-flex gap-2">
-                                          <button
-                                            type="button"
-                                            className="btn btn-success"
-                                            onClick={() =>
-                                              startProcedure(item.id)
-                                            }
-                                            disabled={startingItem}
-                                          >
-                                            {startingItem
-                                              ? "Starting..."
-                                              : "Confirm Start"}
-                                          </button>
+                                        {slotError ? (
+                                          <div className="col-12">
+                                            <div className="alert alert-warning py-2 mb-0">
+                                              {slotError}
+                                            </div>
+                                          </div>
+                                        ) : null}
 
-                                          <button
-                                            type="button"
-                                            className="btn btn-outline-secondary"
-                                            onClick={closeStartForm}
-                                          >
-                                            Close
-                                          </button>
-                                        </div>
-
-                                        <div className="col-12">
+                                        <div className="col-12 col-md-8">
                                           <label className="form-label fw-semibold">
                                             Notes
                                           </label>
@@ -666,6 +755,32 @@ export default function TreatmentPlanDetailsPage() {
                                               }))
                                             }
                                           />
+                                        </div>
+
+                                        <div className="col-12 col-md-4 d-flex gap-2">
+                                          <button
+                                            type="button"
+                                            className="btn btn-success"
+                                            onClick={() =>
+                                              startProcedure(item.id)
+                                            }
+                                            disabled={
+                                              startingItem ||
+                                              !startForm.appointment_time
+                                            }
+                                          >
+                                            {startingItem
+                                              ? "Starting..."
+                                              : "Confirm Start"}
+                                          </button>
+
+                                          <button
+                                            type="button"
+                                            className="btn btn-outline-secondary"
+                                            onClick={closeStartForm}
+                                          >
+                                            Close
+                                          </button>
                                         </div>
                                       </div>
                                     </div>

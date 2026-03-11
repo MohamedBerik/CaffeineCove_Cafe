@@ -10,6 +10,7 @@ export default function TreatmentPlanDetailsPage() {
   const [summary, setSummary] = useState(null);
   const [cashSummary, setCashSummary] = useState(null);
   const [procedures, setProcedures] = useState([]);
+  const [doctors, setDoctors] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -26,6 +27,15 @@ export default function TreatmentPlanDetailsPage() {
   const [itemError, setItemError] = useState("");
   const [itemSuccess, setItemSuccess] = useState("");
 
+  const [openStartItemId, setOpenStartItemId] = useState(null);
+  const [startingItem, setStartingItem] = useState(false);
+  const [startForm, setStartForm] = useState({
+    doctor_id: "",
+    appointment_date: "",
+    appointment_time: "",
+    notes: "",
+  });
+
   useEffect(() => {
     loadAll();
   }, [id]);
@@ -37,14 +47,21 @@ export default function TreatmentPlanDetailsPage() {
       setItemError("");
       setItemSuccess("");
 
-      const [planRes, itemsRes, summaryRes, cashRes, proceduresRes] =
-        await Promise.all([
-          axios.get(`/erp/treatment-plans/${id}`),
-          axios.get(`/erp/treatment-plans/${id}/items`),
-          axios.get(`/erp/treatment-plans/${id}/summary`),
-          axios.get(`/erp/treatment-plans/${id}/cash-summary`),
-          axios.get(`/erp/procedures`),
-        ]);
+      const [
+        planRes,
+        itemsRes,
+        summaryRes,
+        cashRes,
+        proceduresRes,
+        doctorsRes,
+      ] = await Promise.all([
+        axios.get(`/erp/treatment-plans/${id}`),
+        axios.get(`/erp/treatment-plans/${id}/items`),
+        axios.get(`/erp/treatment-plans/${id}/summary`),
+        axios.get(`/erp/treatment-plans/${id}/cash-summary`),
+        axios.get(`/erp/procedures`),
+        axios.get(`/erp/doctors`),
+      ]);
 
       setPlan(planRes.data || null);
       setItems(itemsRes.data?.data || []);
@@ -56,6 +73,12 @@ export default function TreatmentPlanDetailsPage() {
         ? proceduresPayload.data
         : proceduresPayload.data?.data || [];
       setProcedures(proceduresRows);
+
+      const doctorsPayload = doctorsRes.data || {};
+      const doctorRows = Array.isArray(doctorsPayload.data)
+        ? doctorsPayload.data
+        : doctorsPayload.data?.data || [];
+      setDoctors(doctorRows);
     } catch (err) {
       setError(
         err?.response?.data?.message ||
@@ -142,6 +165,69 @@ export default function TreatmentPlanDetailsPage() {
           err?.response?.data?.msg ||
           "Failed to delete item.",
       );
+    }
+  };
+
+  const openStartForm = (item) => {
+    setItemError("");
+    setItemSuccess("");
+    setOpenStartItemId(item.id);
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    setStartForm({
+      doctor_id: "",
+      appointment_date: today,
+      appointment_time: "",
+      notes: item.notes || "",
+    });
+  };
+
+  const closeStartForm = () => {
+    setOpenStartItemId(null);
+    setStartForm({
+      doctor_id: "",
+      appointment_date: "",
+      appointment_time: "",
+      notes: "",
+    });
+  };
+
+  const startProcedure = async (itemId) => {
+    try {
+      setStartingItem(true);
+      setItemError("");
+      setItemSuccess("");
+
+      const payload = {
+        appointment_date: startForm.appointment_date,
+        appointment_time: startForm.appointment_time,
+        notes: startForm.notes || null,
+      };
+
+      if (startForm.doctor_id) {
+        payload.doctor_id = Number(startForm.doctor_id);
+      }
+
+      await axios.post(`/erp/treatment-plan-items/${itemId}/start`, payload);
+
+      setItemSuccess("Procedure started successfully.");
+      closeStartForm();
+      await loadAll();
+    } catch (err) {
+      const errors = err?.response?.data?.errors;
+      if (errors) {
+        const firstError = Object.values(errors)?.[0]?.[0];
+        setItemError(firstError || "Failed to start procedure.");
+      } else {
+        setItemError(
+          err?.response?.data?.message ||
+            err?.response?.data?.msg ||
+            "Failed to start procedure.",
+        );
+      }
+    } finally {
+      setStartingItem(false);
     }
   };
 
@@ -234,7 +320,10 @@ export default function TreatmentPlanDetailsPage() {
             <InfoItem label="Title" value={planData.title} />
             <InfoItem label="Patient" value={customer.name} />
             <InfoItem label="Email" value={customer.email} />
-            <InfoItem label="Status" value={planData.status} />
+            <InfoItem
+              label="Status"
+              value={<StatusBadge status={planData.status} />}
+            />
             <InfoItem label="Total Cost" value={money(planData.total_cost)} />
             <InfoItem label="Created" value={formatDate(planData.created_at)} />
             <div className="col-12">
@@ -397,30 +486,196 @@ export default function TreatmentPlanDetailsPage() {
                         <th>Tooth</th>
                         <th>Surface</th>
                         <th>Price</th>
+                        <th>Status</th>
                         <th>Notes</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {items.map((item) => (
-                        <tr key={item.id}>
-                          <td>
-                            {item.procedureRef?.name || item.procedure || "-"}
-                          </td>
-                          <td>{item.tooth_number || "-"}</td>
-                          <td>{item.surface || "-"}</td>
-                          <td>{money(item.price)}</td>
-                          <td>{item.notes || "-"}</td>
-                          <td>
-                            <button
-                              className="btn btn-sm btn-outline-danger"
-                              onClick={() => deleteItem(item.id)}
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                      {items.map((item) => {
+                        const itemStatus = String(
+                          item.status || "pending",
+                        ).toLowerCase();
+                        const isStartOpen = openStartItemId === item.id;
+
+                        return (
+                          <FragmentRow
+                            key={item.id}
+                            row={
+                              <tr>
+                                <td>
+                                  {item.procedureRef?.name ||
+                                    item.procedure ||
+                                    "-"}
+                                </td>
+                                <td>{item.tooth_number || "-"}</td>
+                                <td>{item.surface || "-"}</td>
+                                <td>{money(item.price)}</td>
+                                <td>
+                                  <ProcedureStatusBadge status={item.status} />
+                                </td>
+                                <td>{item.notes || "-"}</td>
+                                <td>
+                                  <div className="d-flex flex-wrap gap-2">
+                                    {itemStatus === "pending" ? (
+                                      <button
+                                        className="btn btn-sm btn-outline-success"
+                                        type="button"
+                                        onClick={() => openStartForm(item)}
+                                      >
+                                        Start Procedure
+                                      </button>
+                                    ) : null}
+
+                                    {itemStatus === "in_progress" &&
+                                    item.appointment_id ? (
+                                      <Link
+                                        to={`/admin/erp/appointments/${item.appointment_id}/activity`}
+                                        className="btn btn-sm btn-outline-primary"
+                                      >
+                                        Open Appointment
+                                      </Link>
+                                    ) : null}
+
+                                    <button
+                                      className="btn btn-sm btn-outline-danger"
+                                      onClick={() => deleteItem(item.id)}
+                                      type="button"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            }
+                            extraRow={
+                              isStartOpen ? (
+                                <tr>
+                                  <td colSpan="7" className="bg-light">
+                                    <div className="p-3">
+                                      <div className="fw-semibold mb-2">
+                                        Start Procedure
+                                      </div>
+                                      <div className="alert alert-light border py-2 small">
+                                        This will create a treatment appointment
+                                        for this plan item. Treatment billing
+                                        will still happen later when that
+                                        appointment is completed.
+                                      </div>
+
+                                      <div className="row g-3 align-items-end">
+                                        <div className="col-12 col-md-3">
+                                          <label className="form-label fw-semibold">
+                                            Doctor
+                                          </label>
+                                          <select
+                                            className="form-select"
+                                            value={startForm.doctor_id}
+                                            onChange={(e) =>
+                                              setStartForm((prev) => ({
+                                                ...prev,
+                                                doctor_id: e.target.value,
+                                              }))
+                                            }
+                                          >
+                                            <option value="">
+                                              Auto select
+                                            </option>
+                                            {doctors.map((doctor) => (
+                                              <option
+                                                key={doctor.id}
+                                                value={doctor.id}
+                                              >
+                                                {doctor.name}
+                                              </option>
+                                            ))}
+                                          </select>
+                                        </div>
+
+                                        <div className="col-12 col-md-3">
+                                          <label className="form-label fw-semibold">
+                                            Date
+                                          </label>
+                                          <input
+                                            type="date"
+                                            className="form-control"
+                                            value={startForm.appointment_date}
+                                            onChange={(e) =>
+                                              setStartForm((prev) => ({
+                                                ...prev,
+                                                appointment_date:
+                                                  e.target.value,
+                                              }))
+                                            }
+                                          />
+                                        </div>
+
+                                        <div className="col-12 col-md-3">
+                                          <label className="form-label fw-semibold">
+                                            Time
+                                          </label>
+                                          <input
+                                            type="time"
+                                            className="form-control"
+                                            value={startForm.appointment_time}
+                                            onChange={(e) =>
+                                              setStartForm((prev) => ({
+                                                ...prev,
+                                                appointment_time:
+                                                  e.target.value,
+                                              }))
+                                            }
+                                          />
+                                        </div>
+
+                                        <div className="col-12 col-md-3 d-flex gap-2">
+                                          <button
+                                            type="button"
+                                            className="btn btn-success"
+                                            onClick={() =>
+                                              startProcedure(item.id)
+                                            }
+                                            disabled={startingItem}
+                                          >
+                                            {startingItem
+                                              ? "Starting..."
+                                              : "Confirm Start"}
+                                          </button>
+
+                                          <button
+                                            type="button"
+                                            className="btn btn-outline-secondary"
+                                            onClick={closeStartForm}
+                                          >
+                                            Close
+                                          </button>
+                                        </div>
+
+                                        <div className="col-12">
+                                          <label className="form-label fw-semibold">
+                                            Notes
+                                          </label>
+                                          <textarea
+                                            className="form-control"
+                                            rows="2"
+                                            value={startForm.notes}
+                                            onChange={(e) =>
+                                              setStartForm((prev) => ({
+                                                ...prev,
+                                                notes: e.target.value,
+                                              }))
+                                            }
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ) : null
+                            }
+                          />
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -454,7 +709,14 @@ export default function TreatmentPlanDetailsPage() {
                     <tbody>
                       {invoices.map((inv) => (
                         <tr key={inv.id}>
-                          <td>{inv.number}</td>
+                          <td>
+                            <Link
+                              to={`/admin/erp/invoices/${inv.id}`}
+                              className="text-decoration-none"
+                            >
+                              {inv.number}
+                            </Link>
+                          </td>
                           <td>{money(inv.total)}</td>
                           <td>{money(inv.net_paid)}</td>
                           <td>{money(inv.remaining)}</td>
@@ -506,6 +768,15 @@ export default function TreatmentPlanDetailsPage() {
   );
 }
 
+function FragmentRow({ row, extraRow }) {
+  return (
+    <>
+      {row}
+      {extraRow}
+    </>
+  );
+}
+
 function KpiCard({ title, value, color = "primary" }) {
   return (
     <div className="col-12 col-sm-6 col-xl-3">
@@ -537,4 +808,16 @@ function StatusBadge({ status }) {
   else if (["active", "partially_paid"].includes(value)) cls = "warning";
 
   return <span className={`badge bg-${cls}`}>{status}</span>;
+}
+
+function ProcedureStatusBadge({ status }) {
+  const value = String(status || "pending").toLowerCase();
+
+  let cls = "secondary";
+  if (["pending"].includes(value)) cls = "warning";
+  else if (["in_progress"].includes(value)) cls = "info";
+  else if (["completed"].includes(value)) cls = "success";
+  else if (["cancelled"].includes(value)) cls = "danger";
+
+  return <span className={`badge bg-${cls}`}>{value}</span>;
 }

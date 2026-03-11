@@ -133,55 +133,55 @@ export default function ErpDashboardHome() {
           Start Visit
         </Link>
 
-        <Link
+        {/* <Link
           to="/admin/erp/appointments/create"
           className="btn btn-primary btn-sm"
         >
           <i className="fas fa-calendar-plus me-1"></i>
           New Appointment
-        </Link>
+        </Link> */}
 
-        <Link
+        {/* <Link
           to="/admin/erp/patients/create"
           className="btn btn-outline-primary btn-sm"
         >
           <i className="fas fa-user-plus me-1"></i>
           New Patient
-        </Link>
+        </Link> */}
 
-        <Link
+        {/* <Link
           to="/admin/erp/dental-records/create"
           className="btn btn-outline-secondary btn-sm"
         >
           <i className="fas fa-tooth me-1"></i>
           New Dental Record
-        </Link>
+        </Link> */}
 
-        <Link
+        {/* <Link
           to="/admin/erp/treatment-plans/create"
           className="btn btn-outline-secondary btn-sm"
         >
           <i className="fas fa-notes-medical me-1"></i>
           New Treatment Plan
-        </Link>
+        </Link> */}
 
-        <Link to="/admin/erp/invoices" className="btn btn-warning btn-sm">
+        {/* <Link to="/admin/erp/invoices" className="btn btn-warning btn-sm">
           <i className="fas fa-file-invoice me-1"></i>
           Invoices
-        </Link>
+        </Link> */}
 
-        <Link
+        {/* <Link
           to="/admin/erp/appointments/calendar"
           className="btn btn-outline-dark btn-sm"
         >
           <i className="fas fa-calendar-alt me-1"></i>
           Calendar
-        </Link>
+        </Link> */}
 
-        <Link to="/admin/erp/reports" className="btn btn-outline-info btn-sm">
+        {/* <Link to="/admin/erp/reports" className="btn btn-outline-info btn-sm">
           <i className="fas fa-chart-bar me-1"></i>
           Reports
-        </Link>
+        </Link> */}
       </div>
 
       <div className="row g-3 mb-4">

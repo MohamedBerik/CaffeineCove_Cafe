@@ -110,6 +110,20 @@ export default function StartVisitPage() {
         </div>
 
         <div className="d-flex gap-2">
+          <Link
+            to="/admin/erp/patients/create"
+            className="btn btn-outline-primary btn-sm"
+          >
+            <i className="fas fa-user-plus me-1"></i>
+            New Patient
+          </Link>
+          <Link
+            to="/admin/erp/treatment-plans/create"
+            className="btn btn-outline-secondary btn-sm"
+          >
+            <i className="fas fa-notes-medical me-1"></i>
+            New Treatment Plan
+          </Link>
           <Link to="/admin/erp" className="btn btn-outline-secondary">
             Back to Dashboard
           </Link>

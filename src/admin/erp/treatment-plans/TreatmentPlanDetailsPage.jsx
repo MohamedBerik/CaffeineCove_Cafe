@@ -594,7 +594,8 @@ export default function TreatmentPlanDetailsPage() {
                                     {itemStatus === "in_progress" &&
                                     item.appointment_id ? (
                                       <Link
-                                        to={`/admin/erp/appointments/${item.appointment_id}/activity`}
+                                        // to={`/admin/erp/appointments/${item.appointment_id}/activity`}
+                                        to={`/admin/erp/appointments`}
                                         className="btn btn-sm btn-outline-primary"
                                       >
                                         Open Appointment

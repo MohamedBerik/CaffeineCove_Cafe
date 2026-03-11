@@ -10,6 +10,7 @@ export default function AppointmentsListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
   const [actionError, setActionError] = useState("");
   const [actionSuccess, setActionSuccess] = useState("");
@@ -77,9 +78,9 @@ export default function AppointmentsListPage() {
 
   const filteredRows = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return rows;
 
     return rows.filter((item) => {
+      const id = String(item.id || "").toLowerCase();
       const patientName = String(item.patient?.name || "").toLowerCase();
       const patientEmail = String(item.patient?.email || "").toLowerCase();
       const doctorName = String(
@@ -88,17 +89,27 @@ export default function AppointmentsListPage() {
       const status = String(item.status || "").toLowerCase();
       const notes = String(item.notes || "").toLowerCase();
       const date = String(item.appointment_date || "").toLowerCase();
+      const time = String(item.appointment_time || "")
+        .slice(0, 5)
+        .toLowerCase();
 
-      return (
+      const matchesSearch =
+        !q ||
+        id.includes(q) ||
         patientName.includes(q) ||
         patientEmail.includes(q) ||
         doctorName.includes(q) ||
         status.includes(q) ||
         notes.includes(q) ||
-        date.includes(q)
-      );
+        date.includes(q) ||
+        time.includes(q);
+
+      const matchesStatus =
+        !statusFilter || status === statusFilter.toLowerCase();
+
+      return matchesSearch && matchesStatus;
     });
-  }, [rows, search]);
+  }, [rows, search, statusFilter]);
 
   const applySearch = async (e) => {
     e.preventDefault();
@@ -275,6 +286,11 @@ export default function AppointmentsListPage() {
     });
   };
 
+  const clearFilters = () => {
+    setSearch("");
+    setStatusFilter("");
+  };
+
   if (loading) {
     return (
       <div
@@ -337,25 +353,55 @@ export default function AppointmentsListPage() {
       <div className="card shadow-sm border-0 mb-4">
         <div className="card-body">
           <form className="row g-3 align-items-end" onSubmit={applySearch}>
-            <div className="col-12 col-lg-8">
+            <div className="col-12 col-lg-5">
               <label className="form-label fw-semibold">Search</label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="Patient, doctor, date, status, notes..."
+                placeholder="ID, patient, doctor, date, time, status, notes..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
+
+            <div className="col-12 col-lg-3">
+              <label className="form-label fw-semibold">Status</label>
+              <select
+                className="form-select"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="">All Statuses</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="no_show">No Show</option>
+                <option value="in_progress">In Progress</option>
+              </select>
+            </div>
+
             <div className="col-12 col-lg-2">
               <label className="form-label fw-semibold">Total Loaded</label>
               <div className="form-control bg-light">
                 {meta?.total ?? rows.length}
               </div>
             </div>
+
             <div className="col-12 col-lg-2">
-              <button type="submit" className="btn btn-outline-primary w-100">
+              <label className="form-label fw-semibold">Filtered</label>
+              <div className="form-control bg-light">{filteredRows.length}</div>
+            </div>
+
+            <div className="col-12 d-flex gap-2">
+              <button type="submit" className="btn btn-outline-primary">
                 Search
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={clearFilters}
+              >
+                Clear Filters
               </button>
             </div>
           </form>
@@ -374,6 +420,7 @@ export default function AppointmentsListPage() {
               <table className="table table-hover align-middle mb-0">
                 <thead className="table-light">
                   <tr>
+                    <th style={{ minWidth: 90 }}>ID</th>
                     <th style={{ minWidth: 180 }}>Patient</th>
                     <th style={{ minWidth: 180 }}>Doctor</th>
                     <th style={{ minWidth: 130 }}>Date</th>
@@ -445,6 +492,10 @@ function AppointmentRow({
   return (
     <>
       <tr>
+        <td>
+          <span className="fw-semibold">#{item.id}</span>
+        </td>
+
         <td>
           <div className="fw-semibold">
             {item.patient?.id ? (
@@ -530,7 +581,7 @@ function AppointmentRow({
 
       {isCompleteOpen ? (
         <tr>
-          <td colSpan="7" className="bg-light">
+          <td colSpan="8" className="bg-light">
             <div className="p-3">
               <div className="fw-semibold mb-2">Complete Appointment</div>
 
@@ -641,7 +692,7 @@ function AppointmentRow({
 
       {isRescheduleOpen ? (
         <tr>
-          <td colSpan="7" className="bg-light">
+          <td colSpan="8" className="bg-light">
             <div className="p-3">
               <div className="fw-semibold mb-3">Reschedule Appointment</div>
               <div className="row g-3 align-items-end">

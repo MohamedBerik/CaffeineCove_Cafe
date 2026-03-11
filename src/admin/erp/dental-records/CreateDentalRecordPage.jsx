@@ -125,7 +125,11 @@ export default function CreateDentalRecordPage() {
       setSaving(false);
     }
   };
-
+  const money = (value) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(Number(value || 0));
   if (loadingRefs) {
     return (
       <div

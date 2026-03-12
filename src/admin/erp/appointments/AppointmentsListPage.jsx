@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useNavigate } from "react-router-dom";
 
 export default function AppointmentsListPage() {
+  const navigate = useNavigate();
+
   const [rows, setRows] = useState([]);
   const [meta, setMeta] = useState(null);
   const [doctors, setDoctors] = useState([]);
@@ -203,11 +206,20 @@ export default function AppointmentsListPage() {
         payload,
       );
 
+      const invoiceId = res?.data?.invoice_id;
+
       setActionSuccess(res?.data?.msg || "Appointment completed successfully.");
+
       closeInlineForms();
       await loadAll();
+
+      // ✅ تحويل مباشر لصفحة الفاتورة
+      if (invoiceId) {
+        navigate(`/admin/erp/invoices/${invoiceId}`);
+      }
     } catch (err) {
       const errors = err?.response?.data?.errors;
+
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
         setActionError(firstError || "Failed to complete appointment.");

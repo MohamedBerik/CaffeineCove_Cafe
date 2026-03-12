@@ -2,7 +2,7 @@ import axios from "axios";
 import { notifyError } from "../utils/notify";
 
 const api = axios.create({
-  baseURL: "https://caffeinecoveapi-production-a107.up.railway.app/api", // Laravel API
+  baseURL: "https://caffeinecoveapi-production-a107.up.railway.app/api",
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",

@@ -108,12 +108,15 @@ export default function PatientFormPage() {
         <h3 className="fw-bold">
           {isEdit ? "Edit Patient" : "Create Patient"}
         </h3>
-
+        <Link to="/admin/erp/visits/start" className="btn btn-success btn-sm">
+          <i className="fas fa-stethoscope me-1"></i>
+          Start Visit
+        </Link>
         <button
           className="btn btn-outline-secondary"
           onClick={() => navigate("/admin/erp/patients")}
         >
-          Back
+          Patients
         </button>
       </div>
 

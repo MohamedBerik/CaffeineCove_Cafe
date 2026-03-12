@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "../../../services/axios";
-import { useNavigate } from "react-router-dom";
 
 export default function AppointmentsListPage() {
   const navigate = useNavigate();
@@ -77,6 +76,24 @@ export default function AppointmentsListPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatDate = (value) => {
+    if (!value) return "-";
+    try {
+      return new Date(value).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    } catch {
+      return String(value).slice(0, 10);
+    }
+  };
+
+  const formatTime = (value) => {
+    if (!value) return "-";
+    return String(value).slice(0, 5) || "-";
   };
 
   const filteredRows = useMemo(() => {
@@ -206,14 +223,13 @@ export default function AppointmentsListPage() {
         payload,
       );
 
-      const invoiceId = res?.data?.invoice_id;
+      const invoiceId = res?.data?.invoice_id || null;
 
       setActionSuccess(res?.data?.msg || "Appointment completed successfully.");
 
       closeInlineForms();
       await loadAll();
 
-      // ✅ تحويل مباشر لصفحة الفاتورة
       if (invoiceId) {
         navigate(`/admin/erp/invoices/${invoiceId}`);
       }
@@ -241,7 +257,7 @@ export default function AppointmentsListPage() {
     setOpenRescheduleId(item.id);
     setRescheduleForm({
       appointment_date: item.appointment_date || "",
-      appointment_time: String(item.appointment_time || "").slice(0, 5) || "",
+      appointment_time: formatTime(item.appointment_time),
       doctor_id: item.doctor_id ? String(item.doctor_id) : "",
     });
   };
@@ -462,6 +478,8 @@ export default function AppointmentsListPage() {
                       onSubmitComplete={submitComplete}
                       onSubmitReschedule={submitReschedule}
                       onCloseInlineForms={closeInlineForms}
+                      formatDate={formatDate}
+                      formatTime={formatTime}
                     />
                   ))}
                 </tbody>
@@ -491,6 +509,8 @@ function AppointmentRow({
   onSubmitComplete,
   onSubmitReschedule,
   onCloseInlineForms,
+  formatDate,
+  formatTime,
 }) {
   const isCompleteOpen = openCompleteId === item.id;
   const isRescheduleOpen = openRescheduleId === item.id;
@@ -525,8 +545,8 @@ function AppointmentRow({
         </td>
 
         <td>{item.doctor?.name || item.doctor_name || "-"}</td>
-        <td>{item.appointment_date || "-"}</td>
-        <td>{String(item.appointment_time || "").slice(0, 5) || "-"}</td>
+        <td>{formatDate(item.appointment_date)}</td>
+        <td>{formatTime(item.appointment_time)}</td>
         <td>
           <StatusBadge status={item.status} />
         </td>

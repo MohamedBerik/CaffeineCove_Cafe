@@ -10,6 +10,12 @@ const navItems = [
     permission: "finance.view",
   },
   {
+    to: "/admin/erp/visits",
+    label: "Start Visit",
+    icon: "fas fa-stethoscope",
+    permission: "appointments.view",
+  },
+  {
     to: "/admin/erp/doctors",
     label: "Doctors",
     icon: "fas fa-user-md",

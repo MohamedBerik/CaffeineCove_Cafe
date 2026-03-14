@@ -196,8 +196,12 @@ export default function StartVisitPage() {
             New Patient
           </Link>
 
-          <Link to="/admin/erp" className="btn btn-outline-secondary">
-            Back to Dashboard
+          <Link
+            to="/admin/erp/treatment-plans/create"
+            className="btn btn-outline-secondary btn-sm"
+          >
+            <i className="fas fa-notes-medical me-1"></i>
+            New Treatment Plan
           </Link>
         </div>
       </div>

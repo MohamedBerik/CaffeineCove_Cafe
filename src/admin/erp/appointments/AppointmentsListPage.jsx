@@ -11,7 +11,6 @@ export default function AppointmentsListPage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
@@ -20,10 +19,16 @@ export default function AppointmentsListPage() {
   const [actingId, setActingId] = useState(null);
 
   const [openCompleteId, setOpenCompleteId] = useState(null);
-
   const [completeForm, setCompleteForm] = useState({
     doctor_name: "",
     notes: "",
+  });
+
+  const [openRescheduleId, setOpenRescheduleId] = useState(null);
+  const [rescheduleForm, setRescheduleForm] = useState({
+    appointment_date: "",
+    appointment_time: "",
+    doctor_id: "",
   });
 
   useEffect(() => {
@@ -34,9 +39,13 @@ export default function AppointmentsListPage() {
     try {
       setLoading(true);
       setError("");
+      setActionError("");
+      setActionSuccess("");
 
       const [appointmentsRes, doctorsRes] = await Promise.all([
-        axios.get("/erp/appointments"),
+        axios.get("/erp/appointments", {
+          params: search ? { search } : {},
+        }),
         axios.get("/erp/doctors"),
       ]);
 
@@ -67,17 +76,60 @@ export default function AppointmentsListPage() {
     }
   };
 
+  const formatDate = (value) => {
+    if (!value) return "-";
+    try {
+      return new Date(value).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    } catch {
+      return String(value).slice(0, 10);
+    }
+  };
+
+  const formatTime = (value) => {
+    if (!value) return "-";
+    return String(value).slice(0, 5) || "-";
+  };
+
+  const formatAppointmentType = (value) => {
+    const type = String(value || "").toLowerCase();
+    if (type === "consultation") return "Consultation";
+    if (type === "treatment") return "Treatment";
+    return "-";
+  };
+
   const filteredRows = useMemo(() => {
     const q = search.trim().toLowerCase();
 
     return rows.filter((item) => {
-      const patient = String(item.patient?.name || "").toLowerCase();
-      const doctor = String(
+      const id = String(item.id || "").toLowerCase();
+      const patientName = String(item.patient?.name || "").toLowerCase();
+      const patientEmail = String(item.patient?.email || "").toLowerCase();
+      const doctorName = String(
         item.doctor?.name || item.doctor_name || "",
       ).toLowerCase();
       const status = String(item.status || "").toLowerCase();
+      const notes = String(item.notes || "").toLowerCase();
+      const date = String(item.appointment_date || "").toLowerCase();
+      const time = String(item.appointment_time || "")
+        .slice(0, 5)
+        .toLowerCase();
+      const appointmentType = String(item.appointment_type || "").toLowerCase();
 
-      const matchesSearch = !q || patient.includes(q) || doctor.includes(q);
+      const matchesSearch =
+        !q ||
+        id.includes(q) ||
+        patientName.includes(q) ||
+        patientEmail.includes(q) ||
+        doctorName.includes(q) ||
+        status.includes(q) ||
+        notes.includes(q) ||
+        date.includes(q) ||
+        time.includes(q) ||
+        appointmentType.includes(q);
 
       const matchesStatus =
         !statusFilter || status === statusFilter.toLowerCase();
@@ -86,16 +138,67 @@ export default function AppointmentsListPage() {
     });
   }, [rows, search, statusFilter]);
 
-  const clearMessages = () => {
+  const applySearch = async (e) => {
+    e.preventDefault();
+    await loadAll();
+  };
+
+  const clearActionMessages = () => {
     setActionError("");
     setActionSuccess("");
   };
 
+  const postAction = async (url, successMessage) => {
+    try {
+      clearActionMessages();
+      setActingId(url);
+
+      await axios.post(url);
+
+      setActionSuccess(successMessage);
+      closeInlineForms();
+      await loadAll();
+    } catch (err) {
+      const errors = err?.response?.data?.errors;
+      if (errors) {
+        const firstError = Object.values(errors)?.[0]?.[0];
+        setActionError(firstError || "Action failed.");
+      } else {
+        setActionError(
+          err?.response?.data?.message ||
+            err?.response?.data?.msg ||
+            "Action failed.",
+        );
+      }
+    } finally {
+      setActingId(null);
+    }
+  };
+
+  const handleCancel = async (item) => {
+    const ok = window.confirm("Cancel this appointment?");
+    if (!ok) return;
+
+    await postAction(
+      `/erp/appointments/${item.id}/cancel`,
+      "Appointment cancelled successfully.",
+    );
+  };
+
+  const handleNoShow = async (item) => {
+    const ok = window.confirm("Mark this appointment as no-show?");
+    if (!ok) return;
+
+    await postAction(
+      `/erp/appointments/${item.id}/no-show`,
+      "Appointment marked as no-show.",
+    );
+  };
+
   const openCompleteFormFor = (item) => {
-    clearMessages();
-
+    clearActionMessages();
+    setOpenRescheduleId(null);
     setOpenCompleteId(item.id);
-
     setCompleteForm({
       doctor_name: item.doctor?.name || item.doctor_name || "",
       notes: item.notes || "",
@@ -104,8 +207,7 @@ export default function AppointmentsListPage() {
 
   const submitComplete = async (appointmentId) => {
     try {
-      clearMessages();
-
+      clearActionMessages();
       setActingId(`complete-${appointmentId}`);
 
       const payload = {
@@ -118,172 +220,574 @@ export default function AppointmentsListPage() {
         payload,
       );
 
-      const invoiceId = res?.data?.invoice_id;
+      const invoiceId = res?.data?.invoice_id || null;
 
-      setActionSuccess("Appointment completed successfully");
+      setActionSuccess(res?.data?.msg || "Appointment completed successfully.");
 
+      closeInlineForms();
       await loadAll();
 
-      // redirect to payment page
       if (invoiceId) {
         navigate(`/admin/erp/invoices/${invoiceId}`);
+        return;
       }
-    } catch (err) {
+
       setActionError(
-        err?.response?.data?.message ||
-          err?.response?.data?.msg ||
-          "Failed to complete appointment",
+        "Appointment was completed, but no invoice was returned from the server.",
       );
+    } catch (err) {
+      const errors = err?.response?.data?.errors;
+
+      if (errors) {
+        const firstError = Object.values(errors)?.[0]?.[0];
+        setActionError(firstError || "Failed to complete appointment.");
+      } else {
+        setActionError(
+          err?.response?.data?.message ||
+            err?.response?.data?.msg ||
+            "Failed to complete appointment.",
+        );
+      }
     } finally {
       setActingId(null);
-      setOpenCompleteId(null);
     }
+  };
+
+  const openRescheduleFormFor = (item) => {
+    clearActionMessages();
+    setOpenCompleteId(null);
+    setOpenRescheduleId(item.id);
+    setRescheduleForm({
+      appointment_date: item.appointment_date || "",
+      appointment_time: formatTime(item.appointment_time),
+      doctor_id: item.doctor_id ? String(item.doctor_id) : "",
+    });
+  };
+
+  const submitReschedule = async (appointmentId) => {
+    try {
+      clearActionMessages();
+      setActingId(`reschedule-${appointmentId}`);
+
+      const payload = {
+        appointment_date: rescheduleForm.appointment_date,
+        appointment_time: rescheduleForm.appointment_time,
+        doctor_id: Number(rescheduleForm.doctor_id),
+      };
+
+      await axios.post(
+        `/erp/appointments/${appointmentId}/reschedule`,
+        payload,
+      );
+
+      setActionSuccess("Appointment rescheduled successfully.");
+      closeInlineForms();
+      await loadAll();
+    } catch (err) {
+      const errors = err?.response?.data?.errors;
+      if (errors) {
+        const firstError = Object.values(errors)?.[0]?.[0];
+        setActionError(firstError || "Failed to reschedule appointment.");
+      } else {
+        setActionError(
+          err?.response?.data?.message ||
+            err?.response?.data?.msg ||
+            "Failed to reschedule appointment.",
+        );
+      }
+    } finally {
+      setActingId(null);
+    }
+  };
+
+  const closeInlineForms = () => {
+    setOpenCompleteId(null);
+    setOpenRescheduleId(null);
+    setCompleteForm({
+      doctor_name: "",
+      notes: "",
+    });
+    setRescheduleForm({
+      appointment_date: "",
+      appointment_time: "",
+      doctor_id: "",
+    });
+  };
+
+  const clearFilters = () => {
+    setSearch("");
+    setStatusFilter("");
   };
 
   if (loading) {
     return (
-      <div className="text-center p-5">
-        <div className="spinner-border text-primary"></div>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "320px" }}
+      >
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="container-fluid px-0">
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
         <div>
           <h3 className="fw-bold mb-1">Appointments</h3>
           <p className="text-muted mb-0">
-            Manage clinic appointments and visits
+            Daily schedule, doctor bookings, and patient appointments
           </p>
         </div>
 
-        <Link to="/admin/erp/appointments/create" className="btn btn-primary">
-          Book Appointment
-        </Link>
+        <div className="d-flex gap-2">
+          <Link
+            to="/admin/erp/appointments/calendar"
+            className="btn btn-outline-secondary"
+          >
+            Calendar
+          </Link>
+          <Link
+            to="/admin/erp/appointments/create"
+            className="btn btn-outline-primary"
+          >
+            Book Appointment
+          </Link>
+
+          <button className="btn btn-primary" onClick={loadAll}>
+            Refresh
+          </button>
+        </div>
       </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
-      {actionError && <div className="alert alert-danger">{actionError}</div>}
-      {actionSuccess && (
+      {error ? (
+        <div className="alert alert-danger d-flex justify-content-between align-items-center">
+          <span>{error}</span>
+          <button className="btn btn-sm btn-outline-danger" onClick={loadAll}>
+            Retry
+          </button>
+        </div>
+      ) : null}
+
+      {actionError ? (
+        <div className="alert alert-danger">{actionError}</div>
+      ) : null}
+      {actionSuccess ? (
         <div className="alert alert-success">{actionSuccess}</div>
-      )}
+      ) : null}
+
+      <div className="card shadow-sm border-0 mb-4">
+        <div className="card-body">
+          <form className="row g-3 align-items-end" onSubmit={applySearch}>
+            <div className="col-12 col-lg-5">
+              <label className="form-label fw-semibold">Search</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="ID, patient, doctor, date, time, status, type, notes..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            <div className="col-12 col-lg-3">
+              <label className="form-label fw-semibold">Status</label>
+              <select
+                className="form-select"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="">All Statuses</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="no_show">No Show</option>
+                <option value="in_progress">In Progress</option>
+              </select>
+            </div>
+
+            <div className="col-12 col-lg-2">
+              <label className="form-label fw-semibold">Total Loaded</label>
+              <div className="form-control bg-light">
+                {meta?.total ?? rows.length}
+              </div>
+            </div>
+
+            <div className="col-12 col-lg-2">
+              <label className="form-label fw-semibold">Filtered</label>
+              <div className="form-control bg-light">{filteredRows.length}</div>
+            </div>
+
+            <div className="col-12 d-flex gap-2">
+              <button type="submit" className="btn btn-outline-primary">
+                Search
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={clearFilters}
+              >
+                Clear Filters
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
 
       <div className="card shadow-sm border-0">
+        <div className="card-header bg-white">
+          <h5 className="mb-0">Appointments List</h5>
+        </div>
         <div className="card-body p-0">
-          <table className="table table-hover mb-0">
-            <thead className="table-light">
-              <tr>
-                <th>ID</th>
-                <th>Patient</th>
-                <th>Doctor</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Status</th>
-                <th style={{ width: 240 }}>Actions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {filteredRows.map((item) => {
-                const status = String(item.status || "").toLowerCase();
-                const canComplete = status === "scheduled";
-
-                return (
-                  <>
-                    <tr key={item.id}>
-                      <td>#{item.id}</td>
-
-                      <td>{item.patient?.name || "-"}</td>
-
-                      <td>{item.doctor?.name || item.doctor_name || "-"}</td>
-
-                      <td>{item.appointment_date}</td>
-
-                      <td>{String(item.appointment_time || "").slice(0, 5)}</td>
-
-                      <td>
-                        <span className="badge bg-warning">{item.status}</span>
-                      </td>
-
-                      <td>
-                        <div className="d-flex gap-2">
-                          {canComplete && (
-                            <button
-                              className="btn btn-sm btn-success"
-                              onClick={() => openCompleteFormFor(item)}
-                            >
-                              Complete
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-
-                    {openCompleteId === item.id && (
-                      <tr>
-                        <td colSpan="7" className="bg-light">
-                          <div className="p-3">
-                            <div className="row g-3">
-                              <div className="col-md-4">
-                                <label className="form-label">Doctor</label>
-
-                                <input
-                                  className="form-control"
-                                  value={completeForm.doctor_name}
-                                  onChange={(e) =>
-                                    setCompleteForm((prev) => ({
-                                      ...prev,
-                                      doctor_name: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-
-                              <div className="col-md-8">
-                                <label className="form-label">Notes</label>
-
-                                <textarea
-                                  className="form-control"
-                                  rows="2"
-                                  value={completeForm.notes}
-                                  onChange={(e) =>
-                                    setCompleteForm((prev) => ({
-                                      ...prev,
-                                      notes: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-
-                              <div className="col-12 d-flex gap-2">
-                                <button
-                                  className="btn btn-success"
-                                  onClick={() => submitComplete(item.id)}
-                                  disabled={actingId === `complete-${item.id}`}
-                                >
-                                  Confirm Complete
-                                </button>
-
-                                <button
-                                  className="btn btn-outline-secondary"
-                                  onClick={() => setOpenCompleteId(null)}
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                );
-              })}
-            </tbody>
-          </table>
+          {filteredRows.length === 0 ? (
+            <div className="p-4 text-muted">No appointments found.</div>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-hover align-middle mb-0">
+                <thead className="table-light">
+                  <tr>
+                    <th style={{ minWidth: 90 }}>ID</th>
+                    <th style={{ minWidth: 180 }}>Patient</th>
+                    <th style={{ minWidth: 180 }}>Doctor</th>
+                    <th style={{ minWidth: 130 }}>Date</th>
+                    <th style={{ minWidth: 100 }}>Time</th>
+                    <th style={{ minWidth: 140 }}>Type</th>
+                    <th style={{ minWidth: 120 }}>Status</th>
+                    <th style={{ minWidth: 220 }}>Notes</th>
+                    <th style={{ minWidth: 360 }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRows.map((item) => (
+                    <AppointmentRow
+                      key={item.id}
+                      item={item}
+                      doctors={doctors}
+                      actingId={actingId}
+                      onCancel={handleCancel}
+                      onNoShow={handleNoShow}
+                      onOpenComplete={openCompleteFormFor}
+                      onOpenReschedule={openRescheduleFormFor}
+                      openCompleteId={openCompleteId}
+                      openRescheduleId={openRescheduleId}
+                      completeForm={completeForm}
+                      setCompleteForm={setCompleteForm}
+                      rescheduleForm={rescheduleForm}
+                      setRescheduleForm={setRescheduleForm}
+                      onSubmitComplete={submitComplete}
+                      onSubmitReschedule={submitReschedule}
+                      onCloseInlineForms={closeInlineForms}
+                      formatDate={formatDate}
+                      formatTime={formatTime}
+                      formatAppointmentType={formatAppointmentType}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
+}
+
+function AppointmentRow({
+  item,
+  doctors,
+  actingId,
+  onCancel,
+  onNoShow,
+  onOpenComplete,
+  onOpenReschedule,
+  openCompleteId,
+  openRescheduleId,
+  completeForm,
+  setCompleteForm,
+  rescheduleForm,
+  setRescheduleForm,
+  onSubmitComplete,
+  onSubmitReschedule,
+  onCloseInlineForms,
+  formatDate,
+  formatTime,
+  formatAppointmentType,
+}) {
+  const isCompleteOpen = openCompleteId === item.id;
+  const isRescheduleOpen = openRescheduleId === item.id;
+
+  const status = String(item.status || "").toLowerCase();
+  const canComplete = status === "scheduled";
+  const canCancel = status === "scheduled";
+  const canNoShow = status === "scheduled";
+  const canReschedule = ["scheduled", "cancelled", "no_show"].includes(status);
+
+  return (
+    <>
+      <tr>
+        <td>
+          <span className="fw-semibold">#{item.id}</span>
+        </td>
+
+        <td>
+          <div className="fw-semibold">
+            {item.patient?.id ? (
+              <Link
+                to={`/admin/erp/patients/${item.patient.id}/profile`}
+                className="text-decoration-none"
+              >
+                {item.patient?.name || "-"}
+              </Link>
+            ) : (
+              item.patient?.name || "-"
+            )}
+          </div>
+          <div className="small text-muted">{item.patient?.email || "-"}</div>
+        </td>
+
+        <td>{item.doctor?.name || item.doctor_name || "-"}</td>
+        <td>{formatDate(item.appointment_date)}</td>
+        <td>{formatTime(item.appointment_time)}</td>
+        <td>{formatAppointmentType(item.appointment_type)}</td>
+        <td>
+          <StatusBadge status={item.status} />
+        </td>
+        <td>{item.notes || "-"}</td>
+
+        <td>
+          <div className="d-flex flex-wrap gap-2">
+            {item.patient?.id ? (
+              <Link
+                to={`/admin/erp/patients/${item.patient.id}/profile`}
+                className="btn btn-sm btn-outline-primary"
+              >
+                Patient
+              </Link>
+            ) : null}
+
+            <Link
+              to={`/admin/erp/appointments/${item.id}/activity`}
+              className="btn btn-sm btn-outline-secondary"
+            >
+              Activity
+            </Link>
+
+            {canCancel ? (
+              <button
+                className="btn btn-sm btn-outline-danger"
+                onClick={() => onCancel(item)}
+                disabled={actingId === `/erp/appointments/${item.id}/cancel`}
+              >
+                Cancel
+              </button>
+            ) : null}
+
+            {canNoShow ? (
+              <button
+                className="btn btn-sm btn-outline-warning"
+                onClick={() => onNoShow(item)}
+                disabled={actingId === `/erp/appointments/${item.id}/no-show`}
+              >
+                No Show
+              </button>
+            ) : null}
+
+            {canComplete ? (
+              <button
+                className="btn btn-sm btn-outline-success"
+                onClick={() => onOpenComplete(item)}
+              >
+                Complete
+              </button>
+            ) : null}
+
+            {canReschedule ? (
+              <button
+                className="btn btn-sm btn-outline-info"
+                onClick={() => onOpenReschedule(item)}
+              >
+                Reschedule
+              </button>
+            ) : null}
+          </div>
+        </td>
+      </tr>
+
+      {isCompleteOpen ? (
+        <tr>
+          <td colSpan="9" className="bg-light">
+            <div className="p-3">
+              <div className="fw-semibold mb-2">Complete Appointment</div>
+
+              <div className="alert alert-light border py-2 small">
+                This appointment will be completed based on its type.
+                Consultation appointments will use the existing consultation
+                invoice. Treatment appointments will create a billing record for
+                the linked started procedure only.
+              </div>
+
+              <div className="row g-3 align-items-end">
+                <div className="col-12 col-md-4">
+                  <label className="form-label fw-semibold">Doctor Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={completeForm.doctor_name}
+                    onChange={(e) =>
+                      setCompleteForm((prev) => ({
+                        ...prev,
+                        doctor_name: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div className="col-12 col-md-4">
+                  <label className="form-label fw-semibold">
+                    Appointment Type
+                  </label>
+                  <div className="form-control bg-light">
+                    {formatAppointmentType(item.appointment_type)}
+                  </div>
+                </div>
+
+                <div className="col-12 col-md-4 d-flex gap-2">
+                  <button
+                    className="btn btn-success"
+                    onClick={() => onSubmitComplete(item.id)}
+                    disabled={actingId === `complete-${item.id}`}
+                    type="button"
+                  >
+                    {actingId === `complete-${item.id}`
+                      ? "Completing..."
+                      : "Confirm Complete"}
+                  </button>
+
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={onCloseInlineForms}
+                    type="button"
+                  >
+                    Close
+                  </button>
+                </div>
+
+                <div className="col-12">
+                  <label className="form-label fw-semibold">Notes</label>
+                  <textarea
+                    className="form-control"
+                    rows="2"
+                    value={completeForm.notes}
+                    onChange={(e) =>
+                      setCompleteForm((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      ) : null}
+
+      {isRescheduleOpen ? (
+        <tr>
+          <td colSpan="9" className="bg-light">
+            <div className="p-3">
+              <div className="fw-semibold mb-3">Reschedule Appointment</div>
+              <div className="row g-3 align-items-end">
+                <div className="col-12 col-md-3">
+                  <label className="form-label fw-semibold">Date</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={rescheduleForm.appointment_date}
+                    onChange={(e) =>
+                      setRescheduleForm((prev) => ({
+                        ...prev,
+                        appointment_date: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div className="col-12 col-md-3">
+                  <label className="form-label fw-semibold">Time</label>
+                  <input
+                    type="time"
+                    className="form-control"
+                    value={rescheduleForm.appointment_time}
+                    onChange={(e) =>
+                      setRescheduleForm((prev) => ({
+                        ...prev,
+                        appointment_time: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div className="col-12 col-md-3">
+                  <label className="form-label fw-semibold">Doctor</label>
+                  <select
+                    className="form-select"
+                    value={rescheduleForm.doctor_id}
+                    onChange={(e) =>
+                      setRescheduleForm((prev) => ({
+                        ...prev,
+                        doctor_id: e.target.value,
+                      }))
+                    }
+                  >
+                    <option value="">Select doctor</option>
+                    {doctors.map((doctor) => (
+                      <option key={doctor.id} value={doctor.id}>
+                        {doctor.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="col-12 col-md-3 d-flex gap-2">
+                  <button
+                    className="btn btn-info text-white"
+                    onClick={() => onSubmitReschedule(item.id)}
+                    disabled={actingId === `reschedule-${item.id}`}
+                    type="button"
+                  >
+                    {actingId === `reschedule-${item.id}`
+                      ? "Saving..."
+                      : "Confirm"}
+                  </button>
+
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={onCloseInlineForms}
+                    type="button"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      ) : null}
+    </>
+  );
+}
+
+function StatusBadge({ status }) {
+  const value = String(status || "").toLowerCase();
+  let cls = "secondary";
+
+  if (["completed"].includes(value)) cls = "success";
+  else if (["cancelled", "no_show"].includes(value)) cls = "danger";
+  else if (["scheduled"].includes(value)) cls = "warning";
+  else if (["in_progress"].includes(value)) cls = "info";
+
+  return <span className={`badge bg-${cls}`}>{status}</span>;
 }

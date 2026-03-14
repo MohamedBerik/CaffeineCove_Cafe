@@ -611,7 +611,11 @@ export default function TreatmentPlanDetailsPage() {
                                 <td>{item.notes || "-"}</td>
                                 <td>
                                   <div className="d-flex flex-wrap gap-2">
-                                    {itemStatus === "pending" ? (
+                                    {["planned", "pending"].includes(
+                                      itemStatus,
+                                    ) &&
+                                    !item.appointment_id &&
+                                    getRemainingSessions(item) > 0 ? (
                                       <button
                                         className="btn btn-sm btn-outline-success"
                                         type="button"

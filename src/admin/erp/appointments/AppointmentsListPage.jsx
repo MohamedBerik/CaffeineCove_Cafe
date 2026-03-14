@@ -132,8 +132,12 @@ export default function AppointmentsListPage() {
       const matchesStatus =
         !statusFilter || status === statusFilter.toLowerCase();
 
-      const matchesDate =
-        !dateFilter || String(item.appointment_date || "") === dateFilter;
+      const normalizedItemDate = String(item.appointment_date || "").slice(
+        0,
+        10,
+      );
+
+      const matchesDate = !dateFilter || normalizedItemDate === dateFilter;
 
       return matchesSearch && matchesStatus && matchesDate;
     });

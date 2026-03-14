@@ -94,10 +94,7 @@ export default function PatientsList() {
           >
             New Patient
           </Link>
-          <Link to="/admin/erp/visits/start" className="btn btn-success btn-sm">
-            <i className="fas fa-stethoscope me-1"></i>
-            Start Visit
-          </Link>
+
           <button className="btn btn-primary" onClick={loadPatients}>
             Refresh
           </button>

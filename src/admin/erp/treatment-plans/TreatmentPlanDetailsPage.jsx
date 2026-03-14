@@ -565,6 +565,7 @@ export default function TreatmentPlanDetailsPage() {
                         <th>Surface</th>
                         <th>Price</th>
                         <th>Sessions</th>
+                        <th>Remaining Sessions</th>
                         <th>Status</th>
                         <th>Notes</th>
                         <th>Actions</th>

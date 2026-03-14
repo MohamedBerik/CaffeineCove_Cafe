@@ -613,9 +613,7 @@ export default function TreatmentPlanDetailsPage() {
                                   <div className="d-flex flex-wrap gap-2">
                                     {["planned", "pending"].includes(
                                       itemStatus,
-                                    ) &&
-                                    !item.appointment_id &&
-                                    getRemainingSessions(item) > 0 ? (
+                                    ) && !item.appointment_id ? (
                                       <button
                                         className="btn btn-sm btn-outline-success"
                                         type="button"
@@ -624,7 +622,6 @@ export default function TreatmentPlanDetailsPage() {
                                         Start Procedure
                                       </button>
                                     ) : null}
-
                                     {itemStatus === "in_progress" &&
                                     item.appointment_id ? (
                                       <Link

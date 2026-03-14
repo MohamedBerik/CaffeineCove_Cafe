@@ -192,7 +192,20 @@ export default function BookAppointmentPage() {
         notes: form.notes || null,
       };
 
-      await axios.post("/erp/appointments/book", payload);
+      const res = await axios.post("/erp/appointments/book", payload);
+
+      const createdAppointmentId =
+        res?.data?.data?.id ||
+        res?.data?.appointment_id ||
+        res?.data?.data?.appointment?.id ||
+        null;
+
+      if (createdAppointmentId) {
+        navigate(
+          `/admin/erp/appointments?appointment_id=${createdAppointmentId}`,
+        );
+        return;
+      }
 
       navigate("/admin/erp/appointments");
     } catch (err) {

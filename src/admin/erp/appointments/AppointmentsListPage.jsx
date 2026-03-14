@@ -102,7 +102,7 @@ export default function AppointmentsListPage() {
   const filteredRows = useMemo(() => {
     const q = search.trim().toLowerCase();
 
-    return rows.filter((item) => {
+    const result = rows.filter((item) => {
       const id = String(item.id || "").toLowerCase();
       const patientName = String(item.patient?.name || "").toLowerCase();
       const patientEmail = String(item.patient?.email || "").toLowerCase();
@@ -137,7 +137,20 @@ export default function AppointmentsListPage() {
 
       return matchesSearch && matchesStatus && matchesDate;
     });
-  }, [rows, search, statusFilter, dateFilter]);
+
+    return [...result].sort((a, b) => {
+      const aHighlighted =
+        String(a.id) === String(highlightAppointmentId || "") ? 1 : 0;
+      const bHighlighted =
+        String(b.id) === String(highlightAppointmentId || "") ? 1 : 0;
+
+      if (aHighlighted !== bHighlighted) {
+        return bHighlighted - aHighlighted;
+      }
+
+      return Number(b.id || 0) - Number(a.id || 0);
+    });
+  }, [rows, search, statusFilter, dateFilter, highlightAppointmentId]);
 
   const applySearch = async (e) => {
     e.preventDefault();
@@ -456,7 +469,6 @@ export default function AppointmentsListPage() {
                     <AppointmentRow
                       key={item.id}
                       item={item}
-                      highlightAppointmentId={highlightAppointmentId}
                       doctors={doctors}
                       actingId={actingId}
                       onCancel={handleCancel}

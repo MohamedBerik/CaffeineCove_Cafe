@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "../../../services/axios";
 
 export default function AppointmentsListPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const highlightAppointmentId = searchParams.get("appointment_id") || "";
 
   const [rows, setRows] = useState([]);
   const [meta, setMeta] = useState(null);
@@ -13,16 +16,11 @@ export default function AppointmentsListPage() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
 
   const [actionError, setActionError] = useState("");
   const [actionSuccess, setActionSuccess] = useState("");
   const [actingId, setActingId] = useState(null);
-
-  const [openCompleteId, setOpenCompleteId] = useState(null);
-  const [completeForm, setCompleteForm] = useState({
-    doctor_name: "",
-    notes: "",
-  });
 
   const [openRescheduleId, setOpenRescheduleId] = useState(null);
   const [rescheduleForm, setRescheduleForm] = useState({
@@ -134,9 +132,12 @@ export default function AppointmentsListPage() {
       const matchesStatus =
         !statusFilter || status === statusFilter.toLowerCase();
 
-      return matchesSearch && matchesStatus;
+      const matchesDate =
+        !dateFilter || String(item.appointment_date || "") === dateFilter;
+
+      return matchesSearch && matchesStatus && matchesDate;
     });
-  }, [rows, search, statusFilter]);
+  }, [rows, search, statusFilter, dateFilter]);
 
   const applySearch = async (e) => {
     e.preventDefault();
@@ -195,36 +196,23 @@ export default function AppointmentsListPage() {
     );
   };
 
-  const openCompleteFormFor = (item) => {
-    clearActionMessages();
-    setOpenRescheduleId(null);
-    setOpenCompleteId(item.id);
-    setCompleteForm({
-      doctor_name: item.doctor?.name || item.doctor_name || "",
-      notes: item.notes || "",
-    });
-  };
+  const handleComplete = async (item) => {
+    const typeLabel = formatAppointmentType(item.appointment_type);
+    const ok = window.confirm(
+      `Complete this ${typeLabel.toLowerCase()} appointment?`,
+    );
+    if (!ok) return;
 
-  const submitComplete = async (appointmentId) => {
     try {
       clearActionMessages();
-      setActingId(`complete-${appointmentId}`);
+      setActingId(`complete-${item.id}`);
 
-      const payload = {
-        doctor_name: completeForm.doctor_name || null,
-        notes: completeForm.notes || null,
-      };
-
-      const res = await axios.post(
-        `/erp/appointments/${appointmentId}/complete`,
-        payload,
-      );
+      const res = await axios.post(`/erp/appointments/${item.id}/complete`, {});
 
       const invoiceId = res?.data?.invoice_id || null;
 
       setActionSuccess(res?.data?.msg || "Appointment completed successfully.");
 
-      closeInlineForms();
       await loadAll();
 
       if (invoiceId) {
@@ -255,7 +243,6 @@ export default function AppointmentsListPage() {
 
   const openRescheduleFormFor = (item) => {
     clearActionMessages();
-    setOpenCompleteId(null);
     setOpenRescheduleId(item.id);
     setRescheduleForm({
       appointment_date: item.appointment_date || "",
@@ -301,12 +288,7 @@ export default function AppointmentsListPage() {
   };
 
   const closeInlineForms = () => {
-    setOpenCompleteId(null);
     setOpenRescheduleId(null);
-    setCompleteForm({
-      doctor_name: "",
-      notes: "",
-    });
     setRescheduleForm({
       appointment_date: "",
       appointment_time: "",
@@ -317,6 +299,7 @@ export default function AppointmentsListPage() {
   const clearFilters = () => {
     setSearch("");
     setStatusFilter("");
+    setDateFilter("");
   };
 
   if (loading) {
@@ -381,7 +364,7 @@ export default function AppointmentsListPage() {
       <div className="card shadow-sm border-0 mb-4">
         <div className="card-body">
           <form className="row g-3 align-items-end" onSubmit={applySearch}>
-            <div className="col-12 col-lg-5">
+            <div className="col-12 col-lg-4">
               <label className="form-label fw-semibold">Search</label>
               <input
                 type="text"
@@ -389,6 +372,16 @@ export default function AppointmentsListPage() {
                 placeholder="ID, patient, doctor, date, time, status, type, notes..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            <div className="col-12 col-lg-3">
+              <label className="form-label fw-semibold">Date</label>
+              <input
+                type="date"
+                className="form-control"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
               />
             </div>
 
@@ -404,19 +397,18 @@ export default function AppointmentsListPage() {
                 <option value="completed">Completed</option>
                 <option value="cancelled">Cancelled</option>
                 <option value="no_show">No Show</option>
-                <option value="in_progress">In Progress</option>
               </select>
             </div>
 
-            <div className="col-12 col-lg-2">
-              <label className="form-label fw-semibold">Total Loaded</label>
+            <div className="col-12 col-lg-1">
+              <label className="form-label fw-semibold">Loaded</label>
               <div className="form-control bg-light">
                 {meta?.total ?? rows.length}
               </div>
             </div>
 
-            <div className="col-12 col-lg-2">
-              <label className="form-label fw-semibold">Filtered</label>
+            <div className="col-12 col-lg-1">
+              <label className="form-label fw-semibold">Shown</label>
               <div className="form-control bg-light">{filteredRows.length}</div>
             </div>
 
@@ -448,7 +440,7 @@ export default function AppointmentsListPage() {
               <table className="table table-hover align-middle mb-0">
                 <thead className="table-light">
                   <tr>
-                    <th style={{ minWidth: 90 }}>ID</th>
+                    <th style={{ minWidth: 110 }}>ID</th>
                     <th style={{ minWidth: 180 }}>Patient</th>
                     <th style={{ minWidth: 180 }}>Doctor</th>
                     <th style={{ minWidth: 130 }}>Date</th>
@@ -468,20 +460,17 @@ export default function AppointmentsListPage() {
                       actingId={actingId}
                       onCancel={handleCancel}
                       onNoShow={handleNoShow}
-                      onOpenComplete={openCompleteFormFor}
+                      onComplete={handleComplete}
                       onOpenReschedule={openRescheduleFormFor}
-                      openCompleteId={openCompleteId}
                       openRescheduleId={openRescheduleId}
-                      completeForm={completeForm}
-                      setCompleteForm={setCompleteForm}
                       rescheduleForm={rescheduleForm}
                       setRescheduleForm={setRescheduleForm}
-                      onSubmitComplete={submitComplete}
                       onSubmitReschedule={submitReschedule}
                       onCloseInlineForms={closeInlineForms}
                       formatDate={formatDate}
                       formatTime={formatTime}
                       formatAppointmentType={formatAppointmentType}
+                      highlightAppointmentId={highlightAppointmentId}
                     />
                   ))}
                 </tbody>
@@ -500,23 +489,21 @@ function AppointmentRow({
   actingId,
   onCancel,
   onNoShow,
-  onOpenComplete,
+  onComplete,
   onOpenReschedule,
-  openCompleteId,
   openRescheduleId,
-  completeForm,
-  setCompleteForm,
   rescheduleForm,
   setRescheduleForm,
-  onSubmitComplete,
   onSubmitReschedule,
   onCloseInlineForms,
   formatDate,
   formatTime,
   formatAppointmentType,
+  highlightAppointmentId,
 }) {
-  const isCompleteOpen = openCompleteId === item.id;
   const isRescheduleOpen = openRescheduleId === item.id;
+  const isHighlighted =
+    String(item.id) === String(highlightAppointmentId || "");
 
   const status = String(item.status || "").toLowerCase();
   const canComplete = status === "scheduled";
@@ -526,9 +513,12 @@ function AppointmentRow({
 
   return (
     <>
-      <tr>
+      <tr
+        className={isHighlighted ? "table-warning" : ""}
+        style={isHighlighted ? { boxShadow: "inset 4px 0 0 #ffc107" } : {}}
+      >
         <td>
-          <span className="fw-semibold">#{item.id}</span>
+          <span className="fw-semibold">APT-{item.id}</span>
         </td>
 
         <td>
@@ -597,9 +587,12 @@ function AppointmentRow({
             {canComplete ? (
               <button
                 className="btn btn-sm btn-outline-success"
-                onClick={() => onOpenComplete(item)}
+                onClick={() => onComplete(item)}
+                disabled={actingId === `complete-${item.id}`}
               >
-                Complete
+                {actingId === `complete-${item.id}`
+                  ? "Completing..."
+                  : "Complete"}
               </button>
             ) : null}
 
@@ -614,85 +607,6 @@ function AppointmentRow({
           </div>
         </td>
       </tr>
-
-      {isCompleteOpen ? (
-        <tr>
-          <td colSpan="9" className="bg-light">
-            <div className="p-3">
-              <div className="fw-semibold mb-2">Complete Appointment</div>
-
-              <div className="alert alert-light border py-2 small">
-                This appointment will be completed based on its type.
-                Consultation appointments will use the existing consultation
-                invoice. Treatment appointments will create a billing record for
-                the linked started procedure only.
-              </div>
-
-              <div className="row g-3 align-items-end">
-                <div className="col-12 col-md-4">
-                  <label className="form-label fw-semibold">Doctor Name</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={completeForm.doctor_name}
-                    onChange={(e) =>
-                      setCompleteForm((prev) => ({
-                        ...prev,
-                        doctor_name: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-
-                <div className="col-12 col-md-4">
-                  <label className="form-label fw-semibold">
-                    Appointment Type
-                  </label>
-                  <div className="form-control bg-light">
-                    {formatAppointmentType(item.appointment_type)}
-                  </div>
-                </div>
-
-                <div className="col-12 col-md-4 d-flex gap-2">
-                  <button
-                    className="btn btn-success"
-                    onClick={() => onSubmitComplete(item.id)}
-                    disabled={actingId === `complete-${item.id}`}
-                    type="button"
-                  >
-                    {actingId === `complete-${item.id}`
-                      ? "Completing..."
-                      : "Confirm Complete"}
-                  </button>
-
-                  <button
-                    className="btn btn-outline-secondary"
-                    onClick={onCloseInlineForms}
-                    type="button"
-                  >
-                    Close
-                  </button>
-                </div>
-
-                <div className="col-12">
-                  <label className="form-label fw-semibold">Notes</label>
-                  <textarea
-                    className="form-control"
-                    rows="2"
-                    value={completeForm.notes}
-                    onChange={(e) =>
-                      setCompleteForm((prev) => ({
-                        ...prev,
-                        notes: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-          </td>
-        </tr>
-      ) : null}
 
       {isRescheduleOpen ? (
         <tr>
@@ -787,7 +701,6 @@ function StatusBadge({ status }) {
   if (["completed"].includes(value)) cls = "success";
   else if (["cancelled", "no_show"].includes(value)) cls = "danger";
   else if (["scheduled"].includes(value)) cls = "warning";
-  else if (["in_progress"].includes(value)) cls = "info";
 
   return <span className={`badge bg-${cls}`}>{status}</span>;
 }

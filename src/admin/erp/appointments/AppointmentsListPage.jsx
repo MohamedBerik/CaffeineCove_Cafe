@@ -456,6 +456,7 @@ export default function AppointmentsListPage() {
                     <AppointmentRow
                       key={item.id}
                       item={item}
+                      highlightAppointmentId={highlightAppointmentId}
                       doctors={doctors}
                       actingId={actingId}
                       onCancel={handleCancel}

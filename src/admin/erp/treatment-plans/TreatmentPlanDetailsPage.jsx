@@ -21,6 +21,7 @@ export default function TreatmentPlanDetailsPage() {
     surface: "",
     notes: "",
     price: "",
+    planned_sessions: 1,
   });
 
   const [savingItem, setSavingItem] = useState(false);
@@ -115,6 +116,7 @@ export default function TreatmentPlanDetailsPage() {
         tooth_number: itemForm.tooth_number || null,
         surface: itemForm.surface || null,
         notes: itemForm.notes || null,
+        planned_sessions: Number(itemForm.planned_sessions || 1),
       };
 
       if (itemForm.price !== "") {
@@ -504,6 +506,18 @@ export default function TreatmentPlanDetailsPage() {
                   />
                 </div>
 
+                <div className="col-12 col-md-2">
+                  <label className="form-label fw-semibold">Sessions</label>
+                  <input
+                    type="number"
+                    min="1"
+                    className="form-control"
+                    name="planned_sessions"
+                    value={itemForm.planned_sessions}
+                    onChange={handleItemChange}
+                  />
+                </div>
+
                 <div className="col-12 col-md-2 d-grid">
                   <label className="form-label fw-semibold invisible">
                     Add
@@ -550,6 +564,7 @@ export default function TreatmentPlanDetailsPage() {
                         <th>Tooth</th>
                         <th>Surface</th>
                         <th>Price</th>
+                        <th>Sessions</th>
                         <th>Status</th>
                         <th>Notes</th>
                         <th>Actions</th>
@@ -575,6 +590,20 @@ export default function TreatmentPlanDetailsPage() {
                                 <td>{item.tooth_number || "-"}</td>
                                 <td>{item.surface || "-"}</td>
                                 <td>{money(item.price)}</td>
+
+                                <td>
+                                  <span className="fw-semibold">
+                                    {item.completed_sessions || 0}
+                                  </span>
+                                  /{item.planned_sessions || 1}
+                                </td>
+                                <td>
+                                  {Math.max(
+                                    (item.planned_sessions || 1) -
+                                      (item.completed_sessions || 0),
+                                    0,
+                                  )}
+                                </td>
                                 <td>
                                   <ProcedureStatusBadge status={item.status} />
                                 </td>

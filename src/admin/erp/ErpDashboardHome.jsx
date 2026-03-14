@@ -128,10 +128,10 @@ export default function ErpDashboardHome() {
       </div>
 
       <div className="d-flex flex-wrap gap-2 mt-3 mb-4">
-        <Link to="/admin/erp/visits/start" className="btn btn-success btn-sm">
+        {/* <Link to="/admin/erp/visits/start" className="btn btn-success btn-sm">
           <i className="fas fa-stethoscope me-1"></i>
           Start Visit
-        </Link>
+        </Link> */}
 
         {/* <Link
           to="/admin/erp/appointments/create"

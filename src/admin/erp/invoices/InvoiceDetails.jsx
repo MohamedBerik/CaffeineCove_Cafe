@@ -95,6 +95,11 @@ export default function InvoiceDetails() {
     [payments],
   );
 
+  const totalCreditIssued = useMemo(
+    () => payments.reduce((sum, p) => sum + Number(p.credit_amount || 0), 0),
+    [payments],
+  );
+
   const totalRefunded = useMemo(
     () =>
       payments.reduce(
@@ -106,9 +111,13 @@ export default function InvoiceDetails() {
     [payments],
   );
 
+  // const netPaid = grossPaid - totalRefunded;
+  // const remaining = Math.max(Number(invoice?.total || 0) - netPaid, 0);
+  // const overpaid = Math.max(netPaid - Number(invoice?.total || 0), 0);
+
   const netPaid = grossPaid - totalRefunded;
   const remaining = Math.max(Number(invoice?.total || 0) - netPaid, 0);
-  const overpaid = Math.max(netPaid - Number(invoice?.total || 0), 0);
+  const overpaid = totalCreditIssued;
 
   const customerId = invoice?.customer_id;
   const appointmentId = invoice?.appointment_id;

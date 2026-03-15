@@ -91,7 +91,12 @@ export default function InvoiceDetails() {
   }, [payments]);
 
   const grossPaid = useMemo(
-    () => payments.reduce((sum, p) => sum + Number(p.amount || 0), 0),
+    () => payments.reduce((sum, p) => sum + Number(p.applied_amount || 0), 0),
+    [payments],
+  );
+
+  const totalCreditIssued = useMemo(
+    () => payments.reduce((sum, p) => sum + Number(p.credit_amount || 0), 0),
     [payments],
   );
 
@@ -106,9 +111,13 @@ export default function InvoiceDetails() {
     [payments],
   );
 
+  // const netPaid = grossPaid - totalRefunded;
+  // const remaining = Math.max(Number(invoice?.total || 0) - netPaid, 0);
+  // const overpaid = Math.max(netPaid - Number(invoice?.total || 0), 0);
+
   const netPaid = grossPaid - totalRefunded;
   const remaining = Math.max(Number(invoice?.total || 0) - netPaid, 0);
-  const overpaid = Math.max(netPaid - Number(invoice?.total || 0), 0);
+  const overpaid = totalCreditIssued;
 
   const customerId = invoice?.customer_id;
   const appointmentId = invoice?.appointment_id;
@@ -133,6 +142,7 @@ export default function InvoiceDetails() {
       await api.post(`/erp/invoices/${id}/payments`, {
         amount: Number(payForm.amount),
         method: payForm.method,
+        allow_overpayment: true,
       });
 
       setActionSuccess("Payment recorded successfully.");

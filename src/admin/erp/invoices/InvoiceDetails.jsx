@@ -90,34 +90,27 @@ export default function InvoiceDetails() {
     );
   }, [payments]);
 
-  const grossPaid = useMemo(
-    () => payments.reduce((sum, p) => sum + Number(p.applied_amount || 0), 0),
-    [payments],
+  // ✅ اعتمد على الباك إند مباشرة
+  const directPaid = Number(invoice?.total_paid || 0);
+  const totalRefunded = Number(invoice?.total_refunded || 0);
+  const totalCreditApplied = Number(invoice?.total_credit_applied || 0);
+  const netPaid = Number(invoice?.net_paid || 0);
+  const remaining = Number(invoice?.remaining || 0);
+
+  // credit generated from overpayments on this invoice only
+  const overpaid = Number(invoice?.net_credit || 0);
+
+  // customer's actual remaining balance across all invoices
+  const customerCreditBalance = Number(invoice?.customer_credit_balance || 0);
+
+  // optional informational values
+  const customerCreditIssuedTotal = Number(
+    invoice?.customer_credit_issued_total || 0,
   );
-
-  const totalCreditIssued = useMemo(
-    () => payments.reduce((sum, p) => sum + Number(p.credit_amount || 0), 0),
-    [payments],
+  const customerCreditUsedTotal = Number(
+    invoice?.customer_credit_used_total || 0,
   );
-
-  const totalRefunded = useMemo(
-    () =>
-      payments.reduce(
-        (sum, p) =>
-          sum +
-          (p.refunds || []).reduce((s, r) => s + Number(r.amount || 0), 0),
-        0,
-      ),
-    [payments],
-  );
-
-  // const netPaid = grossPaid - totalRefunded;
-  // const remaining = Math.max(Number(invoice?.total || 0) - netPaid, 0);
-  // const overpaid = Math.max(netPaid - Number(invoice?.total || 0), 0);
-
-  const netPaid = grossPaid - totalRefunded;
-  const remaining = Math.max(Number(invoice?.total || 0) - netPaid, 0);
-  const overpaid = totalCreditIssued;
+  const cashReceived = Number(invoice?.cash_received || 0);
 
   const customerId = invoice?.customer_id;
   const appointmentId = invoice?.appointment_id;
@@ -316,11 +309,30 @@ export default function InvoiceDetails() {
           value={money(invoice.total)}
           color="primary"
         />
-        <KpiCard title="Gross Paid" value={money(grossPaid)} color="success" />
+        <KpiCard
+          title="Direct Paid"
+          value={money(directPaid)}
+          color="success"
+        />
+        <KpiCard
+          title="Credit Applied"
+          value={money(totalCreditApplied)}
+          color="secondary"
+        />
         <KpiCard title="Refunded" value={money(totalRefunded)} color="danger" />
         <KpiCard title="Net Paid" value={money(netPaid)} color="info" />
         <KpiCard title="Remaining" value={money(remaining)} color="warning" />
-        <KpiCard title="Overpaid" value={money(overpaid)} color="secondary" />
+        <KpiCard title="Invoice Credit" value={money(overpaid)} color="dark" />
+        <KpiCard
+          title="Customer Credit Balance"
+          value={money(customerCreditBalance)}
+          color="primary"
+        />
+        <KpiCard
+          title="Cash Received"
+          value={money(cashReceived)}
+          color="success"
+        />
       </div>
 
       <div className="row g-4">
@@ -371,6 +383,16 @@ export default function InvoiceDetails() {
                   >
                     {payLoading ? "Processing..." : "Receive Payment"}
                   </button>
+                </div>
+
+                <div className="col-12">
+                  <div className="alert alert-light border mb-0 py-2">
+                    <div className="small">
+                      Any available customer credit is applied automatically
+                      when the invoice is created. Any extra payment above
+                      remaining becomes new customer credit.
+                    </div>
+                  </div>
                 </div>
               </form>
             </div>
@@ -435,6 +457,7 @@ export default function InvoiceDetails() {
                         <th>ID</th>
                         <th>Amount</th>
                         <th>Applied</th>
+                        <th>Credit</th>
                         <th>Method</th>
                         <th>Paid At</th>
                       </tr>
@@ -445,6 +468,7 @@ export default function InvoiceDetails() {
                           <td>#{payment.id}</td>
                           <td>{money(payment.amount)}</td>
                           <td>{money(payment.applied_amount)}</td>
+                          <td>{money(payment.credit_amount)}</td>
                           <td className="text-capitalize">
                             {payment.method || "-"}
                           </td>
@@ -476,15 +500,13 @@ export default function InvoiceDetails() {
               ) : (
                 <div className="row g-3">
                   {payments.map((payment) => {
-                    const refundedAmount = (payment.refunds || []).reduce(
-                      (sum, r) => sum + Number(r.amount || 0),
-                      0,
+                    const refundableInvoice = Number(
+                      payment.available_invoice_refund || 0,
                     );
-
-                    const refundable = Math.max(
-                      Number(payment.amount || 0) - refundedAmount,
-                      0,
+                    const refundableCredit = Number(
+                      payment.available_credit_refund || 0,
                     );
+                    const refundable = refundableInvoice + refundableCredit;
 
                     return (
                       <div className="col-12" key={payment.id}>
@@ -504,9 +526,14 @@ export default function InvoiceDetails() {
 
                             <div className="text-end">
                               <div>Amount: {money(payment.amount)}</div>
-                              <div>Refunded: {money(refundedAmount)}</div>
+                              <div>
+                                Invoice Refundable: {money(refundableInvoice)}
+                              </div>
+                              <div>
+                                Credit Refundable: {money(refundableCredit)}
+                              </div>
                               <div className="fw-semibold">
-                                Refundable: {money(refundable)}
+                                Total Refundable: {money(refundable)}
                               </div>
                             </div>
                           </div>
@@ -559,6 +586,7 @@ export default function InvoiceDetails() {
                                     <tr>
                                       <th>ID</th>
                                       <th>Amount</th>
+                                      <th>Type</th>
                                       <th>Refunded At</th>
                                     </tr>
                                   </thead>
@@ -567,6 +595,7 @@ export default function InvoiceDetails() {
                                       <tr key={refund.id}>
                                         <td>#{refund.id}</td>
                                         <td>{money(refund.amount)}</td>
+                                        <td>{refund.applies_to || "-"}</td>
                                         <td>
                                           {formatDateTime(
                                             refund.refunded_at ||
@@ -606,6 +635,7 @@ export default function InvoiceDetails() {
                         <th>ID</th>
                         <th>Payment ID</th>
                         <th>Amount</th>
+                        <th>Type</th>
                         <th>Refunded At</th>
                       </tr>
                     </thead>
@@ -615,6 +645,7 @@ export default function InvoiceDetails() {
                           <td>#{refund.id}</td>
                           <td>#{refund.payment_id}</td>
                           <td>{money(refund.amount)}</td>
+                          <td>{refund.applies_to || "-"}</td>
                           <td>
                             {formatDateTime(
                               refund.refunded_at || refund.created_at,
@@ -631,6 +662,30 @@ export default function InvoiceDetails() {
         </div>
 
         <div className="col-12 col-xl-6">
+          <div className="card shadow-sm border-0 h-100">
+            <div className="card-header bg-white">
+              <h5 className="mb-0">Customer Credit Summary</h5>
+            </div>
+            <div className="card-body">
+              <div className="row g-3">
+                <InfoItem
+                  label="Credit Issued Total"
+                  value={money(customerCreditIssuedTotal)}
+                />
+                <InfoItem
+                  label="Credit Used Total"
+                  value={money(customerCreditUsedTotal)}
+                />
+                <InfoItem
+                  label="Current Credit Balance"
+                  value={money(customerCreditBalance)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-12">
           <div className="card shadow-sm border-0 h-100">
             <div className="card-header bg-white">
               <h5 className="mb-0">Journal Entries</h5>

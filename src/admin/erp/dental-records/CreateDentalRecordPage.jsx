@@ -135,8 +135,8 @@ export default function CreateDentalRecordPage() {
       const res = await axios.post("/erp/dental-records", payload);
       const created = res.data?.data || null;
 
-      setCreatedRecord(created);
-      setSuccess("Dental record created successfully.");
+      navigate("/admin/erp/dental-records");
+      return;
     } catch (err) {
       const errors = err?.response?.data?.errors;
       if (errors) {
@@ -183,14 +183,14 @@ export default function CreateDentalRecordPage() {
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        {/* <div className="d-flex gap-2">
           <Link
             to="/admin/erp/dental-records"
             className="btn btn-outline-secondary"
           >
             Back to Dental Records
           </Link>
-        </div>
+        </div> */}
       </div>
 
       {error ? <div className="alert alert-danger">{error}</div> : null}
@@ -388,14 +388,14 @@ export default function CreateDentalRecordPage() {
                 Cancel
               </Link>
 
-              {!createdRecord && form.customer_id ? (
+              {/* {!createdRecord && form.customer_id ? (
                 <Link
                   to={`/admin/erp/treatment-plans/create?customer_id=${form.customer_id}`}
                   className="btn btn-outline-primary"
                 >
                   Skip to Treatment Plan
                 </Link>
-              ) : null}
+              ) : null} */}
             </div>
           </form>
         </div>

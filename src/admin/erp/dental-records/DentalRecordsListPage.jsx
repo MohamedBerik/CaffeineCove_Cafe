@@ -3,6 +3,10 @@ import { Link, useSearchParams } from "react-router-dom";
 import axios from "../../../services/axios";
 
 export default function DentalRecordsListPage() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const highlightRecordId = searchParams.get("record_id") || "";
+
   const [rows, setRows] = useState([]);
   const [meta, setMeta] = useState(null);
   const [plans, setPlans] = useState([]);
@@ -16,8 +20,6 @@ export default function DentalRecordsListPage() {
   const [actionMessage, setActionMessage] = useState("");
   const [actionError, setActionError] = useState("");
   const [converting, setConverting] = useState(false);
-  const [searchParams] = useSearchParams();
-  const highlightRecordId = searchParams.get("record_id") || "";
 
   useEffect(() => {
     loadRecordsAndPlans();
@@ -137,11 +139,8 @@ export default function DentalRecordsListPage() {
         },
       );
 
-      setActionMessage(
-        "Dental record converted to treatment plan item successfully.",
-      );
-      await loadRecordsAndPlans();
-      closeConvert();
+      navigate(`/admin/erp/treatment-plans/${selectedPlanId}`);
+      return;
     } catch (err) {
       const errors = err?.response?.data?.errors;
       if (errors) {

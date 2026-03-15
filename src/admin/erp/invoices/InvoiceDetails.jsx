@@ -15,6 +15,7 @@ export default function InvoiceDetails() {
     method: "cash",
   });
   const [payLoading, setPayLoading] = useState(false);
+  const [applyCreditLoading, setApplyCreditLoading] = useState(false);
 
   const [refundForms, setRefundForms] = useState({});
   const [refundLoadingId, setRefundLoadingId] = useState(null);
@@ -90,34 +91,40 @@ export default function InvoiceDetails() {
     );
   }, [payments]);
 
-  const grossPaid = useMemo(
+  const totalApplied = useMemo(
     () => payments.reduce((sum, p) => sum + Number(p.applied_amount || 0), 0),
     [payments],
   );
 
-  const totalCreditIssued = useMemo(
+  const totalCreditIssuedFromPayments = useMemo(
     () => payments.reduce((sum, p) => sum + Number(p.credit_amount || 0), 0),
     [payments],
   );
 
-  const totalRefunded = useMemo(
-    () =>
-      payments.reduce(
-        (sum, p) =>
-          sum +
-          (p.refunds || []).reduce((s, r) => s + Number(r.amount || 0), 0),
-        0,
-      ),
+  const totalRefundedInvoice = useMemo(
+    () => payments.reduce((sum, p) => sum + Number(p.refunded_invoice || 0), 0),
     [payments],
   );
 
-  // const netPaid = grossPaid - totalRefunded;
-  // const remaining = Math.max(Number(invoice?.total || 0) - netPaid, 0);
-  // const overpaid = Math.max(netPaid - Number(invoice?.total || 0), 0);
+  const totalRefundedCredit = useMemo(
+    () => payments.reduce((sum, p) => sum + Number(p.refunded_credit || 0), 0),
+    [payments],
+  );
 
-  const netPaid = grossPaid - totalRefunded;
-  const remaining = Math.max(Number(invoice?.total || 0) - netPaid, 0);
-  const overpaid = totalCreditIssued;
+  const netPaid = Number(
+    invoice?.net_paid ?? totalApplied - totalRefundedInvoice,
+  );
+  const remaining = Number(
+    invoice?.remaining ?? Math.max(Number(invoice?.total || 0) - netPaid, 0),
+  );
+
+  const customerCreditIssuedTotal = Number(
+    invoice?.customer_credit_issued_total || 0,
+  );
+  const customerCreditUsedTotal = Number(
+    invoice?.customer_credit_used_total || 0,
+  );
+  const customerCreditBalance = Number(invoice?.customer_credit_balance || 0);
 
   const customerId = invoice?.customer_id;
   const appointmentId = invoice?.appointment_id;
@@ -166,6 +173,36 @@ export default function InvoiceDetails() {
       }
     } finally {
       setPayLoading(false);
+    }
+  };
+
+  const applyCustomerCredit = async () => {
+    try {
+      setApplyCreditLoading(true);
+      setActionError("");
+      setActionSuccess("");
+
+      const res = await api.post(`/erp/invoices/${id}/apply-credit`);
+
+      setActionSuccess(
+        res?.data?.msg || "Customer credit applied successfully.",
+      );
+
+      await loadInvoice();
+    } catch (err) {
+      const errors = err?.response?.data?.errors;
+      if (errors) {
+        const firstError = Object.values(errors)?.[0]?.[0];
+        setActionError(firstError || "Failed to apply customer credit.");
+      } else {
+        setActionError(
+          err?.response?.data?.message ||
+            err?.response?.data?.msg ||
+            "Failed to apply customer credit.",
+        );
+      }
+    } finally {
+      setApplyCreditLoading(false);
     }
   };
 
@@ -260,7 +297,8 @@ export default function InvoiceDetails() {
         <div>
           <h3 className="fw-bold mb-1">Invoice Details</h3>
           <p className="text-muted mb-0">
-            Review invoice, payments, refunds, and accounting impact
+            Review invoice, payments, refunds, customer credit, and accounting
+            impact
           </p>
         </div>
 
@@ -316,11 +354,38 @@ export default function InvoiceDetails() {
           value={money(invoice.total)}
           color="primary"
         />
-        <KpiCard title="Gross Paid" value={money(grossPaid)} color="success" />
-        <KpiCard title="Refunded" value={money(totalRefunded)} color="danger" />
+        <KpiCard
+          title="Applied Paid"
+          value={money(totalApplied)}
+          color="success"
+        />
+        <KpiCard
+          title="Invoice Refunded"
+          value={money(totalRefundedInvoice)}
+          color="danger"
+        />
         <KpiCard title="Net Paid" value={money(netPaid)} color="info" />
         <KpiCard title="Remaining" value={money(remaining)} color="warning" />
-        <KpiCard title="Overpaid" value={money(overpaid)} color="secondary" />
+        <KpiCard
+          title="Customer Credit Balance"
+          value={money(customerCreditBalance)}
+          color="secondary"
+        />
+        <KpiCard
+          title="Credit Issued"
+          value={money(customerCreditIssuedTotal)}
+          color="dark"
+        />
+        <KpiCard
+          title="Credit Used"
+          value={money(customerCreditUsedTotal)}
+          color="primary"
+        />
+        <KpiCard
+          title="Credit Refunded"
+          value={money(totalRefundedCredit)}
+          color="danger"
+        />
       </div>
 
       <div className="row g-4">
@@ -373,6 +438,33 @@ export default function InvoiceDetails() {
                   </button>
                 </div>
               </form>
+
+              {customerCreditBalance > 0 && remaining > 0 ? (
+                <div className="border rounded p-3 bg-light mt-3">
+                  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div>
+                      <div className="fw-semibold">
+                        Available Customer Credit
+                      </div>
+                      <div className="small text-muted">
+                        The patient has {money(customerCreditBalance)} available
+                        credit that can be applied to this invoice.
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary"
+                      onClick={applyCustomerCredit}
+                      disabled={applyCreditLoading}
+                    >
+                      {applyCreditLoading
+                        ? "Applying Credit..."
+                        : "Apply Customer Credit"}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -435,6 +527,7 @@ export default function InvoiceDetails() {
                         <th>ID</th>
                         <th>Amount</th>
                         <th>Applied</th>
+                        <th>Credit</th>
                         <th>Method</th>
                         <th>Paid At</th>
                       </tr>
@@ -445,6 +538,7 @@ export default function InvoiceDetails() {
                           <td>#{payment.id}</td>
                           <td>{money(payment.amount)}</td>
                           <td>{money(payment.applied_amount)}</td>
+                          <td>{money(payment.credit_amount)}</td>
                           <td className="text-capitalize">
                             {payment.method || "-"}
                           </td>
@@ -504,6 +598,10 @@ export default function InvoiceDetails() {
 
                             <div className="text-end">
                               <div>Amount: {money(payment.amount)}</div>
+                              <div>
+                                Applied: {money(payment.applied_amount)}
+                              </div>
+                              <div>Credit: {money(payment.credit_amount)}</div>
                               <div>Refunded: {money(refundedAmount)}</div>
                               <div className="fw-semibold">
                                 Refundable: {money(refundable)}
@@ -559,6 +657,7 @@ export default function InvoiceDetails() {
                                     <tr>
                                       <th>ID</th>
                                       <th>Amount</th>
+                                      <th>Applies To</th>
                                       <th>Refunded At</th>
                                     </tr>
                                   </thead>
@@ -567,6 +666,7 @@ export default function InvoiceDetails() {
                                       <tr key={refund.id}>
                                         <td>#{refund.id}</td>
                                         <td>{money(refund.amount)}</td>
+                                        <td>{refund.applies_to || "-"}</td>
                                         <td>
                                           {formatDateTime(
                                             refund.refunded_at ||
@@ -606,6 +706,7 @@ export default function InvoiceDetails() {
                         <th>ID</th>
                         <th>Payment ID</th>
                         <th>Amount</th>
+                        <th>Applies To</th>
                         <th>Refunded At</th>
                       </tr>
                     </thead>
@@ -615,6 +716,7 @@ export default function InvoiceDetails() {
                           <td>#{refund.id}</td>
                           <td>#{refund.payment_id}</td>
                           <td>{money(refund.amount)}</td>
+                          <td>{refund.applies_to || "-"}</td>
                           <td>
                             {formatDateTime(
                               refund.refunded_at || refund.created_at,

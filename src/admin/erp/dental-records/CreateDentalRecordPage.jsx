@@ -135,6 +135,11 @@ export default function CreateDentalRecordPage() {
       const res = await axios.post("/erp/dental-records", payload);
       const created = res.data?.data || null;
 
+      if (created?.id) {
+        navigate(`/admin/erp/dental-records?record_id=${created.id}`);
+        return;
+      }
+
       navigate("/admin/erp/dental-records");
       return;
     } catch (err) {

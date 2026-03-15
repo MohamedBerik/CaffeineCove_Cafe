@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import axios from "../../../services/axios";
 
 export default function DentalRecordsListPage() {
@@ -16,6 +16,8 @@ export default function DentalRecordsListPage() {
   const [actionMessage, setActionMessage] = useState("");
   const [actionError, setActionError] = useState("");
   const [converting, setConverting] = useState(false);
+  const [searchParams] = useSearchParams();
+  const highlightRecordId = searchParams.get("record_id") || "";
 
   useEffect(() => {
     loadRecordsAndPlans();
@@ -60,9 +62,9 @@ export default function DentalRecordsListPage() {
 
   const filteredRows = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return rows;
 
-    return rows.filter((item) => {
+    const result = rows.filter((item) => {
+      const recordId = String(item.id || "").toLowerCase();
       const patientName = String(item.customer?.name || "").toLowerCase();
       const patientEmail = String(item.customer?.email || "").toLowerCase();
       const procedureName = String(item.procedure?.name || "").toLowerCase();
@@ -72,6 +74,7 @@ export default function DentalRecordsListPage() {
       const notes = String(item.notes || "").toLowerCase();
 
       return (
+        recordId.includes(q) ||
         patientName.includes(q) ||
         patientEmail.includes(q) ||
         procedureName.includes(q) ||
@@ -81,7 +84,20 @@ export default function DentalRecordsListPage() {
         notes.includes(q)
       );
     });
-  }, [rows, search]);
+
+    if (!highlightRecordId) return result;
+
+    return [...result].sort((a, b) => {
+      const aHighlighted = String(a.id) === String(highlightRecordId) ? 1 : 0;
+      const bHighlighted = String(b.id) === String(highlightRecordId) ? 1 : 0;
+
+      if (aHighlighted !== bHighlighted) {
+        return bHighlighted - aHighlighted;
+      }
+
+      return Number(b.id || 0) - Number(a.id || 0);
+    });
+  }, [rows, search, highlightRecordId]);
 
   const openConvert = (record) => {
     setOpenConvertId(record.id);
@@ -251,7 +267,19 @@ export default function DentalRecordsListPage() {
 
                     return (
                       <>
-                        <tr key={record.id}>
+                        <tr
+                          key={record.id}
+                          className={
+                            String(record.id) === String(highlightRecordId)
+                              ? "table-warning"
+                              : ""
+                          }
+                          style={
+                            String(record.id) === String(highlightRecordId)
+                              ? { boxShadow: "inset 4px 0 0 #ffc107" }
+                              : {}
+                          }
+                        >
                           <td>
                             <div className="fw-semibold">
                               {record.customer?.name || "-"}

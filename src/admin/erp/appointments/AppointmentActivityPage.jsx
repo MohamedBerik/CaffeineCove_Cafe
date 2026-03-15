@@ -5,29 +5,44 @@ import axios from "../../../services/axios";
 export default function AppointmentActivityPage() {
   const { id } = useParams();
 
+  const [appointment, setAppointment] = useState(null);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    loadActivity();
+    loadPage();
   }, [id]);
 
-  const loadActivity = async () => {
+  const loadPage = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const res = await axios.get(`/erp/appointments/${id}/activity`);
-      const payload = res.data || {};
-      const activityRows = Array.isArray(payload.data) ? payload.data : [];
+      const [appointmentRes, activityRes] = await Promise.all([
+        axios.get(`/erp/appointments/${id}`),
+        axios.get(`/erp/appointments/${id}/activity`),
+      ]);
 
+      const appointmentPayload = appointmentRes.data || {};
+      const activityPayload = activityRes.data || {};
+
+      const appointmentData =
+        appointmentPayload.data ||
+        appointmentPayload.appointment ||
+        appointmentPayload;
+
+      const activityRows = Array.isArray(activityPayload.data)
+        ? activityPayload.data
+        : [];
+
+      setAppointment(appointmentData || null);
       setRows(activityRows);
     } catch (err) {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load appointment activity.",
+          "Failed to load appointment details.",
       );
     } finally {
       setLoading(false);
@@ -44,7 +59,6 @@ export default function AppointmentActivityPage() {
 
   const formatDateTime = (value) => {
     if (!value) return "-";
-
     try {
       return new Date(value).toLocaleString("en-US", {
         year: "numeric",
@@ -58,9 +72,26 @@ export default function AppointmentActivityPage() {
     }
   };
 
+  const formatDate = (value) => {
+    if (!value) return "-";
+    try {
+      return new Date(value).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    } catch {
+      return value;
+    }
+  };
+
+  const formatTime = (value) => {
+    if (!value) return "-";
+    return String(value).slice(0, 5) || "-";
+  };
+
   const parseProperties = (value) => {
     if (!value) return null;
-
     try {
       if (typeof value === "string") {
         return JSON.parse(value);
@@ -73,7 +104,6 @@ export default function AppointmentActivityPage() {
 
   const formatJson = (value) => {
     if (!value) return "-";
-
     try {
       if (typeof value === "string") {
         const parsed = JSON.parse(value);
@@ -116,7 +146,7 @@ export default function AppointmentActivityPage() {
             Back to Appointments
           </Link>
 
-          <button className="btn btn-primary" onClick={loadActivity}>
+          <button className="btn btn-primary" onClick={loadPage}>
             Refresh
           </button>
         </div>
@@ -125,14 +155,62 @@ export default function AppointmentActivityPage() {
       {error ? (
         <div className="alert alert-danger d-flex justify-content-between align-items-center">
           <span>{error}</span>
-          <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={loadActivity}
-          >
+          <button className="btn btn-sm btn-outline-danger" onClick={loadPage}>
             Retry
           </button>
         </div>
       ) : null}
+
+      <div className="card shadow-sm border-0 mb-4">
+        <div className="card-header bg-white">
+          <h5 className="mb-0">Appointment Details</h5>
+        </div>
+        <div className="card-body">
+          {!appointment ? (
+            <div className="text-muted">Appointment details not found.</div>
+          ) : (
+            <div className="row g-3">
+              <InfoItem label="Appointment ID" value={appointment.id} />
+              <InfoItem
+                label="Patient"
+                value={
+                  appointment.patient?.name || appointment.patient_name || "-"
+                }
+              />
+              <InfoItem
+                label="Doctor"
+                value={
+                  appointment.doctor?.name || appointment.doctor_name || "-"
+                }
+              />
+              <InfoItem
+                label="Date"
+                value={formatDate(appointment.appointment_date)}
+              />
+              <InfoItem
+                label="Time"
+                value={formatTime(appointment.appointment_time)}
+              />
+              <InfoItem
+                label="Type"
+                value={appointment.appointment_type || "-"}
+              />
+              <InfoItem
+                label="Status"
+                value={<StatusBadge status={appointment.status} />}
+              />
+              <InfoItem
+                label="Created At"
+                value={formatDateTime(appointment.created_at)}
+              />
+              <div className="col-12">
+                <div className="small text-muted">Notes</div>
+                <div className="fw-semibold">{appointment.notes || "-"}</div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="card shadow-sm border-0">
         <div className="card-header bg-white d-flex justify-content-between align-items-center">
@@ -346,4 +424,15 @@ function shortSubjectType(value) {
   if (!value) return "-";
   const parts = String(value).split("\\");
   return parts[parts.length - 1] || value;
+}
+
+function StatusBadge({ status }) {
+  const value = String(status || "").toLowerCase();
+
+  let cls = "secondary";
+  if (["completed"].includes(value)) cls = "success";
+  else if (["cancelled", "no_show"].includes(value)) cls = "danger";
+  else if (["scheduled"].includes(value)) cls = "warning";
+
+  return <span className={`badge bg-${cls}`}>{status}</span>;
 }

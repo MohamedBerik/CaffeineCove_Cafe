@@ -302,20 +302,29 @@ export default function TreatmentPlanDetailsPage() {
   );
 
   const getCompletedSessions = (item) => Number(item.completed_sessions || 0);
-  const getPlannedSessions = (item) => Number(item.planned_sessions || 1);
+  const getPlannedSessions = (item) =>
+    Math.max(Number(item.planned_sessions || 1), 1);
 
   const getRemainingSessions = (item) =>
     Math.max(getPlannedSessions(item) - getCompletedSessions(item), 0);
 
+  const getProgressPercent = (item) => {
+    const planned = getPlannedSessions(item);
+    const completed = getCompletedSessions(item);
+    return Math.min(Math.max(Math.round((completed / planned) * 100), 0), 100);
+  };
+
   const getUiProcedureStatus = (item) => {
     const rawStatus = String(item.status || "planned").toLowerCase();
-    const remaining = getRemainingSessions(item);
+    const completed = getCompletedSessions(item);
+    const planned = getPlannedSessions(item);
 
     if (rawStatus === "cancelled") return "cancelled";
-    if (rawStatus === "in_progress") return "in_progress";
-    if (remaining <= 0) return "completed";
-
-    return "planned";
+    if (completed >= planned) return "completed";
+    if (rawStatus === "in_progress" || (completed > 0 && completed < planned)) {
+      return "in_progress";
+    }
+    return "not_started";
   };
 
   const canStartProcedure = (item) => {
@@ -589,7 +598,7 @@ export default function TreatmentPlanDetailsPage() {
           </div>
         </div>
 
-        <div className="col-12 col-xl-6">
+        <div className="col-12 col-xl-7">
           <div className="card shadow-sm border-0 h-100">
             <div className="card-header bg-white">
               <h5 className="mb-0">Plan Items</h5>
@@ -607,8 +616,9 @@ export default function TreatmentPlanDetailsPage() {
                         <th>Surface</th>
                         <th>Price</th>
                         <th>Sessions</th>
-                        <th>Remaining Sessions</th>
+                        <th>Remaining</th>
                         <th>Status</th>
+                        <th style={{ minWidth: 180 }}>Progress</th>
                         <th>Notes</th>
                         <th>Actions</th>
                       </tr>
@@ -617,6 +627,7 @@ export default function TreatmentPlanDetailsPage() {
                       {items.map((item) => {
                         const uiStatus = getUiProcedureStatus(item);
                         const isStartOpen = openStartItemId === item.id;
+                        const progressPercent = getProgressPercent(item);
 
                         return (
                           <FragmentRow
@@ -624,10 +635,13 @@ export default function TreatmentPlanDetailsPage() {
                             row={
                               <tr>
                                 <td>
-                                  {item.procedureRef?.name ||
-                                    item.procedure ||
-                                    "-"}
+                                  <div className="fw-semibold">
+                                    {item.procedureRef?.name ||
+                                      item.procedure ||
+                                      "-"}
+                                  </div>
                                 </td>
+
                                 <td>{item.tooth_number || "-"}</td>
                                 <td>{item.surface || "-"}</td>
                                 <td>{money(item.price)}</td>
@@ -643,6 +657,27 @@ export default function TreatmentPlanDetailsPage() {
 
                                 <td>
                                   <ProcedureStatusBadge status={uiStatus} />
+                                </td>
+
+                                <td>
+                                  <div className="small fw-semibold mb-1">
+                                    {progressPercent}%
+                                  </div>
+                                  <div
+                                    className="progress"
+                                    style={{ height: "8px" }}
+                                  >
+                                    <div
+                                      className={`progress-bar ${getProgressBarClass(
+                                        uiStatus,
+                                      )}`}
+                                      role="progressbar"
+                                      style={{ width: `${progressPercent}%` }}
+                                      aria-valuenow={progressPercent}
+                                      aria-valuemin="0"
+                                      aria-valuemax="100"
+                                    />
+                                  </div>
                                 </td>
 
                                 <td>{item.notes || "-"}</td>
@@ -682,7 +717,7 @@ export default function TreatmentPlanDetailsPage() {
                             extraRow={
                               isStartOpen ? (
                                 <tr>
-                                  <td colSpan="9" className="bg-light">
+                                  <td colSpan="10" className="bg-light">
                                     <div className="p-3">
                                       <div className="fw-semibold mb-2">
                                         {getCompletedSessions(item) > 0
@@ -870,7 +905,7 @@ export default function TreatmentPlanDetailsPage() {
           </div>
         </div>
 
-        <div className="col-12 col-xl-6">
+        <div className="col-12 col-xl-5">
           <div className="card shadow-sm border-0 h-100">
             <div className="card-header bg-white">
               <h5 className="mb-0">Linked Invoices</h5>
@@ -997,20 +1032,27 @@ function StatusBadge({ status }) {
 }
 
 function ProcedureStatusBadge({ status }) {
-  const value = String(status || "planned").toLowerCase();
+  const value = String(status || "not_started").toLowerCase();
 
   let cls = "secondary";
-  if (["pending", "planned"].includes(value)) cls = "warning";
+  if (["not_started"].includes(value)) cls = "warning";
   else if (["in_progress"].includes(value)) cls = "info";
   else if (["completed"].includes(value)) cls = "success";
   else if (["cancelled"].includes(value)) cls = "danger";
 
   const label =
-    value === "planned"
-      ? "ready"
+    value === "not_started"
+      ? "not started"
       : value === "in_progress"
         ? "in progress"
         : value;
 
   return <span className={`badge bg-${cls}`}>{label}</span>;
+}
+
+function getProgressBarClass(status) {
+  if (status === "completed") return "bg-success";
+  if (status === "in_progress") return "bg-info";
+  if (status === "cancelled") return "bg-danger";
+  return "bg-warning";
 }

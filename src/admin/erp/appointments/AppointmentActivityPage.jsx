@@ -57,6 +57,16 @@ export default function AppointmentActivityPage() {
     });
   }, [rows]);
 
+  const latestEvent = sortedRows[0] || null;
+
+  const patientId = appointment?.patient?.id || appointment?.patient_id || null;
+  const invoiceId =
+    appointment?.invoice_id || latestEvent?.properties?.invoice_id || null;
+  const treatmentPlanId =
+    appointment?.treatment_plan_id ||
+    latestEvent?.properties?.treatment_plan_id ||
+    null;
+
   const formatDateTime = (value) => {
     if (!value) return "-";
     try {
@@ -138,13 +148,40 @@ export default function AppointmentActivityPage() {
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="d-flex flex-wrap gap-2">
           <Link
             to="/admin/erp/appointments"
             className="btn btn-outline-secondary"
           >
             Back to Appointments
           </Link>
+
+          {patientId ? (
+            <Link
+              to={`/admin/erp/patients/${patientId}/profile`}
+              className="btn btn-outline-primary"
+            >
+              Patient Profile
+            </Link>
+          ) : null}
+
+          {treatmentPlanId ? (
+            <Link
+              to={`/admin/erp/treatment-plans/${treatmentPlanId}`}
+              className="btn btn-outline-info"
+            >
+              Treatment Plan
+            </Link>
+          ) : null}
+
+          {invoiceId ? (
+            <Link
+              to={`/admin/erp/invoices/${invoiceId}`}
+              className="btn btn-outline-success"
+            >
+              Invoice
+            </Link>
+          ) : null}
 
           <button className="btn btn-primary" onClick={loadPage}>
             Refresh
@@ -161,6 +198,19 @@ export default function AppointmentActivityPage() {
         </div>
       ) : null}
 
+      <div className="row g-3 mb-4">
+        <KpiCard title="Appointment ID" value={`#${id}`} />
+        <KpiCard
+          title="Status"
+          value={<StatusBadge status={appointment?.status} />}
+        />
+        <KpiCard
+          title="Type"
+          value={<AppointmentTypeBadge type={appointment?.appointment_type} />}
+        />
+        <KpiCard title="Events" value={sortedRows.length} />
+      </div>
+
       <div className="card shadow-sm border-0 mb-4">
         <div className="card-header bg-white">
           <h5 className="mb-0">Appointment Details</h5>
@@ -171,38 +221,94 @@ export default function AppointmentActivityPage() {
           ) : (
             <div className="row g-3">
               <InfoItem label="Appointment ID" value={appointment.id} />
+
               <InfoItem
                 label="Patient"
                 value={
-                  appointment.patient?.name || appointment.patient_name || "-"
+                  patientId ? (
+                    <Link
+                      to={`/admin/erp/patients/${patientId}/profile`}
+                      className="text-decoration-none"
+                    >
+                      {appointment.patient?.name ||
+                        appointment.patient_name ||
+                        `Patient #${patientId}`}
+                    </Link>
+                  ) : (
+                    appointment.patient?.name || appointment.patient_name || "-"
+                  )
                 }
               />
+
               <InfoItem
                 label="Doctor"
                 value={
                   appointment.doctor?.name || appointment.doctor_name || "-"
                 }
               />
+
               <InfoItem
                 label="Date"
                 value={formatDate(appointment.appointment_date)}
               />
+
               <InfoItem
                 label="Time"
                 value={formatTime(appointment.appointment_time)}
               />
+
               <InfoItem
                 label="Type"
-                value={appointment.appointment_type || "-"}
+                value={
+                  <AppointmentTypeBadge type={appointment.appointment_type} />
+                }
               />
+
               <InfoItem
                 label="Status"
                 value={<StatusBadge status={appointment.status} />}
               />
+
               <InfoItem
                 label="Created At"
                 value={formatDateTime(appointment.created_at)}
               />
+
+              {"updated_at" in (appointment || {}) ? (
+                <InfoItem
+                  label="Updated At"
+                  value={formatDateTime(appointment.updated_at)}
+                />
+              ) : null}
+
+              {treatmentPlanId ? (
+                <InfoItem
+                  label="Treatment Plan"
+                  value={
+                    <Link
+                      to={`/admin/erp/treatment-plans/${treatmentPlanId}`}
+                      className="text-decoration-none"
+                    >
+                      #{treatmentPlanId}
+                    </Link>
+                  }
+                />
+              ) : null}
+
+              {invoiceId ? (
+                <InfoItem
+                  label="Invoice"
+                  value={
+                    <Link
+                      to={`/admin/erp/invoices/${invoiceId}`}
+                      className="text-decoration-none"
+                    >
+                      #{invoiceId}
+                    </Link>
+                  }
+                />
+              ) : null}
+
               <div className="col-12">
                 <div className="small text-muted">Notes</div>
                 <div className="fw-semibold">{appointment.notes || "-"}</div>
@@ -211,6 +317,27 @@ export default function AppointmentActivityPage() {
           )}
         </div>
       </div>
+
+      {latestEvent ? (
+        <div className="card shadow-sm border-0 mb-4">
+          <div className="card-header bg-white">
+            <h5 className="mb-0">Latest Activity</h5>
+          </div>
+          <div className="card-body">
+            <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
+              <span className={`badge ${actionBadgeClass(latestEvent.action)}`}>
+                {prettyAction(latestEvent.action)}
+              </span>
+              <span className="text-muted small">
+                {formatDateTime(latestEvent.created_at)}
+              </span>
+            </div>
+            <div className="small text-muted">
+              Last recorded action for this appointment.
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <div className="card shadow-sm border-0">
         <div className="card-header bg-white d-flex justify-content-between align-items-center">
@@ -230,6 +357,13 @@ export default function AppointmentActivityPage() {
               {sortedRows.map((item) => {
                 const properties = parseProperties(item.properties);
 
+                const rowPatientId = properties?.patient_id || null;
+                const rowInvoiceId = properties?.invoice_id || null;
+                const rowTreatmentPlanId =
+                  properties?.treatment_plan_id || null;
+                const rowPlanItemId =
+                  properties?.treatment_plan_item_id || null;
+
                 return (
                   <div key={item.id} className="border rounded p-3 bg-light">
                     <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
@@ -240,6 +374,7 @@ export default function AppointmentActivityPage() {
                           >
                             {prettyAction(item.action)}
                           </span>
+
                           <span className="small text-muted">
                             {formatDateTime(item.created_at)}
                           </span>
@@ -266,45 +401,74 @@ export default function AppointmentActivityPage() {
 
                       {properties && typeof properties === "object" ? (
                         <>
+                          {"appointment_type" in properties ? (
+                            <InfoItem
+                              label="Appointment Type"
+                              value={
+                                <AppointmentTypeBadge
+                                  type={properties.appointment_type}
+                                />
+                              }
+                            />
+                          ) : null}
+
                           {"old_status" in properties ? (
                             <InfoItem
                               label="Old Status"
-                              value={properties.old_status}
+                              value={
+                                <StatusBadge status={properties.old_status} />
+                              }
                             />
                           ) : null}
 
                           {"new_status" in properties ? (
                             <InfoItem
                               label="New Status"
-                              value={properties.new_status}
+                              value={
+                                <StatusBadge status={properties.new_status} />
+                              }
                             />
                           ) : null}
 
                           {"old_date" in properties ? (
                             <InfoItem
                               label="Old Date"
-                              value={properties.old_date}
+                              value={formatDate(properties.old_date)}
                             />
                           ) : null}
 
                           {"new_date" in properties ? (
                             <InfoItem
                               label="New Date"
-                              value={properties.new_date}
+                              value={formatDate(properties.new_date)}
+                            />
+                          ) : null}
+
+                          {"date" in properties ? (
+                            <InfoItem
+                              label="Date"
+                              value={formatDate(properties.date)}
                             />
                           ) : null}
 
                           {"old_time" in properties ? (
                             <InfoItem
                               label="Old Time"
-                              value={properties.old_time}
+                              value={formatTime(properties.old_time)}
                             />
                           ) : null}
 
                           {"new_time" in properties ? (
                             <InfoItem
                               label="New Time"
-                              value={properties.new_time}
+                              value={formatTime(properties.new_time)}
+                            />
+                          ) : null}
+
+                          {"time" in properties ? (
+                            <InfoItem
+                              label="Time"
+                              value={formatTime(properties.time)}
                             />
                           ) : null}
 
@@ -315,52 +479,125 @@ export default function AppointmentActivityPage() {
                             />
                           ) : null}
 
-                          {"patient_id" in properties ? (
+                          {rowPatientId ? (
                             <InfoItem
-                              label="Patient ID"
-                              value={properties.patient_id}
+                              label="Patient"
+                              value={
+                                <Link
+                                  to={`/admin/erp/patients/${rowPatientId}/profile`}
+                                  className="text-decoration-none"
+                                >
+                                  #{rowPatientId}
+                                </Link>
+                              }
                             />
                           ) : null}
 
-                          {"invoice_id" in properties ? (
+                          {rowInvoiceId ? (
                             <InfoItem
-                              label="Invoice ID"
-                              value={properties.invoice_id}
+                              label="Invoice"
+                              value={
+                                <Link
+                                  to={`/admin/erp/invoices/${rowInvoiceId}`}
+                                  className="text-decoration-none"
+                                >
+                                  {properties.invoice_number
+                                    ? properties.invoice_number
+                                    : `#${rowInvoiceId}`}
+                                </Link>
+                              }
                             />
                           ) : null}
 
-                          {"invoice_number" in properties ? (
+                          {rowTreatmentPlanId ? (
                             <InfoItem
-                              label="Invoice Number"
-                              value={properties.invoice_number}
+                              label="Treatment Plan"
+                              value={
+                                <Link
+                                  to={`/admin/erp/treatment-plans/${rowTreatmentPlanId}`}
+                                  className="text-decoration-none"
+                                >
+                                  #{rowTreatmentPlanId}
+                                </Link>
+                              }
                             />
                           ) : null}
 
-                          {"treatment_plan_id" in properties ? (
+                          {rowPlanItemId ? (
                             <InfoItem
-                              label="Treatment Plan ID"
-                              value={properties.treatment_plan_id}
+                              label="Plan Item ID"
+                              value={rowPlanItemId}
+                            />
+                          ) : null}
+
+                          {"procedure_id" in properties ? (
+                            <InfoItem
+                              label="Procedure ID"
+                              value={properties.procedure_id}
+                            />
+                          ) : null}
+
+                          {"procedure" in properties ? (
+                            <InfoItem
+                              label="Procedure"
+                              value={properties.procedure}
                             />
                           ) : null}
 
                           {"total" in properties ? (
-                            <InfoItem label="Total" value={properties.total} />
+                            <InfoItem
+                              label="Total"
+                              value={money(properties.total)}
+                            />
                           ) : null}
                         </>
                       ) : null}
 
+                      <div className="col-12 d-flex flex-wrap gap-2">
+                        {rowPatientId ? (
+                          <Link
+                            to={`/admin/erp/patients/${rowPatientId}/profile`}
+                            className="btn btn-sm btn-outline-primary"
+                          >
+                            Patient
+                          </Link>
+                        ) : null}
+
+                        {rowTreatmentPlanId ? (
+                          <Link
+                            to={`/admin/erp/treatment-plans/${rowTreatmentPlanId}`}
+                            className="btn btn-sm btn-outline-info"
+                          >
+                            Treatment Plan
+                          </Link>
+                        ) : null}
+
+                        {rowInvoiceId ? (
+                          <Link
+                            to={`/admin/erp/invoices/${rowInvoiceId}`}
+                            className="btn btn-sm btn-outline-success"
+                          >
+                            Invoice
+                          </Link>
+                        ) : null}
+                      </div>
+
                       <div className="col-12">
-                        <div className="small text-muted mb-1">Properties</div>
-                        <pre
-                          className="mb-0 p-3 bg-white border rounded"
-                          style={{
-                            whiteSpace: "pre-wrap",
-                            wordBreak: "break-word",
-                            fontSize: "0.875rem",
-                          }}
-                        >
-                          {formatJson(item.properties)}
-                        </pre>
+                        <details>
+                          <summary className="small text-primary fw-semibold">
+                            Show raw properties
+                          </summary>
+                          <pre
+                            className="mb-0 mt-2 p-3 bg-white border rounded"
+                            style={{
+                              whiteSpace: "pre-wrap",
+                              wordBreak: "break-word",
+                              fontSize: "0.875rem",
+                            }}
+                          >
+                            {formatJson(item.properties)}
+                          </pre>
+                        </details>
                       </div>
                     </div>
                   </div>
@@ -368,6 +605,26 @@ export default function AppointmentActivityPage() {
               })}
             </div>
           )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function money(value) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(Number(value || 0));
+}
+
+function KpiCard({ title, value }) {
+  return (
+    <div className="col-12 col-sm-6 col-xl-3">
+      <div className="card border-0 shadow-sm h-100">
+        <div className="card-body">
+          <div className="text-muted small mb-1">{title}</div>
+          <div className="fw-bold fs-5">{value ?? "-"}</div>
         </div>
       </div>
     </div>
@@ -397,6 +654,8 @@ function prettyAction(action) {
       return "No Show";
     case "appointment.completed":
       return "Completed";
+    case "treatment_plan_item.started":
+      return "Procedure Started";
     default:
       return action || "-";
   }
@@ -415,6 +674,8 @@ function actionBadgeClass(action) {
       return "bg-dark";
     case "appointment.completed":
       return "bg-success";
+    case "treatment_plan_item.started":
+      return "bg-warning text-dark";
     default:
       return "bg-secondary";
   }
@@ -430,9 +691,28 @@ function StatusBadge({ status }) {
   const value = String(status || "").toLowerCase();
 
   let cls = "secondary";
-  if (["completed"].includes(value)) cls = "success";
-  else if (["cancelled", "no_show"].includes(value)) cls = "danger";
-  else if (["scheduled"].includes(value)) cls = "warning";
+  if (["completed", "paid"].includes(value)) cls = "success";
+  else if (["cancelled", "no_show", "unpaid"].includes(value)) cls = "danger";
+  else if (["scheduled", "partially_paid", "planned"].includes(value))
+    cls = "warning";
+  else if (["in_progress", "active"].includes(value)) cls = "info";
 
-  return <span className={`badge bg-${cls}`}>{status}</span>;
+  return <span className={`badge bg-${cls}`}>{status || "-"}</span>;
+}
+
+function AppointmentTypeBadge({ type }) {
+  const value = String(type || "").toLowerCase();
+
+  let cls = "secondary";
+  let label = type || "-";
+
+  if (value === "consultation") {
+    cls = "primary";
+    label = "Consultation";
+  } else if (value === "treatment") {
+    cls = "info";
+    label = "Treatment";
+  }
+
+  return <span className={`badge bg-${cls}`}>{label}</span>;
 }

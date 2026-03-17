@@ -10,6 +10,15 @@ export default function AppointmentActivityPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [notesForm, setNotesForm] = useState({
+    clinical_notes: "",
+    diagnosis: "",
+    next_step: "",
+  });
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [notesSuccess, setNotesSuccess] = useState("");
+  const [notesError, setNotesError] = useState("");
+
   useEffect(() => {
     loadPage();
   }, [id]);
@@ -18,6 +27,8 @@ export default function AppointmentActivityPage() {
     try {
       setLoading(true);
       setError("");
+      setNotesError("");
+      setNotesSuccess("");
 
       const [appointmentRes, activityRes] = await Promise.all([
         axios.get(`/erp/appointments/${id}`),
@@ -38,6 +49,12 @@ export default function AppointmentActivityPage() {
 
       setAppointment(appointmentData || null);
       setRows(activityRows);
+
+      setNotesForm({
+        clinical_notes: appointmentData?.clinical_notes || "",
+        diagnosis: appointmentData?.diagnosis || "",
+        next_step: appointmentData?.next_step || "",
+      });
     } catch (err) {
       setError(
         err?.response?.data?.message ||
@@ -57,14 +74,27 @@ export default function AppointmentActivityPage() {
     });
   }, [rows]);
 
+  const parseProperties = (value) => {
+    if (!value) return null;
+    try {
+      if (typeof value === "string") {
+        return JSON.parse(value);
+      }
+      return value;
+    } catch {
+      return value;
+    }
+  };
+
   const latestEvent = sortedRows[0] || null;
+  const latestEventProperties = parseProperties(latestEvent?.properties);
 
   const patientId = appointment?.patient?.id || appointment?.patient_id || null;
   const invoiceId =
-    appointment?.invoice_id || latestEvent?.properties?.invoice_id || null;
+    appointment?.invoice_id || latestEventProperties?.invoice_id || null;
   const treatmentPlanId =
     appointment?.treatment_plan_id ||
-    latestEvent?.properties?.treatment_plan_id ||
+    latestEventProperties?.treatment_plan_id ||
     null;
 
   const formatDateTime = (value) => {
@@ -100,18 +130,6 @@ export default function AppointmentActivityPage() {
     return String(value).slice(0, 5) || "-";
   };
 
-  const parseProperties = (value) => {
-    if (!value) return null;
-    try {
-      if (typeof value === "string") {
-        return JSON.parse(value);
-      }
-      return value;
-    } catch {
-      return value;
-    }
-  };
-
   const formatJson = (value) => {
     if (!value) return "-";
     try {
@@ -124,6 +142,60 @@ export default function AppointmentActivityPage() {
       return String(value);
     }
   };
+
+  const handleNotesChange = (e) => {
+    const { name, value } = e.target;
+    setNotesForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const saveClinicalNotes = async (e) => {
+    e.preventDefault();
+
+    try {
+      setSavingNotes(true);
+      setNotesError("");
+      setNotesSuccess("");
+
+      await axios.put(`/erp/appointments/${id}`, {
+        clinical_notes: notesForm.clinical_notes || null,
+        diagnosis: notesForm.diagnosis || null,
+        next_step: notesForm.next_step || null,
+      });
+
+      setNotesSuccess("Clinical notes saved successfully.");
+      await loadPage();
+    } catch (err) {
+      const errors = err?.response?.data?.errors;
+      if (errors) {
+        const firstError = Object.values(errors)?.[0]?.[0];
+        setNotesError(firstError || "Failed to save clinical notes.");
+      } else {
+        setNotesError(
+          err?.response?.data?.message ||
+            err?.response?.data?.msg ||
+            "Failed to save clinical notes.",
+        );
+      }
+    } finally {
+      setSavingNotes(false);
+    }
+  };
+
+  const resetClinicalNotesForm = () => {
+    setNotesError("");
+    setNotesSuccess("");
+    setNotesForm({
+      clinical_notes: appointment?.clinical_notes || "",
+      diagnosis: appointment?.diagnosis || "",
+      next_step: appointment?.next_step || "",
+    });
+  };
+
+  const isCompleted =
+    String(appointment?.status || "").toLowerCase() === "completed";
 
   if (loading) {
     return (
@@ -281,6 +353,27 @@ export default function AppointmentActivityPage() {
                 />
               ) : null}
 
+              <div className="col-12">
+                <div className="small text-muted">Clinical Notes</div>
+                <div className="fw-semibold">
+                  {appointment.clinical_notes || "-"}
+                </div>
+              </div>
+
+              <div className="col-12 col-md-6">
+                <div className="small text-muted">Diagnosis</div>
+                <div className="fw-semibold">
+                  {appointment.diagnosis || "-"}
+                </div>
+              </div>
+
+              <div className="col-12 col-md-6">
+                <div className="small text-muted">Next Step</div>
+                <div className="fw-semibold">
+                  {appointment.next_step || "-"}
+                </div>
+              </div>
+
               {treatmentPlanId ? (
                 <InfoItem
                   label="Treatment Plan"
@@ -315,6 +408,84 @@ export default function AppointmentActivityPage() {
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      <div className="card shadow-sm border-0 mb-4">
+        <div className="card-header bg-white d-flex justify-content-between align-items-center">
+          <h5 className="mb-0">Clinical Notes</h5>
+          {isCompleted ? (
+            <span className="badge bg-secondary">Completed Appointment</span>
+          ) : null}
+        </div>
+
+        <div className="card-body">
+          {notesError ? (
+            <div className="alert alert-danger py-2">{notesError}</div>
+          ) : null}
+
+          {notesSuccess ? (
+            <div className="alert alert-success py-2">{notesSuccess}</div>
+          ) : null}
+
+          <form onSubmit={saveClinicalNotes}>
+            <div className="row g-3">
+              <div className="col-12">
+                <label className="form-label fw-semibold">Clinical Notes</label>
+                <textarea
+                  className="form-control"
+                  rows="4"
+                  name="clinical_notes"
+                  value={notesForm.clinical_notes}
+                  onChange={handleNotesChange}
+                  placeholder="Enter clinical notes..."
+                />
+              </div>
+
+              <div className="col-12 col-md-6">
+                <label className="form-label fw-semibold">Diagnosis</label>
+                <textarea
+                  className="form-control"
+                  rows="3"
+                  name="diagnosis"
+                  value={notesForm.diagnosis}
+                  onChange={handleNotesChange}
+                  placeholder="Enter diagnosis..."
+                />
+              </div>
+
+              <div className="col-12 col-md-6">
+                <label className="form-label fw-semibold">Next Step</label>
+                <textarea
+                  className="form-control"
+                  rows="3"
+                  name="next_step"
+                  value={notesForm.next_step}
+                  onChange={handleNotesChange}
+                  placeholder="Enter next step..."
+                />
+              </div>
+
+              <div className="col-12 d-flex gap-2">
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={savingNotes}
+                >
+                  {savingNotes ? "Saving..." : "Save Clinical Notes"}
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={resetClinicalNotesForm}
+                  disabled={savingNotes}
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
 
@@ -656,6 +827,8 @@ function prettyAction(action) {
       return "Completed";
     case "treatment_plan_item.started":
       return "Procedure Started";
+    case "appointment.updated":
+      return "Updated";
     default:
       return action || "-";
   }
@@ -676,6 +849,8 @@ function actionBadgeClass(action) {
       return "bg-success";
     case "treatment_plan_item.started":
       return "bg-warning text-dark";
+    case "appointment.updated":
+      return "bg-secondary";
     default:
       return "bg-secondary";
   }

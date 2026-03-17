@@ -302,15 +302,17 @@ export default function TreatmentPlanDetailsPage() {
   );
 
   const getCompletedSessions = (item) => Number(item.completed_sessions || 0);
+
   const getPlannedSessions = (item) =>
     Math.max(Number(item.planned_sessions || 1), 1);
 
   const getRemainingSessions = (item) =>
     Math.max(getPlannedSessions(item) - getCompletedSessions(item), 0);
 
-  const getProgressPercent = (item) => {
+  const getProgress = (item) => {
     const planned = getPlannedSessions(item);
     const completed = getCompletedSessions(item);
+
     return Math.min(Math.max(Math.round((completed / planned) * 100), 0), 100);
   };
 
@@ -321,10 +323,26 @@ export default function TreatmentPlanDetailsPage() {
 
     if (rawStatus === "cancelled") return "cancelled";
     if (completed >= planned) return "completed";
-    if (rawStatus === "in_progress" || (completed > 0 && completed < planned)) {
-      return "in_progress";
-    }
+    if (rawStatus === "in_progress" || completed > 0) return "in_progress";
     return "not_started";
+  };
+
+  const getStatusLabel = (item) => {
+    const status = getUiProcedureStatus(item);
+
+    if (status === "completed") return "Completed";
+    if (status === "in_progress") return "In progress";
+    if (status === "cancelled") return "Cancelled";
+    return "Not started";
+  };
+
+  const getStatusClass = (item) => {
+    const status = getUiProcedureStatus(item);
+
+    if (status === "completed") return "success";
+    if (status === "in_progress") return "info";
+    if (status === "cancelled") return "danger";
+    return "secondary";
   };
 
   const canStartProcedure = (item) => {
@@ -346,6 +364,19 @@ export default function TreatmentPlanDetailsPage() {
     const completed = getCompletedSessions(item);
     return completed > 0 ? "Next Session" : "Start Procedure";
   };
+
+  const totalPlanned = items.reduce(
+    (sum, i) => sum + Number(i.planned_sessions || 0),
+    0,
+  );
+
+  const totalCompleted = items.reduce(
+    (sum, i) => sum + Number(i.completed_sessions || 0),
+    0,
+  );
+
+  const totalProgress =
+    totalPlanned > 0 ? Math.round((totalCompleted / totalPlanned) * 100) : 0;
 
   const money = (value) =>
     new Intl.NumberFormat("en-US", {
@@ -450,6 +481,26 @@ export default function TreatmentPlanDetailsPage() {
         </div>
       </div>
 
+      <div className="card shadow-sm border-0 mb-4">
+        <div className="card-body">
+          <div className="d-flex justify-content-between mb-2">
+            <div className="fw-semibold">Treatment Progress</div>
+            <div>{totalProgress}%</div>
+          </div>
+
+          <div className="progress" style={{ height: "10px" }}>
+            <div
+              className="progress-bar"
+              style={{ width: `${totalProgress}%` }}
+            />
+          </div>
+
+          <div className="small text-muted mt-2">
+            {totalCompleted} / {totalPlanned} sessions completed
+          </div>
+        </div>
+      </div>
+
       <div className="row g-3 mb-4">
         <KpiCard
           title="Total Invoiced"
@@ -466,6 +517,7 @@ export default function TreatmentPlanDetailsPage() {
           value={money(totals.total_refunded)}
           color="danger"
         />
+
         <KpiCard title="Net Paid" value={money(totals.net_paid)} color="info" />
         <KpiCard
           title="Remaining"
@@ -617,17 +669,15 @@ export default function TreatmentPlanDetailsPage() {
                         <th>Price</th>
                         <th>Sessions</th>
                         <th>Remaining</th>
-                        <th>Status</th>
                         <th style={{ minWidth: 180 }}>Progress</th>
+                        <th>Status</th>
                         <th>Notes</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {items.map((item) => {
-                        const uiStatus = getUiProcedureStatus(item);
                         const isStartOpen = openStartItemId === item.id;
-                        const progressPercent = getProgressPercent(item);
 
                         return (
                           <FragmentRow
@@ -655,29 +705,32 @@ export default function TreatmentPlanDetailsPage() {
 
                                 <td>{getRemainingSessions(item)}</td>
 
-                                <td>
-                                  <ProcedureStatusBadge status={uiStatus} />
+                                <td style={{ minWidth: 180 }}>
+                                  <div className="d-flex justify-content-between small">
+                                    <span>{getProgress(item)}%</span>
+                                    <span>
+                                      {getCompletedSessions(item)} /{" "}
+                                      {getPlannedSessions(item)}
+                                    </span>
+                                  </div>
+
+                                  <div
+                                    className="progress"
+                                    style={{ height: "6px" }}
+                                  >
+                                    <div
+                                      className="progress-bar"
+                                      style={{ width: `${getProgress(item)}%` }}
+                                    />
+                                  </div>
                                 </td>
 
                                 <td>
-                                  <div className="small fw-semibold mb-1">
-                                    {progressPercent}%
-                                  </div>
-                                  <div
-                                    className="progress"
-                                    style={{ height: "8px" }}
+                                  <span
+                                    className={`badge bg-${getStatusClass(item)}`}
                                   >
-                                    <div
-                                      className={`progress-bar ${getProgressBarClass(
-                                        uiStatus,
-                                      )}`}
-                                      role="progressbar"
-                                      style={{ width: `${progressPercent}%` }}
-                                      aria-valuenow={progressPercent}
-                                      aria-valuemin="0"
-                                      aria-valuemax="100"
-                                    />
-                                  </div>
+                                    {getStatusLabel(item)}
+                                  </span>
                                 </td>
 
                                 <td>{item.notes || "-"}</td>
@@ -1015,7 +1068,7 @@ function InfoItem({ label, value }) {
   return (
     <div className="col-12 col-md-6">
       <div className="small text-muted">{label}</div>
-      <div className="fw-semibold">{value || "-"}</div>
+      <div className="fw-semibold">{value ?? "-"}</div>
     </div>
   );
 }
@@ -1029,30 +1082,4 @@ function StatusBadge({ status }) {
   else if (["active", "partially_paid"].includes(value)) cls = "warning";
 
   return <span className={`badge bg-${cls}`}>{status}</span>;
-}
-
-function ProcedureStatusBadge({ status }) {
-  const value = String(status || "not_started").toLowerCase();
-
-  let cls = "secondary";
-  if (["not_started"].includes(value)) cls = "warning";
-  else if (["in_progress"].includes(value)) cls = "info";
-  else if (["completed"].includes(value)) cls = "success";
-  else if (["cancelled"].includes(value)) cls = "danger";
-
-  const label =
-    value === "not_started"
-      ? "not started"
-      : value === "in_progress"
-        ? "in progress"
-        : value;
-
-  return <span className={`badge bg-${cls}`}>{label}</span>;
-}
-
-function getProgressBarClass(status) {
-  if (status === "completed") return "bg-success";
-  if (status === "in_progress") return "bg-info";
-  if (status === "cancelled") return "bg-danger";
-  return "bg-warning";
 }

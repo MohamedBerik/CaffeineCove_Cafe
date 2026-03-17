@@ -82,6 +82,7 @@ export default function PatientProfilePage() {
   const dentalRecords = data?.dental_records || [];
   const treatmentPlans = data?.treatment_plans || [];
   const invoices = data?.invoices || [];
+  const procedures = data?.procedures || [];
 
   const invoicesTotal = Number(data?.invoices_total || 0);
   const invoicesPaid = Number(data?.invoices_paid || 0);
@@ -320,7 +321,7 @@ export default function PatientProfilePage() {
                 String(r.tooth_number || "").trim() ===
                 String(selectedTooth).trim(),
             )}
-            procedures={data?.procedures || []}
+            procedures={procedures}
             recordForm={recordForm}
             onRecordChange={handleRecordChange}
             onSubmitRecord={saveDentalRecord}

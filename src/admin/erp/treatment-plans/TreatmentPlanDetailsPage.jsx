@@ -749,7 +749,7 @@ export default function TreatmentPlanDetailsPage() {
 
                                     {canOpenAppointment(item) ? (
                                       <Link
-                                        to={`/admin/erp/appointments`}
+                                        to={`/admin/erp/appointments/${item.appointment_id}/activity`}
                                         className="btn btn-sm btn-outline-primary"
                                       >
                                         Open Appointment

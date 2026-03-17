@@ -342,7 +342,7 @@ export default function TreatmentPlanDetailsPage() {
     if (status === "completed") return "success";
     if (status === "in_progress") return "info";
     if (status === "cancelled") return "danger";
-    return "secondary";
+    return "warning";
   };
 
   const canStartProcedure = (item) => {

@@ -207,16 +207,67 @@ function TimelineEventBody({ item, money }) {
   const data = item.data || {};
 
   if (item.type === "appointment") {
+    const patientId = data.patient_id || null;
+    const invoiceId = data.invoice_id || null;
+    const treatmentPlanId = data.treatment_plan_id || null;
+
     return (
-      <div className="row g-2">
-        <InfoItem label="Doctor" value={data.doctor_name} />
-        <InfoItem label="Date" value={data.appointment_date} />
-        <InfoItem
-          label="Time"
-          value={String(data.appointment_time || "").slice(0, 5) || "-"}
-        />
-        <InfoItem label="Notes" value={data.notes} />
-      </div>
+      <>
+        <div className="row g-2">
+          <InfoItem label="Doctor" value={data.doctor_name} />
+          <InfoItem
+            label="Type"
+            value={prettyAppointmentType(data.appointment_type)}
+          />
+          <InfoItem label="Date" value={data.appointment_date} />
+          <InfoItem
+            label="Time"
+            value={String(data.appointment_time || "").slice(0, 5) || "-"}
+          />
+          <InfoItem label="Notes" value={data.notes} />
+          <InfoItem label="Clinical Notes" value={data.clinical_notes} />
+          <InfoItem label="Diagnosis" value={data.diagnosis} />
+          <InfoItem label="Next Step" value={data.next_step} />
+        </div>
+
+        <div className="d-flex flex-wrap gap-2 mt-3">
+          {patientId ? (
+            <Link
+              to={`/admin/erp/patients/${patientId}/profile`}
+              className="btn btn-sm btn-outline-primary"
+            >
+              Patient
+            </Link>
+          ) : null}
+
+          {treatmentPlanId ? (
+            <Link
+              to={`/admin/erp/treatment-plans/${treatmentPlanId}`}
+              className="btn btn-sm btn-outline-info"
+            >
+              Treatment Plan
+            </Link>
+          ) : null}
+
+          {invoiceId ? (
+            <Link
+              to={`/admin/erp/invoices/${invoiceId}`}
+              className="btn btn-sm btn-outline-success"
+            >
+              Invoice
+            </Link>
+          ) : null}
+
+          {data.id ? (
+            <Link
+              to={`/admin/erp/appointments/${data.id}/activity`}
+              className="btn btn-sm btn-outline-secondary"
+            >
+              Appointment Activity
+            </Link>
+          ) : null}
+        </div>
+      </>
     );
   }
 
@@ -291,6 +342,15 @@ function prettyType(type) {
     default:
       return type || "Event";
   }
+}
+
+function prettyAppointmentType(type) {
+  const value = String(type || "").toLowerCase();
+
+  if (value === "consultation") return "Consultation";
+  if (value === "treatment") return "Treatment";
+
+  return type || "-";
 }
 
 function iconName(type) {

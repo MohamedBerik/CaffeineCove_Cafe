@@ -8,6 +8,7 @@ export default function PatientProfilePage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedTooth, setSelectedTooth] = useState(null);
 
   useEffect(() => {
     loadProfile();
@@ -229,6 +230,17 @@ export default function PatientProfilePage() {
         <DentalChart toothSurfacesMap={toothSurfacesMap} />
       </Section>
 
+      {selectedTooth ? (
+        <Section title={`Tooth #${selectedTooth} Details`}>
+          <ToothDetails
+            tooth={selectedTooth}
+            records={dentalRecords.filter(
+              (r) => String(r.tooth_number) === selectedTooth,
+            )}
+          />
+        </Section>
+      ) : null}
+
       <Section title="Dental Records">
         {dentalRecords.length === 0 ? (
           <Empty text="No dental records" />
@@ -403,6 +415,7 @@ function DentalChart({ toothSurfacesMap }) {
               key={tooth}
               tooth={tooth}
               surfaces={toothSurfacesMap[tooth] || {}}
+              onSelect={setSelectedTooth}
             />
           ))}
           {upperLeft.map((tooth) => (
@@ -410,6 +423,7 @@ function DentalChart({ toothSurfacesMap }) {
               key={tooth}
               tooth={tooth}
               surfaces={toothSurfacesMap[tooth] || {}}
+              onSelect={setSelectedTooth}
             />
           ))}
         </div>
@@ -423,6 +437,7 @@ function DentalChart({ toothSurfacesMap }) {
               key={tooth}
               tooth={tooth}
               surfaces={toothSurfacesMap[tooth] || {}}
+              onSelect={setSelectedTooth}
             />
           ))}
           {lowerRight.map((tooth) => (
@@ -430,6 +445,7 @@ function DentalChart({ toothSurfacesMap }) {
               key={tooth}
               tooth={tooth}
               surfaces={toothSurfacesMap[tooth] || {}}
+              onSelect={setSelectedTooth}
             />
           ))}
         </div>
@@ -445,7 +461,7 @@ function DentalChart({ toothSurfacesMap }) {
   );
 }
 
-function ToothCard({ tooth, surfaces }) {
+function ToothCard({ tooth, surfaces, onSelect }) {
   const occlusal = surfaces.occlusal || surfaces.incisal || surfaces.general;
   const mesial = surfaces.mesial || surfaces.m;
   const distal = surfaces.distal || surfaces.d;
@@ -456,7 +472,8 @@ function ToothCard({ tooth, surfaces }) {
   return (
     <div
       className="border rounded p-2 bg-white"
-      style={{ width: 86 }}
+      style={{ width: 86, cursor: "pointer" }}
+      onClick={() => onSelect(tooth)}
       title={buildToothTooltip(tooth, surfaces)}
     >
       <div className="text-center fw-bold small mb-2">{tooth}</div>
@@ -606,4 +623,46 @@ function InvoiceStatusBadge({ status }) {
   else if (["unpaid", "cancelled"].includes(value)) cls = "danger";
 
   return <span className={`badge bg-${cls}`}>{status || "-"}</span>;
+}
+
+function ToothDetails({ tooth, records }) {
+  if (!records.length) {
+    return <div className="p-3 text-muted">No records for this tooth.</div>;
+  }
+
+  return (
+    <div className="p-3">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div className="fw-semibold">Records</div>
+
+        <button className="btn btn-sm btn-primary">+ Add Record</button>
+      </div>
+
+      <div className="table-responsive">
+        <table className="table table-sm table-bordered">
+          <thead className="table-light">
+            <tr>
+              <th>Surface</th>
+              <th>Procedure</th>
+              <th>Status</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {records.map((r) => (
+              <tr key={r.id}>
+                <td>{r.surface || "-"}</td>
+                <td>{r.procedure?.name || "-"}</td>
+                <td>
+                  <RecordStatusBadge status={r.status} />
+                </td>
+                <td>{r.notes || "-"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }

@@ -121,7 +121,9 @@ export default function PatientProfilePage() {
         map[tooth] = {};
       }
 
-      map[tooth][surfaceKey] = r;
+      if (!map[tooth][surfaceKey]) {
+        map[tooth][surfaceKey] = r;
+      }
     });
 
     return map;

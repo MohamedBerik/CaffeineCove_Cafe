@@ -654,6 +654,26 @@ export default function AppointmentActivityPage() {
                               value={properties.doctor_id}
                             />
                           ) : null}
+                          {"clinical_notes" in properties ? (
+                            <InfoItem
+                              label="Clinical Notes"
+                              value={properties.clinical_notes}
+                            />
+                          ) : null}
+
+                          {"diagnosis" in properties ? (
+                            <InfoItem
+                              label="Diagnosis"
+                              value={properties.diagnosis}
+                            />
+                          ) : null}
+
+                          {"next_step" in properties ? (
+                            <InfoItem
+                              label="Next Step"
+                              value={properties.next_step}
+                            />
+                          ) : null}
 
                           {rowPatientId ? (
                             <InfoItem

@@ -197,6 +197,11 @@ export default function AppointmentActivityPage() {
   const isCompleted =
     String(appointment?.status || "").toLowerCase() === "completed";
 
+  const hasNotesChanged =
+    (appointment?.clinical_notes || "") !== notesForm.clinical_notes ||
+    (appointment?.diagnosis || "") !== notesForm.diagnosis ||
+    (appointment?.next_step || "") !== notesForm.next_step;
+
   if (loading) {
     return (
       <div
@@ -470,7 +475,7 @@ export default function AppointmentActivityPage() {
                 <button
                   type="submit"
                   className="btn btn-primary"
-                  disabled={savingNotes}
+                  disabled={savingNotes || !appointment || !hasNotesChanged}
                 >
                   {savingNotes ? "Saving..." : "Save Clinical Notes"}
                 </button>

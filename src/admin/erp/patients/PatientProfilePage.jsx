@@ -227,7 +227,10 @@ export default function PatientProfilePage() {
       </Section>
 
       <Section title="Dental Chart">
-        <DentalChart toothSurfacesMap={toothSurfacesMap} />
+        <DentalChart
+          toothSurfacesMap={toothSurfacesMap}
+          onSelectTooth={setSelectedTooth}
+        />
       </Section>
 
       {selectedTooth ? (
@@ -235,7 +238,9 @@ export default function PatientProfilePage() {
           <ToothDetails
             tooth={selectedTooth}
             records={dentalRecords.filter(
-              (r) => String(r.tooth_number) === selectedTooth,
+              (r) =>
+                String(r.tooth_number || "").trim() ===
+                String(selectedTooth).trim(),
             )}
           />
         </Section>
@@ -395,7 +400,7 @@ function formatAppointmentType(value) {
   return "-";
 }
 
-function DentalChart({ toothSurfacesMap }) {
+function DentalChart({ toothSurfacesMap, onSelectTooth }) {
   const upperRight = ["1", "2", "3", "4", "5", "6", "7", "8"];
   const upperLeft = ["9", "10", "11", "12", "13", "14", "15", "16"];
   const lowerLeft = ["17", "18", "19", "20", "21", "22", "23", "24"];
@@ -415,7 +420,7 @@ function DentalChart({ toothSurfacesMap }) {
               key={tooth}
               tooth={tooth}
               surfaces={toothSurfacesMap[tooth] || {}}
-              onSelect={setSelectedTooth}
+              onSelect={onSelectTooth}
             />
           ))}
           {upperLeft.map((tooth) => (
@@ -423,7 +428,7 @@ function DentalChart({ toothSurfacesMap }) {
               key={tooth}
               tooth={tooth}
               surfaces={toothSurfacesMap[tooth] || {}}
-              onSelect={setSelectedTooth}
+              onSelect={onSelectTooth}
             />
           ))}
         </div>
@@ -437,7 +442,7 @@ function DentalChart({ toothSurfacesMap }) {
               key={tooth}
               tooth={tooth}
               surfaces={toothSurfacesMap[tooth] || {}}
-              onSelect={setSelectedTooth}
+              onSelect={onSelectTooth}
             />
           ))}
           {lowerRight.map((tooth) => (
@@ -445,7 +450,7 @@ function DentalChart({ toothSurfacesMap }) {
               key={tooth}
               tooth={tooth}
               surfaces={toothSurfacesMap[tooth] || {}}
-              onSelect={setSelectedTooth}
+              onSelect={onSelectTooth}
             />
           ))}
         </div>

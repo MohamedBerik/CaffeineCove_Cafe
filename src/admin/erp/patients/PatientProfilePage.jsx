@@ -78,14 +78,22 @@ export default function PatientProfilePage() {
     return [...invoices].sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
   }, [invoices]);
 
-  const teethMap = useMemo(() => {
+  const toothSurfacesMap = useMemo(() => {
     const map = {};
 
     dentalRecords.forEach((r) => {
-      const tooth = String(r.tooth_number || "");
+      const tooth = String(r.tooth_number || "").trim();
       if (!tooth) return;
 
-      map[tooth] = r;
+      const surfaceKey = String(r.surface || "general")
+        .toLowerCase()
+        .trim();
+
+      if (!map[tooth]) {
+        map[tooth] = {};
+      }
+
+      map[tooth][surfaceKey] = r;
     });
 
     return map;
@@ -218,7 +226,7 @@ export default function PatientProfilePage() {
       </Section>
 
       <Section title="Dental Chart">
-        <DentalChart teethMap={teethMap} />
+        <DentalChart toothSurfacesMap={toothSurfacesMap} />
       </Section>
 
       <Section title="Dental Records">
@@ -375,36 +383,146 @@ function formatAppointmentType(value) {
   return "-";
 }
 
-function DentalChart({ teethMap }) {
-  const teeth = Array.from({ length: 32 }, (_, i) => String(i + 1));
+function DentalChart({ toothSurfacesMap }) {
+  const upperRight = ["1", "2", "3", "4", "5", "6", "7", "8"];
+  const upperLeft = ["9", "10", "11", "12", "13", "14", "15", "16"];
+  const lowerLeft = ["17", "18", "19", "20", "21", "22", "23", "24"];
+  const lowerRight = ["25", "26", "27", "28", "29", "30", "31", "32"];
 
   return (
     <div className="p-3">
-      <div className="row g-2">
-        {teeth.map((tooth) => {
-          const record = teethMap[tooth];
+      <div className="small text-muted mb-3">
+        Each tooth shows surfaces: O/I, M, D, B/F, L/P
+      </div>
 
-          const status = getToothStatus(record);
-          const cls = getToothClass(status);
+      <div className="mb-4">
+        <div className="fw-semibold mb-2">Upper Jaw</div>
+        <div className="d-flex flex-wrap gap-2 mb-2">
+          {upperRight.map((tooth) => (
+            <ToothCard
+              key={tooth}
+              tooth={tooth}
+              surfaces={toothSurfacesMap[tooth] || {}}
+            />
+          ))}
+          {upperLeft.map((tooth) => (
+            <ToothCard
+              key={tooth}
+              tooth={tooth}
+              surfaces={toothSurfacesMap[tooth] || {}}
+            />
+          ))}
+        </div>
+      </div>
 
-          return (
-            <div key={tooth} className="col-3 col-md-1">
-              <div
-                className={`border rounded text-center py-2 small ${cls}`}
-                style={{ cursor: "pointer" }}
-                title={getToothTooltip(record)}
-              >
-                {tooth}
-              </div>
-            </div>
-          );
-        })}
+      <div>
+        <div className="fw-semibold mb-2">Lower Jaw</div>
+        <div className="d-flex flex-wrap gap-2">
+          {lowerLeft.map((tooth) => (
+            <ToothCard
+              key={tooth}
+              tooth={tooth}
+              surfaces={toothSurfacesMap[tooth] || {}}
+            />
+          ))}
+          {lowerRight.map((tooth) => (
+            <ToothCard
+              key={tooth}
+              tooth={tooth}
+              surfaces={toothSurfacesMap[tooth] || {}}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="d-flex flex-wrap gap-3 mt-4 small">
+        <LegendItem label="Completed" className="bg-success" />
+        <LegendItem label="In Progress" className="bg-info" />
+        <LegendItem label="Planned" className="bg-warning" />
+        <LegendItem label="No Data" className="bg-light border" />
       </div>
     </div>
   );
 }
 
-function getToothStatus(record) {
+function ToothCard({ tooth, surfaces }) {
+  const occlusal = surfaces.occlusal || surfaces.incisal || surfaces.general;
+  const mesial = surfaces.mesial || surfaces.m;
+  const distal = surfaces.distal || surfaces.d;
+  const buccal = surfaces.buccal || surfaces.facial || surfaces.b || surfaces.f;
+  const lingual =
+    surfaces.lingual || surfaces.palatal || surfaces.l || surfaces.p;
+
+  return (
+    <div
+      className="border rounded p-2 bg-white"
+      style={{ width: 86 }}
+      title={buildToothTooltip(tooth, surfaces)}
+    >
+      <div className="text-center fw-bold small mb-2">{tooth}</div>
+
+      <div
+        className="mx-auto"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "18px 26px 18px",
+          gridTemplateRows: "18px 26px 18px",
+          gap: "2px",
+          width: "66px",
+        }}
+      >
+        <div></div>
+        <SurfaceBox status={getSurfaceStatus(occlusal)} label="O/I" />
+        <div></div>
+
+        <SurfaceBox status={getSurfaceStatus(mesial)} label="M" />
+        <SurfaceBox status={getSurfaceStatus(buccal)} label="B/F" center />
+        <SurfaceBox status={getSurfaceStatus(distal)} label="D" />
+
+        <div></div>
+        <SurfaceBox status={getSurfaceStatus(lingual)} label="L/P" />
+        <div></div>
+      </div>
+    </div>
+  );
+}
+
+function SurfaceBox({ status, label, center = false }) {
+  return (
+    <div
+      className={`rounded border ${getSurfaceClass(status)}`}
+      style={{
+        fontSize: center ? "0.55rem" : "0.5rem",
+        minHeight: center ? 26 : 18,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontWeight: 600,
+      }}
+    >
+      {label}
+    </div>
+  );
+}
+
+function LegendItem({ label, className }) {
+  return (
+    <div className="d-flex align-items-center gap-2">
+      <span
+        className={className}
+        style={{
+          width: 16,
+          height: 16,
+          display: "inline-block",
+          borderRadius: 4,
+        }}
+      />
+      <span>{label}</span>
+    </div>
+  );
+}
+
+function getSurfaceStatus(record) {
   if (!record) return "empty";
 
   const status = String(record.status || "").toLowerCase();
@@ -416,23 +534,23 @@ function getToothStatus(record) {
   return "empty";
 }
 
-function getToothClass(status) {
-  if (status === "completed") return "bg-success text-white";
-  if (status === "in_progress") return "bg-info text-dark";
-  if (status === "planned") return "bg-warning text-dark";
+function getSurfaceClass(status) {
+  if (status === "completed") return "bg-success text-white border-success";
+  if (status === "in_progress") return "bg-info text-dark border-info";
+  if (status === "planned") return "bg-warning text-dark border-warning";
 
-  return "bg-light";
+  return "bg-light text-muted";
 }
 
-function getToothTooltip(record) {
-  if (!record) return "No data";
+function buildToothTooltip(tooth, surfaces) {
+  const entries = Object.entries(surfaces || {});
+  if (!entries.length) return `Tooth ${tooth}: No data`;
 
-  return `
-Procedure: ${record.procedure?.name || "-"}
-Tooth: ${record.tooth_number || "-"}
-Surface: ${record.surface || "-"}
-Status: ${record.status || "-"}
-  `;
+  const lines = entries.map(([surface, record]) => {
+    return `${surface}: ${record?.procedure?.name || "-"} | ${record?.status || "-"}`;
+  });
+
+  return `Tooth ${tooth}\n${lines.join("\n")}`;
 }
 
 function PatientStatusBadge({ status }) {

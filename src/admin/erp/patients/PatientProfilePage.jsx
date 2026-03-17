@@ -10,6 +10,18 @@ export default function PatientProfilePage() {
   const [error, setError] = useState("");
   const [selectedTooth, setSelectedTooth] = useState(null);
 
+  const [recordForm, setRecordForm] = useState({
+    tooth_number: "",
+    surface: "",
+    procedure_id: "",
+    notes: "",
+    status: "planned",
+  });
+
+  const [savingRecord, setSavingRecord] = useState(false);
+  const [recordError, setRecordError] = useState("");
+  const [recordSuccess, setRecordSuccess] = useState("");
+
   useEffect(() => {
     loadProfile();
   }, [id]);
@@ -31,6 +43,20 @@ export default function PatientProfilePage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!selectedTooth) return;
+
+    setRecordError("");
+    setRecordSuccess("");
+    setRecordForm({
+      tooth_number: String(selectedTooth),
+      surface: "",
+      procedure_id: "",
+      notes: "",
+      status: "planned",
+    });
+  }, [selectedTooth]);
 
   const money = (v) =>
     new Intl.NumberFormat("en-US", {
@@ -99,6 +125,58 @@ export default function PatientProfilePage() {
 
     return map;
   }, [dentalRecords]);
+
+  const handleRecordChange = (e) => {
+    const { name, value } = e.target;
+    setRecordForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const saveDentalRecord = async (e) => {
+    e.preventDefault();
+
+    try {
+      setSavingRecord(true);
+      setRecordError("");
+      setRecordSuccess("");
+
+      await axios.post("/erp/dental-records", {
+        tooth_number: recordForm.tooth_number,
+        surface: recordForm.surface || null,
+        procedure_id: Number(recordForm.procedure_id),
+        customer_id: Number(id),
+        notes: recordForm.notes || null,
+        status: recordForm.status || "planned",
+      });
+
+      setRecordSuccess("Dental record added successfully.");
+      await loadProfile();
+
+      setRecordForm((prev) => ({
+        ...prev,
+        surface: "",
+        procedure_id: "",
+        notes: "",
+        status: "planned",
+      }));
+    } catch (err) {
+      const errors = err?.response?.data?.errors;
+      if (errors) {
+        const firstError = Object.values(errors)?.[0]?.[0];
+        setRecordError(firstError || "Failed to add dental record.");
+      } else {
+        setRecordError(
+          err?.response?.data?.message ||
+            err?.response?.data?.msg ||
+            "Failed to add dental record.",
+        );
+      }
+    } finally {
+      setSavingRecord(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -242,6 +320,13 @@ export default function PatientProfilePage() {
                 String(r.tooth_number || "").trim() ===
                 String(selectedTooth).trim(),
             )}
+            procedures={data?.procedures || []}
+            recordForm={recordForm}
+            onRecordChange={handleRecordChange}
+            onSubmitRecord={saveDentalRecord}
+            savingRecord={savingRecord}
+            recordError={recordError}
+            recordSuccess={recordSuccess}
           />
         </Section>
       ) : null}
@@ -630,44 +715,155 @@ function InvoiceStatusBadge({ status }) {
   return <span className={`badge bg-${cls}`}>{status || "-"}</span>;
 }
 
-function ToothDetails({ tooth, records }) {
-  if (!records.length) {
-    return <div className="p-3 text-muted">No records for this tooth.</div>;
-  }
-
+function ToothDetails({
+  tooth,
+  records,
+  procedures,
+  recordForm,
+  onRecordChange,
+  onSubmitRecord,
+  savingRecord,
+  recordError,
+  recordSuccess,
+}) {
   return (
     <div className="p-3">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <div className="fw-semibold">Records</div>
+      {recordError ? (
+        <div className="alert alert-danger py-2">{recordError}</div>
+      ) : null}
 
-        <button className="btn btn-sm btn-primary">+ Add Record</button>
+      {recordSuccess ? (
+        <div className="alert alert-success py-2">{recordSuccess}</div>
+      ) : null}
+
+      <div className="mb-4">
+        <div className="fw-semibold mb-3">Add Record for Tooth #{tooth}</div>
+
+        <form onSubmit={onSubmitRecord}>
+          <div className="row g-3">
+            <div className="col-12 col-md-3">
+              <label className="form-label fw-semibold">Tooth</label>
+              <input
+                type="text"
+                className="form-control"
+                name="tooth_number"
+                value={recordForm.tooth_number}
+                onChange={onRecordChange}
+                readOnly
+              />
+            </div>
+
+            <div className="col-12 col-md-3">
+              <label className="form-label fw-semibold">Surface</label>
+              <select
+                className="form-select"
+                name="surface"
+                value={recordForm.surface}
+                onChange={onRecordChange}
+                required
+              >
+                <option value="">Select surface</option>
+                <option value="occlusal">Occlusal</option>
+                <option value="incisal">Incisal</option>
+                <option value="mesial">Mesial</option>
+                <option value="distal">Distal</option>
+                <option value="buccal">Buccal</option>
+                <option value="facial">Facial</option>
+                <option value="lingual">Lingual</option>
+                <option value="palatal">Palatal</option>
+                <option value="general">General</option>
+              </select>
+            </div>
+
+            <div className="col-12 col-md-3">
+              <label className="form-label fw-semibold">Procedure</label>
+              <select
+                className="form-select"
+                name="procedure_id"
+                value={recordForm.procedure_id}
+                onChange={onRecordChange}
+                required
+              >
+                <option value="">Select procedure</option>
+                {procedures.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-12 col-md-3">
+              <label className="form-label fw-semibold">Status</label>
+              <select
+                className="form-select"
+                name="status"
+                value={recordForm.status}
+                onChange={onRecordChange}
+              >
+                <option value="planned">Planned</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+
+            <div className="col-12">
+              <label className="form-label fw-semibold">Notes</label>
+              <textarea
+                className="form-control"
+                rows="2"
+                name="notes"
+                value={recordForm.notes}
+                onChange={onRecordChange}
+                placeholder="Optional notes..."
+              />
+            </div>
+
+            <div className="col-12">
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={savingRecord}
+              >
+                {savingRecord ? "Saving..." : "Add Record"}
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
 
-      <div className="table-responsive">
-        <table className="table table-sm table-bordered">
-          <thead className="table-light">
-            <tr>
-              <th>Surface</th>
-              <th>Procedure</th>
-              <th>Status</th>
-              <th>Notes</th>
-            </tr>
-          </thead>
+      <div className="fw-semibold mb-3">Existing Records</div>
 
-          <tbody>
-            {records.map((r) => (
-              <tr key={r.id}>
-                <td>{r.surface || "-"}</td>
-                <td>{r.procedure?.name || "-"}</td>
-                <td>
-                  <RecordStatusBadge status={r.status} />
-                </td>
-                <td>{r.notes || "-"}</td>
+      {records.length === 0 ? (
+        <div className="text-muted">No records for this tooth.</div>
+      ) : (
+        <div className="table-responsive">
+          <table className="table table-sm table-bordered">
+            <thead className="table-light">
+              <tr>
+                <th>Surface</th>
+                <th>Procedure</th>
+                <th>Status</th>
+                <th>Notes</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+
+            <tbody>
+              {records.map((r) => (
+                <tr key={r.id}>
+                  <td>{r.surface || "-"}</td>
+                  <td>{r.procedure?.name || "-"}</td>
+                  <td>
+                    <RecordStatusBadge status={r.status} />
+                  </td>
+                  <td>{r.notes || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

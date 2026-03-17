@@ -78,6 +78,19 @@ export default function PatientProfilePage() {
     return [...invoices].sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
   }, [invoices]);
 
+  const teethMap = useMemo(() => {
+    const map = {};
+
+    dentalRecords.forEach((r) => {
+      const tooth = String(r.tooth_number || "");
+      if (!tooth) return;
+
+      map[tooth] = r;
+    });
+
+    return map;
+  }, [dentalRecords]);
+
   if (loading) {
     return (
       <div className="text-center p-5">
@@ -202,6 +215,10 @@ export default function PatientProfilePage() {
             </tbody>
           </Table>
         )}
+      </Section>
+
+      <Section title="Dental Chart">
+        <DentalChart teethMap={teethMap} />
       </Section>
 
       <Section title="Dental Records">
@@ -356,6 +373,66 @@ function formatAppointmentType(value) {
   if (type === "consultation") return "Consultation";
   if (type === "treatment") return "Treatment";
   return "-";
+}
+
+function DentalChart({ teethMap }) {
+  const teeth = Array.from({ length: 32 }, (_, i) => String(i + 1));
+
+  return (
+    <div className="p-3">
+      <div className="row g-2">
+        {teeth.map((tooth) => {
+          const record = teethMap[tooth];
+
+          const status = getToothStatus(record);
+          const cls = getToothClass(status);
+
+          return (
+            <div key={tooth} className="col-3 col-md-1">
+              <div
+                className={`border rounded text-center py-2 small ${cls}`}
+                style={{ cursor: "pointer" }}
+                title={getToothTooltip(record)}
+              >
+                {tooth}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function getToothStatus(record) {
+  if (!record) return "empty";
+
+  const status = String(record.status || "").toLowerCase();
+
+  if (status === "completed") return "completed";
+  if (status === "in_progress") return "in_progress";
+  if (status === "planned") return "planned";
+
+  return "empty";
+}
+
+function getToothClass(status) {
+  if (status === "completed") return "bg-success text-white";
+  if (status === "in_progress") return "bg-info text-dark";
+  if (status === "planned") return "bg-warning text-dark";
+
+  return "bg-light";
+}
+
+function getToothTooltip(record) {
+  if (!record) return "No data";
+
+  return `
+Procedure: ${record.procedure?.name || "-"}
+Tooth: ${record.tooth_number || "-"}
+Surface: ${record.surface || "-"}
+Status: ${record.status || "-"}
+  `;
 }
 
 function PatientStatusBadge({ status }) {

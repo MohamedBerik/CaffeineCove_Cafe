@@ -335,6 +335,56 @@ export default function PatientProfilePage() {
     }
   };
 
+  const getRecordPrimaryAction = (record) => {
+    const item = record?.treatmentPlanItem;
+
+    if (!item) {
+      return {
+        key: "convert",
+        label: "Convert to Treatment Plan",
+        className: "btn btn-sm btn-outline-success",
+      };
+    }
+
+    if (item.appointment_id) {
+      return {
+        key: "appointment",
+        label: "Open Appointment",
+        className: "btn btn-sm btn-outline-primary",
+        to: `/admin/erp/appointments/${item.appointment_id}/activity`,
+      };
+    }
+
+    return {
+      key: "plan",
+      label: "Open Treatment Plan",
+      className: "btn btn-sm btn-outline-success",
+      to: `/admin/erp/treatment-plans/${item.treatment_plan_id}`,
+    };
+  };
+
+  const getRecordMeta = (record) => {
+    const item = record?.treatmentPlanItem;
+
+    if (!item) {
+      return "Not converted yet";
+    }
+
+    if (item.appointment_id) {
+      return `Plan #${item.treatment_plan_id} • Appointment #${item.appointment_id}`;
+    }
+
+    const remaining =
+      item.remaining_sessions ??
+      Math.max(
+        Number(item.planned_sessions || 1) -
+          Number(item.completed_sessions || 0),
+        0,
+      );
+
+    return `Plan #${item.treatment_plan_id} • Remaining Sessions: ${remaining}`;
+  };
+
   if (loading) {
     return (
       <div className="text-center p-5">
@@ -496,6 +546,8 @@ export default function PatientProfilePage() {
             convertingRecord={convertingRecord}
             convertError={convertError}
             convertSuccess={convertSuccess}
+            getRecordPrimaryAction={getRecordPrimaryAction}
+            getRecordMeta={getRecordMeta}
           />
         </Section>
       ) : null}
@@ -517,6 +569,7 @@ export default function PatientProfilePage() {
             <tbody>
               {dentalRecords.map((r) => {
                 const isConvertOpen = convertRecordId === r.id;
+                const primaryAction = getRecordPrimaryAction(r);
 
                 return (
                   <tr key={r.id}>
@@ -528,6 +581,23 @@ export default function PatientProfilePage() {
                     </td>
                     <td>
                       <div className="d-flex flex-wrap gap-2 mb-2">
+                        {primaryAction.key === "convert" ? (
+                          <button
+                            type="button"
+                            className={primaryAction.className}
+                            onClick={() => openConvertForm(r)}
+                          >
+                            {primaryAction.label}
+                          </button>
+                        ) : (
+                          <Link
+                            to={primaryAction.to}
+                            className={primaryAction.className}
+                          >
+                            {primaryAction.label}
+                          </Link>
+                        )}
+
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-primary"
@@ -547,29 +617,10 @@ export default function PatientProfilePage() {
                         >
                           {deletingRecordId === r.id ? "Deleting..." : "Delete"}
                         </button>
+                      </div>
 
-                        {r.treatment_plan_item_id ? (
-                          <div className="d-flex flex-wrap gap-2">
-                            <span className="badge bg-success">Converted</span>
-
-                            {r.treatmentPlanItem?.treatment_plan_id ? (
-                              <Link
-                                to={`/admin/erp/treatment-plans/${r.treatmentPlanItem.treatment_plan_id}`}
-                                className="btn btn-sm btn-outline-success"
-                              >
-                                Open Plan
-                              </Link>
-                            ) : null}
-                          </div>
-                        ) : (
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-success"
-                            onClick={() => openConvertForm(r)}
-                          >
-                            Convert to Treatment Plan
-                          </button>
-                        )}
+                      <div className="small text-muted mb-2">
+                        {getRecordMeta(r)}
                       </div>
 
                       {isConvertOpen && !r.treatment_plan_item_id ? (
@@ -1041,6 +1092,8 @@ function ToothDetails({
   convertingRecord,
   convertError,
   convertSuccess,
+  getRecordPrimaryAction,
+  getRecordMeta,
 }) {
   return (
     <div className="p-3">
@@ -1208,6 +1261,7 @@ function ToothDetails({
             <tbody>
               {records.map((r) => {
                 const isConvertOpen = convertRecordId === r.id;
+                const primaryAction = getRecordPrimaryAction(r);
 
                 return (
                   <tr key={r.id}>
@@ -1219,6 +1273,23 @@ function ToothDetails({
                     <td>{r.notes || "-"}</td>
                     <td>
                       <div className="d-flex flex-wrap gap-2 mb-2">
+                        {primaryAction.key === "convert" ? (
+                          <button
+                            type="button"
+                            className={primaryAction.className}
+                            onClick={() => onOpenConvert(r)}
+                          >
+                            {primaryAction.label}
+                          </button>
+                        ) : (
+                          <Link
+                            to={primaryAction.to}
+                            className={primaryAction.className}
+                          >
+                            {primaryAction.label}
+                          </Link>
+                        )}
+
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-primary"
@@ -1235,29 +1306,10 @@ function ToothDetails({
                         >
                           {deletingRecordId === r.id ? "Deleting..." : "Delete"}
                         </button>
+                      </div>
 
-                        {r.treatment_plan_item_id ? (
-                          <div className="d-flex flex-wrap gap-2">
-                            <span className="badge bg-success">Converted</span>
-
-                            {r.treatment_plan_item?.treatment_plan_id ? (
-                              <Link
-                                to={`/admin/erp/treatment-plans/${r.treatment_plan_item.treatment_plan_id}`}
-                                className="btn btn-sm btn-outline-success"
-                              >
-                                Open Plan
-                              </Link>
-                            ) : null}
-                          </div>
-                        ) : (
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-success"
-                            onClick={() => onOpenConvert(r)}
-                          >
-                            Convert to Treatment Plan
-                          </button>
-                        )}
+                      <div className="small text-muted mb-2">
+                        {getRecordMeta(r)}
                       </div>
 
                       {isConvertOpen && !r.treatment_plan_item_id ? (

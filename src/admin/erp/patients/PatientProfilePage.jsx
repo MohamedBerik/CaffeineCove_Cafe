@@ -1151,7 +1151,18 @@ function ToothDetails({
                         </button>
 
                         {r.treatment_plan_item_id ? (
-                          <span className="badge bg-success">Converted</span>
+                          <div className="d-flex flex-wrap gap-2">
+                            <span className="badge bg-success">Converted</span>
+
+                            {r.treatment_plan_item?.treatment_plan_id ? (
+                              <Link
+                                to={`/admin/erp/treatment-plans/${r.treatment_plan_item.treatment_plan_id}`}
+                                className="btn btn-sm btn-outline-success"
+                              >
+                                Open Plan
+                              </Link>
+                            ) : null}
+                          </div>
                         ) : (
                           <button
                             type="button"

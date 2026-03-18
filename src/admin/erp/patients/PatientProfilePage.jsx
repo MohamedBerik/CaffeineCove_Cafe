@@ -18,9 +18,21 @@ export default function PatientProfilePage() {
     status: "planned",
   });
 
+  const [editingRecordId, setEditingRecordId] = useState(null);
   const [savingRecord, setSavingRecord] = useState(false);
+  const [deletingRecordId, setDeletingRecordId] = useState(null);
+
   const [recordError, setRecordError] = useState("");
   const [recordSuccess, setRecordSuccess] = useState("");
+
+  const [convertRecordId, setConvertRecordId] = useState(null);
+  const [convertForm, setConvertForm] = useState({
+    treatment_plan_id: "",
+    price: "",
+  });
+  const [convertingRecord, setConvertingRecord] = useState(false);
+  const [convertError, setConvertError] = useState("");
+  const [convertSuccess, setConvertSuccess] = useState("");
 
   useEffect(() => {
     loadProfile();
@@ -30,6 +42,8 @@ export default function PatientProfilePage() {
     try {
       setLoading(true);
       setError("");
+      setRecordError("");
+      setConvertError("");
 
       const res = await axios.get(`/erp/customers/${id}/profile`);
       setData(res.data?.data || null);
@@ -47,16 +61,21 @@ export default function PatientProfilePage() {
   useEffect(() => {
     if (!selectedTooth) return;
 
+    resetRecordForm(String(selectedTooth));
+  }, [selectedTooth]);
+
+  const resetRecordForm = (toothValue = "") => {
+    setEditingRecordId(null);
     setRecordError("");
     setRecordSuccess("");
     setRecordForm({
-      tooth_number: String(selectedTooth),
+      tooth_number: toothValue,
       surface: "",
       procedure_id: "",
       notes: "",
       status: "planned",
     });
-  }, [selectedTooth]);
+  };
 
   const money = (v) =>
     new Intl.NumberFormat("en-US", {
@@ -121,17 +140,32 @@ export default function PatientProfilePage() {
         map[tooth] = {};
       }
 
-      if (!map[tooth][surfaceKey]) {
-        map[tooth][surfaceKey] = r;
-      }
+      map[tooth][surfaceKey] = r;
     });
 
     return map;
   }, [dentalRecords]);
 
+  const selectedToothRecords = useMemo(() => {
+    if (!selectedTooth) return [];
+
+    return dentalRecords.filter(
+      (r) =>
+        String(r.tooth_number || "").trim() === String(selectedTooth).trim(),
+    );
+  }, [dentalRecords, selectedTooth]);
+
   const handleRecordChange = (e) => {
     const { name, value } = e.target;
     setRecordForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleConvertChange = (e) => {
+    const { name, value } = e.target;
+    setConvertForm((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -145,39 +179,157 @@ export default function PatientProfilePage() {
       setRecordError("");
       setRecordSuccess("");
 
-      await axios.post("/erp/dental-records", {
+      const payload = {
         tooth_number: recordForm.tooth_number,
         surface: recordForm.surface || null,
-        procedure_id: Number(recordForm.procedure_id),
+        procedure_id: recordForm.procedure_id
+          ? Number(recordForm.procedure_id)
+          : null,
         customer_id: Number(id),
         notes: recordForm.notes || null,
         status: recordForm.status || "planned",
-      });
+      };
 
-      setRecordSuccess("Dental record added successfully.");
+      if (editingRecordId) {
+        await axios.put(`/erp/dental-records/${editingRecordId}`, payload);
+        setRecordSuccess("Dental record updated successfully.");
+      } else {
+        await axios.post("/erp/dental-records", payload);
+        setRecordSuccess("Dental record added successfully.");
+      }
+
       await loadProfile();
-
-      setRecordForm((prev) => ({
-        ...prev,
-        surface: "",
-        procedure_id: "",
-        notes: "",
-        status: "planned",
-      }));
+      resetRecordForm(String(selectedTooth || ""));
     } catch (err) {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setRecordError(firstError || "Failed to add dental record.");
+        setRecordError(firstError || "Failed to save dental record.");
       } else {
         setRecordError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to add dental record.",
+            "Failed to save dental record.",
         );
       }
     } finally {
       setSavingRecord(false);
+    }
+  };
+
+  const startEditRecord = (record) => {
+    setEditingRecordId(record.id);
+    setRecordError("");
+    setRecordSuccess("");
+
+    setRecordForm({
+      tooth_number: String(record.tooth_number || ""),
+      surface: record.surface || "",
+      procedure_id: record.procedure_id ? String(record.procedure_id) : "",
+      notes: record.notes || "",
+      status: record.status || "planned",
+    });
+  };
+
+  const deleteDentalRecord = async (recordId) => {
+    const confirmed = window.confirm("Delete this dental record?");
+    if (!confirmed) return;
+
+    try {
+      setDeletingRecordId(recordId);
+      setRecordError("");
+      setRecordSuccess("");
+      setConvertError("");
+      setConvertSuccess("");
+
+      await axios.delete(`/erp/dental-records/${recordId}`);
+
+      if (editingRecordId === recordId) {
+        resetRecordForm(String(selectedTooth || ""));
+      }
+
+      if (convertRecordId === recordId) {
+        setConvertRecordId(null);
+        setConvertForm({
+          treatment_plan_id: "",
+          price: "",
+        });
+      }
+
+      setRecordSuccess("Dental record deleted successfully.");
+      await loadProfile();
+    } catch (err) {
+      setRecordError(
+        err?.response?.data?.message ||
+          err?.response?.data?.msg ||
+          "Failed to delete dental record.",
+      );
+    } finally {
+      setDeletingRecordId(null);
+    }
+  };
+
+  const openConvertForm = (record) => {
+    setConvertRecordId(record.id);
+    setConvertError("");
+    setConvertSuccess("");
+    setConvertForm({
+      treatment_plan_id: "",
+      price:
+        record?.procedure?.default_price != null
+          ? String(record.procedure.default_price)
+          : "",
+    });
+  };
+
+  const closeConvertForm = () => {
+    setConvertRecordId(null);
+    setConvertError("");
+    setConvertForm({
+      treatment_plan_id: "",
+      price: "",
+    });
+  };
+
+  const submitConvertRecord = async (recordId) => {
+    try {
+      setConvertingRecord(true);
+      setConvertError("");
+      setConvertSuccess("");
+
+      const payload = {
+        treatment_plan_id: Number(convertForm.treatment_plan_id),
+      };
+
+      if (convertForm.price !== "") {
+        payload.price = Number(convertForm.price);
+      }
+
+      await axios.post(
+        `/erp/dental-records/${recordId}/to-treatment-plan-item`,
+        payload,
+      );
+
+      setConvertSuccess(
+        "Record converted to treatment plan item successfully.",
+      );
+      await loadProfile();
+      closeConvertForm();
+      setSelectedTooth(null);
+    } catch (err) {
+      const errors = err?.response?.data?.errors;
+      if (errors) {
+        const firstError = Object.values(errors)?.[0]?.[0];
+        setConvertError(firstError || "Failed to convert record.");
+      } else {
+        setConvertError(
+          err?.response?.data?.message ||
+            err?.response?.data?.msg ||
+            "Failed to convert record.",
+        );
+      }
+    } finally {
+      setConvertingRecord(false);
     }
   };
 
@@ -310,6 +462,7 @@ export default function PatientProfilePage() {
       <Section title="Dental Chart">
         <DentalChart
           toothSurfacesMap={toothSurfacesMap}
+          selectedTooth={selectedTooth}
           onSelectTooth={setSelectedTooth}
         />
       </Section>
@@ -318,18 +471,29 @@ export default function PatientProfilePage() {
         <Section title={`Tooth #${selectedTooth} Details`}>
           <ToothDetails
             tooth={selectedTooth}
-            records={dentalRecords.filter(
-              (r) =>
-                String(r.tooth_number || "").trim() ===
-                String(selectedTooth).trim(),
-            )}
+            records={selectedToothRecords}
             procedures={procedures}
+            treatmentPlans={treatmentPlans}
             recordForm={recordForm}
+            editingRecordId={editingRecordId}
             onRecordChange={handleRecordChange}
             onSubmitRecord={saveDentalRecord}
+            onResetForm={() => resetRecordForm(String(selectedTooth))}
+            onStartEdit={startEditRecord}
+            onDelete={deleteDentalRecord}
+            deletingRecordId={deletingRecordId}
             savingRecord={savingRecord}
             recordError={recordError}
             recordSuccess={recordSuccess}
+            convertRecordId={convertRecordId}
+            convertForm={convertForm}
+            onConvertChange={handleConvertChange}
+            onOpenConvert={openConvertForm}
+            onCloseConvert={closeConvertForm}
+            onSubmitConvert={submitConvertRecord}
+            convertingRecord={convertingRecord}
+            convertError={convertError}
+            convertSuccess={convertSuccess}
           />
         </Section>
       ) : null}
@@ -345,6 +509,7 @@ export default function PatientProfilePage() {
                 <th>Surface</th>
                 <th>Procedure</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -355,6 +520,33 @@ export default function PatientProfilePage() {
                   <td>{r.procedure?.name || "-"}</td>
                   <td>
                     <RecordStatusBadge status={r.status} />
+                  </td>
+                  <td>
+                    <div className="d-flex gap-2">
+                      <button
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={() => {
+                          setSelectedTooth(r.tooth_number);
+                          startEditRecord(r);
+                        }}
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => deleteDentalRecord(r.id)}
+                      >
+                        Delete
+                      </button>
+
+                      <button
+                        className="btn btn-sm btn-outline-success"
+                        onClick={() => openConvertForm(r)}
+                      >
+                        Convert
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -488,7 +680,7 @@ function formatAppointmentType(value) {
   return "-";
 }
 
-function DentalChart({ toothSurfacesMap, onSelectTooth }) {
+function DentalChart({ toothSurfacesMap, selectedTooth, onSelectTooth }) {
   const upperRight = ["1", "2", "3", "4", "5", "6", "7", "8"];
   const upperLeft = ["9", "10", "11", "12", "13", "14", "15", "16"];
   const lowerLeft = ["17", "18", "19", "20", "21", "22", "23", "24"];
@@ -496,8 +688,20 @@ function DentalChart({ toothSurfacesMap, onSelectTooth }) {
 
   return (
     <div className="p-3">
-      <div className="small text-muted mb-3">
-        Each tooth shows surfaces: O/I, M, D, B/F, L/P
+      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div className="small text-muted">
+          Each tooth shows surfaces: O/I, M, D, B/F, L/P
+        </div>
+
+        {selectedTooth ? (
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary"
+            onClick={() => onSelectTooth(null)}
+          >
+            Clear Selection
+          </button>
+        ) : null}
       </div>
 
       <div className="mb-4">
@@ -509,6 +713,7 @@ function DentalChart({ toothSurfacesMap, onSelectTooth }) {
               tooth={tooth}
               surfaces={toothSurfacesMap[tooth] || {}}
               onSelect={onSelectTooth}
+              isSelected={String(selectedTooth) === String(tooth)}
             />
           ))}
           {upperLeft.map((tooth) => (
@@ -517,6 +722,7 @@ function DentalChart({ toothSurfacesMap, onSelectTooth }) {
               tooth={tooth}
               surfaces={toothSurfacesMap[tooth] || {}}
               onSelect={onSelectTooth}
+              isSelected={String(selectedTooth) === String(tooth)}
             />
           ))}
         </div>
@@ -531,6 +737,7 @@ function DentalChart({ toothSurfacesMap, onSelectTooth }) {
               tooth={tooth}
               surfaces={toothSurfacesMap[tooth] || {}}
               onSelect={onSelectTooth}
+              isSelected={String(selectedTooth) === String(tooth)}
             />
           ))}
           {lowerRight.map((tooth) => (
@@ -539,6 +746,7 @@ function DentalChart({ toothSurfacesMap, onSelectTooth }) {
               tooth={tooth}
               surfaces={toothSurfacesMap[tooth] || {}}
               onSelect={onSelectTooth}
+              isSelected={String(selectedTooth) === String(tooth)}
             />
           ))}
         </div>
@@ -554,7 +762,7 @@ function DentalChart({ toothSurfacesMap, onSelectTooth }) {
   );
 }
 
-function ToothCard({ tooth, surfaces, onSelect }) {
+function ToothCard({ tooth, surfaces, onSelect, isSelected = false }) {
   const occlusal = surfaces.occlusal || surfaces.incisal || surfaces.general;
   const mesial = surfaces.mesial || surfaces.m;
   const distal = surfaces.distal || surfaces.d;
@@ -564,7 +772,9 @@ function ToothCard({ tooth, surfaces, onSelect }) {
 
   return (
     <div
-      className="border rounded p-2 bg-white"
+      className={`border rounded p-2 bg-white ${
+        isSelected ? "border-primary shadow-sm" : ""
+      }`}
       style={{ width: 86, cursor: "pointer" }}
       onClick={() => onSelect(tooth)}
       title={buildToothTooltip(tooth, surfaces)}
@@ -657,7 +867,9 @@ function buildToothTooltip(tooth, surfaces) {
   if (!entries.length) return `Tooth ${tooth}: No data`;
 
   const lines = entries.map(([surface, record]) => {
-    return `${surface}: ${record?.procedure?.name || "-"} | ${record?.status || "-"}`;
+    return `${surface}: ${record?.procedure?.name || "-"} | ${
+      record?.status || "-"
+    }`;
   });
 
   return `Tooth ${tooth}\n${lines.join("\n")}`;
@@ -722,12 +934,27 @@ function ToothDetails({
   tooth,
   records,
   procedures,
+  treatmentPlans,
   recordForm,
+  editingRecordId,
   onRecordChange,
   onSubmitRecord,
+  onResetForm,
+  onStartEdit,
+  onDelete,
+  deletingRecordId,
   savingRecord,
   recordError,
   recordSuccess,
+  convertRecordId,
+  convertForm,
+  onConvertChange,
+  onOpenConvert,
+  onCloseConvert,
+  onSubmitConvert,
+  convertingRecord,
+  convertError,
+  convertSuccess,
 }) {
   return (
     <div className="p-3">
@@ -739,8 +966,32 @@ function ToothDetails({
         <div className="alert alert-success py-2">{recordSuccess}</div>
       ) : null}
 
+      {convertError ? (
+        <div className="alert alert-danger py-2">{convertError}</div>
+      ) : null}
+
+      {convertSuccess ? (
+        <div className="alert alert-success py-2">{convertSuccess}</div>
+      ) : null}
+
       <div className="mb-4">
-        <div className="fw-semibold mb-3">Add Record for Tooth #{tooth}</div>
+        <div className="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
+          <div className="fw-semibold">
+            {editingRecordId
+              ? `Edit Record #${editingRecordId} for Tooth #${tooth}`
+              : `Add Record for Tooth #${tooth}`}
+          </div>
+
+          {editingRecordId ? (
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary"
+              onClick={onResetForm}
+            >
+              Cancel Edit
+            </button>
+          ) : null}
+        </div>
 
         <form onSubmit={onSubmitRecord}>
           <div className="row g-3">
@@ -823,14 +1074,29 @@ function ToothDetails({
               />
             </div>
 
-            <div className="col-12">
+            <div className="col-12 d-flex gap-2 flex-wrap">
               <button
                 type="submit"
                 className="btn btn-primary"
                 disabled={savingRecord}
               >
-                {savingRecord ? "Saving..." : "Add Record"}
+                {savingRecord
+                  ? "Saving..."
+                  : editingRecordId
+                    ? "Update Record"
+                    : "Add Record"}
               </button>
+
+              {editingRecordId ? (
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={onResetForm}
+                  disabled={savingRecord}
+                >
+                  Reset
+                </button>
+              ) : null}
             </div>
           </div>
         </form>
@@ -842,27 +1108,121 @@ function ToothDetails({
         <div className="text-muted">No records for this tooth.</div>
       ) : (
         <div className="table-responsive">
-          <table className="table table-sm table-bordered">
+          <table className="table table-sm table-bordered align-middle">
             <thead className="table-light">
               <tr>
                 <th>Surface</th>
                 <th>Procedure</th>
                 <th>Status</th>
                 <th>Notes</th>
+                <th style={{ minWidth: 320 }}>Actions</th>
               </tr>
             </thead>
 
             <tbody>
-              {records.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.surface || "-"}</td>
-                  <td>{r.procedure?.name || "-"}</td>
-                  <td>
-                    <RecordStatusBadge status={r.status} />
-                  </td>
-                  <td>{r.notes || "-"}</td>
-                </tr>
-              ))}
+              {records.map((r) => {
+                const isConvertOpen = convertRecordId === r.id;
+
+                return (
+                  <tr key={r.id}>
+                    <td>{r.surface || "-"}</td>
+                    <td>{r.procedure?.name || "-"}</td>
+                    <td>
+                      <RecordStatusBadge status={r.status} />
+                    </td>
+                    <td>{r.notes || "-"}</td>
+                    <td>
+                      <div className="d-flex flex-wrap gap-2 mb-2">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={() => onStartEdit(r)}
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => onDelete(r.id)}
+                          disabled={deletingRecordId === r.id}
+                        >
+                          {deletingRecordId === r.id ? "Deleting..." : "Delete"}
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-success"
+                          onClick={() => onOpenConvert(r)}
+                        >
+                          Convert to Treatment Plan
+                        </button>
+                      </div>
+
+                      {isConvertOpen ? (
+                        <div className="border rounded p-2 bg-light">
+                          <div className="row g-2">
+                            <div className="col-12 col-md-6">
+                              <label className="form-label small fw-semibold">
+                                Treatment Plan
+                              </label>
+                              <select
+                                className="form-select form-select-sm"
+                                name="treatment_plan_id"
+                                value={convertForm.treatment_plan_id}
+                                onChange={onConvertChange}
+                              >
+                                <option value="">Select treatment plan</option>
+                                {treatmentPlans.map((plan) => (
+                                  <option key={plan.id} value={plan.id}>
+                                    {plan.title || `Plan #${plan.id}`}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div className="col-12 col-md-6">
+                              <label className="form-label small fw-semibold">
+                                Price
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                className="form-control form-control-sm"
+                                name="price"
+                                placeholder="Optional price override"
+                                value={convertForm.price}
+                                onChange={onConvertChange}
+                              />
+                            </div>
+
+                            <div className="col-12 d-flex gap-2">
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-success"
+                                onClick={() => onSubmitConvert(r.id)}
+                                disabled={convertingRecord}
+                              >
+                                {convertingRecord ? "Converting..." : "Confirm"}
+                              </button>
+
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-secondary"
+                                onClick={onCloseConvert}
+                                disabled={convertingRecord}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

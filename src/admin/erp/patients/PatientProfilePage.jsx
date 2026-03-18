@@ -30,7 +30,7 @@ export default function PatientProfilePage() {
     treatment_plan_id: "",
     price: "",
   });
-  const [convertingRecord, setConvertingRecord] = useState(false);
+  const [convertingRecordId, setConvertingRecordId] = useState(null);
   const [convertError, setConvertError] = useState("");
   const [convertSuccess, setConvertSuccess] = useState("");
 
@@ -302,7 +302,7 @@ export default function PatientProfilePage() {
 
   const submitConvertRecord = async (recordId) => {
     try {
-      setConvertingRecord(true);
+      setConvertingRecordId(recordId);
       setConvertError("");
       setConvertSuccess("");
 
@@ -338,7 +338,7 @@ export default function PatientProfilePage() {
         );
       }
     } finally {
-      setConvertingRecord(false);
+      setConvertingRecordId(null);
     }
   };
 
@@ -675,7 +675,9 @@ export default function PatientProfilePage() {
                                 onClick={() => submitConvertRecord(r.id)}
                                 disabled={convertingRecord}
                               >
-                                {convertingRecord ? "Converting..." : "Confirm"}
+                                {convertingRecordId === r.id
+                                  ? "Converting..."
+                                  : "Confirm"}
                               </button>
 
                               <button
@@ -1319,7 +1321,7 @@ function ToothDetails({
                         {getRecordMeta(r)}
                       </div>
 
-                      {isConvertOpen && !r.treatment_plan_item_id ? (
+                      {isConvertOpen && primaryAction.key === "convert" ? (
                         <div className="border rounded p-2 bg-light">
                           <div className="row g-2">
                             <div className="col-12 col-md-6">
@@ -1362,7 +1364,7 @@ function ToothDetails({
                                 type="button"
                                 className="btn btn-sm btn-success"
                                 onClick={() => onSubmitConvert(r.id)}
-                                disabled={convertingRecord}
+                                disabled={convertingRecordId === r.id}
                               >
                                 {convertingRecord ? "Converting..." : "Confirm"}
                               </button>
@@ -1371,7 +1373,7 @@ function ToothDetails({
                                 type="button"
                                 className="btn btn-sm btn-outline-secondary"
                                 onClick={onCloseConvert}
-                                disabled={convertingRecord}
+                                disabled={convertingRecordId === r.id}
                               >
                                 Cancel
                               </button>

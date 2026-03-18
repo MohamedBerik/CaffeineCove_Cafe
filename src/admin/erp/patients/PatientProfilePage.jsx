@@ -43,7 +43,9 @@ export default function PatientProfilePage() {
       setLoading(true);
       setError("");
       setRecordError("");
+      setRecordSuccess("");
       setConvertError("");
+      setConvertSuccess("");
 
       const res = await axios.get(`/erp/customers/${id}/profile`);
       setData(res.data?.data || null);
@@ -1258,7 +1260,7 @@ function ToothDetails({
                         )}
                       </div>
 
-                      {isConvertOpen ? (
+                      {isConvertOpen && !r.treatment_plan_item_id ? (
                         <div className="border rounded p-2 bg-light">
                           <div className="row g-2">
                             <div className="col-12 col-md-6">

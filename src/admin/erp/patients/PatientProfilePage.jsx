@@ -350,7 +350,7 @@ export default function PatientProfilePage() {
   };
 
   const getRecordPrimaryAction = (record) => {
-    const item = record?.treatmentPlanItem;
+    const item = record?.treatment_plan_item;
 
     if (!item) {
       return {
@@ -378,7 +378,7 @@ export default function PatientProfilePage() {
   };
 
   const getRecordMeta = (record) => {
-    const item = record?.treatmentPlanItem;
+    const item = record?.treatment_plan_item;
 
     if (!item) {
       return "Not converted yet";

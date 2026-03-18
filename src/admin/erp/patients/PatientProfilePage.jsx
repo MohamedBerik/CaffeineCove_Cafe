@@ -43,9 +43,7 @@ export default function PatientProfilePage() {
       setLoading(true);
       setError("");
       setRecordError("");
-      setRecordSuccess("");
       setConvertError("");
-      setConvertSuccess("");
 
       const res = await axios.get(`/erp/customers/${id}/profile`);
       setData(res.data?.data || null);
@@ -62,9 +60,18 @@ export default function PatientProfilePage() {
 
   useEffect(() => {
     if (!selectedTooth) return;
+    if (editingRecordId) return;
 
-    resetRecordForm(String(selectedTooth));
-  }, [selectedTooth]);
+    setRecordError("");
+    setRecordSuccess("");
+    setRecordForm({
+      tooth_number: String(selectedTooth),
+      surface: "",
+      procedure_id: "",
+      notes: "",
+      status: "planned",
+    });
+  }, [selectedTooth, editingRecordId]);
 
   const resetRecordForm = (toothValue = "") => {
     setEditingRecordId(null);
@@ -623,7 +630,7 @@ export default function PatientProfilePage() {
                         {getRecordMeta(r)}
                       </div>
 
-                      {isConvertOpen && !r.treatment_plan_item_id ? (
+                      {isConvertOpen && primaryAction.key === "convert" ? (
                         <div className="border rounded p-2 bg-light">
                           <div className="row g-2">
                             <div className="col-12 col-md-6">

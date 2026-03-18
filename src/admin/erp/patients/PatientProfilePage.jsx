@@ -1150,13 +1150,17 @@ function ToothDetails({
                           {deletingRecordId === r.id ? "Deleting..." : "Delete"}
                         </button>
 
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-success"
-                          onClick={() => onOpenConvert(r)}
-                        >
-                          Convert to Treatment Plan
-                        </button>
+                        {r.treatment_plan_item_id ? (
+                          <span className="badge bg-success">Converted</span>
+                        ) : (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-success"
+                            onClick={() => onOpenConvert(r)}
+                          >
+                            Convert to Treatment Plan
+                          </button>
+                        )}
                       </div>
 
                       {isConvertOpen ? (

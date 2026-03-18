@@ -680,7 +680,7 @@ export default function PatientProfilePage() {
                                 type="button"
                                 className="btn btn-sm btn-success"
                                 onClick={() => submitConvertRecord(r.id)}
-                                disabled={convertingRecordId}
+                                disabled={convertingRecordId === r.id}
                               >
                                 {convertingRecordId === r.id
                                   ? "Converting..."
@@ -691,7 +691,7 @@ export default function PatientProfilePage() {
                                 type="button"
                                 className="btn btn-sm btn-outline-secondary"
                                 onClick={closeConvertForm}
-                                disabled={convertingRecord}
+                                disabled={convertingRecordId === r.id}
                               >
                                 Cancel
                               </button>

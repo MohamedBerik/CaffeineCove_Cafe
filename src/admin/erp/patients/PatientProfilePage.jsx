@@ -509,47 +509,131 @@ export default function PatientProfilePage() {
                 <th>Surface</th>
                 <th>Procedure</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th style={{ minWidth: 320 }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {dentalRecords.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.tooth_number || "-"}</td>
-                  <td>{r.surface || "-"}</td>
-                  <td>{r.procedure?.name || "-"}</td>
-                  <td>
-                    <RecordStatusBadge status={r.status} />
-                  </td>
-                  <td>
-                    <div className="d-flex gap-2">
-                      <button
-                        className="btn btn-sm btn-outline-primary"
-                        onClick={() => {
-                          setSelectedTooth(r.tooth_number);
-                          startEditRecord(r);
-                        }}
-                      >
-                        Edit
-                      </button>
+              {dentalRecords.map((r) => {
+                const isConvertOpen = convertRecordId === r.id;
 
-                      <button
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => deleteDentalRecord(r.id)}
-                      >
-                        Delete
-                      </button>
+                return (
+                  <tr key={r.id}>
+                    <td>{r.tooth_number || "-"}</td>
+                    <td>{r.surface || "-"}</td>
+                    <td>{r.procedure?.name || "-"}</td>
+                    <td>
+                      <RecordStatusBadge status={r.status} />
+                    </td>
+                    <td>
+                      <div className="d-flex flex-wrap gap-2 mb-2">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={() => {
+                            setSelectedTooth(String(r.tooth_number || ""));
+                            startEditRecord(r);
+                          }}
+                        >
+                          Edit
+                        </button>
 
-                      <button
-                        className="btn btn-sm btn-outline-success"
-                        onClick={() => openConvertForm(r)}
-                      >
-                        Convert
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => deleteDentalRecord(r.id)}
+                          disabled={deletingRecordId === r.id}
+                        >
+                          {deletingRecordId === r.id ? "Deleting..." : "Delete"}
+                        </button>
+
+                        {r.treatment_plan_item_id ? (
+                          <div className="d-flex flex-wrap gap-2">
+                            <span className="badge bg-success">Converted</span>
+
+                            {r.treatmentPlanItem?.treatment_plan_id ? (
+                              <Link
+                                to={`/admin/erp/treatment-plans/${r.treatmentPlanItem.treatment_plan_id}`}
+                                className="btn btn-sm btn-outline-success"
+                              >
+                                Open Plan
+                              </Link>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-success"
+                            onClick={() => openConvertForm(r)}
+                          >
+                            Convert to Treatment Plan
+                          </button>
+                        )}
+                      </div>
+
+                      {isConvertOpen && !r.treatment_plan_item_id ? (
+                        <div className="border rounded p-2 bg-light">
+                          <div className="row g-2">
+                            <div className="col-12 col-md-6">
+                              <label className="form-label small fw-semibold">
+                                Treatment Plan
+                              </label>
+                              <select
+                                className="form-select form-select-sm"
+                                name="treatment_plan_id"
+                                value={convertForm.treatment_plan_id}
+                                onChange={handleConvertChange}
+                              >
+                                <option value="">Select treatment plan</option>
+                                {treatmentPlans.map((plan) => (
+                                  <option key={plan.id} value={plan.id}>
+                                    {plan.title || `Plan #${plan.id}`}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div className="col-12 col-md-6">
+                              <label className="form-label small fw-semibold">
+                                Price
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                className="form-control form-control-sm"
+                                name="price"
+                                placeholder="Optional price override"
+                                value={convertForm.price}
+                                onChange={handleConvertChange}
+                              />
+                            </div>
+
+                            <div className="col-12 d-flex gap-2">
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-success"
+                                onClick={() => submitConvertRecord(r.id)}
+                                disabled={convertingRecord}
+                              >
+                                {convertingRecord ? "Converting..." : "Confirm"}
+                              </button>
+
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-secondary"
+                                onClick={closeConvertForm}
+                                disabled={convertingRecord}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </Table>
         )}

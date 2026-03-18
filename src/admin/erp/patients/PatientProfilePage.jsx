@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "../../../services/axios";
 
 export default function PatientProfilePage() {
   const { id } = useParams();
-
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -314,17 +314,24 @@ export default function PatientProfilePage() {
         payload.price = Number(convertForm.price);
       }
 
-      await axios.post(
+      const res = await axios.post(
         `/erp/dental-records/${recordId}/to-treatment-plan-item`,
         payload,
       );
 
+      const item = res.data?.data;
+
       setConvertSuccess(
         "Record converted to treatment plan item successfully.",
       );
+
       await loadProfile();
       closeConvertForm();
-      setSelectedTooth(null);
+
+      // لو عايز تفتح الـ Treatment Plan مباشرة
+      if (item?.treatment_plan_id) {
+        navigate(`/admin/erp/treatment-plans/${item.treatment_plan_id}`);
+      }
     } catch (err) {
       const errors = err?.response?.data?.errors;
       if (errors) {
@@ -550,7 +557,7 @@ export default function PatientProfilePage() {
             onOpenConvert={openConvertForm}
             onCloseConvert={closeConvertForm}
             onSubmitConvert={submitConvertRecord}
-            convertingRecord={convertingRecord}
+            convertingRecordId={convertingRecordId}
             convertError={convertError}
             convertSuccess={convertSuccess}
             getRecordPrimaryAction={getRecordPrimaryAction}
@@ -1098,7 +1105,7 @@ function ToothDetails({
   onOpenConvert,
   onCloseConvert,
   onSubmitConvert,
-  convertingRecord,
+  convertingRecordId,
   convertError,
   convertSuccess,
   getRecordPrimaryAction,
@@ -1366,7 +1373,9 @@ function ToothDetails({
                                 onClick={() => onSubmitConvert(r.id)}
                                 disabled={convertingRecordId === r.id}
                               >
-                                {convertingRecord ? "Converting..." : "Confirm"}
+                                {convertingRecordId === r.id
+                                  ? "Converting..."
+                                  : "Confirm"}
                               </button>
 
                               <button

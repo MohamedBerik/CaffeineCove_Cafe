@@ -96,7 +96,7 @@ export default function AppointmentsListPage() {
     const type = String(value || "").toLowerCase();
     if (type === "consultation") return "Consultation";
     if (type === "treatment") return "Treatment";
-    return "-";
+    return value || "-";
   };
 
   const filteredRows = useMemo(() => {
@@ -116,6 +116,10 @@ export default function AppointmentsListPage() {
         .slice(0, 5)
         .toLowerCase();
       const appointmentType = String(item.appointment_type || "").toLowerCase();
+      const invoiceId = String(item.invoice_id || "").toLowerCase();
+      const treatmentPlanId = String(
+        item.treatment_plan_id || "",
+      ).toLowerCase();
 
       const matchesSearch =
         !q ||
@@ -127,7 +131,9 @@ export default function AppointmentsListPage() {
         notes.includes(q) ||
         date.includes(q) ||
         time.includes(q) ||
-        appointmentType.includes(q);
+        appointmentType.includes(q) ||
+        invoiceId.includes(q) ||
+        treatmentPlanId.includes(q);
 
       const matchesStatus =
         !statusFilter || status === statusFilter.toLowerCase();
@@ -225,33 +231,40 @@ export default function AppointmentsListPage() {
       setActingId(`complete-${item.id}`);
 
       const res = await axios.post(`/erp/appointments/${item.id}/complete`, {});
+      const result = res?.data || {};
 
-      const invoiceId = res?.data?.invoice_id || null;
-
-      setActionSuccess(res?.data?.msg || "Appointment completed successfully.");
+      setActionSuccess(result?.msg || "Appointment completed successfully.");
 
       await loadAll();
 
-      if (invoiceId) {
-        navigate(`/admin/erp/invoices/${invoiceId}`);
+      if (result?.invoice_id) {
+        navigate(`/admin/erp/invoices/${result.invoice_id}`);
         return;
       }
 
-      setActionError(
-        "Appointment was completed, but no invoice was returned from the server.",
-      );
+      if (result?.treatment_plan_id) {
+        navigate(`/admin/erp/treatment-plans/${result.treatment_plan_id}`);
+        return;
+      }
+
+      navigate(`/admin/erp/appointments/${item.id}/activity`);
     } catch (err) {
-      const errors = err?.response?.data?.errors;
+      const responseData = err?.response?.data || {};
+      const errors = responseData?.errors;
 
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
         setActionError(firstError || "Failed to complete appointment.");
       } else {
         setActionError(
-          err?.response?.data?.message ||
-            err?.response?.data?.msg ||
+          responseData?.message ||
+            responseData?.msg ||
             "Failed to complete appointment.",
         );
+      }
+
+      if (responseData?.invoice_id) {
+        navigate(`/admin/erp/invoices/${responseData.invoice_id}`);
       }
     } finally {
       setActingId(null);
@@ -349,6 +362,7 @@ export default function AppointmentsListPage() {
           >
             Calendar
           </Link>
+
           <Link
             to="/admin/erp/appointments/create"
             className="btn btn-outline-primary"
@@ -374,6 +388,7 @@ export default function AppointmentsListPage() {
       {actionError ? (
         <div className="alert alert-danger">{actionError}</div>
       ) : null}
+
       {actionSuccess ? (
         <div className="alert alert-success">{actionSuccess}</div>
       ) : null}
@@ -386,7 +401,7 @@ export default function AppointmentsListPage() {
               <input
                 type="text"
                 className="form-control"
-                placeholder="ID, patient, doctor, date, time, status, type, notes..."
+                placeholder="ID, patient, doctor, date, time, status, type, invoice, plan..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -433,6 +448,7 @@ export default function AppointmentsListPage() {
               <button type="submit" className="btn btn-outline-primary">
                 Search
               </button>
+
               <button
                 type="button"
                 className="btn btn-outline-secondary"
@@ -449,6 +465,7 @@ export default function AppointmentsListPage() {
         <div className="card-header bg-white">
           <h5 className="mb-0">Appointments List</h5>
         </div>
+
         <div className="card-body p-0">
           {filteredRows.length === 0 ? (
             <div className="p-4 text-muted">No appointments found.</div>
@@ -464,8 +481,10 @@ export default function AppointmentsListPage() {
                     <th style={{ minWidth: 100 }}>Time</th>
                     <th style={{ minWidth: 140 }}>Type</th>
                     <th style={{ minWidth: 120 }}>Status</th>
+                    <th style={{ minWidth: 120 }}>Invoice</th>
+                    <th style={{ minWidth: 140 }}>Treatment Plan</th>
                     <th style={{ minWidth: 220 }}>Notes</th>
-                    <th style={{ minWidth: 360 }}>Actions</th>
+                    <th style={{ minWidth: 420 }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -528,6 +547,10 @@ function AppointmentRow({
   const canNoShow = status === "scheduled";
   const canReschedule = ["scheduled", "cancelled", "no_show"].includes(status);
 
+  const patientId = item.patient?.id || item.patient_id || null;
+  const invoiceId = item.invoice_id || null;
+  const treatmentPlanId = item.treatment_plan_id || null;
+
   return (
     <>
       <tr
@@ -540,12 +563,12 @@ function AppointmentRow({
 
         <td>
           <div className="fw-semibold">
-            {item.patient?.id ? (
+            {patientId ? (
               <Link
-                to={`/admin/erp/patients/${item.patient.id}/profile`}
+                to={`/admin/erp/patients/${patientId}/profile`}
                 className="text-decoration-none"
               >
-                {item.patient?.name || "-"}
+                {item.patient?.name || `Patient #${patientId}`}
               </Link>
             ) : (
               item.patient?.name || "-"
@@ -557,17 +580,46 @@ function AppointmentRow({
         <td>{item.doctor?.name || item.doctor_name || "-"}</td>
         <td>{formatDate(item.appointment_date)}</td>
         <td>{formatTime(item.appointment_time)}</td>
-        <td>{formatAppointmentType(item.appointment_type)}</td>
+        <td>
+          <AppointmentTypeBadge type={item.appointment_type} />
+        </td>
         <td>
           <StatusBadge status={item.status} />
         </td>
+
+        <td>
+          {invoiceId ? (
+            <Link
+              to={`/admin/erp/invoices/${invoiceId}`}
+              className="text-decoration-none"
+            >
+              #{invoiceId}
+            </Link>
+          ) : (
+            "-"
+          )}
+        </td>
+
+        <td>
+          {treatmentPlanId ? (
+            <Link
+              to={`/admin/erp/treatment-plans/${treatmentPlanId}`}
+              className="text-decoration-none"
+            >
+              #{treatmentPlanId}
+            </Link>
+          ) : (
+            "-"
+          )}
+        </td>
+
         <td>{item.notes || "-"}</td>
 
         <td>
           <div className="d-flex flex-wrap gap-2">
-            {item.patient?.id ? (
+            {patientId ? (
               <Link
-                to={`/admin/erp/patients/${item.patient.id}/profile`}
+                to={`/admin/erp/patients/${patientId}/profile`}
                 className="btn btn-sm btn-outline-primary"
               >
                 Patient
@@ -580,6 +632,24 @@ function AppointmentRow({
             >
               Activity
             </Link>
+
+            {invoiceId ? (
+              <Link
+                to={`/admin/erp/invoices/${invoiceId}`}
+                className="btn btn-sm btn-outline-success"
+              >
+                Invoice
+              </Link>
+            ) : null}
+
+            {treatmentPlanId ? (
+              <Link
+                to={`/admin/erp/treatment-plans/${treatmentPlanId}`}
+                className="btn btn-sm btn-outline-info"
+              >
+                Plan
+              </Link>
+            ) : null}
 
             {canCancel ? (
               <button
@@ -627,9 +697,10 @@ function AppointmentRow({
 
       {isRescheduleOpen ? (
         <tr>
-          <td colSpan="9" className="bg-light">
+          <td colSpan="11" className="bg-light">
             <div className="p-3">
               <div className="fw-semibold mb-3">Reschedule Appointment</div>
+
               <div className="row g-3 align-items-end">
                 <div className="col-12 col-md-3">
                   <label className="form-label fw-semibold">Date</label>
@@ -719,5 +790,22 @@ function StatusBadge({ status }) {
   else if (["cancelled", "no_show"].includes(value)) cls = "danger";
   else if (["scheduled"].includes(value)) cls = "warning";
 
-  return <span className={`badge bg-${cls}`}>{status}</span>;
+  return <span className={`badge bg-${cls}`}>{status || "-"}</span>;
+}
+
+function AppointmentTypeBadge({ type }) {
+  const value = String(type || "").toLowerCase();
+
+  let cls = "secondary";
+  let label = type || "-";
+
+  if (value === "consultation") {
+    cls = "primary";
+    label = "Consultation";
+  } else if (value === "treatment") {
+    cls = "info";
+    label = "Treatment";
+  }
+
+  return <span className={`badge bg-${cls}`}>{label}</span>;
 }

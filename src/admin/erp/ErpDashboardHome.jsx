@@ -122,7 +122,7 @@ export default function ErpDashboardHome() {
           </Link>
 
           <button className="btn btn-primary" onClick={loadDashboard}>
-            Refresh
+            <i class="fa-solid fa-arrow-rotate-right"></i>
           </button>
         </div>
       </div>

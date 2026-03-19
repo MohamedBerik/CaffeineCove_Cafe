@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import api from "../../../services/axios";
 import { notifyError } from "../../../utils/notify";
 import "./PatientStatement.css";
@@ -9,12 +9,19 @@ const PatientStatement = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ لو المسار فيه patients يبقى UI Patient (لكن الـ API يفضل customers)
   const uiEntity = useMemo(() => {
     return location.pathname.includes("/patients/") ? "patient" : "customer";
   }, [location.pathname]);
 
   const uiTitle = uiEntity === "patient" ? "Patient" : "Customer";
+  const profilePath =
+    uiEntity === "patient"
+      ? `/admin/erp/patients/${id}/profile`
+      : `/admin/erp/customers/${id}`;
+  const timelinePath =
+    uiEntity === "patient"
+      ? `/admin/erp/patients/${id}/timeline`
+      : `/admin/erp/patients/${id}/timeline`;
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
@@ -32,7 +39,6 @@ const PatientStatement = () => {
   const fetchStatement = async (params = {}) => {
     setLoading(true);
     try {
-      // ✅ الـ API ثابت (customers) حتى لو UI patients
       const res = await api.get(`/erp/customers/${id}/statement`, { params });
       setData(res.data);
     } catch (e) {
@@ -57,21 +63,14 @@ const PatientStatement = () => {
   };
 
   const handleQuickFilter = (days) => {
-    let fromDate = "";
-    if (days === 30) {
-      const date = new Date();
-      date.setDate(date.getDate() - 30);
-      fromDate = date.toISOString().split("T")[0];
-      setFrom(fromDate);
-    } else if (days === 90) {
-      const date = new Date();
-      date.setDate(date.getDate() - 90);
-      fromDate = date.toISOString().split("T")[0];
-      setFrom(fromDate);
-    }
+    const date = new Date();
+    date.setDate(date.getDate() - days);
+    const fromDate = date.toISOString().split("T")[0];
+
+    setFrom(fromDate);
     setTo("");
-    fetchStatement({ from: fromDate || undefined });
-    setActiveFilter(days.toString());
+    fetchStatement({ from: fromDate });
+    setActiveFilter(String(days));
   };
 
   const handlePrint = () => window.print();
@@ -83,15 +82,30 @@ const PatientStatement = () => {
     fetchStatement();
   };
 
-  if (loading)
+  const formatMoney = (value) => Number(value || 0).toFixed(2);
+
+  const getEntryTypeLabel = (type) => {
+    const value = String(type || "").toLowerCase();
+
+    if (value === "invoice") return "Invoice";
+    if (value === "payment") return "Payment";
+    if (value === "refund") return "Refund";
+    if (value === "credit") return "Credit";
+    if (value === "debit") return "Debit";
+
+    return type || "-";
+  };
+
+  if (loading) {
     return (
       <div className="statement-loading">
         <div className="loading-spinner"></div>
         <p>Loading {uiEntity} statement...</p>
       </div>
     );
+  }
 
-  if (!data)
+  if (!data) {
     return (
       <div className="statement-error">
         <i className="fas fa-exclamation-circle"></i>
@@ -101,8 +115,42 @@ const PatientStatement = () => {
         </button>
       </div>
     );
+  }
 
   const { customer, period, opening_balance, entries, closing_balance } = data;
+
+  const renderEntryLinks = (row) => {
+    return (
+      <div className="entry-links d-flex flex-wrap gap-2 mt-2">
+        {row.invoice_id ? (
+          <Link
+            to={`/admin/erp/invoices/${row.invoice_id}`}
+            className="btn btn-sm btn-outline-success"
+          >
+            Invoice
+          </Link>
+        ) : null}
+
+        {row.appointment_id ? (
+          <Link
+            to={`/admin/erp/appointments/${row.appointment_id}/activity`}
+            className="btn btn-sm btn-outline-primary"
+          >
+            Appointment
+          </Link>
+        ) : null}
+
+        {row.treatment_plan_id ? (
+          <Link
+            to={`/admin/erp/treatment-plans/${row.treatment_plan_id}`}
+            className="btn btn-sm btn-outline-info"
+          >
+            Treatment Plan
+          </Link>
+        ) : null}
+      </div>
+    );
+  };
 
   const renderMobileView = () => (
     <div className="customer-statement-mobile">
@@ -122,25 +170,36 @@ const PatientStatement = () => {
             <i className="fas fa-user-circle"></i>
           </div>
           <div>
-            <h4>{customer.name}</h4>
+            <h4>{customer?.name || "-"}</h4>
             <p className="customer-code">
-              {customer.patient_code || "No code"}
+              {customer?.patient_code || customer?.code || "No code"}
             </p>
           </div>
         </div>
+
         <div className="customer-details">
-          {customer.phone && (
+          {customer?.phone ? (
             <div className="detail">
               <i className="fas fa-phone"></i>
               <span>{customer.phone}</span>
             </div>
-          )}
-          {customer.email && (
+          ) : null}
+
+          {customer?.email ? (
             <div className="detail">
               <i className="fas fa-envelope"></i>
               <span>{customer.email}</span>
             </div>
-          )}
+          ) : null}
+        </div>
+
+        <div className="d-flex flex-wrap gap-2 mt-3">
+          <Link to={profilePath} className="btn btn-outline-primary btn-sm">
+            Profile
+          </Link>
+          <Link to={timelinePath} className="btn btn-outline-info btn-sm">
+            Timeline
+          </Link>
         </div>
       </div>
 
@@ -148,7 +207,7 @@ const PatientStatement = () => {
         <div className="quick-filters">
           <button
             className={`filter-btn ${activeFilter === "all" ? "active" : ""}`}
-            onClick={() => handleReset()}
+            onClick={handleReset}
           >
             All Time
           </button>
@@ -175,6 +234,7 @@ const PatientStatement = () => {
               onChange={(e) => setFrom(e.target.value)}
             />
           </div>
+
           <div className="date-input">
             <label>To</label>
             <input
@@ -183,6 +243,7 @@ const PatientStatement = () => {
               onChange={(e) => setTo(e.target.value)}
             />
           </div>
+
           <button className="btn-apply" onClick={handleFilter}>
             Apply
           </button>
@@ -195,26 +256,22 @@ const PatientStatement = () => {
       <div className="summary-cards">
         <div className="summary-card">
           <div className="summary-label">Opening Balance</div>
-          <div className="summary-value">
-            {Number(opening_balance).toFixed(2)}
-          </div>
+          <div className="summary-value">{formatMoney(opening_balance)}</div>
         </div>
         <div className="summary-card">
           <div className="summary-label">Closing Balance</div>
-          <div className="summary-value">
-            {Number(closing_balance).toFixed(2)}
-          </div>
+          <div className="summary-value">{formatMoney(closing_balance)}</div>
         </div>
         <div className="summary-card">
           <div className="summary-label">Total Entries</div>
-          <div className="summary-value">{entries.length}</div>
+          <div className="summary-value">{entries?.length || 0}</div>
         </div>
       </div>
 
       <div className="period-info">
         <i className="fas fa-calendar-alt"></i>
         <span>
-          {period.from} → {period.to}
+          {period?.from || "-"} → {period?.to || "-"}
         </span>
       </div>
 
@@ -222,13 +279,11 @@ const PatientStatement = () => {
         <div className="entry-section">
           <div className="entry-header opening">
             <h5>Opening Balance</h5>
-            <span className="balance">
-              {Number(opening_balance).toFixed(2)}
-            </span>
+            <span className="balance">{formatMoney(opening_balance)}</span>
           </div>
         </div>
 
-        {entries.length === 0 ? (
+        {!entries || entries.length === 0 ? (
           <div className="no-entries">
             <i className="fas fa-file-invoice"></i>
             <p>No entries in this period</p>
@@ -237,35 +292,44 @@ const PatientStatement = () => {
           entries.map((row, index) => (
             <div key={row.id || index} className="entry-card">
               <div className="entry-date">
-                <span className="date">{row.entry_date}</span>
+                <span className="date">{row.entry_date || "-"}</span>
                 <span className={`entry-type type-${row.type}`}>
-                  {row.type}
+                  {getEntryTypeLabel(row.type)}
                 </span>
               </div>
 
               <div className="entry-details">
-                <h6>{row.description}</h6>
+                <h6>{row.description || "-"}</h6>
                 <div className="entry-meta">
-                  {row.invoice_id && <span>Invoice #{row.invoice_id}</span>}
-                  {row.payment_id && <span>Payment #{row.payment_id}</span>}
-                  {row.refund_id && <span>Refund #{row.refund_id}</span>}
+                  {row.invoice_id ? (
+                    <span>Invoice #{row.invoice_id}</span>
+                  ) : null}
+                  {row.payment_id ? (
+                    <span>Payment #{row.payment_id}</span>
+                  ) : null}
+                  {row.refund_id ? <span>Refund #{row.refund_id}</span> : null}
+                  {row.treatment_plan_id ? (
+                    <span>Plan #{row.treatment_plan_id}</span>
+                  ) : null}
                 </div>
+
+                {renderEntryLinks(row)}
               </div>
 
               <div className="entry-amounts">
                 <div className="amount debit">
                   <span>Debit</span>
-                  <span>{Number(row.debit).toFixed(2)}</span>
+                  <span>{formatMoney(row.debit)}</span>
                 </div>
 
                 <div className="amount credit">
                   <span>Credit</span>
-                  <span>{Number(row.credit).toFixed(2)}</span>
+                  <span>{formatMoney(row.credit)}</span>
                 </div>
 
                 <div className="amount balance">
                   <span>Balance</span>
-                  <span>{Number(row.balance).toFixed(2)}</span>
+                  <span>{formatMoney(row.balance)}</span>
                 </div>
               </div>
             </div>
@@ -275,9 +339,7 @@ const PatientStatement = () => {
         <div className="entry-section">
           <div className="entry-header closing">
             <h5>Closing Balance</h5>
-            <span className="balance">
-              {Number(closing_balance).toFixed(2)}
-            </span>
+            <span className="balance">{formatMoney(closing_balance)}</span>
           </div>
         </div>
       </div>
@@ -298,7 +360,14 @@ const PatientStatement = () => {
             </p>
           </div>
         </div>
-        <div className="header-right">
+
+        <div className="header-right d-flex gap-2">
+          <Link to={profilePath} className="btn btn-outline-primary">
+            Profile
+          </Link>
+          <Link to={timelinePath} className="btn btn-outline-info">
+            Timeline
+          </Link>
           <button className="btn-print" onClick={handlePrint}>
             <i className="fas fa-print"></i> Print Statement
           </button>
@@ -311,22 +380,23 @@ const PatientStatement = () => {
             <div className="profile-avatar">
               <i className="fas fa-user-circle"></i>
             </div>
+
             <div className="profile-info">
-              <h3>{customer.name}</h3>
+              <h3>{customer?.name || "-"}</h3>
               <div className="profile-details">
-                {customer.patient_code && (
+                {customer?.patient_code ? (
                   <span>Code: {customer.patient_code}</span>
-                )}
-                {customer.phone && (
+                ) : null}
+                {customer?.phone ? (
                   <span>
                     <i className="fas fa-phone"></i> {customer.phone}
                   </span>
-                )}
-                {customer.email && (
+                ) : null}
+                {customer?.email ? (
                   <span>
                     <i className="fas fa-envelope"></i> {customer.email}
                   </span>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
@@ -338,7 +408,7 @@ const PatientStatement = () => {
             <div className="filter-buttons">
               <button
                 className={`filter-btn ${activeFilter === "all" ? "active" : ""}`}
-                onClick={() => handleReset()}
+                onClick={handleReset}
               >
                 All Time
               </button>
@@ -368,6 +438,7 @@ const PatientStatement = () => {
                   onChange={(e) => setFrom(e.target.value)}
                 />
               </div>
+
               <div className="input-group">
                 <label>To Date</label>
                 <input
@@ -376,9 +447,11 @@ const PatientStatement = () => {
                   onChange={(e) => setTo(e.target.value)}
                 />
               </div>
+
               <button className="btn-apply" onClick={handleFilter}>
                 Apply Filter
               </button>
+
               <button className="btn-reset" onClick={handleReset}>
                 Reset
               </button>
@@ -390,7 +463,7 @@ const PatientStatement = () => {
             <div className="period-range">
               <i className="fas fa-calendar"></i>
               <span>
-                {period.from} to {period.to}
+                {period?.from || "-"} to {period?.to || "-"}
               </span>
             </div>
           </div>
@@ -402,25 +475,23 @@ const PatientStatement = () => {
               <i className="fas fa-wallet"></i>
               <h5>Opening Balance</h5>
             </div>
-            <div className="card-value">
-              {Number(opening_balance).toFixed(2)}
-            </div>
+            <div className="card-value">{formatMoney(opening_balance)}</div>
           </div>
+
           <div className="summary-card">
             <div className="card-header">
               <i className="fas fa-chart-line"></i>
               <h5>Closing Balance</h5>
             </div>
-            <div className="card-value">
-              {Number(closing_balance).toFixed(2)}
-            </div>
+            <div className="card-value">{formatMoney(closing_balance)}</div>
           </div>
+
           <div className="summary-card">
             <div className="card-header">
               <i className="fas fa-list"></i>
               <h5>Total Entries</h5>
             </div>
-            <div className="card-value">{entries.length}</div>
+            <div className="card-value">{entries?.length || 0}</div>
           </div>
         </div>
 
@@ -443,17 +514,18 @@ const PatientStatement = () => {
                   <th className="text-right">Balance</th>
                 </tr>
               </thead>
+
               <tbody>
                 <tr className="opening-row">
                   <td colSpan="5" className="opening-label">
                     <i className="fas fa-sign-in-alt"></i> Opening Balance
                   </td>
                   <td className="text-right opening-balance">
-                    {Number(opening_balance).toFixed(2)}
+                    {formatMoney(opening_balance)}
                   </td>
                 </tr>
 
-                {entries.length === 0 ? (
+                {!entries || entries.length === 0 ? (
                   <tr className="no-data-row">
                     <td colSpan="6" className="text-center">
                       <i className="fas fa-file-invoice-dollar"></i>
@@ -463,36 +535,50 @@ const PatientStatement = () => {
                 ) : (
                   entries.map((row, index) => (
                     <tr key={row.id || index} className="entry-row">
-                      <td className="entry-date">{row.entry_date}</td>
+                      <td className="entry-date">{row.entry_date || "-"}</td>
+
                       <td>
                         <div className="entry-description">
-                          {row.description}
+                          {row.description || "-"}
                         </div>
+
                         <div className="entry-meta">
-                          {row.invoice_id && (
+                          {row.invoice_id ? (
                             <span>Invoice #{row.invoice_id}</span>
-                          )}
-                          {row.payment_id && (
+                          ) : null}
+                          {row.payment_id ? (
                             <span>Payment #{row.payment_id}</span>
-                          )}
-                          {row.refund_id && (
+                          ) : null}
+                          {row.refund_id ? (
                             <span>Refund #{row.refund_id}</span>
-                          )}
+                          ) : null}
+                          {row.treatment_plan_id ? (
+                            <span>Plan #{row.treatment_plan_id}</span>
+                          ) : null}
+                          {row.appointment_id ? (
+                            <span>Appointment #{row.appointment_id}</span>
+                          ) : null}
                         </div>
+
+                        {renderEntryLinks(row)}
                       </td>
+
                       <td>
                         <span className={`type-badge type-${row.type}`}>
-                          {row.type}
+                          {getEntryTypeLabel(row.type)}
                         </span>
                       </td>
+
                       <td className="text-right debit-col">
-                        {Number(row.debit).toFixed(2)}
+                        {formatMoney(row.debit)}
                       </td>
+
                       <td className="text-right credit-col">
-                        {Number(row.credit).toFixed(2)}
+                        {formatMoney(row.credit)}
                       </td>
+
                       <td className="text-right balance-col">
-                        {Number(row.balance).toFixed(2)}
+                        {formatMoney(row.balance)}
                       </td>
                     </tr>
                   ))
@@ -503,7 +589,7 @@ const PatientStatement = () => {
                     <i className="fas fa-sign-out-alt"></i> Closing Balance
                   </td>
                   <td className="text-right closing-balance">
-                    {Number(closing_balance).toFixed(2)}
+                    {formatMoney(closing_balance)}
                   </td>
                 </tr>
               </tbody>

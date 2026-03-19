@@ -69,12 +69,12 @@ const navItems = [
     icon: "fas fa-truck-loading",
     permission: "finance.view",
   },
-  {
-    to: "/admin/erp/appointments/calendar",
-    label: "Calendar",
-    icon: "fas fa-calendar-alt",
-    permission: "appointments.view",
-  },
+  // {
+  //   to: "/admin/erp/appointments/calendar",
+  //   label: "Calendar",
+  //   icon: "fas fa-calendar-alt",
+  //   permission: "appointments.view",
+  // },
   {
     to: "/admin/erp/reports",
     label: "Reports",

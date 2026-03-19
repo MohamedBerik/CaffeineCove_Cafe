@@ -117,14 +117,12 @@ export default function StartVisitPage() {
       }
 
       if (form.visit_type === "treatment_from_plan") {
-        navigate(
-          `/admin/erp/treatment-plans/${form.treatment_plan_id}?customer_id=${customerId}`,
-        );
+        navigate(`/admin/erp/treatment-plans/${form.treatment_plan_id}`);
         return;
       }
 
       if (form.visit_type === "emergency_treatment") {
-        navigate(`/admin/erp/dental-records/create?customer_id=${customerId}`);
+        navigate(`/admin/erp/patients/${customerId}/profile`);
         return;
       }
 
@@ -141,7 +139,7 @@ export default function StartVisitPage() {
       icon: "fas fa-stethoscope",
       description:
         "Book a consultation appointment, collect consultation fee, then continue with exam and diagnosis.",
-      nextStep: "Goes to appointment booking",
+      nextStep: "Goes to consultation booking",
       color: "primary",
     },
     {
@@ -158,8 +156,8 @@ export default function StartVisitPage() {
       title: "Emergency Treatment",
       icon: "fas fa-tooth",
       description:
-        "Create a dental record first for an urgent case, then prepare treatment flow and schedule the needed procedure.",
-      nextStep: "Goes to create dental record",
+        "Open the patient profile and dental chart first, add the urgent dental record, then convert it into treatment flow if needed.",
+      nextStep: "Goes to patient profile and dental chart",
       color: "warning",
     },
   ];
@@ -247,7 +245,7 @@ export default function StartVisitPage() {
                       return (
                         <div className="col-12 col-md-4" key={card.key}>
                           <label
-                            className={`card h-100 border cursor-pointer ${
+                            className={`card h-100 border ${
                               active ? `border-${card.color} shadow-sm` : ""
                             }`}
                             style={{ cursor: "pointer" }}
@@ -367,7 +365,7 @@ export default function StartVisitPage() {
                         ? "Book Consultation"
                         : form.visit_type === "treatment_from_plan"
                           ? "Open Treatment Plan"
-                          : "Start Emergency Treatment"}
+                          : "Open Patient Profile"}
                   </button>
 
                   <Link to="/admin/erp" className="btn btn-outline-secondary">
@@ -422,12 +420,12 @@ export default function StartVisitPage() {
                     Emergency Treatment Flow
                   </div>
                   <ol className="small text-muted ps-3 mb-0">
-                    <li>Create dental record first</li>
-                    <li>Document tooth and clinical notes</li>
-                    <li>Create treatment plan if needed</li>
+                    <li>Open patient profile</li>
+                    <li>Add dental record from dental chart</li>
+                    <li>Convert to treatment plan item if needed</li>
+                    <li>Open treatment plan</li>
                     <li>Start procedure and book slot</li>
-                    <li>Complete appointment</li>
-                    <li>Create invoice and continue to payment</li>
+                    <li>Complete appointment and continue to payment</li>
                   </ol>
                 </>
               ) : null}
@@ -435,9 +433,9 @@ export default function StartVisitPage() {
               <hr />
 
               <div className="small text-muted">
-                Dental Record and Treatment Plan are still important. Treatment
-                should not jump directly to billing unless the doctor already
-                has a valid plan item to execute.
+                Dental Record and Treatment Plan remain part of the treatment
+                workflow. Billing should happen only after a valid consultation
+                or a valid treatment appointment completion.
               </div>
             </div>
           </div>

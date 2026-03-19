@@ -9,7 +9,16 @@ export default function BookAppointmentPage() {
   const presetPatientId =
     searchParams.get("customer_id") || searchParams.get("patient_id") || "";
   const presetDoctorId = searchParams.get("doctor_id") || "";
-  const today = new Date().toISOString().split("T")[0];
+
+  const getTodayString = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const today = getTodayString();
 
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
@@ -187,6 +196,7 @@ export default function BookAppointmentPage() {
       const payload = {
         patient_id: Number(form.patient_id),
         doctor_id: Number(form.doctor_id),
+        appointment_type: "consultation",
         appointment_date: form.appointment_date,
         appointment_time: form.appointment_time,
         notes: form.notes || null,
@@ -212,12 +222,12 @@ export default function BookAppointmentPage() {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setError(firstError || "Failed to book appointment.");
+        setError(firstError || "Failed to book consultation.");
       } else {
         setError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to book appointment.",
+            "Failed to book consultation.",
         );
       }
     } finally {
@@ -242,9 +252,9 @@ export default function BookAppointmentPage() {
     <div className="container-fluid px-0">
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
         <div>
-          <h3 className="fw-bold mb-1">Book Appointment</h3>
+          <h3 className="fw-bold mb-1">Book Consultation Appointment</h3>
           <p className="text-muted mb-0">
-            Choose patient, doctor, date, and available time slot
+            Create a consultation appointment and continue the patient journey
           </p>
         </div>
 
@@ -301,6 +311,16 @@ export default function BookAppointmentPage() {
             </div>
 
             <div className="col-12 col-md-4">
+              <label className="form-label fw-semibold">Appointment Type</label>
+              <input
+                type="text"
+                className="form-control"
+                value="Consultation"
+                readOnly
+              />
+            </div>
+
+            <div className="col-12 col-md-4">
               <label className="form-label fw-semibold">Date</label>
               <input
                 type="date"
@@ -329,7 +349,7 @@ export default function BookAppointmentPage() {
               </div>
             </div>
 
-            <div className="col-12 col-md-4">
+            <div className="col-12 col-md-6">
               <label className="form-label fw-semibold">Time</label>
               <select
                 className="form-select"
@@ -376,6 +396,8 @@ export default function BookAppointmentPage() {
                 <div className="alert alert-light border mb-0">
                   <div className="fw-semibold mb-1">Booking Summary</div>
 
+                  <div>Type: Consultation</div>
+
                   {selectedPatient ? (
                     <div>
                       Patient: {selectedPatient.name}
@@ -406,7 +428,7 @@ export default function BookAppointmentPage() {
                 className="btn btn-primary"
                 disabled={saving}
               >
-                {saving ? "Booking..." : "Book Appointment"}
+                {saving ? "Booking..." : "Book Consultation"}
               </button>
 
               <Link

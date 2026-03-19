@@ -19,6 +19,18 @@ export default function AppointmentActivityPage() {
   const [notesSuccess, setNotesSuccess] = useState("");
   const [notesError, setNotesError] = useState("");
 
+  const [completeForm, setCompleteForm] = useState({
+    doctor_name: "",
+    notes: "",
+    clinical_notes: "",
+    diagnosis: "",
+    next_step: "",
+  });
+  const [completing, setCompleting] = useState(false);
+  const [completeError, setCompleteError] = useState("");
+  const [completeSuccess, setCompleteSuccess] = useState("");
+  const [completeResult, setCompleteResult] = useState(null);
+
   useEffect(() => {
     loadPage();
   }, [id]);
@@ -29,6 +41,7 @@ export default function AppointmentActivityPage() {
       setError("");
       setNotesError("");
       setNotesSuccess("");
+      setCompleteError("");
 
       const [appointmentRes, activityRes] = await Promise.all([
         axios.get(`/erp/appointments/${id}`),
@@ -51,6 +64,15 @@ export default function AppointmentActivityPage() {
       setRows(activityRows);
 
       setNotesForm({
+        clinical_notes: appointmentData?.clinical_notes || "",
+        diagnosis: appointmentData?.diagnosis || "",
+        next_step: appointmentData?.next_step || "",
+      });
+
+      setCompleteForm({
+        doctor_name:
+          appointmentData?.doctor?.name || appointmentData?.doctor_name || "",
+        notes: appointmentData?.notes || "",
         clinical_notes: appointmentData?.clinical_notes || "",
         diagnosis: appointmentData?.diagnosis || "",
         next_step: appointmentData?.next_step || "",
@@ -151,6 +173,14 @@ export default function AppointmentActivityPage() {
     }));
   };
 
+  const handleCompleteChange = (e) => {
+    const { name, value } = e.target;
+    setCompleteForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   const saveClinicalNotes = async (e) => {
     e.preventDefault();
 
@@ -184,6 +214,53 @@ export default function AppointmentActivityPage() {
     }
   };
 
+  const completeAppointment = async (e) => {
+    e.preventDefault();
+
+    try {
+      setCompleting(true);
+      setCompleteError("");
+      setCompleteSuccess("");
+      setCompleteResult(null);
+
+      const payload = {
+        doctor_name: completeForm.doctor_name || null,
+        notes: completeForm.notes || null,
+        clinical_notes: completeForm.clinical_notes || null,
+        diagnosis: completeForm.diagnosis || null,
+        next_step: completeForm.next_step || null,
+      };
+
+      const res = await axios.post(`/erp/appointments/${id}/complete`, payload);
+      const result = res.data || {};
+
+      setCompleteResult(result);
+      setCompleteSuccess(result?.msg || "Appointment completed successfully.");
+
+      await loadPage();
+    } catch (err) {
+      const responseData = err?.response?.data || {};
+      const errors = responseData?.errors;
+
+      if (errors) {
+        const firstError = Object.values(errors)?.[0]?.[0];
+        setCompleteError(firstError || "Failed to complete appointment.");
+      } else {
+        setCompleteError(
+          responseData?.message ||
+            responseData?.msg ||
+            "Failed to complete appointment.",
+        );
+      }
+
+      if (responseData?.invoice_id) {
+        setCompleteResult(responseData);
+      }
+    } finally {
+      setCompleting(false);
+    }
+  };
+
   const resetClinicalNotesForm = () => {
     setNotesError("");
     setNotesSuccess("");
@@ -194,8 +271,24 @@ export default function AppointmentActivityPage() {
     });
   };
 
+  const resetCompleteForm = () => {
+    setCompleteError("");
+    setCompleteSuccess("");
+    setCompleteResult(null);
+    setCompleteForm({
+      doctor_name: appointment?.doctor?.name || appointment?.doctor_name || "",
+      notes: appointment?.notes || "",
+      clinical_notes: appointment?.clinical_notes || "",
+      diagnosis: appointment?.diagnosis || "",
+      next_step: appointment?.next_step || "",
+    });
+  };
+
   const isCompleted =
     String(appointment?.status || "").toLowerCase() === "completed";
+
+  const isScheduled =
+    String(appointment?.status || "").toLowerCase() === "scheduled";
 
   const hasNotesChanged =
     (appointment?.clinical_notes || "") !== notesForm.clinical_notes ||
@@ -416,6 +509,191 @@ export default function AppointmentActivityPage() {
         </div>
       </div>
 
+      {isScheduled ? (
+        <div className="card shadow-sm border-0 mb-4">
+          <div className="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 className="mb-0">Complete Appointment</h5>
+            <span className="badge bg-warning text-dark">Scheduled</span>
+          </div>
+
+          <div className="card-body">
+            {completeError ? (
+              <div className="alert alert-danger py-2">{completeError}</div>
+            ) : null}
+
+            {completeSuccess ? (
+              <div className="alert alert-success py-2">{completeSuccess}</div>
+            ) : null}
+
+            {completeResult?.invoice_id ? (
+              <div className="alert alert-light border">
+                <div className="fw-semibold mb-2">Completion Result</div>
+
+                <div className="row g-2">
+                  <InfoItem
+                    label="Invoice"
+                    value={
+                      <Link
+                        to={`/admin/erp/invoices/${completeResult.invoice_id}`}
+                        className="text-decoration-none"
+                      >
+                        {completeResult.invoice_number ||
+                          `#${completeResult.invoice_id}`}
+                      </Link>
+                    }
+                  />
+
+                  {completeResult.treatment_plan_id ? (
+                    <InfoItem
+                      label="Treatment Plan"
+                      value={
+                        <Link
+                          to={`/admin/erp/treatment-plans/${completeResult.treatment_plan_id}`}
+                          className="text-decoration-none"
+                        >
+                          #{completeResult.treatment_plan_id}
+                        </Link>
+                      }
+                    />
+                  ) : null}
+
+                  {"total" in completeResult ? (
+                    <InfoItem
+                      label="Invoice Total"
+                      value={money(completeResult.total)}
+                    />
+                  ) : null}
+
+                  {"invoice_status" in completeResult ? (
+                    <InfoItem
+                      label="Invoice Status"
+                      value={
+                        <StatusBadge status={completeResult.invoice_status} />
+                      }
+                    />
+                  ) : null}
+
+                  {"completed_sessions" in completeResult ? (
+                    <InfoItem
+                      label="Completed Sessions"
+                      value={completeResult.completed_sessions}
+                    />
+                  ) : null}
+
+                  {"planned_sessions" in completeResult ? (
+                    <InfoItem
+                      label="Planned Sessions"
+                      value={completeResult.planned_sessions}
+                    />
+                  ) : null}
+
+                  {"remaining_sessions" in completeResult ? (
+                    <InfoItem
+                      label="Remaining Sessions"
+                      value={completeResult.remaining_sessions}
+                    />
+                  ) : null}
+
+                  {"item_status" in completeResult ? (
+                    <InfoItem
+                      label="Item Status"
+                      value={
+                        <StatusBadge status={completeResult.item_status} />
+                      }
+                    />
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
+
+            <form onSubmit={completeAppointment}>
+              <div className="row g-3">
+                <div className="col-12 col-md-6">
+                  <label className="form-label fw-semibold">Doctor Name</label>
+                  <input
+                    className="form-control"
+                    name="doctor_name"
+                    value={completeForm.doctor_name}
+                    onChange={handleCompleteChange}
+                    placeholder="Optional doctor name override"
+                  />
+                </div>
+
+                <div className="col-12 col-md-6">
+                  <label className="form-label fw-semibold">
+                    General Notes
+                  </label>
+                  <input
+                    className="form-control"
+                    name="notes"
+                    value={completeForm.notes}
+                    onChange={handleCompleteChange}
+                    placeholder="Optional notes"
+                  />
+                </div>
+
+                <div className="col-12">
+                  <label className="form-label fw-semibold">
+                    Clinical Notes
+                  </label>
+                  <textarea
+                    className="form-control"
+                    rows="4"
+                    name="clinical_notes"
+                    value={completeForm.clinical_notes}
+                    onChange={handleCompleteChange}
+                    placeholder="Enter clinical notes..."
+                  />
+                </div>
+
+                <div className="col-12 col-md-6">
+                  <label className="form-label fw-semibold">Diagnosis</label>
+                  <textarea
+                    className="form-control"
+                    rows="3"
+                    name="diagnosis"
+                    value={completeForm.diagnosis}
+                    onChange={handleCompleteChange}
+                    placeholder="Enter diagnosis..."
+                  />
+                </div>
+
+                <div className="col-12 col-md-6">
+                  <label className="form-label fw-semibold">Next Step</label>
+                  <textarea
+                    className="form-control"
+                    rows="3"
+                    name="next_step"
+                    value={completeForm.next_step}
+                    onChange={handleCompleteChange}
+                    placeholder="Enter next step..."
+                  />
+                </div>
+
+                <div className="col-12 d-flex gap-2">
+                  <button
+                    type="submit"
+                    className="btn btn-success"
+                    disabled={completing}
+                  >
+                    {completing ? "Completing..." : "Complete Appointment"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={resetCompleteForm}
+                    disabled={completing}
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+
       <div className="card shadow-sm border-0 mb-4">
         <div className="card-header bg-white d-flex justify-content-between align-items-center">
           <h5 className="mb-0">Clinical Notes</h5>
@@ -606,6 +884,15 @@ export default function AppointmentActivityPage() {
                             />
                           ) : null}
 
+                          {"item_status" in properties ? (
+                            <InfoItem
+                              label="Item Status"
+                              value={
+                                <StatusBadge status={properties.item_status} />
+                              }
+                            />
+                          ) : null}
+
                           {"old_date" in properties ? (
                             <InfoItem
                               label="Old Date"
@@ -654,6 +941,7 @@ export default function AppointmentActivityPage() {
                               value={properties.doctor_id}
                             />
                           ) : null}
+
                           {"clinical_notes" in properties ? (
                             <InfoItem
                               label="Clinical Notes"
@@ -744,6 +1032,27 @@ export default function AppointmentActivityPage() {
                             <InfoItem
                               label="Total"
                               value={money(properties.total)}
+                            />
+                          ) : null}
+
+                          {"completed_sessions" in properties ? (
+                            <InfoItem
+                              label="Completed Sessions"
+                              value={properties.completed_sessions}
+                            />
+                          ) : null}
+
+                          {"planned_sessions" in properties ? (
+                            <InfoItem
+                              label="Planned Sessions"
+                              value={properties.planned_sessions}
+                            />
+                          ) : null}
+
+                          {"remaining_sessions" in properties ? (
+                            <InfoItem
+                              label="Remaining Sessions"
+                              value={properties.remaining_sessions}
                             />
                           ) : null}
                         </>
@@ -852,6 +1161,8 @@ function prettyAction(action) {
       return "Completed";
     case "treatment_plan_item.started":
       return "Procedure Started";
+    case "treatment_plan_item.session_completed":
+      return "Session Completed";
     case "appointment.updated":
       return "Updated";
     default:
@@ -874,6 +1185,8 @@ function actionBadgeClass(action) {
       return "bg-success";
     case "treatment_plan_item.started":
       return "bg-warning text-dark";
+    case "treatment_plan_item.session_completed":
+      return "bg-success";
     case "appointment.updated":
       return "bg-secondary";
     default:

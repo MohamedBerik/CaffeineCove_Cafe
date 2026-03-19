@@ -2,6 +2,19 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "../../../services/axios";
 
+const SURFACE_OPTIONS = [
+  { value: "", label: "Select surface" },
+  { value: "occlusal", label: "Occlusal" },
+  { value: "incisal", label: "Incisal" },
+  { value: "mesial", label: "Mesial" },
+  { value: "distal", label: "Distal" },
+  { value: "buccal", label: "Buccal" },
+  { value: "facial", label: "Facial" },
+  { value: "lingual", label: "Lingual" },
+  { value: "palatal", label: "Palatal" },
+  { value: "general", label: "General" },
+];
+
 export default function TreatmentPlanDetailsPage() {
   const { id } = useParams();
 
@@ -25,11 +38,13 @@ export default function TreatmentPlanDetailsPage() {
   });
 
   const [savingItem, setSavingItem] = useState(false);
+  const [deletingItemId, setDeletingItemId] = useState(null);
+
   const [itemError, setItemError] = useState("");
   const [itemSuccess, setItemSuccess] = useState("");
 
   const [openStartItemId, setOpenStartItemId] = useState(null);
-  const [startingItem, setStartingItem] = useState(false);
+  const [startingItemId, setStartingItemId] = useState(null);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [slotError, setSlotError] = useState("");
   const [availableSlots, setAvailableSlots] = useState([]);
@@ -45,12 +60,17 @@ export default function TreatmentPlanDetailsPage() {
     loadAll();
   }, [id]);
 
-  const loadAll = async () => {
+  const loadAll = async (options = {}) => {
+    const { keepMessages = false } = options;
+
     try {
       setLoading(true);
       setError("");
-      setItemError("");
-      setItemSuccess("");
+
+      if (!keepMessages) {
+        setItemError("");
+        setItemSuccess("");
+      }
 
       const [
         planRes,
@@ -68,7 +88,7 @@ export default function TreatmentPlanDetailsPage() {
         axios.get(`/erp/doctors`),
       ]);
 
-      setPlan(planRes.data || null);
+      setPlan(planRes.data?.data || planRes.data || null);
       setItems(itemsRes.data?.data || []);
       setSummary(summaryRes.data?.data || null);
       setCashSummary(cashRes.data?.data || null);
@@ -97,6 +117,25 @@ export default function TreatmentPlanDetailsPage() {
 
   const handleItemChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "procedure_id") {
+      const selectedProcedure = procedures.find(
+        (p) => String(p.id) === String(value),
+      );
+
+      setItemForm((prev) => ({
+        ...prev,
+        procedure_id: value,
+        price:
+          prev.price !== ""
+            ? prev.price
+            : selectedProcedure?.default_price != null
+              ? String(selectedProcedure.default_price)
+              : "",
+      }));
+      return;
+    }
+
     setItemForm((prev) => ({
       ...prev,
       [name]: value,
@@ -116,7 +155,7 @@ export default function TreatmentPlanDetailsPage() {
         tooth_number: itemForm.tooth_number || null,
         surface: itemForm.surface || null,
         notes: itemForm.notes || null,
-        planned_sessions: Number(itemForm.planned_sessions || 1),
+        planned_sessions: Math.max(Number(itemForm.planned_sessions || 1), 1),
       };
 
       if (itemForm.price !== "") {
@@ -136,7 +175,7 @@ export default function TreatmentPlanDetailsPage() {
         planned_sessions: 1,
       });
 
-      await loadAll();
+      await loadAll({ keepMessages: true });
     } catch (err) {
       const errors = err?.response?.data?.errors;
       if (errors) {
@@ -159,19 +198,22 @@ export default function TreatmentPlanDetailsPage() {
     if (!confirmed) return;
 
     try {
+      setDeletingItemId(itemId);
       setItemError("");
       setItemSuccess("");
 
       await axios.delete(`/erp/treatment-plan-items/${itemId}`);
 
       setItemSuccess("Item deleted successfully.");
-      await loadAll();
+      await loadAll({ keepMessages: true });
     } catch (err) {
       setItemError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
           "Failed to delete item.",
       );
+    } finally {
+      setDeletingItemId(null);
     }
   };
 
@@ -245,7 +287,7 @@ export default function TreatmentPlanDetailsPage() {
 
   const startProcedure = async (itemId) => {
     try {
-      setStartingItem(true);
+      setStartingItemId(itemId);
       setItemError("");
       setItemSuccess("");
       setSlotError("");
@@ -264,7 +306,7 @@ export default function TreatmentPlanDetailsPage() {
 
       setItemSuccess("Procedure started successfully.");
       closeStartForm();
-      await loadAll();
+      await loadAll({ keepMessages: true });
     } catch (err) {
       const errors = err?.response?.data?.errors;
       if (errors) {
@@ -278,7 +320,7 @@ export default function TreatmentPlanDetailsPage() {
         );
       }
     } finally {
-      setStartingItem(false);
+      setStartingItemId(null);
     }
   };
 
@@ -323,7 +365,8 @@ export default function TreatmentPlanDetailsPage() {
 
     if (rawStatus === "cancelled") return "cancelled";
     if (completed >= planned) return "completed";
-    if (rawStatus === "in_progress" || completed > 0) return "in_progress";
+    if (rawStatus === "in_progress") return "in_progress";
+    if (completed > 0) return "in_progress";
     return "not_started";
   };
 
@@ -331,9 +374,9 @@ export default function TreatmentPlanDetailsPage() {
     const status = getUiProcedureStatus(item);
 
     if (status === "completed") return "Completed";
-    if (status === "in_progress") return "In progress";
+    if (status === "in_progress") return "In Progress";
     if (status === "cancelled") return "Cancelled";
-    return "Not started";
+    return "Not Started";
   };
 
   const getStatusClass = (item) => {
@@ -350,14 +393,13 @@ export default function TreatmentPlanDetailsPage() {
     const remaining = getRemainingSessions(item);
 
     if (remaining <= 0) return false;
-    if (uiStatus === "in_progress") return false;
+    if (uiStatus === "in_progress" && item.appointment_id) return false;
 
     return true;
   };
 
   const canOpenAppointment = (item) => {
-    const uiStatus = getUiProcedureStatus(item);
-    return uiStatus === "in_progress" && !!item.appointment_id;
+    return !!item.appointment_id;
   };
 
   const getStartButtonLabel = (item) => {
@@ -421,7 +463,7 @@ export default function TreatmentPlanDetailsPage() {
     );
   }
 
-  const planData = plan?.data || plan || {};
+  const planData = plan || {};
   const customer = planData.customer || {};
   const invoices = summary?.invoices || [];
   const totals = summary?.totals || {};
@@ -434,7 +476,7 @@ export default function TreatmentPlanDetailsPage() {
         <div>
           <h3 className="fw-bold mb-1">Treatment Plan Details</h3>
           <p className="text-muted mb-0">
-            Review plan items, invoices, summary, and cash flow
+            Review plan items, progress, invoices, and cash flow
           </p>
         </div>
 
@@ -517,7 +559,6 @@ export default function TreatmentPlanDetailsPage() {
           value={money(totals.total_refunded)}
           color="danger"
         />
-
         <KpiCard title="Net Paid" value={money(totals.net_paid)} color="info" />
         <KpiCard
           title="Remaining"
@@ -585,14 +626,21 @@ export default function TreatmentPlanDetailsPage() {
 
                 <div className="col-12 col-md-2">
                   <label className="form-label fw-semibold">Surface</label>
-                  <input
-                    type="text"
-                    className="form-control"
+                  <select
+                    className="form-select"
                     name="surface"
                     value={itemForm.surface}
                     onChange={handleItemChange}
-                    placeholder="occlusal"
-                  />
+                  >
+                    {SURFACE_OPTIONS.map((option) => (
+                      <option
+                        key={option.value || "empty"}
+                        value={option.value}
+                      >
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="col-12 col-md-2">
@@ -760,8 +808,11 @@ export default function TreatmentPlanDetailsPage() {
                                       className="btn btn-sm btn-outline-danger"
                                       onClick={() => deleteItem(item.id)}
                                       type="button"
+                                      disabled={deletingItemId === item.id}
                                     >
-                                      Delete
+                                      {deletingItemId === item.id
+                                        ? "Deleting..."
+                                        : "Delete"}
                                     </button>
                                   </div>
                                 </td>
@@ -924,11 +975,11 @@ export default function TreatmentPlanDetailsPage() {
                                               startProcedure(item.id)
                                             }
                                             disabled={
-                                              startingItem ||
+                                              startingItemId === item.id ||
                                               !startForm.appointment_time
                                             }
                                           >
-                                            {startingItem
+                                            {startingItemId === item.id
                                               ? "Starting..."
                                               : "Confirm Start"}
                                           </button>
@@ -937,6 +988,9 @@ export default function TreatmentPlanDetailsPage() {
                                             type="button"
                                             className="btn btn-outline-secondary"
                                             onClick={closeStartForm}
+                                            disabled={
+                                              startingItemId === item.id
+                                            }
                                           >
                                             Close
                                           </button>
@@ -1079,7 +1133,9 @@ function StatusBadge({ status }) {
   let cls = "secondary";
   if (["completed", "paid"].includes(value)) cls = "success";
   else if (["cancelled", "unpaid"].includes(value)) cls = "danger";
-  else if (["active", "partially_paid"].includes(value)) cls = "warning";
+  else if (["active", "partially_paid", "planned"].includes(value))
+    cls = "warning";
+  else if (["in_progress"].includes(value)) cls = "info";
 
-  return <span className={`badge bg-${cls}`}>{status}</span>;
+  return <span className={`badge bg-${cls}`}>{status || "-"}</span>;
 }

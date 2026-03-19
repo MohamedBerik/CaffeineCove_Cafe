@@ -87,6 +87,15 @@ export default function AppointmentCalendarPage() {
     return String(value).slice(0, 5);
   };
 
+  const formatAppointmentType = (value) => {
+    const type = String(value || "").toLowerCase();
+
+    if (type === "consultation") return "Consultation";
+    if (type === "treatment") return "Treatment";
+
+    return "-";
+  };
+
   const visibleAppointments = useMemo(() => {
     return appointments
       .filter((item) => {
@@ -315,7 +324,12 @@ export default function AppointmentCalendarPage() {
                                   </div>
                                 </div>
 
-                                <StatusBadge status={item.status} />
+                                <div className="d-flex flex-column gap-2 align-items-end">
+                                  <StatusBadge status={item.status} />
+                                  <AppointmentTypeBadge
+                                    type={item.appointment_type}
+                                  />
+                                </div>
                               </div>
 
                               <div className="mt-2 small">
@@ -323,9 +337,34 @@ export default function AppointmentCalendarPage() {
                                   <strong>Email:</strong>{" "}
                                   {item.patient?.email || "-"}
                                 </div>
+
+                                <div>
+                                  <strong>Type:</strong>{" "}
+                                  {formatAppointmentType(item.appointment_type)}
+                                </div>
+
                                 <div>
                                   <strong>Notes:</strong> {item.notes || "-"}
                                 </div>
+
+                                {item.clinical_notes ? (
+                                  <div>
+                                    <strong>Clinical Notes:</strong>{" "}
+                                    {item.clinical_notes}
+                                  </div>
+                                ) : null}
+
+                                {item.diagnosis ? (
+                                  <div>
+                                    <strong>Diagnosis:</strong> {item.diagnosis}
+                                  </div>
+                                ) : null}
+
+                                {item.next_step ? (
+                                  <div>
+                                    <strong>Next Step:</strong> {item.next_step}
+                                  </div>
+                                ) : null}
                               </div>
 
                               <div className="mt-3 d-flex flex-wrap gap-2">
@@ -335,6 +374,24 @@ export default function AppointmentCalendarPage() {
                                     className="btn btn-sm btn-outline-primary"
                                   >
                                     Patient
+                                  </Link>
+                                ) : null}
+
+                                {item.treatment_plan_id ? (
+                                  <Link
+                                    to={`/admin/erp/treatment-plans/${item.treatment_plan_id}`}
+                                    className="btn btn-sm btn-outline-info"
+                                  >
+                                    Treatment Plan
+                                  </Link>
+                                ) : null}
+
+                                {item.invoice_id ? (
+                                  <Link
+                                    to={`/admin/erp/invoices/${item.invoice_id}`}
+                                    className="btn btn-sm btn-outline-success"
+                                  >
+                                    Invoice
                                   </Link>
                                 ) : null}
 
@@ -368,6 +425,24 @@ function StatusBadge({ status }) {
   if (["completed"].includes(value)) cls = "success";
   else if (["cancelled", "no_show"].includes(value)) cls = "danger";
   else if (["scheduled"].includes(value)) cls = "warning";
+  else if (["in_progress"].includes(value)) cls = "info";
 
-  return <span className={`badge bg-${cls}`}>{status}</span>;
+  return <span className={`badge bg-${cls}`}>{status || "-"}</span>;
+}
+
+function AppointmentTypeBadge({ type }) {
+  const value = String(type || "").toLowerCase();
+
+  let cls = "secondary";
+  let label = type || "-";
+
+  if (value === "consultation") {
+    cls = "primary";
+    label = "Consultation";
+  } else if (value === "treatment") {
+    cls = "info text-dark";
+    label = "Treatment";
+  }
+
+  return <span className={`badge bg-${cls}`}>{label}</span>;
 }

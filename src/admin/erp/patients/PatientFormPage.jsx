@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "../../../services/axios";
 
 export default function PatientFormPage() {
@@ -22,7 +22,9 @@ export default function PatientFormPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (isEdit) loadPatient();
+    if (isEdit) {
+      loadPatient();
+    }
   }, [id]);
 
   const loadPatient = async () => {
@@ -31,7 +33,7 @@ export default function PatientFormPage() {
       setError("");
 
       const res = await axios.get(`/erp/customers/${id}`);
-      const data = res.data?.data || res.data;
+      const data = res.data?.data || res.data || {};
 
       setForm({
         name: data.name || "",
@@ -54,10 +56,12 @@ export default function PatientFormPage() {
   };
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const submit = async (e) => {
@@ -69,13 +73,21 @@ export default function PatientFormPage() {
 
       if (isEdit) {
         await axios.put(`/erp/customers/${id}`, form);
-      } else {
-        await axios.post("/erp/customers", form);
+        navigate(`/admin/erp/patients/${id}/profile`);
+        return;
       }
 
-      navigate("/admin/erp/patients");
+      const res = await axios.post("/erp/customers", form);
+      const saved = res.data?.data || res.data;
+
+      if (saved?.id) {
+        navigate(`/admin/erp/patients/${saved.id}/profile`);
+      } else {
+        navigate("/admin/erp/patients");
+      }
     } catch (err) {
       const errors = err?.response?.data?.errors;
+
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
         setError(firstError || "Failed to save patient.");
@@ -97,32 +109,47 @@ export default function PatientFormPage() {
         className="d-flex justify-content-center align-items-center"
         style={{ minHeight: 320 }}
       >
-        <div className="spinner-border text-primary"></div>
+        <div className="spinner-border text-primary" />
       </div>
     );
   }
 
   return (
     <div className="container-fluid px-0">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3 className="fw-bold">
-          {isEdit ? "Edit Patient" : "Create Patient"}
-        </h3>
+      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+          <h3 className="fw-bold mb-1">
+            {isEdit ? "Edit Patient" : "Create Patient"}
+          </h3>
+          <p className="text-muted mb-0">
+            {isEdit
+              ? "Update patient basic information"
+              : "Create a new patient profile"}
+          </p>
+        </div>
+
         <div className="d-flex gap-2">
-          <Link to="/admin/erp/visits/start" className="btn btn-success btn-sm">
-            <i className="fas fa-stethoscope me-1"></i>
-            Start Visit
-          </Link>
           <button
+            type="button"
             className="btn btn-outline-secondary"
             onClick={() => navigate("/admin/erp/patients")}
           >
             Patients
           </button>
+
+          {isEdit ? (
+            <button
+              type="button"
+              className="btn btn-outline-primary"
+              onClick={() => navigate(`/admin/erp/patients/${id}/profile`)}
+            >
+              Profile
+            </button>
+          ) : null}
         </div>
       </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error ? <div className="alert alert-danger">{error}</div> : null}
 
       <div className="card shadow-sm border-0">
         <div className="card-body">
@@ -143,9 +170,9 @@ export default function PatientFormPage() {
               <input
                 className="form-control"
                 name="email"
+                type="email"
                 value={form.email}
                 onChange={handleChange}
-                type="email"
               />
             </div>
 
@@ -205,9 +232,22 @@ export default function PatientFormPage() {
               />
             </div>
 
-            <div className="col-12">
+            <div className="col-12 d-flex gap-2">
               <button className="btn btn-primary" disabled={saving}>
-                {saving ? "Saving..." : "Save Patient"}
+                {saving
+                  ? "Saving..."
+                  : isEdit
+                    ? "Update Patient"
+                    : "Create Patient"}
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => navigate("/admin/erp/patients")}
+                disabled={saving}
+              >
+                Cancel
               </button>
             </div>
           </form>

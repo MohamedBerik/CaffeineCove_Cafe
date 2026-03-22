@@ -437,7 +437,7 @@ export default function PatientProfilePage() {
     if (!item.appointment_id) {
       return {
         key: "attach_appointment",
-        label: "Attach to Appointment",
+        label: "Link to Existing Appointment",
         className: "btn btn-sm btn-outline-primary",
         itemId: item.id,
       };

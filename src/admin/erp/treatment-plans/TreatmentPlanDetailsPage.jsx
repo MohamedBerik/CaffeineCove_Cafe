@@ -550,6 +550,16 @@ export default function TreatmentPlanDetailsPage() {
           color="primary"
         />
         <KpiCard
+          title="Direct Paid"
+          value={money(totals.direct_paid)}
+          color="success"
+        />
+        <KpiCard
+          title="Credit Applied"
+          value={money(totals.credit_applied)}
+          color="secondary"
+        />
+        <KpiCard
           title="Total Paid"
           value={money(totals.total_paid)}
           color="success"
@@ -1029,6 +1039,8 @@ export default function TreatmentPlanDetailsPage() {
                       <tr>
                         <th>Number</th>
                         <th>Total</th>
+                        <th>Direct Paid</th>
+                        <th>Credit Applied</th>
                         <th>Net Paid</th>
                         <th>Remaining</th>
                         <th>Status</th>
@@ -1046,6 +1058,8 @@ export default function TreatmentPlanDetailsPage() {
                             </Link>
                           </td>
                           <td>{money(inv.total)}</td>
+                          <td>{money(inv.direct_paid)}</td>
+                          <td>{money(inv.credit_applied)}</td>
                           <td>{money(inv.net_paid)}</td>
                           <td>{money(inv.remaining)}</td>
                           <td>

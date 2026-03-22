@@ -126,6 +126,8 @@ export default function PatientProfilePage() {
   const procedures = data?.procedures || [];
 
   const invoicesTotal = Number(data?.invoices_total || 0);
+  const invoicesDirectPaid = Number(data?.invoices_direct_paid || 0);
+  const invoicesCreditApplied = Number(data?.invoices_credit_applied || 0);
   const invoicesPaid = Number(data?.invoices_paid || 0);
   const invoicesRemaining = Number(data?.invoices_remaining || 0);
   const customerCreditBalance = Number(data?.customer_credit_balance || 0);
@@ -543,7 +545,24 @@ export default function PatientProfilePage() {
           isMoney
           color="primary"
         />
-        <Kpi title="Paid" value={money(invoicesPaid)} isMoney color="success" />
+        <Kpi
+          title="Direct Paid"
+          value={money(invoicesDirectPaid)}
+          isMoney
+          color="success"
+        />
+        <Kpi
+          title="Credit Applied"
+          value={money(invoicesCreditApplied)}
+          isMoney
+          color="secondary"
+        />
+        <Kpi
+          title="Net Paid"
+          value={money(invoicesPaid)}
+          isMoney
+          color="info"
+        />
         <Kpi
           title="Remaining"
           value={money(invoicesRemaining)}

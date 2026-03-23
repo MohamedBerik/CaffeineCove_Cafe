@@ -34,15 +34,6 @@ export default function PatientProfilePage() {
   const [convertError, setConvertError] = useState("");
   const [convertSuccess, setConvertSuccess] = useState("");
 
-  const [attachAppointmentItemId, setAttachAppointmentItemId] = useState(null);
-  const [attachAppointmentForm, setAttachAppointmentForm] = useState({
-    appointment_id: "",
-  });
-  const [attachingAppointmentItemId, setAttachingAppointmentItemId] =
-    useState(null);
-  const [attachAppointmentError, setAttachAppointmentError] = useState("");
-  const [attachAppointmentSuccess, setAttachAppointmentSuccess] = useState("");
-
   useEffect(() => {
     loadProfile();
   }, [id]);
@@ -55,8 +46,6 @@ export default function PatientProfilePage() {
       setRecordSuccess("");
       setConvertError("");
       setConvertSuccess("");
-      setAttachAppointmentError("");
-      setAttachAppointmentSuccess("");
 
       const res = await axios.get(`/erp/customers/${id}/profile`);
       setData(res.data?.data || null);
@@ -195,14 +184,6 @@ export default function PatientProfilePage() {
     }));
   };
 
-  const handleAttachAppointmentChange = (e) => {
-    const { name, value } = e.target;
-    setAttachAppointmentForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   const saveDentalRecord = async (e) => {
     e.preventDefault();
 
@@ -273,8 +254,6 @@ export default function PatientProfilePage() {
       setRecordSuccess("");
       setConvertError("");
       setConvertSuccess("");
-      setAttachAppointmentError("");
-      setAttachAppointmentSuccess("");
 
       await axios.delete(`/erp/dental-records/${recordId}`);
 
@@ -307,8 +286,6 @@ export default function PatientProfilePage() {
     setConvertRecordId(record.id);
     setConvertError("");
     setConvertSuccess("");
-    setAttachAppointmentError("");
-    setAttachAppointmentSuccess("");
     setConvertForm({
       treatment_plan_id: "",
       price:
@@ -369,60 +346,6 @@ export default function PatientProfilePage() {
     }
   };
 
-  const openAttachAppointmentForm = (itemId) => {
-    setAttachAppointmentItemId(itemId);
-    setAttachAppointmentError("");
-    setAttachAppointmentSuccess("");
-    setConvertError("");
-    setConvertSuccess("");
-    setAttachAppointmentForm({
-      appointment_id: "",
-    });
-  };
-
-  const closeAttachAppointmentForm = () => {
-    setAttachAppointmentItemId(null);
-    setAttachAppointmentError("");
-    setAttachAppointmentForm({
-      appointment_id: "",
-    });
-  };
-
-  const submitAttachAppointment = async (itemId) => {
-    try {
-      setAttachingAppointmentItemId(itemId);
-      setAttachAppointmentError("");
-      setAttachAppointmentSuccess("");
-
-      await axios.post(
-        `/erp/treatment-plan-items/${itemId}/attach-appointment`,
-        {
-          appointment_id: Number(attachAppointmentForm.appointment_id),
-        },
-      );
-
-      setAttachAppointmentSuccess("Appointment attached successfully.");
-      await loadProfile();
-      closeAttachAppointmentForm();
-    } catch (err) {
-      const errors = err?.response?.data?.errors;
-      if (errors) {
-        const firstError = Object.values(errors)?.[0]?.[0];
-        setAttachAppointmentError(
-          firstError || "Failed to attach appointment.",
-        );
-      } else {
-        setAttachAppointmentError(
-          err?.response?.data?.message ||
-            err?.response?.data?.msg ||
-            "Failed to attach appointment.",
-        );
-      }
-    } finally {
-      setAttachingAppointmentItemId(null);
-    }
-  };
-
   const getRecordPrimaryAction = (record) => {
     const item = record?.treatment_plan_item;
 
@@ -436,10 +359,10 @@ export default function PatientProfilePage() {
 
     if (!item.appointment_id) {
       return {
-        key: "attach_appointment",
-        label: "Link to Existing Appointment",
+        key: "plan",
+        label: "Open Treatment Plan",
         className: "btn btn-sm btn-outline-primary",
-        itemId: item.id,
+        to: `/admin/erp/treatment-plans/${item.treatment_plan_id}`,
       };
     }
 
@@ -459,7 +382,7 @@ export default function PatientProfilePage() {
     }
 
     if (!item.appointment_id) {
-      return `Plan #${item.treatment_plan_id} • Waiting for appointment`;
+      return `Plan #${item.treatment_plan_id} • Waiting to start procedure from treatment plan`;
     }
 
     return `Plan #${item.treatment_plan_id} • Appointment #${item.appointment_id}`;
@@ -623,7 +546,6 @@ export default function PatientProfilePage() {
             records={selectedToothRecords}
             procedures={procedures}
             treatmentPlans={treatmentPlans}
-            appointments={appointments}
             recordForm={recordForm}
             editingRecordId={editingRecordId}
             onRecordChange={handleRecordChange}
@@ -646,16 +568,6 @@ export default function PatientProfilePage() {
             convertSuccess={convertSuccess}
             getRecordPrimaryAction={getRecordPrimaryAction}
             getRecordMeta={getRecordMeta}
-            attachAppointmentItemId={attachAppointmentItemId}
-            attachAppointmentForm={attachAppointmentForm}
-            attachingAppointmentItemId={attachingAppointmentItemId}
-            attachAppointmentError={attachAppointmentError}
-            attachAppointmentSuccess={attachAppointmentSuccess}
-            onOpenAttachAppointment={openAttachAppointmentForm}
-            onCloseAttachAppointment={closeAttachAppointmentForm}
-            onAttachAppointmentChange={handleAttachAppointmentChange}
-            onSubmitAttachAppointment={submitAttachAppointment}
-            formatDate={formatDate}
           />
         </Section>
       ) : null}
@@ -678,8 +590,6 @@ export default function PatientProfilePage() {
               {dentalRecords.map((r) => {
                 const isConvertOpen = convertRecordId === r.id;
                 const primaryAction = getRecordPrimaryAction(r);
-                const isAttachAppointmentOpen =
-                  attachAppointmentItemId === r?.treatment_plan_item?.id;
 
                 return (
                   <tr key={r.id}>
@@ -696,16 +606,6 @@ export default function PatientProfilePage() {
                             type="button"
                             className={primaryAction.className}
                             onClick={() => openConvertForm(r)}
-                          >
-                            {primaryAction.label}
-                          </button>
-                        ) : primaryAction.key === "attach_appointment" ? (
-                          <button
-                            type="button"
-                            className={primaryAction.className}
-                            onClick={() =>
-                              openAttachAppointmentForm(primaryAction.itemId)
-                            }
                           >
                             {primaryAction.label}
                           </button>
@@ -743,81 +643,6 @@ export default function PatientProfilePage() {
                         {getRecordMeta(r)}
                       </div>
 
-                      {isAttachAppointmentOpen ? (
-                        <div className="border rounded p-2 bg-light mb-2">
-                          {attachAppointmentError ? (
-                            <div className="alert alert-danger py-2 mb-2">
-                              {attachAppointmentError}
-                            </div>
-                          ) : null}
-
-                          {attachAppointmentSuccess ? (
-                            <div className="alert alert-success py-2 mb-2">
-                              {attachAppointmentSuccess}
-                            </div>
-                          ) : null}
-
-                          <div className="row g-2">
-                            <div className="col-12 col-md-8">
-                              <label className="form-label small fw-semibold">
-                                Select Appointment
-                              </label>
-                              <select
-                                className="form-select form-select-sm"
-                                name="appointment_id"
-                                value={attachAppointmentForm.appointment_id}
-                                onChange={handleAttachAppointmentChange}
-                              >
-                                <option value="">Select appointment</option>
-                                {appointments.map((a) => (
-                                  <option key={a.id} value={a.id}>
-                                    #{a.id} - {formatDate(a.appointment_date)} -{" "}
-                                    {String(a.appointment_time || "").slice(
-                                      0,
-                                      5,
-                                    ) || "-"}{" "}
-                                    - {a.doctor?.name || "-"}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-
-                            <div className="col-12 col-md-4 d-flex align-items-end gap-2">
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-primary"
-                                onClick={() =>
-                                  submitAttachAppointment(
-                                    r.treatment_plan_item.id,
-                                  )
-                                }
-                                disabled={
-                                  attachingAppointmentItemId ===
-                                  r.treatment_plan_item.id
-                                }
-                              >
-                                {attachingAppointmentItemId ===
-                                r.treatment_plan_item.id
-                                  ? "Attaching..."
-                                  : "Attach"}
-                              </button>
-
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-outline-secondary"
-                                onClick={closeAttachAppointmentForm}
-                                disabled={
-                                  attachingAppointmentItemId ===
-                                  r.treatment_plan_item.id
-                                }
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ) : null}
-
                       {isConvertOpen && primaryAction.key === "convert" ? (
                         <div className="border rounded p-2 bg-light">
                           <div className="row g-2">
@@ -854,6 +679,15 @@ export default function PatientProfilePage() {
                                 value={convertForm.price}
                                 onChange={handleConvertChange}
                               />
+                            </div>
+
+                            <div className="col-12">
+                              <div className="alert alert-light border py-2 mb-2 small">
+                                After conversion, start the procedure from the
+                                treatment plan page. Do not link this record to
+                                an already completed or already billed
+                                appointment.
+                              </div>
                             </div>
 
                             <div className="col-12 d-flex gap-2">
@@ -1269,7 +1103,6 @@ function ToothDetails({
   records,
   procedures,
   treatmentPlans,
-  appointments,
   recordForm,
   editingRecordId,
   onRecordChange,
@@ -1292,16 +1125,6 @@ function ToothDetails({
   convertSuccess,
   getRecordPrimaryAction,
   getRecordMeta,
-  attachAppointmentItemId,
-  attachAppointmentForm,
-  attachingAppointmentItemId,
-  attachAppointmentError,
-  attachAppointmentSuccess,
-  onOpenAttachAppointment,
-  onCloseAttachAppointment,
-  onAttachAppointmentChange,
-  onSubmitAttachAppointment,
-  formatDate,
 }) {
   return (
     <div className="p-3">
@@ -1319,16 +1142,6 @@ function ToothDetails({
 
       {convertSuccess ? (
         <div className="alert alert-success py-2">{convertSuccess}</div>
-      ) : null}
-
-      {attachAppointmentError ? (
-        <div className="alert alert-danger py-2">{attachAppointmentError}</div>
-      ) : null}
-
-      {attachAppointmentSuccess ? (
-        <div className="alert alert-success py-2">
-          {attachAppointmentSuccess}
-        </div>
       ) : null}
 
       <div className="mb-4">
@@ -1480,8 +1293,6 @@ function ToothDetails({
               {records.map((r) => {
                 const isConvertOpen = convertRecordId === r.id;
                 const primaryAction = getRecordPrimaryAction(r);
-                const isAttachAppointmentOpen =
-                  attachAppointmentItemId === r?.treatment_plan_item?.id;
 
                 return (
                   <tr key={r.id}>
@@ -1498,16 +1309,6 @@ function ToothDetails({
                             type="button"
                             className={primaryAction.className}
                             onClick={() => onOpenConvert(r)}
-                          >
-                            {primaryAction.label}
-                          </button>
-                        ) : primaryAction.key === "attach_appointment" ? (
-                          <button
-                            type="button"
-                            className={primaryAction.className}
-                            onClick={() =>
-                              onOpenAttachAppointment(primaryAction.itemId)
-                            }
                           >
                             {primaryAction.label}
                           </button>
@@ -1541,69 +1342,6 @@ function ToothDetails({
                       <div className="small text-muted mb-2">
                         {getRecordMeta(r)}
                       </div>
-
-                      {isAttachAppointmentOpen ? (
-                        <div className="border rounded p-2 bg-light mb-2">
-                          <div className="row g-2">
-                            <div className="col-12 col-md-8">
-                              <label className="form-label small fw-semibold">
-                                Select Appointment
-                              </label>
-                              <select
-                                className="form-select form-select-sm"
-                                name="appointment_id"
-                                value={attachAppointmentForm.appointment_id}
-                                onChange={onAttachAppointmentChange}
-                              >
-                                <option value="">Select appointment</option>
-                                {appointments.map((a) => (
-                                  <option key={a.id} value={a.id}>
-                                    #{a.id} - {formatDate(a.appointment_date)} -{" "}
-                                    {String(a.appointment_time || "").slice(
-                                      0,
-                                      5,
-                                    ) || "-"}{" "}
-                                    - {a.doctor?.name || "-"}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-
-                            <div className="col-12 col-md-4 d-flex align-items-end gap-2">
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-primary"
-                                onClick={() =>
-                                  onSubmitAttachAppointment(
-                                    r.treatment_plan_item.id,
-                                  )
-                                }
-                                disabled={
-                                  attachingAppointmentItemId ===
-                                  r.treatment_plan_item.id
-                                }
-                              >
-                                {attachingAppointmentItemId ===
-                                r.treatment_plan_item.id
-                                  ? "Attaching..."
-                                  : "Attach"}
-                              </button>
-
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-outline-secondary"
-                                onClick={onCloseAttachAppointment}
-                                disabled={
-                                  attachingAppointmentItemId ===
-                                  r.treatment_plan_item.id
-                                }
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ) : null}
 
                       {isConvertOpen && primaryAction.key === "convert" ? (
                         <div className="border rounded p-2 bg-light">
@@ -1641,6 +1379,14 @@ function ToothDetails({
                                 value={convertForm.price}
                                 onChange={onConvertChange}
                               />
+                            </div>
+
+                            <div className="col-12">
+                              <div className="alert alert-light border py-2 mb-2 small">
+                                Convert first, then start the procedure from the
+                                treatment plan page to create a dedicated
+                                treatment appointment and invoice correctly.
+                              </div>
                             </div>
 
                             <div className="col-12 d-flex gap-2">

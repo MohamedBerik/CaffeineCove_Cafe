@@ -92,6 +92,21 @@ export default function AppointmentsListPage() {
     return String(value).slice(0, 5) || "-";
   };
 
+  const formatDateTime = (value) => {
+    if (!value) return "-";
+    try {
+      return new Date(value).toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return value;
+    }
+  };
+
   const formatAppointmentType = (value) => {
     const type = String(value || "").toLowerCase();
     if (type === "consultation") return "Consultation";
@@ -219,6 +234,38 @@ export default function AppointmentsListPage() {
     );
   };
 
+  const handleSendReminder = async (item) => {
+    const ok = window.confirm("Send reminder for this appointment?");
+    if (!ok) return;
+
+    try {
+      clearActionMessages();
+      setActingId(`reminder-${item.id}`);
+
+      const res = await axios.post(
+        `/erp/appointments/${item.id}/send-reminder`,
+      );
+
+      setActionSuccess(res?.data?.msg || "Reminder sent successfully.");
+
+      await loadAll();
+    } catch (err) {
+      const errors = err?.response?.data?.errors;
+      if (errors) {
+        const firstError = Object.values(errors)?.[0]?.[0];
+        setActionError(firstError || "Failed to send reminder.");
+      } else {
+        setActionError(
+          err?.response?.data?.message ||
+            err?.response?.data?.msg ||
+            "Failed to send reminder.",
+        );
+      }
+    } finally {
+      setActingId(null);
+    }
+  };
+
   const handleComplete = async (item) => {
     const typeLabel = formatAppointmentType(item.appointment_type);
     const ok = window.confirm(
@@ -326,10 +373,45 @@ export default function AppointmentsListPage() {
     });
   };
 
-  const clearFilters = () => {
+  const clearFilters = async () => {
     setSearch("");
     setStatusFilter("");
     setDateFilter("");
+    setOpenRescheduleId(null);
+    clearActionMessages();
+
+    try {
+      setLoading(true);
+      const [appointmentsRes, doctorsRes] = await Promise.all([
+        axios.get("/erp/appointments"),
+        axios.get("/erp/doctors"),
+      ]);
+
+      const appointmentsPayload = appointmentsRes.data || {};
+      const doctorsPayload = doctorsRes.data || {};
+
+      const rowsData = Array.isArray(appointmentsPayload.data)
+        ? appointmentsPayload.data
+        : appointmentsPayload.data?.data || [];
+
+      const doctorRows = Array.isArray(doctorsPayload.data)
+        ? doctorsPayload.data
+        : doctorsPayload.data?.data || [];
+
+      setRows(rowsData);
+      setMeta(
+        appointmentsPayload.meta || appointmentsPayload.data?.meta || null,
+      );
+      setDoctors(doctorRows);
+    } catch (err) {
+      setError(
+        err?.response?.data?.message ||
+          err?.response?.data?.msg ||
+          "Failed to load appointments.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) {
@@ -481,6 +563,9 @@ export default function AppointmentsListPage() {
                     <th style={{ minWidth: 100 }}>Time</th>
                     <th style={{ minWidth: 140 }}>Type</th>
                     <th style={{ minWidth: 120 }}>Status</th>
+                    <th style={{ minWidth: 140 }}>Reminder</th>
+                    <th style={{ minWidth: 180 }}>Next Reminder</th>
+                    <th style={{ minWidth: 180 }}>Last Reminder</th>
                     <th style={{ minWidth: 120 }}>Invoice</th>
                     <th style={{ minWidth: 140 }}>Treatment Plan</th>
                     <th style={{ minWidth: 220 }}>Notes</th>
@@ -496,6 +581,7 @@ export default function AppointmentsListPage() {
                       actingId={actingId}
                       onCancel={handleCancel}
                       onNoShow={handleNoShow}
+                      onSendReminder={handleSendReminder}
                       onComplete={handleComplete}
                       onOpenReschedule={openRescheduleFormFor}
                       openRescheduleId={openRescheduleId}
@@ -505,6 +591,7 @@ export default function AppointmentsListPage() {
                       onCloseInlineForms={closeInlineForms}
                       formatDate={formatDate}
                       formatTime={formatTime}
+                      formatDateTime={formatDateTime}
                       formatAppointmentType={formatAppointmentType}
                       highlightAppointmentId={highlightAppointmentId}
                     />
@@ -525,6 +612,7 @@ function AppointmentRow({
   actingId,
   onCancel,
   onNoShow,
+  onSendReminder,
   onComplete,
   onOpenReschedule,
   openRescheduleId,
@@ -534,6 +622,7 @@ function AppointmentRow({
   onCloseInlineForms,
   formatDate,
   formatTime,
+  formatDateTime,
   formatAppointmentType,
   highlightAppointmentId,
 }) {
@@ -550,6 +639,9 @@ function AppointmentRow({
   const patientId = item.patient?.id || item.patient_id || null;
   const invoiceId = item.invoice_id || null;
   const treatmentPlanId = item.treatment_plan_id || null;
+  const reminderStatus = String(item.reminder_status || "").toLowerCase();
+  const canSendReminder =
+    status === "scheduled" && ["pending", "sent"].includes(reminderStatus);
 
   return (
     <>
@@ -586,6 +678,28 @@ function AppointmentRow({
         <td>
           <StatusBadge status={item.status} />
         </td>
+
+        <td>
+          <ReminderStatusBadge status={item.reminder_status} />
+          <div className="small text-muted">
+            Sent: {Number(item.reminder_sent_count || 0)}
+          </div>
+        </td>
+
+        <td>
+          {item.next_reminder_at ? (
+            new Date(item.next_reminder_at) < new Date() ? (
+              <span className="text-danger fw-semibold">
+                {formatDateTime(item.next_reminder_at)}
+              </span>
+            ) : (
+              formatDateTime(item.next_reminder_at)
+            )
+          ) : (
+            "-"
+          )}
+        </td>
+        <td>{formatDateTime(item.last_reminder_at)}</td>
 
         <td>
           {invoiceId ? (
@@ -671,6 +785,18 @@ function AppointmentRow({
               </button>
             ) : null}
 
+            {canSendReminder ? (
+              <button
+                className="btn btn-sm btn-outline-dark"
+                onClick={() => onSendReminder(item)}
+                disabled={actingId === `reminder-${item.id}`}
+              >
+                {actingId === `reminder-${item.id}`
+                  ? "Sending..."
+                  : "Send Reminder"}
+              </button>
+            ) : null}
+
             {canComplete ? (
               <button
                 className="btn btn-sm btn-outline-success"
@@ -697,7 +823,7 @@ function AppointmentRow({
 
       {isRescheduleOpen ? (
         <tr>
-          <td colSpan="11" className="bg-light">
+          <td colSpan="14" className="bg-light">
             <div className="p-3">
               <div className="fw-semibold mb-3">Reschedule Appointment</div>
 
@@ -805,6 +931,25 @@ function AppointmentTypeBadge({ type }) {
   } else if (value === "treatment") {
     cls = "info";
     label = "Treatment";
+  }
+
+  return <span className={`badge bg-${cls}`}>{label}</span>;
+}
+function ReminderStatusBadge({ status }) {
+  const value = String(status || "").toLowerCase();
+
+  let cls = "secondary";
+  let label = status || "-";
+
+  if (value === "pending") {
+    cls = "warning";
+    label = "Pending";
+  } else if (value === "sent") {
+    cls = "success";
+    label = "Sent";
+  } else if (value === "not_needed") {
+    cls = "secondary";
+    label = "Not Needed";
   }
 
   return <span className={`badge bg-${cls}`}>{label}</span>;

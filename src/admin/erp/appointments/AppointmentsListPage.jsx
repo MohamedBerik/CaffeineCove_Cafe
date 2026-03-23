@@ -242,7 +242,9 @@ export default function AppointmentsListPage() {
       clearActionMessages();
       setActingId(`reminder-${item.id}`);
 
-      const res = await axios.post(`/erp/appointments/${id}/send-reminder`);
+      const res = await axios.post(
+        `/erp/appointments/${item.id}/send-reminder`,
+      );
 
       setActionSuccess(res?.data?.msg || "Reminder sent successfully.");
 

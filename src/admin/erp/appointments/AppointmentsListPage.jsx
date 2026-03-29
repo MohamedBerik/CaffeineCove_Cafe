@@ -566,6 +566,7 @@ export default function AppointmentsListPage() {
                     <th style={{ minWidth: 140 }}>Reminder</th>
                     <th style={{ minWidth: 180 }}>Next Reminder</th>
                     <th style={{ minWidth: 180 }}>Last Reminder</th>
+                    <th style={{ minWidth: 180 }}>Follow-up</th>
                     <th style={{ minWidth: 120 }}>Invoice</th>
                     <th style={{ minWidth: 140 }}>Treatment Plan</th>
                     <th style={{ minWidth: 220 }}>Notes</th>
@@ -700,7 +701,14 @@ function AppointmentRow({
           )}
         </td>
         <td>{formatDateTime(item.last_reminder_at)}</td>
-
+        <td>
+          <FollowUpStatusBadge
+            status={item.follow_up_status}
+            retryCount={item.follow_up_retry_count}
+            nextRetryAt={item.follow_up_next_retry_at}
+            formatDateTime={formatDateTime}
+          />
+        </td>
         <td>
           {invoiceId ? (
             <Link
@@ -823,7 +831,7 @@ function AppointmentRow({
 
       {isRescheduleOpen ? (
         <tr>
-          <td colSpan="14" className="bg-light">
+          <td colSpan="15" className="bg-light">
             <div className="p-3">
               <div className="fw-semibold mb-3">Reschedule Appointment</div>
 
@@ -953,4 +961,58 @@ function ReminderStatusBadge({ status }) {
   }
 
   return <span className={`badge bg-${cls}`}>{label}</span>;
+}
+
+function FollowUpStatusBadge({
+  status,
+  retryCount,
+  nextRetryAt,
+  formatDateTime,
+}) {
+  const value = String(status || "").toLowerCase();
+
+  let cls = "secondary";
+  let label = status || "-";
+
+  if (value === "pending") {
+    cls = "warning";
+    label = "Pending";
+  } else if (value === "processing") {
+    cls = "info";
+    label = "Processing";
+  } else if (value === "sent") {
+    cls = "success";
+    label = "Sent";
+  } else if (value === "failed") {
+    if (retryCount >= 3 || !nextRetryAt) {
+      cls = "danger";
+      label = "Failed (Stopped)";
+    } else {
+      cls = "dark";
+      label = "Retrying";
+    }
+  } else if (value === "skipped") {
+    cls = "secondary";
+    label = "Skipped";
+  }
+
+  return (
+    <div>
+      <span className={`badge bg-${cls}`}>{label}</span>
+
+      <div className="small text-muted">Retries: {Number(retryCount || 0)}</div>
+
+      {nextRetryAt ? (
+        new Date(nextRetryAt) < new Date() ? (
+          <div className="small text-danger fw-semibold">
+            Next: {formatDateTime(nextRetryAt)}
+          </div>
+        ) : (
+          <div className="small text-muted">
+            Next: {formatDateTime(nextRetryAt)}
+          </div>
+        )
+      ) : null}
+    </div>
+  );
 }

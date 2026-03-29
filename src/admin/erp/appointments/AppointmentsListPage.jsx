@@ -703,7 +703,7 @@ function AppointmentRow({
         <td>{formatDateTime(item.last_reminder_at)}</td>
         <td>
           <FollowUpStatusBadge
-            status={item.follow_up_status}
+            state={item.follow_up_state}
             retryCount={item.follow_up_retry_count}
             nextRetryAt={item.follow_up_next_retry_at}
             formatDateTime={formatDateTime}
@@ -964,15 +964,15 @@ function ReminderStatusBadge({ status }) {
 }
 
 function FollowUpStatusBadge({
-  status,
+  state,
   retryCount,
   nextRetryAt,
   formatDateTime,
 }) {
-  const value = String(status || "").toLowerCase();
+  const value = String(state || "").toLowerCase();
 
   let cls = "secondary";
-  let label = status || "-";
+  let label = state || "-";
 
   if (value === "pending") {
     cls = "warning";
@@ -983,14 +983,12 @@ function FollowUpStatusBadge({
   } else if (value === "sent") {
     cls = "success";
     label = "Sent";
-  } else if (value === "failed") {
-    if (retryCount >= 3 || !nextRetryAt) {
-      cls = "danger";
-      label = "Failed (Stopped)";
-    } else {
-      cls = "dark";
-      label = "Retrying";
-    }
+  } else if (value === "retrying") {
+    cls = "dark";
+    label = "Retrying";
+  } else if (value === "stopped") {
+    cls = "danger";
+    label = "Stopped";
   } else if (value === "skipped") {
     cls = "secondary";
     label = "Skipped";

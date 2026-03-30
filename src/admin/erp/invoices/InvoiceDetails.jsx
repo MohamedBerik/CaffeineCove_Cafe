@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./InvoiceDetails.css";
 
 export default function InvoiceDetails() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -26,6 +29,32 @@ export default function InvoiceDetails() {
     loadInvoice();
   }, [id]);
 
+  const formatCurrency = (value) => {
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return new Intl.NumberFormat(lang, {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+  };
+
+  const formatDateTime = (value) => {
+    if (!value) return "-";
+    try {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleString(lang, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return value;
+    }
+  };
+
   const loadInvoice = async () => {
     try {
       setLoading(true);
@@ -48,31 +77,10 @@ export default function InvoiceDetails() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load invoice.",
+          t("Failed to load invoice."),
       );
     } finally {
       setLoading(false);
-    }
-  };
-
-  const money = (value) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(Number(value || 0));
-
-  const formatDateTime = (value) => {
-    if (!value) return "-";
-    try {
-      return new Date(value).toLocaleString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return value;
     }
   };
 
@@ -90,20 +98,13 @@ export default function InvoiceDetails() {
     );
   }, [payments]);
 
-  // ✅ اعتمد على الباك إند مباشرة
   const directPaid = Number(invoice?.total_paid || 0);
   const totalRefunded = Number(invoice?.total_refunded || 0);
   const totalCreditApplied = Number(invoice?.total_credit_applied || 0);
   const netPaid = Number(invoice?.net_paid || 0);
   const remaining = Number(invoice?.remaining || 0);
-
-  // credit generated from overpayments on this invoice only
   const overpaid = Number(invoice?.net_credit || 0);
-
-  // customer's actual remaining balance across all invoices
   const customerCreditBalance = Number(invoice?.customer_credit_balance || 0);
-
-  // optional informational values
   const customerCreditIssuedTotal = Number(
     invoice?.customer_credit_issued_total || 0,
   );
@@ -138,7 +139,7 @@ export default function InvoiceDetails() {
         allow_overpayment: true,
       });
 
-      setActionSuccess("Payment recorded successfully.");
+      setActionSuccess(t("Payment recorded successfully."));
       setPayForm({
         amount: "",
         method: "cash",
@@ -149,12 +150,12 @@ export default function InvoiceDetails() {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setActionError(firstError || "Failed to record payment.");
+        setActionError(firstError || t("Failed to record payment."));
       } else {
         setActionError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to record payment.",
+            t("Failed to record payment."),
         );
       }
     } finally {
@@ -177,7 +178,7 @@ export default function InvoiceDetails() {
 
       const amount = refundForms[paymentId];
       if (!amount || Number(amount) <= 0) {
-        setActionError("Enter a valid refund amount.");
+        setActionError(t("Enter a valid refund amount."));
         return;
       }
 
@@ -185,7 +186,7 @@ export default function InvoiceDetails() {
         amount: Number(amount),
       });
 
-      setActionSuccess("Refund recorded successfully.");
+      setActionSuccess(t("Refund recorded successfully."));
       setRefundForms((prev) => ({
         ...prev,
         [paymentId]: "",
@@ -196,12 +197,12 @@ export default function InvoiceDetails() {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setActionError(firstError || "Failed to record refund.");
+        setActionError(firstError || t("Failed to record refund."));
       } else {
         setActionError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to record refund.",
+            t("Failed to record refund."),
         );
       }
     } finally {
@@ -216,7 +217,7 @@ export default function InvoiceDetails() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
@@ -227,7 +228,7 @@ export default function InvoiceDetails() {
       <div className="alert alert-danger d-flex justify-content-between align-items-center">
         <span>{error}</span>
         <button className="btn btn-sm btn-outline-danger" onClick={loadInvoice}>
-          Retry
+          {t("Retry")}
         </button>
       </div>
     );
@@ -236,118 +237,160 @@ export default function InvoiceDetails() {
   if (!invoice) {
     return (
       <div className="alert alert-warning d-flex justify-content-between align-items-center">
-        <span>Invoice not found.</span>
+        <span>{t("Invoice not found.")}</span>
         <button
           className="btn btn-sm btn-outline-secondary"
           onClick={() => navigate("/admin/erp/invoices")}
         >
-          Back
+          {t("Back")}
         </button>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Invoice Details</h3>
-          <p className="text-muted mb-0">
-            Review invoice, payments, refunds, and accounting impact
+    <div className="invoice-details-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Invoice Details")}</h1>
+          <p className="page-subtitle">
+            {t("Review invoice, payments, refunds, and accounting impact")}
           </p>
         </div>
 
-        <div className="d-flex flex-wrap gap-2">
+        <div className="header-actions">
           <Link to="/admin/erp/invoices" className="btn btn-outline-secondary">
-            Back to Invoices
+            <i className="fas fa-arrow-left me-2"></i>
+            {t("Back to Invoices")}
           </Link>
 
-          {customerId ? (
+          {customerId && (
             <Link
               to={`/admin/erp/patients/${customerId}/profile`}
               className="btn btn-outline-primary"
             >
-              Patient Profile
+              <i className="fas fa-user me-2"></i>
+              {t("Patient Profile")}
             </Link>
-          ) : null}
+          )}
 
           <button className="btn btn-primary" onClick={loadInvoice}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
-      {actionError ? (
-        <div className="alert alert-danger">{actionError}</div>
-      ) : null}
-      {actionSuccess ? (
-        <div className="alert alert-success">{actionSuccess}</div>
-      ) : null}
+      {/* Action Alerts */}
+      {actionError && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {actionError}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setActionError("")}
+          ></button>
+        </div>
+      )}
+      {actionSuccess && (
+        <div className="alert alert-success alert-dismissible fade show">
+          <i className="fas fa-check-circle me-2"></i>
+          {actionSuccess}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setActionSuccess("")}
+          ></button>
+        </div>
+      )}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
-          <div className="row g-3">
-            <InfoItem label="Invoice Number" value={invoice.number} />
+      {/* Invoice Info Card */}
+      <div className="info-card">
+        <div className="info-card-header">
+          <i className="fas fa-file-invoice me-2"></i>
+          <h5 className="mb-0">{t("Invoice Information")}</h5>
+        </div>
+        <div className="info-card-body">
+          <div className="info-grid">
+            <InfoItem label={t("Invoice Number")} value={invoice.number} />
             <InfoItem
-              label="Status"
-              value={<StatusBadge status={invoice.status} />}
+              label={t("Status")}
+              value={<StatusBadge status={invoice.status} t={t} />}
             />
-            <InfoItem label="Customer ID" value={customerId} />
-            <InfoItem label="Appointment ID" value={appointmentId} />
-            <InfoItem label="Treatment Plan ID" value={treatmentPlanId} />
+            <InfoItem label={t("Customer ID")} value={customerId} />
+            <InfoItem label={t("Appointment ID")} value={appointmentId} />
+            <InfoItem label={t("Treatment Plan ID")} value={treatmentPlanId} />
             <InfoItem
-              label="Issued At"
+              label={t("Issued At")}
               value={formatDateTime(invoice.issued_at)}
             />
           </div>
         </div>
       </div>
 
-      <div className="row g-3 mb-4">
+      {/* KPI Grid */}
+      <div className="kpi-grid">
         <KpiCard
-          title="Invoice Total"
-          value={money(invoice.total)}
+          title={t("Invoice Total")}
+          value={formatCurrency(invoice.total)}
           color="primary"
         />
         <KpiCard
-          title="Direct Paid"
-          value={money(directPaid)}
+          title={t("Direct Paid")}
+          value={formatCurrency(directPaid)}
           color="success"
         />
         <KpiCard
-          title="Credit Applied"
-          value={money(totalCreditApplied)}
+          title={t("Credit Applied")}
+          value={formatCurrency(totalCreditApplied)}
           color="secondary"
         />
-        <KpiCard title="Refunded" value={money(totalRefunded)} color="danger" />
-        <KpiCard title="Net Paid" value={money(netPaid)} color="info" />
-        <KpiCard title="Remaining" value={money(remaining)} color="warning" />
-        <KpiCard title="Invoice Credit" value={money(overpaid)} color="dark" />
         <KpiCard
-          title="Customer Credit Balance"
-          value={money(customerCreditBalance)}
+          title={t("Refunded")}
+          value={formatCurrency(totalRefunded)}
+          color="danger"
+        />
+        <KpiCard
+          title={t("Net Paid")}
+          value={formatCurrency(netPaid)}
+          color="info"
+        />
+        <KpiCard
+          title={t("Remaining")}
+          value={formatCurrency(remaining)}
+          color="warning"
+        />
+        <KpiCard
+          title={t("Invoice Credit")}
+          value={formatCurrency(overpaid)}
+          color="dark"
+        />
+        <KpiCard
+          title={t("Customer Credit Balance")}
+          value={formatCurrency(customerCreditBalance)}
           color="primary"
         />
         <KpiCard
-          title="Cash Received"
-          value={money(cashReceived)}
+          title={t("Cash Received")}
+          value={formatCurrency(cashReceived)}
           color="success"
         />
       </div>
 
-      <div className="row g-4">
-        <div className="col-12">
-          <div className="card shadow-sm border-0">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Receive Payment</h5>
-            </div>
-            <div className="card-body">
-              <form
-                className="row g-3 align-items-end"
-                onSubmit={submitPayment}
-              >
-                <div className="col-12 col-md-4">
-                  <label className="form-label fw-semibold">Amount</label>
+      <div className="two-columns">
+        {/* Payment Form */}
+        <div className="payment-card">
+          <div className="card-header-custom">
+            <i className="fas fa-money-bill-wave me-2"></i>
+            <h5 className="mb-0">{t("Receive Payment")}</h5>
+          </div>
+          <div className="card-body-custom">
+            <form onSubmit={submitPayment}>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label">{t("Amount")} *</label>
                   <input
                     type="number"
                     step="0.01"
@@ -361,386 +404,419 @@ export default function InvoiceDetails() {
                   />
                 </div>
 
-                <div className="col-12 col-md-4">
-                  <label className="form-label fw-semibold">Method</label>
+                <div className="form-group">
+                  <label className="form-label">{t("Method")}</label>
                   <select
                     className="form-select"
                     name="method"
                     value={payForm.method}
                     onChange={handlePayChange}
                   >
-                    <option value="cash">cash</option>
-                    <option value="card">card</option>
-                    <option value="bank">bank</option>
+                    <option value="cash">{t("cash")}</option>
+                    <option value="card">{t("card")}</option>
+                    <option value="bank">{t("bank")}</option>
                   </select>
                 </div>
 
-                <div className="col-12 col-md-4 d-grid">
+                <div className="form-actions">
                   <button
                     type="submit"
                     className="btn btn-success"
                     disabled={payLoading}
                   >
-                    {payLoading ? "Processing..." : "Receive Payment"}
+                    {payLoading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2"></span>
+                        {t("Processing...")}
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-check-circle me-2"></i>
+                        {t("Receive Payment")}
+                      </>
+                    )}
                   </button>
                 </div>
+              </div>
 
-                <div className="col-12">
-                  <div className="alert alert-light border mb-0 py-2">
-                    <div className="small">
-                      Any available customer credit is applied automatically
-                      when the invoice is created. Any extra payment above
-                      remaining becomes new customer credit.
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
+              <div className="info-note">
+                <i className="fas fa-info-circle me-2"></i>
+                {t(
+                  "Any available customer credit is applied automatically when the invoice is created. Any extra payment above remaining becomes new customer credit.",
+                )}
+              </div>
+            </form>
           </div>
         </div>
 
-        <div className="col-12 col-xl-6">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Invoice Items</h5>
-            </div>
-            <div className="card-body p-0">
-              {items.length === 0 ? (
-                <div className="p-3 text-muted">No invoice items found.</div>
-              ) : (
-                <div className="table-responsive">
-                  <table className="table table-hover mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th>#</th>
-                        <th>Product</th>
-                        <th>Qty</th>
-                        <th>Unit Price</th>
-                        <th>Total</th>
+        {/* Invoice Items */}
+        <div className="items-card">
+          <div className="card-header-custom">
+            <i className="fas fa-list me-2"></i>
+            <h5 className="mb-0">{t("Invoice Items")}</h5>
+          </div>
+          <div className="card-body-custom">
+            {items.length === 0 ? (
+              <div className="empty-state small">
+                <p className="empty-text">{t("No invoice items found.")}</p>
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="items-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>{t("Product")}</th>
+                      <th>{t("Qty")}</th>
+                      <th>{t("Unit Price")}</th>
+                      <th>{t("Total")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((item, index) => (
+                      <tr key={item.id}>
+                        <td>{index + 1}</td>
+                        <td>
+                          {item.product?.title_en ||
+                            item.product?.title_ar ||
+                            "-"}
+                        </td>
+                        <td>{item.quantity}</td>
+                        <td>{formatCurrency(item.unit_price)}</td>
+                        <td>{formatCurrency(item.total)}</td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {items.map((item, index) => (
-                        <tr key={item.id}>
-                          <td>{index + 1}</td>
-                          <td>
-                            {item.product?.title_en ||
-                              item.product?.title_ar ||
-                              "-"}
-                          </td>
-                          <td>{item.quantity}</td>
-                          <td>{money(item.unit_price)}</td>
-                          <td>{money(item.total)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
-        <div className="col-12 col-xl-6">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Payments</h5>
-            </div>
-            <div className="card-body p-0">
-              {payments.length === 0 ? (
-                <div className="p-3 text-muted">No payments recorded yet.</div>
-              ) : (
-                <div className="table-responsive">
-                  <table className="table table-hover mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th>ID</th>
-                        <th>Amount</th>
-                        <th>Applied</th>
-                        <th>Credit</th>
-                        <th>Method</th>
-                        <th>Paid At</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {payments.map((payment) => (
-                        <tr key={payment.id}>
-                          <td>#{payment.id}</td>
-                          <td>{money(payment.amount)}</td>
-                          <td>{money(payment.applied_amount)}</td>
-                          <td>{money(payment.credit_amount)}</td>
-                          <td className="text-capitalize">
-                            {payment.method || "-"}
-                          </td>
-                          <td>
-                            {formatDateTime(
-                              payment.paid_at || payment.created_at,
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
+      {/* Payments Table */}
+      <div className="payments-card">
+        <div className="card-header-custom">
+          <i className="fas fa-credit-card me-2"></i>
+          <h5 className="mb-0">{t("Payments")}</h5>
         </div>
-
-        <div className="col-12">
-          <div className="card shadow-sm border-0">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Refund Payments</h5>
+        <div className="card-body-custom">
+          {payments.length === 0 ? (
+            <div className="empty-state small">
+              <p className="empty-text">{t("No payments recorded yet.")}</p>
             </div>
-            <div className="card-body">
-              {payments.length === 0 ? (
-                <div className="text-muted">
-                  No payments available for refund.
-                </div>
-              ) : (
-                <div className="row g-3">
-                  {payments.map((payment) => {
-                    const refundableInvoice = Number(
-                      payment.available_invoice_refund || 0,
-                    );
-                    const refundableCredit = Number(
-                      payment.available_credit_refund || 0,
-                    );
-                    const refundable = refundableInvoice + refundableCredit;
+          ) : (
+            <div className="table-responsive">
+              <table className="payments-table">
+                <thead>
+                  <tr>
+                    <th>{t("ID")}</th>
+                    <th>{t("Amount")}</th>
+                    <th>{t("Applied")}</th>
+                    <th>{t("Credit")}</th>
+                    <th>{t("Method")}</th>
+                    <th>{t("Paid At")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {payments.map((payment) => (
+                    <tr key={payment.id}>
+                      <td>#{payment.id}</td>
+                      <td>{formatCurrency(payment.amount)}</td>
+                      <td>{formatCurrency(payment.applied_amount)}</td>
+                      <td>{formatCurrency(payment.credit_amount)}</td>
+                      <td className="text-capitalize">
+                        {t(payment.method) || "-"}
+                      </td>
+                      <td>
+                        {formatDateTime(payment.paid_at || payment.created_at)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
 
-                    return (
-                      <div className="col-12" key={payment.id}>
-                        <div className="border rounded p-3 bg-light">
-                          <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-                            <div>
-                              <div className="fw-bold">
-                                Payment #{payment.id}
-                              </div>
-                              <div className="small text-muted">
-                                Method: {payment.method || "-"} | Paid at:{" "}
-                                {formatDateTime(
-                                  payment.paid_at || payment.created_at,
-                                )}
-                              </div>
-                            </div>
+      {/* Refunds Section */}
+      <div className="refunds-card">
+        <div className="card-header-custom">
+          <i className="fas fa-undo-alt me-2"></i>
+          <h5 className="mb-0">{t("Refund Payments")}</h5>
+        </div>
+        <div className="card-body-custom">
+          {payments.length === 0 ? (
+            <div className="empty-state small">
+              <p className="empty-text">
+                {t("No payments available for refund.")}
+              </p>
+            </div>
+          ) : (
+            <div className="refunds-list">
+              {payments.map((payment) => {
+                const refundableInvoice = Number(
+                  payment.available_invoice_refund || 0,
+                );
+                const refundableCredit = Number(
+                  payment.available_credit_refund || 0,
+                );
+                const refundable = refundableInvoice + refundableCredit;
 
-                            <div className="text-end">
-                              <div>Amount: {money(payment.amount)}</div>
-                              <div>
-                                Invoice Refundable: {money(refundableInvoice)}
-                              </div>
-                              <div>
-                                Credit Refundable: {money(refundableCredit)}
-                              </div>
-                              <div className="fw-semibold">
-                                Total Refundable: {money(refundable)}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="row g-2 align-items-end">
-                            <div className="col-12 col-md-4">
-                              <label className="form-label fw-semibold">
-                                Refund Amount
-                              </label>
-                              <input
-                                type="number"
-                                step="0.01"
-                                min="0.01"
-                                max={refundable}
-                                className="form-control"
-                                value={refundForms[payment.id] || ""}
-                                onChange={(e) =>
-                                  setRefundAmount(payment.id, e.target.value)
-                                }
-                                placeholder="50"
-                                disabled={refundable <= 0}
-                              />
-                            </div>
-
-                            <div className="col-12 col-md-3 d-grid">
-                              <button
-                                className="btn btn-warning"
-                                onClick={() => submitRefund(payment.id)}
-                                disabled={
-                                  refundable <= 0 ||
-                                  refundLoadingId === payment.id
-                                }
-                                type="button"
-                              >
-                                {refundLoadingId === payment.id
-                                  ? "Processing..."
-                                  : "Refund"}
-                              </button>
-                            </div>
-                          </div>
-
-                          {(payment.refunds || []).length > 0 ? (
-                            <div className="mt-3">
-                              <div className="fw-semibold mb-2">
-                                Previous Refunds
-                              </div>
-                              <div className="table-responsive">
-                                <table className="table table-sm mb-0">
-                                  <thead>
-                                    <tr>
-                                      <th>ID</th>
-                                      <th>Amount</th>
-                                      <th>Type</th>
-                                      <th>Refunded At</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {payment.refunds.map((refund) => (
-                                      <tr key={refund.id}>
-                                        <td>#{refund.id}</td>
-                                        <td>{money(refund.amount)}</td>
-                                        <td>{refund.applies_to || "-"}</td>
-                                        <td>
-                                          {formatDateTime(
-                                            refund.refunded_at ||
-                                              refund.created_at,
-                                          )}
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </div>
-                          ) : null}
+                return (
+                  <div key={payment.id} className="refund-item">
+                    <div className="refund-item-header">
+                      <div>
+                        <div className="fw-bold">
+                          {t("Payment")} #{payment.id}
+                        </div>
+                        <div className="small text-muted">
+                          {t("Method")}: {t(payment.method) || "-"} |{" "}
+                          {t("Paid at")}:{" "}
+                          {formatDateTime(
+                            payment.paid_at || payment.created_at,
+                          )}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-xl-6">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">All Refunds</h5>
-            </div>
-            <div className="card-body p-0">
-              {refunds.length === 0 ? (
-                <div className="p-3 text-muted">No refunds found.</div>
-              ) : (
-                <div className="table-responsive">
-                  <table className="table table-hover mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th>ID</th>
-                        <th>Payment ID</th>
-                        <th>Amount</th>
-                        <th>Type</th>
-                        <th>Refunded At</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {refunds.map((refund) => (
-                        <tr key={refund.id}>
-                          <td>#{refund.id}</td>
-                          <td>#{refund.payment_id}</td>
-                          <td>{money(refund.amount)}</td>
-                          <td>{refund.applies_to || "-"}</td>
-                          <td>
-                            {formatDateTime(
-                              refund.refunded_at || refund.created_at,
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-xl-6">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Customer Credit Summary</h5>
-            </div>
-            <div className="card-body">
-              <div className="row g-3">
-                <InfoItem
-                  label="Credit Issued Total"
-                  value={money(customerCreditIssuedTotal)}
-                />
-                <InfoItem
-                  label="Credit Used Total"
-                  value={money(customerCreditUsedTotal)}
-                />
-                <InfoItem
-                  label="Current Credit Balance"
-                  value={money(customerCreditBalance)}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Journal Entries</h5>
-            </div>
-            <div className="card-body">
-              {journalEntries.length === 0 ? (
-                <div className="text-muted">No journal entries found.</div>
-              ) : (
-                <div className="d-flex flex-column gap-3">
-                  {journalEntries.map((entry) => (
-                    <div key={entry.id} className="border rounded p-3 bg-light">
-                      <div className="fw-bold mb-2">Entry #{entry.id}</div>
-                      <div className="small text-muted mb-2">
-                        {entry.description || "-"}
-                      </div>
-
-                      <div className="table-responsive">
-                        <table className="table table-sm mb-0">
-                          <thead>
-                            <tr>
-                              <th>Account</th>
-                              <th>Debit</th>
-                              <th>Credit</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(entry.lines || []).map((line) => (
-                              <tr key={line.id}>
-                                <td>{line.account?.name || line.account_id}</td>
-                                <td>{money(line.debit)}</td>
-                                <td>{money(line.credit)}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                      <div className="refund-amounts">
+                        <div>
+                          {t("Amount")}: {formatCurrency(payment.amount)}
+                        </div>
+                        <div>
+                          {t("Invoice Refundable")}:{" "}
+                          {formatCurrency(refundableInvoice)}
+                        </div>
+                        <div>
+                          {t("Credit Refundable")}:{" "}
+                          {formatCurrency(refundableCredit)}
+                        </div>
+                        <div className="fw-semibold">
+                          {t("Total Refundable")}: {formatCurrency(refundable)}
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+
+                    <div className="refund-form">
+                      <div className="refund-field">
+                        <label>{t("Refund Amount")}</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          max={refundable}
+                          className="form-control"
+                          value={refundForms[payment.id] || ""}
+                          onChange={(e) =>
+                            setRefundAmount(payment.id, e.target.value)
+                          }
+                          placeholder="50"
+                          disabled={refundable <= 0}
+                        />
+                      </div>
+                      <button
+                        className="btn btn-warning"
+                        onClick={() => submitRefund(payment.id)}
+                        disabled={
+                          refundable <= 0 || refundLoadingId === payment.id
+                        }
+                      >
+                        {refundLoadingId === payment.id ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm me-2"></span>
+                            {t("Processing...")}
+                          </>
+                        ) : (
+                          <>
+                            <i className="fas fa-undo-alt me-2"></i>
+                            {t("Refund")}
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {(payment.refunds || []).length > 0 && (
+                      <div className="previous-refunds">
+                        <div className="fw-semibold mb-2">
+                          {t("Previous Refunds")}
+                        </div>
+                        <div className="table-responsive">
+                          <table className="refunds-table-mini">
+                            <thead>
+                              <tr>
+                                <th>{t("ID")}</th>
+                                <th>{t("Amount")}</th>
+                                <th>{t("Type")}</th>
+                                <th>{t("Refunded At")}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {payment.refunds.map((refund) => (
+                                <tr key={refund.id}>
+                                  <td>#{refund.id}</td>
+                                  <td>{formatCurrency(refund.amount)}</td>
+                                  <td>{refund.applies_to || "-"}</td>
+                                  <td>
+                                    {formatDateTime(
+                                      refund.refunded_at || refund.created_at,
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* All Refunds & Customer Credit */}
+      <div className="two-columns">
+        <div className="all-refunds-card">
+          <div className="card-header-custom">
+            <i className="fas fa-list-alt me-2"></i>
+            <h5 className="mb-0">{t("All Refunds")}</h5>
+          </div>
+          <div className="card-body-custom">
+            {refunds.length === 0 ? (
+              <div className="empty-state small">
+                <p className="empty-text">{t("No refunds found.")}</p>
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="refunds-table">
+                  <thead>
+                    <tr>
+                      <th>{t("ID")}</th>
+                      <th>{t("Payment ID")}</th>
+                      <th>{t("Amount")}</th>
+                      <th>{t("Type")}</th>
+                      <th>{t("Refunded At")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {refunds.map((refund) => (
+                      <tr key={refund.id}>
+                        <td>#{refund.id}</td>
+                        <td>#{refund.payment_id}</td>
+                        <td>{formatCurrency(refund.amount)}</td>
+                        <td>{refund.applies_to || "-"}</td>
+                        <td>
+                          {formatDateTime(
+                            refund.refunded_at || refund.created_at,
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="credit-summary-card">
+          <div className="card-header-custom">
+            <i className="fas fa-wallet me-2"></i>
+            <h5 className="mb-0">{t("Customer Credit Summary")}</h5>
+          </div>
+          <div className="card-body-custom">
+            <div className="credit-grid">
+              <InfoItem
+                label={t("Credit Issued Total")}
+                value={formatCurrency(customerCreditIssuedTotal)}
+              />
+              <InfoItem
+                label={t("Credit Used Total")}
+                value={formatCurrency(customerCreditUsedTotal)}
+              />
+              <InfoItem
+                label={t("Current Credit Balance")}
+                value={formatCurrency(customerCreditBalance)}
+              />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Journal Entries */}
+      <div className="journal-card">
+        <div className="card-header-custom">
+          <i className="fas fa-book me-2"></i>
+          <h5 className="mb-0">{t("Journal Entries")}</h5>
+        </div>
+        <div className="card-body-custom">
+          {journalEntries.length === 0 ? (
+            <div className="empty-state small">
+              <p className="empty-text">{t("No journal entries found.")}</p>
+            </div>
+          ) : (
+            <div className="journal-list">
+              {journalEntries.map((entry) => (
+                <div key={entry.id} className="journal-item">
+                  <div className="journal-header">
+                    <div className="fw-bold">
+                      {t("Entry")} #{entry.id}
+                    </div>
+                    <div className="small text-muted">
+                      {entry.description || "-"}
+                    </div>
+                  </div>
+                  <div className="table-responsive">
+                    <table className="journal-table">
+                      <thead>
+                        <tr>
+                          <th>{t("Account")}</th>
+                          <th>{t("Debit")}</th>
+                          <th>{t("Credit")}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(entry.lines || []).map((line) => (
+                          <tr key={line.id}>
+                            <td>{line.account?.name || line.account_id}</td>
+                            <td>{formatCurrency(line.debit)}</td>
+                            <td>{formatCurrency(line.credit)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
+// Helper Components
 function KpiCard({ title, value, color = "primary" }) {
+  const colorMap = {
+    primary: { bg: "rgba(26, 35, 126, 0.1)", text: "#1a237e" },
+    success: { bg: "rgba(76, 175, 80, 0.1)", text: "#4caf50" },
+    danger: { bg: "rgba(244, 67, 54, 0.1)", text: "#f44336" },
+    warning: { bg: "rgba(255, 152, 0, 0.1)", text: "#ff9800" },
+    info: { bg: "rgba(3, 169, 244, 0.1)", text: "#03a9f4" },
+    secondary: { bg: "rgba(108, 117, 125, 0.1)", text: "#6c757d" },
+    dark: { bg: "rgba(33, 37, 41, 0.1)", text: "#212529" },
+  };
+  const colors = colorMap[color] || colorMap.primary;
+
   return (
-    <div className="col-12 col-sm-6 col-xl-4">
-      <div className="card border-0 shadow-sm h-100">
-        <div className="card-body">
-          <div className="text-muted small mb-1">{title}</div>
-          <div className={`fs-4 fw-bold text-${color}`}>{value}</div>
+    <div className="kpi-card">
+      <div className="kpi-card-content">
+        <div className="kpi-title">{title}</div>
+        <div className="kpi-value" style={{ color: colors.text }}>
+          {value}
         </div>
       </div>
     </div>
@@ -749,20 +825,28 @@ function KpiCard({ title, value, color = "primary" }) {
 
 function InfoItem({ label, value }) {
   return (
-    <div className="col-12 col-md-4">
-      <div className="small text-muted">{label}</div>
-      <div className="fw-semibold">{value ?? "-"}</div>
+    <div className="info-item">
+      <div className="info-label">{label}</div>
+      <div className="info-value">{value ?? "-"}</div>
     </div>
   );
 }
 
-function StatusBadge({ status }) {
+function StatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
+  let variant = "secondary";
+  let label = status || "-";
 
-  let cls = "secondary";
-  if (["paid"].includes(value)) cls = "success";
-  else if (["unpaid", "cancelled"].includes(value)) cls = "danger";
-  else if (["partially_paid"].includes(value)) cls = "warning";
+  if (value === "paid") {
+    variant = "success";
+    label = t("Paid");
+  } else if (value === "unpaid" || value === "cancelled") {
+    variant = "danger";
+    label = t(value === "cancelled" ? "Cancelled" : "Unpaid");
+  } else if (value === "partially_paid") {
+    variant = "warning";
+    label = t("Partially Paid");
+  }
 
-  return <span className={`badge bg-${cls}`}>{status}</span>;
+  return <span className={`status-badge status-${variant}`}>{label}</span>;
 }

@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./InvoicesList.css";
 
 export default function InvoicesList() {
+  const { t, i18n } = useTranslation();
   const [rows, setRows] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,10 +33,34 @@ export default function InvoicesList() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load invoices.",
+          t("Failed to load invoices."),
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const formatCurrency = (value) => {
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return new Intl.NumberFormat(lang, {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+  };
+
+  const formatDate = (value) => {
+    if (!value) return "-";
+    try {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleDateString(lang, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    } catch {
+      return value;
     }
   };
 
@@ -60,25 +87,6 @@ export default function InvoicesList() {
     });
   }, [rows, search]);
 
-  const money = (value) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(Number(value || 0));
-
-  const formatDate = (value) => {
-    if (!value) return "-";
-    try {
-      return new Date(value).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-      });
-    } catch {
-      return value;
-    }
-  };
-
   if (loading) {
     return (
       <div
@@ -86,84 +94,106 @@ export default function InvoicesList() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Invoices</h3>
-          <p className="text-muted mb-0">
-            Review invoice balances, payment status, and customer billing
+    <div className="invoices-list-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Invoices")}</h1>
+          <p className="page-subtitle">
+            {t("Review invoice balances, payment status, and customer billing")}
           </p>
         </div>
 
-        <button className="btn btn-primary" onClick={loadInvoices}>
-          Refresh
-        </button>
-      </div>
-
-      {error ? (
-        <div className="alert alert-danger d-flex justify-content-between align-items-center">
-          <span>{error}</span>
-          <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={loadInvoices}
-          >
-            Retry
+        <div className="header-actions">
+          <button className="btn btn-primary" onClick={loadInvoices}>
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
-      ) : null}
+      </div>
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
-          <div className="row g-3 align-items-center">
-            <div className="col-12 col-lg-8">
-              <label className="form-label fw-semibold">Search</label>
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
+        </div>
+      )}
+
+      {/* Search Card */}
+      <div className="search-card">
+        <div className="search-card-header">
+          <i className="fas fa-search me-2"></i>
+          <h5 className="mb-0">{t("Search Invoices")}</h5>
+        </div>
+        <div className="search-card-body">
+          <div className="search-grid">
+            <div className="search-group">
+              <label className="search-label">
+                <i className="fas fa-filter me-1"></i>
+                {t("Search")}
+              </label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="Invoice number, customer, email, status..."
+                placeholder={t("Invoice number, customer, email, status...")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
 
-            <div className="col-12 col-lg-4">
-              <label className="form-label fw-semibold">Total Loaded</label>
-              <div className="form-control bg-light">
-                {meta?.total ?? rows.length}
-              </div>
+            <div className="search-group">
+              <label className="search-label">
+                <i className="fas fa-database me-1"></i>
+                {t("Total Invoices")}
+              </label>
+              <div className="total-badge">{meta?.total ?? rows.length}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Invoices List</h5>
+      {/* Invoices Table Card */}
+      <div className="invoices-card">
+        <div className="invoices-card-header">
+          <i className="fas fa-file-invoice me-2"></i>
+          <h5 className="mb-0">{t("Invoices List")}</h5>
+          <span className="invoice-count">
+            {filteredRows.length} {t("invoices")}
+          </span>
         </div>
 
-        <div className="card-body p-0">
+        <div className="invoices-card-body">
           {filteredRows.length === 0 ? (
-            <div className="p-4 text-muted">No invoices found.</div>
+            <div className="empty-state">
+              <i className="fas fa-file-invoice empty-icon"></i>
+              <p className="empty-text">{t("No invoices found.")}</p>
+            </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light">
+              <table className="invoices-table">
+                <thead>
                   <tr>
-                    <th style={{ minWidth: 160 }}>Invoice</th>
-                    <th style={{ minWidth: 220 }}>Customer</th>
-                    <th style={{ minWidth: 120 }}>Total</th>
-                    <th style={{ minWidth: 120 }}>Paid</th>
-                    <th style={{ minWidth: 120 }}>Remaining</th>
-                    <th style={{ minWidth: 140 }}>Status</th>
-                    <th style={{ minWidth: 140 }}>Issued</th>
-                    <th style={{ minWidth: 220 }}>Actions</th>
+                    <th>{t("Invoice")}</th>
+                    <th>{t("Customer")}</th>
+                    <th>{t("Total")}</th>
+                    <th>{t("Paid")}</th>
+                    <th>{t("Remaining")}</th>
+                    <th>{t("Status")}</th>
+                    <th>{t("Issued")}</th>
+                    <th>{t("Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -178,15 +208,16 @@ export default function InvoicesList() {
                       inv.remaining != null
                         ? Number(inv.remaining)
                         : Math.max(total - totalPaid, 0);
+                    const remainingClass = remaining > 0 ? "remaining" : "paid";
 
                     return (
                       <tr key={invoiceId ?? inv.number ?? index}>
-                        <td>
-                          <div className="fw-semibold">
+                        <td data-label={t("Invoice")}>
+                          <div className="invoice-number">
                             {invoiceId ? (
                               <Link
                                 to={`/admin/erp/invoices/${invoiceId}`}
-                                className="text-decoration-none"
+                                className="invoice-link"
                               >
                                 {inv.number || `#${invoiceId}`}
                               </Link>
@@ -194,58 +225,77 @@ export default function InvoicesList() {
                               inv.number || "-"
                             )}
                           </div>
-                          <div className="small text-muted">
-                            ID: {invoiceId ?? "-"}
+                          <div className="invoice-id">
+                            {t("ID")}: {invoiceId ?? "-"}
                           </div>
                         </td>
 
-                        <td>
-                          <div className="fw-semibold">
+                        <td data-label={t("Customer")}>
+                          <div className="customer-name">
                             {inv.customer?.name || "-"}
                           </div>
-                          <div className="small text-muted">
+                          <div className="customer-email">
                             {inv.customer?.email || "-"}
                           </div>
                         </td>
 
-                        <td>{money(total)}</td>
-                        <td>{money(totalPaid)}</td>
-                        <td>{money(remaining)}</td>
-
-                        <td>
-                          <StatusBadge status={inv.status} />
+                        <td data-label={t("Total")} className="amount-cell">
+                          {formatCurrency(total)}
                         </td>
 
-                        <td>{formatDate(inv.issued_at || inv.created_at)}</td>
+                        <td data-label={t("Paid")} className="amount-cell paid">
+                          {formatCurrency(totalPaid)}
+                        </td>
 
-                        <td>
-                          <div className="d-flex flex-wrap gap-2">
-                            {invoiceId ? (
+                        <td
+                          data-label={t("Remaining")}
+                          className={`amount-cell ${remainingClass}`}
+                        >
+                          {formatCurrency(remaining)}
+                        </td>
+
+                        <td data-label={t("Status")}>
+                          <StatusBadge status={inv.status} t={t} />
+                        </td>
+
+                        <td data-label={t("Issued")}>
+                          {formatDate(inv.issued_at || inv.created_at)}
+                        </td>
+
+                        <td data-label={t("Actions")}>
+                          <div className="action-buttons">
+                            {invoiceId && (
                               <Link
                                 to={`/admin/erp/invoices/${invoiceId}`}
                                 className="btn btn-sm btn-outline-primary"
+                                title={t("View Invoice")}
                               >
-                                View
+                                <i className="fas fa-eye"></i>
+                                <span>{t("View")}</span>
                               </Link>
-                            ) : null}
+                            )}
 
-                            {inv.customer_id ? (
+                            {inv.customer_id && (
                               <Link
                                 to={`/admin/erp/patients/${inv.customer_id}/profile`}
                                 className="btn btn-sm btn-outline-secondary"
+                                title={t("View Patient")}
                               >
-                                Patient
+                                <i className="fas fa-user"></i>
+                                <span>{t("Patient")}</span>
                               </Link>
-                            ) : null}
+                            )}
 
-                            {inv.treatment_plan_id ? (
+                            {inv.treatment_plan_id && (
                               <Link
                                 to={`/admin/erp/treatment-plans/${inv.treatment_plan_id}`}
                                 className="btn btn-sm btn-outline-info"
+                                title={t("View Treatment Plan")}
                               >
-                                Plan
+                                <i className="fas fa-notes-medical"></i>
+                                <span>{t("Plan")}</span>
                               </Link>
-                            ) : null}
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -261,6 +311,7 @@ export default function InvoicesList() {
   );
 }
 
+// Helper Functions
 function extractInvoiceRows(payload) {
   if (Array.isArray(payload)) return payload;
   if (Array.isArray(payload.data)) return payload.data;
@@ -280,13 +331,22 @@ function extractMeta(payload, rowsData) {
   );
 }
 
-function StatusBadge({ status }) {
+// StatusBadge Component
+function StatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
+  let variant = "secondary";
+  let label = status || "-";
 
-  let cls = "secondary";
-  if (["paid"].includes(value)) cls = "success";
-  else if (["unpaid", "cancelled"].includes(value)) cls = "danger";
-  else if (["partially_paid"].includes(value)) cls = "warning";
+  if (value === "paid") {
+    variant = "success";
+    label = t("Paid");
+  } else if (value === "unpaid" || value === "cancelled") {
+    variant = "danger";
+    label = t(value === "cancelled" ? "Cancelled" : "Unpaid");
+  } else if (value === "partially_paid") {
+    variant = "warning";
+    label = t("Partially Paid");
+  }
 
-  return <span className={`badge bg-${cls}`}>{status}</span>;
+  return <span className={`status-badge status-${variant}`}>{label}</span>;
 }

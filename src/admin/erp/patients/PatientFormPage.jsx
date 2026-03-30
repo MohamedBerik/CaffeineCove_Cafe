@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./PatientFormPage.css";
 
 export default function PatientFormPage() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
@@ -27,6 +30,15 @@ export default function PatientFormPage() {
     }
   }, [id]);
 
+  const formatDate = (value) => {
+    if (!value) return "";
+    try {
+      return value.split("T")[0];
+    } catch {
+      return value;
+    }
+  };
+
   const loadPatient = async () => {
     try {
       setLoading(true);
@@ -41,14 +53,14 @@ export default function PatientFormPage() {
         phone: data.phone || "",
         gender: data.gender || "",
         address: data.address || "",
-        date_of_birth: data.date_of_birth || "",
+        date_of_birth: formatDate(data.date_of_birth),
         notes: data.notes || "",
       });
     } catch (err) {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load patient.",
+          t("Failed to load patient."),
       );
     } finally {
       setLoading(false);
@@ -57,7 +69,6 @@ export default function PatientFormPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setForm((prev) => ({
       ...prev,
       [name]: value,
@@ -90,12 +101,12 @@ export default function PatientFormPage() {
 
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setError(firstError || "Failed to save patient.");
+        setError(firstError || t("Failed to save patient."));
       } else {
         setError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to save patient.",
+            t("Failed to save patient."),
         );
       }
     } finally {
@@ -109,145 +120,217 @@ export default function PatientFormPage() {
         className="d-flex justify-content-center align-items-center"
         style={{ minHeight: 320 }}
       >
-        <div className="spinner-border text-primary" />
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">{t("Loading...")}</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">
-            {isEdit ? "Edit Patient" : "Create Patient"}
-          </h3>
-          <p className="text-muted mb-0">
+    <div className="patient-form-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">
+            {isEdit ? t("Edit Patient") : t("Create Patient")}
+          </h1>
+          <p className="page-subtitle">
             {isEdit
-              ? "Update patient basic information"
-              : "Create a new patient profile"}
+              ? t("Update patient basic information")
+              : t("Create a new patient profile")}
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <button
             type="button"
             className="btn btn-outline-secondary"
             onClick={() => navigate("/admin/erp/patients")}
           >
-            Patients
+            <i className="fas fa-users me-2"></i>
+            {t("Patients")}
           </button>
 
-          {isEdit ? (
+          {isEdit && (
             <button
               type="button"
               className="btn btn-outline-primary"
               onClick={() => navigate(`/admin/erp/patients/${id}/profile`)}
             >
-              Profile
+              <i className="fas fa-user me-2"></i>
+              {t("Profile")}
             </button>
-          ) : null}
+          )}
         </div>
       </div>
 
-      {error ? <div className="alert alert-danger">{error}</div> : null}
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
+        </div>
+      )}
 
-      <div className="card shadow-sm border-0">
-        <div className="card-body">
-          <form className="row g-3" onSubmit={submit}>
-            <div className="col-md-6">
-              <label className="form-label fw-semibold">Name</label>
-              <input
-                className="form-control"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                required
-              />
+      {/* Form Card */}
+      <div className="form-card">
+        <div className="form-card-header">
+          <i className="fas fa-user-plus me-2"></i>
+          <h5 className="mb-0">
+            {isEdit ? t("Edit Patient Information") : t("Patient Information")}
+          </h5>
+        </div>
+
+        <div className="form-card-body">
+          <form onSubmit={submit}>
+            <div className="form-grid">
+              {/* Name */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-user me-2"></i>
+                  {t("Full Name")}
+                  <span className="required-star">*</span>
+                </label>
+                <input
+                  className="form-control"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder={t("Enter patient full name")}
+                  required
+                />
+              </div>
+
+              {/* Email */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-envelope me-2"></i>
+                  {t("Email Address")}
+                </label>
+                <input
+                  className="form-control"
+                  name="email"
+                  type="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder={t("patient@example.com")}
+                />
+              </div>
+
+              {/* Phone */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-phone me-2"></i>
+                  {t("Phone Number")}
+                </label>
+                <input
+                  className="form-control"
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  placeholder={t("+1234567890")}
+                />
+              </div>
+
+              {/* Gender */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-venus-mars me-2"></i>
+                  {t("Gender")}
+                </label>
+                <select
+                  className="form-select"
+                  name="gender"
+                  value={form.gender}
+                  onChange={handleChange}
+                >
+                  <option value="">{t("Select gender")}</option>
+                  <option value="male">{t("Male")}</option>
+                  <option value="female">{t("Female")}</option>
+                </select>
+              </div>
+
+              {/* Date of Birth */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-birthday-cake me-2"></i>
+                  {t("Date of Birth")}
+                </label>
+                <input
+                  type="date"
+                  className="form-control"
+                  name="date_of_birth"
+                  value={form.date_of_birth}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Address */}
+              <div className="form-group full-width">
+                <label className="form-label">
+                  <i className="fas fa-map-marker-alt me-2"></i>
+                  {t("Address")}
+                </label>
+                <input
+                  className="form-control"
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
+                  placeholder={t("Street, city, postal code")}
+                />
+              </div>
+
+              {/* Notes */}
+              <div className="form-group full-width">
+                <label className="form-label">
+                  <i className="fas fa-pencil-alt me-2"></i>
+                  {t("Notes")}
+                </label>
+                <textarea
+                  className="form-control"
+                  rows="3"
+                  name="notes"
+                  value={form.notes}
+                  onChange={handleChange}
+                  placeholder={t("Additional notes about the patient...")}
+                />
+              </div>
             </div>
 
-            <div className="col-md-6">
-              <label className="form-label fw-semibold">Email</label>
-              <input
-                className="form-control"
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="col-md-6">
-              <label className="form-label fw-semibold">Phone</label>
-              <input
-                className="form-control"
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="col-md-3">
-              <label className="form-label fw-semibold">Gender</label>
-              <select
-                className="form-select"
-                name="gender"
-                value={form.gender}
-                onChange={handleChange}
+            {/* Form Actions */}
+            <div className="form-actions">
+              <button
+                type="submit"
+                className="btn btn-primary btn-lg"
+                disabled={saving}
               >
-                <option value="">--</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-              </select>
-            </div>
-
-            <div className="col-md-3">
-              <label className="form-label fw-semibold">Birth Date</label>
-              <input
-                type="date"
-                className="form-control"
-                name="date_of_birth"
-                value={form.date_of_birth}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="col-12">
-              <label className="form-label fw-semibold">Address</label>
-              <input
-                className="form-control"
-                name="address"
-                value={form.address}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="col-12">
-              <label className="form-label fw-semibold">Notes</label>
-              <textarea
-                className="form-control"
-                rows="3"
-                name="notes"
-                value={form.notes}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="col-12 d-flex gap-2">
-              <button className="btn btn-primary" disabled={saving}>
-                {saving
-                  ? "Saving..."
-                  : isEdit
-                    ? "Update Patient"
-                    : "Create Patient"}
+                {saving ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2"></span>
+                    {t("Saving...")}
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-save me-2"></i>
+                    {isEdit ? t("Update Patient") : t("Create Patient")}
+                  </>
+                )}
               </button>
 
               <button
                 type="button"
-                className="btn btn-outline-secondary"
+                className="btn btn-outline-secondary btn-lg"
                 onClick={() => navigate("/admin/erp/patients")}
                 disabled={saving}
               >
-                Cancel
+                <i className="fas fa-times me-2"></i>
+                {t("Cancel")}
               </button>
             </div>
           </form>

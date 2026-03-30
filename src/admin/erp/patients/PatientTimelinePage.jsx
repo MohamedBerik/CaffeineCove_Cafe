@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./PatientTimelinePage.css";
 
 export default function PatientTimelinePage() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
 
   const [patient, setPatient] = useState(null);
@@ -28,7 +31,7 @@ export default function PatientTimelinePage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load patient timeline.",
+          t("Failed to load patient timeline."),
       );
     } finally {
       setLoading(false);
@@ -43,16 +46,21 @@ export default function PatientTimelinePage() {
     });
   }, [timeline]);
 
-  const money = (value) =>
-    new Intl.NumberFormat("en-US", {
+  const formatCurrency = (value) => {
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return new Intl.NumberFormat(lang, {
       style: "currency",
       currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(Number(value || 0));
+  };
 
   const formatDate = (value) => {
     if (!value) return "-";
     try {
-      return new Date(value).toLocaleDateString("en-US", {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleDateString(lang, {
         year: "numeric",
         month: "short",
         day: "2-digit",
@@ -65,7 +73,8 @@ export default function PatientTimelinePage() {
   const formatDateTime = (value) => {
     if (!value) return "-";
     try {
-      return new Date(value).toLocaleString("en-US", {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleString(lang, {
         year: "numeric",
         month: "short",
         day: "2-digit",
@@ -83,7 +92,9 @@ export default function PatientTimelinePage() {
         className="d-flex justify-content-center align-items-center"
         style={{ minHeight: 320 }}
       >
-        <div className="spinner-border text-primary" />
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">{t("Loading...")}</span>
+        </div>
       </div>
     );
   }
@@ -96,7 +107,7 @@ export default function PatientTimelinePage() {
           className="btn btn-sm btn-outline-danger"
           onClick={loadTimeline}
         >
-          Retry
+          {t("Retry")}
         </button>
       </div>
     );
@@ -105,89 +116,106 @@ export default function PatientTimelinePage() {
   if (!patient) {
     return (
       <div className="alert alert-warning">
-        No patient timeline data available.
+        {t("No patient timeline data available.")}
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Patient Timeline</h3>
-          <p className="text-muted mb-0">
-            Full history: appointments, dental records, treatment flow, invoices
-            and payments
+    <div className="patient-timeline-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Patient Timeline")}</h1>
+          <p className="page-subtitle">
+            {t(
+              "Full history: appointments, dental records, treatment flow, invoices and payments",
+            )}
           </p>
         </div>
 
-        <div className="d-flex gap-2 flex-wrap">
+        <div className="header-actions">
           <Link
             to={`/admin/erp/patients/${id}/profile`}
             className="btn btn-outline-primary"
           >
-            Profile
+            <i className="fas fa-user me-2"></i>
+            {t("Profile")}
           </Link>
-
           <Link
             to={`/admin/erp/patients/${id}/statement`}
             className="btn btn-outline-success"
           >
-            Statement
+            <i className="fas fa-file-invoice me-2"></i>
+            {t("Statement")}
           </Link>
-
           <button className="btn btn-primary" onClick={loadTimeline}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
-      <div className="card mb-4 shadow-sm border-0">
-        <div className="card-body">
-          <div className="row g-3">
-            <InfoItem label="Name" value={patient.name} />
-            <InfoItem label="Code" value={patient.patient_code || "-"} />
-            <InfoItem label="Email" value={patient.email} />
-            <InfoItem label="Phone" value={patient.phone} />
-          </div>
+      {/* Patient Info Card */}
+      <div className="info-card">
+        <div className="info-grid">
+          <InfoItem label={t("Name")} value={patient.name} />
+          <InfoItem label={t("Code")} value={patient.patient_code || "-"} />
+          <InfoItem label={t("Email")} value={patient.email} />
+          <InfoItem label={t("Phone")} value={patient.phone} />
         </div>
       </div>
 
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Timeline Events</h5>
+      {/* Timeline Events */}
+      <div className="timeline-card">
+        <div className="timeline-header">
+          <i className="fas fa-history me-2"></i>
+          <h5 className="mb-0">{t("Timeline Events")}</h5>
+          <span className="event-count">
+            {sortedTimeline.length} {t("events")}
+          </span>
         </div>
 
-        <div className="card-body">
+        <div className="timeline-body">
           {sortedTimeline.length === 0 ? (
-            <div className="text-muted">No events found.</div>
+            <div className="empty-state">
+              <i className="fas fa-calendar-times empty-icon"></i>
+              <p className="empty-text">{t("No events found.")}</p>
+            </div>
           ) : (
-            <div className="d-flex flex-column gap-3">
+            <div className="timeline-list">
               {sortedTimeline.map((item, index) => (
                 <div
                   key={`${item.type}-${item.data?.id || index}`}
-                  className="border rounded p-3 bg-light"
+                  className="timeline-item"
                 >
-                  <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                  <div className="timeline-item-header">
                     <div>
-                      <div className="fw-bold">{prettyType(item.type)}</div>
-                      <div className="text-muted small">
+                      <div className="event-type">
+                        {prettyType(item.type, t)}
+                      </div>
+                      <div className="event-time">
                         {formatDateTime(item.event_at || item.created_at)}
                       </div>
                     </div>
-
                     <span
-                      className={`badge ${badgeClass(item.type, item.data?.status)}`}
+                      className={`event-badge ${badgeClass(item.type, item.data?.status)}`}
                     >
-                      {item.data?.status || prettyType(item.type)}
+                      {item.data?.status
+                        ? t(item.data.status)
+                        : prettyType(item.type, t)}
                     </span>
                   </div>
 
-                  <TimelineEventBody
-                    item={item}
-                    money={money}
-                    formatDate={formatDate}
-                  />
+                  <div className="timeline-item-body">
+                    <TimelineEventBody
+                      item={item}
+                      formatCurrency={formatCurrency}
+                      formatDate={formatDate}
+                      formatDateTime={formatDateTime}
+                      t={t}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -200,53 +228,67 @@ export default function PatientTimelinePage() {
 
 /* ================= COMPONENTS ================= */
 
-function TimelineEventBody({ item, money, formatDate }) {
+function TimelineEventBody({
+  item,
+  formatCurrency,
+  formatDate,
+  formatDateTime,
+  t,
+}) {
   const data = item.data || {};
 
   if (item.type === "appointment") {
     return (
       <>
-        <InfoGrid
-          items={[
-            ["Doctor", data.doctor_name],
-            ["Type", prettyAppointmentType(data.appointment_type)],
-            ["Date", formatDate(data.appointment_date)],
-            ["Time", data.appointment_time?.slice(0, 5)],
-            ["Status", data.status],
-            ["Diagnosis", data.diagnosis],
-            ["Next Step", data.next_step],
-            ["Clinical Notes", data.clinical_notes],
-            ["Notes", data.notes],
-          ]}
-        />
+        <div className="info-grid compact">
+          <InfoItem label={t("Doctor")} value={data.doctor_name} />
+          <InfoItem
+            label={t("Type")}
+            value={prettyAppointmentType(data.appointment_type, t)}
+          />
+          <InfoItem
+            label={t("Date")}
+            value={formatDate(data.appointment_date)}
+          />
+          <InfoItem
+            label={t("Time")}
+            value={data.appointment_time?.slice(0, 5)}
+          />
+          <InfoItem label={t("Status")} value={t(data.status)} />
+          <InfoItem label={t("Diagnosis")} value={data.diagnosis} />
+          <InfoItem label={t("Next Step")} value={data.next_step} />
+          <InfoItem label={t("Clinical Notes")} value={data.clinical_notes} />
+          <InfoItem label={t("Notes")} value={data.notes} />
+        </div>
 
-        <div className="mt-3 d-flex flex-wrap gap-2">
-          {data.treatment_plan_id ? (
+        <div className="event-actions">
+          {data.treatment_plan_id && (
             <Link
               to={`/admin/erp/treatment-plans/${data.treatment_plan_id}`}
               className="btn btn-sm btn-outline-info"
             >
-              Treatment Plan
+              <i className="fas fa-notes-medical me-1"></i>
+              {t("Treatment Plan")}
             </Link>
-          ) : null}
-
-          {data.invoice_id ? (
+          )}
+          {data.invoice_id && (
             <Link
               to={`/admin/erp/invoices/${data.invoice_id}`}
               className="btn btn-sm btn-outline-success"
             >
-              Invoice
+              <i className="fas fa-file-invoice me-1"></i>
+              {t("Invoice")}
             </Link>
-          ) : null}
-
-          {data.id ? (
+          )}
+          {data.id && (
             <Link
               to={`/admin/erp/appointments/${data.id}/activity`}
               className="btn btn-sm btn-outline-secondary"
             >
-              Appointment Activity
+              <i className="fas fa-history me-1"></i>
+              {t("Appointment Activity")}
             </Link>
-          ) : null}
+          )}
         </div>
       </>
     );
@@ -258,42 +300,45 @@ function TimelineEventBody({ item, money, formatDate }) {
 
     return (
       <>
-        <InfoGrid
-          items={[
-            ["Procedure", data.procedure_name],
-            ["Tooth", data.tooth_number],
-            ["Surface", data.surface],
-            ["Status", data.status],
-            ["Notes", data.notes],
-            [
-              "Flow",
+        <div className="info-grid compact">
+          <InfoItem label={t("Procedure")} value={data.procedure_name} />
+          <InfoItem label={t("Tooth")} value={data.tooth_number} />
+          <InfoItem label={t("Surface")} value={data.surface} />
+          <InfoItem label={t("Status")} value={t(data.status)} />
+          <InfoItem label={t("Notes")} value={data.notes} />
+          <InfoItem
+            label={t("Flow")}
+            value={
               treatmentPlanItem
                 ? treatmentPlanItem.appointment_id
-                  ? `Appointment #${treatmentPlanItem.appointment_id}`
-                  : `Plan #${treatmentPlanItem.treatment_plan_id}`
-                : "Not converted",
-            ],
-          ]}
-        />
+                  ? t("Appointment #{id}", {
+                      id: treatmentPlanItem.appointment_id,
+                    })
+                  : t("Plan #{id}", { id: treatmentPlanItem.treatment_plan_id })
+                : t("Not converted")
+            }
+          />
+        </div>
 
-        <div className="mt-3 d-flex flex-wrap gap-2">
-          {treatmentPlanItem?.treatment_plan_id ? (
+        <div className="event-actions">
+          {treatmentPlanItem?.treatment_plan_id && (
             <Link
               to={`/admin/erp/treatment-plans/${treatmentPlanItem.treatment_plan_id}`}
               className="btn btn-sm btn-outline-success"
             >
-              Open Plan
+              <i className="fas fa-notes-medical me-1"></i>
+              {t("Open Plan")}
             </Link>
-          ) : null}
-
-          {treatmentPlanItem?.appointment_id ? (
+          )}
+          {treatmentPlanItem?.appointment_id && (
             <Link
               to={`/admin/erp/appointments/${treatmentPlanItem.appointment_id}/activity`}
               className="btn btn-sm btn-outline-primary"
             >
-              Open Appointment
+              <i className="fas fa-calendar-alt me-1"></i>
+              {t("Open Appointment")}
             </Link>
-          ) : null}
+          )}
         </div>
       </>
     );
@@ -302,35 +347,37 @@ function TimelineEventBody({ item, money, formatDate }) {
   if (item.type === "invoice") {
     return (
       <>
-        <InfoGrid
-          items={[
-            ["Invoice Number", data.number],
-            ["Total", money(data.total)],
-            ["Status", data.status],
-            ["Issued At", formatDate(data.issued_at)],
-            ["Appointment ID", data.appointment_id],
-            ["Treatment Plan ID", data.treatment_plan_id],
-          ]}
-        />
+        <div className="info-grid compact">
+          <InfoItem label={t("Invoice Number")} value={data.number} />
+          <InfoItem label={t("Total")} value={formatCurrency(data.total)} />
+          <InfoItem label={t("Status")} value={t(data.status)} />
+          <InfoItem label={t("Issued At")} value={formatDate(data.issued_at)} />
+          <InfoItem label={t("Appointment ID")} value={data.appointment_id} />
+          <InfoItem
+            label={t("Treatment Plan ID")}
+            value={data.treatment_plan_id}
+          />
+        </div>
 
-        <div className="mt-3 d-flex flex-wrap gap-2">
-          {data.id ? (
+        <div className="event-actions">
+          {data.id && (
             <Link
               to={`/admin/erp/invoices/${data.id}`}
               className="btn btn-sm btn-outline-success"
             >
-              Open Invoice
+              <i className="fas fa-file-invoice me-1"></i>
+              {t("Open Invoice")}
             </Link>
-          ) : null}
-
-          {data.treatment_plan_id ? (
+          )}
+          {data.treatment_plan_id && (
             <Link
               to={`/admin/erp/treatment-plans/${data.treatment_plan_id}`}
               className="btn btn-sm btn-outline-info"
             >
-              Treatment Plan
+              <i className="fas fa-notes-medical me-1"></i>
+              {t("Treatment Plan")}
             </Link>
-          ) : null}
+          )}
         </div>
       </>
     );
@@ -338,96 +385,79 @@ function TimelineEventBody({ item, money, formatDate }) {
 
   if (item.type === "payment") {
     return (
-      <InfoGrid
-        items={[
-          ["Invoice ID", data.invoice_id],
-          ["Amount", money(data.amount)],
-          ["Applied Amount", money(data.applied_amount)],
-          ["Credit Amount", money(data.credit_amount)],
-          ["Method", data.method],
-        ]}
-      />
+      <div className="info-grid compact">
+        <InfoItem label={t("Invoice ID")} value={data.invoice_id} />
+        <InfoItem label={t("Amount")} value={formatCurrency(data.amount)} />
+        <InfoItem
+          label={t("Applied Amount")}
+          value={formatCurrency(data.applied_amount)}
+        />
+        <InfoItem
+          label={t("Credit Amount")}
+          value={formatCurrency(data.credit_amount)}
+        />
+        <InfoItem label={t("Method")} value={t(data.method) || data.method} />
+      </div>
     );
   }
 
   if (item.type === "refund") {
     return (
-      <InfoGrid
-        items={[
-          ["Payment ID", data.payment_id],
-          ["Invoice ID", data.invoice_id],
-          ["Refund Amount", money(data.amount)],
-          ["Applies To", data.applies_to],
-        ]}
-      />
+      <div className="info-grid compact">
+        <InfoItem label={t("Payment ID")} value={data.payment_id} />
+        <InfoItem label={t("Invoice ID")} value={data.invoice_id} />
+        <InfoItem
+          label={t("Refund Amount")}
+          value={formatCurrency(data.amount)}
+        />
+        <InfoItem label={t("Applies To")} value={data.applies_to} />
+      </div>
     );
   }
 
-  return <div className="text-muted">No details available.</div>;
+  return <div className="text-muted">{t("No details available.")}</div>;
 }
 
 /* ================= HELPERS ================= */
 
-function InfoGrid({ items }) {
-  return (
-    <div className="row g-2">
-      {items.map(([label, value], i) => (
-        <div key={i} className="col-12 col-md-6">
-          <div className="small text-muted">{label}</div>
-          <div className="fw-semibold">{value || "-"}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function InfoItem({ label, value }) {
   return (
-    <div className="col-12 col-md-6">
-      <div className="small text-muted">{label}</div>
-      <div className="fw-semibold">{value || "-"}</div>
+    <div className="info-item">
+      <div className="info-label">{label}</div>
+      <div className="info-value">{value || "-"}</div>
     </div>
   );
 }
 
-function prettyType(type) {
-  switch (type) {
-    case "appointment":
-      return "Appointment";
-    case "dental_record":
-      return "Dental Record";
-    case "invoice":
-      return "Invoice";
-    case "payment":
-      return "Payment";
-    case "refund":
-      return "Refund";
-    default:
-      return type || "Event";
-  }
+function prettyType(type, t) {
+  const typeMap = {
+    appointment: "Appointment",
+    dental_record: "Dental Record",
+    invoice: "Invoice",
+    payment: "Payment",
+    refund: "Refund",
+  };
+  return t(typeMap[type] || type || "Event");
 }
 
-function prettyAppointmentType(type) {
+function prettyAppointmentType(type, t) {
   const value = String(type || "").toLowerCase();
-
-  if (value === "consultation") return "Consultation";
-  if (value === "treatment") return "Treatment";
-
+  if (value === "consultation") return t("Consultation");
+  if (value === "treatment") return t("Treatment");
   return type || "-";
 }
 
 function badgeClass(type, status) {
   const value = String(status || "").toLowerCase();
 
-  if (type === "payment") return "bg-success";
-  if (type === "refund") return "bg-danger";
+  if (type === "payment") return "badge-success";
+  if (type === "refund") return "badge-danger";
 
-  if (["paid", "completed"].includes(value)) return "bg-success";
-  if (["unpaid", "cancelled", "no_show"].includes(value)) return "bg-danger";
-  if (["scheduled", "partially_paid", "planned"].includes(value)) {
-    return "bg-warning text-dark";
-  }
-  if (["in_progress"].includes(value)) return "bg-info text-dark";
+  if (["paid", "completed"].includes(value)) return "badge-success";
+  if (["unpaid", "cancelled", "no_show"].includes(value)) return "badge-danger";
+  if (["scheduled", "partially_paid", "planned"].includes(value))
+    return "badge-warning";
+  if (["in_progress"].includes(value)) return "badge-info";
 
-  return "bg-secondary";
+  return "badge-secondary";
 }

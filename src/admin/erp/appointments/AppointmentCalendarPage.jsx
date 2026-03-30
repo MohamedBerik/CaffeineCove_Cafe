@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./AppointmentCalendarPage.css";
 
 export default function AppointmentCalendarPage() {
+  const { t, i18n } = useTranslation();
+
   const getLocalDateString = () => {
     const now = new Date();
     const year = now.getFullYear();
@@ -52,7 +56,7 @@ export default function AppointmentCalendarPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load appointment calendar.",
+          t("Failed to load appointment calendar."),
       );
     } finally {
       setLoading(false);
@@ -90,10 +94,26 @@ export default function AppointmentCalendarPage() {
   const formatAppointmentType = (value) => {
     const type = String(value || "").toLowerCase();
 
-    if (type === "consultation") return "Consultation";
-    if (type === "treatment") return "Treatment";
+    if (type === "consultation") return t("Consultation");
+    if (type === "treatment") return t("Treatment");
 
     return "-";
+  };
+
+  const formatDateLabel = (value) => {
+    if (!value) return "-";
+
+    try {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(`${value}T12:00:00`).toLocaleDateString(lang, {
+        weekday: "long",
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    } catch {
+      return value;
+    }
   };
 
   const visibleAppointments = useMemo(() => {
@@ -148,21 +168,6 @@ export default function AppointmentCalendarPage() {
     setSelectedDate(`${year}-${month}-${day}`);
   };
 
-  const formatDateLabel = (value) => {
-    if (!value) return "-";
-
-    try {
-      return new Date(`${value}T12:00:00`).toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-      });
-    } catch {
-      return value;
-    }
-  };
-
   if (loading) {
     return (
       <div
@@ -170,50 +175,65 @@ export default function AppointmentCalendarPage() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Appointment Calendar</h3>
-          <p className="text-muted mb-0">
-            Daily clinic schedule by date and doctor
+    <div className="calendar-page">
+      {/* Header Section */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Appointment Calendar")}</h1>
+          <p className="page-subtitle">
+            {t("Daily clinic schedule by date and doctor")}
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <Link
             to="/admin/erp/appointments/create"
             className="btn btn-outline-success"
           >
-            Book Appointment
+            <i className="fas fa-plus-circle me-2"></i>
+            {t("Book Appointment")}
           </Link>
 
           <button className="btn btn-primary" onClick={loadData}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
-      {error ? (
-        <div className="alert alert-danger d-flex justify-content-between align-items-center">
-          <span>{error}</span>
-          <button className="btn btn-sm btn-outline-danger" onClick={loadData}>
-            Retry
-          </button>
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
         </div>
-      ) : null}
+      )}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
-          <div className="row g-3 align-items-end">
-            <div className="col-12 col-md-3">
-              <label className="form-label fw-semibold">Date</label>
+      {/* Filters Card */}
+      <div className="filters-card">
+        <div className="filters-card-header">
+          <i className="fas fa-sliders-h me-2"></i>
+          <h5 className="mb-0">{t("Calendar Filters")}</h5>
+        </div>
+        <div className="filters-card-body">
+          <div className="filters-grid">
+            <div className="filter-group">
+              <label className="filter-label">
+                <i className="fas fa-calendar-day me-1"></i>
+                {t("Date")}
+              </label>
               <input
                 type="date"
                 className="form-control"
@@ -222,14 +242,17 @@ export default function AppointmentCalendarPage() {
               />
             </div>
 
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">Doctor</label>
+            <div className="filter-group">
+              <label className="filter-label">
+                <i className="fas fa-user-md me-1"></i>
+                {t("Doctor")}
+              </label>
               <select
                 className="form-select"
                 value={selectedDoctorId}
                 onChange={(e) => setSelectedDoctorId(e.target.value)}
               >
-                <option value="">All Doctors</option>
+                <option value="">{t("All Doctors")}</option>
                 {doctors.map((doctor) => (
                   <option key={doctor.id} value={doctor.id}>
                     {doctor.name}
@@ -238,171 +261,97 @@ export default function AppointmentCalendarPage() {
               </select>
             </div>
 
-            <div className="col-12 col-md-5">
-              <div className="d-flex flex-wrap gap-2">
+            <div className="filter-group">
+              <label className="filter-label">
+                <i className="fas fa-chevron-circle-left me-1"></i>
+                {t("Navigation")}
+              </label>
+              <div className="date-nav-buttons">
                 <button
                   type="button"
                   className="btn btn-outline-secondary"
                   onClick={() => changeDay(-1)}
+                  title={t("Previous Day")}
                 >
-                  Previous Day
+                  <i className="fas fa-chevron-left"></i>
+                  <span className="nav-text">{t("Prev")}</span>
                 </button>
 
                 <button
                   type="button"
-                  className="btn btn-outline-secondary"
+                  className="btn btn-outline-primary"
                   onClick={() => setSelectedDate(todayStr)}
                 >
-                  Today
+                  <i className="fas fa-calendar-day me-1"></i>
+                  {t("Today")}
                 </button>
 
                 <button
                   type="button"
                   className="btn btn-outline-secondary"
                   onClick={() => changeDay(1)}
+                  title={t("Next Day")}
                 >
-                  Next Day
+                  <span className="nav-text">{t("Next")}</span>
+                  <i className="fas fa-chevron-right"></i>
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="mt-3">
-            <div className="small text-muted">Selected Day</div>
-            <div className="fw-semibold">{formatDateLabel(selectedDate)}</div>
+          <div className="selected-day-info">
+            <div className="day-label">{t("Selected Day")}</div>
+            <div className="day-value">{formatDateLabel(selectedDate)}</div>
           </div>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-white d-flex justify-content-between align-items-center">
-          <h5 className="mb-0">Daily Schedule</h5>
-          <span className="badge bg-light text-dark">
-            {visibleAppointments.length} appointments
+      {/* Calendar Schedule Card */}
+      <div className="schedule-card">
+        <div className="schedule-card-header">
+          <i className="fas fa-calendar-alt me-2"></i>
+          <h5 className="mb-0">{t("Daily Schedule")}</h5>
+          <span className="appointment-count">
+            {visibleAppointments.length} {t("appointments")}
           </span>
         </div>
 
-        <div className="card-body">
+        <div className="schedule-card-body">
           {visibleAppointments.length === 0 ? (
-            <div className="text-muted">
-              No appointments scheduled for this selection.
+            <div className="empty-schedule">
+              <i className="fas fa-calendar-times empty-icon"></i>
+              <p className="empty-text">
+                {t("No appointments scheduled for this selection.")}
+              </p>
             </div>
           ) : (
-            <div className="d-flex flex-column gap-3">
+            <div className="schedule-timeline">
               {hours.map((hour) => {
                 const items = groupedByHour[hour] || [];
+                const hasAppointments = items.length > 0;
 
                 return (
-                  <div key={hour} className="row g-3 align-items-start">
-                    <div className="col-12 col-md-2">
-                      <div className="fw-bold text-muted">{hour}</div>
+                  <div key={hour} className="timeline-row">
+                    <div className="timeline-hour">
+                      <div className="hour-label">{hour}</div>
                     </div>
 
-                    <div className="col-12 col-md-10">
-                      {items.length === 0 ? (
-                        <div className="text-muted small border rounded p-3 bg-light">
-                          No appointments
+                    <div className="timeline-slots">
+                      {!hasAppointments ? (
+                        <div className="empty-slot">
+                          <i className="fas fa-clock me-1"></i>
+                          {t("No appointments")}
                         </div>
                       ) : (
-                        <div className="d-flex flex-column gap-2">
+                        <div className="appointments-list">
                           {items.map((item) => (
-                            <div
+                            <AppointmentCard
                               key={item.id}
-                              className="border rounded p-3 bg-light"
-                            >
-                              <div className="d-flex flex-wrap justify-content-between align-items-start gap-2">
-                                <div>
-                                  <div className="fw-bold">
-                                    {item.patient?.name || "Unknown Patient"}
-                                  </div>
-
-                                  <div className="small text-muted">
-                                    {normalizeTime(item.appointment_time)} |{" "}
-                                    {item.doctor?.name ||
-                                      item.doctor_name ||
-                                      "-"}
-                                  </div>
-                                </div>
-
-                                <div className="d-flex flex-column gap-2 align-items-end">
-                                  <StatusBadge status={item.status} />
-                                  <AppointmentTypeBadge
-                                    type={item.appointment_type}
-                                  />
-                                </div>
-                              </div>
-
-                              <div className="mt-2 small">
-                                <div>
-                                  <strong>Email:</strong>{" "}
-                                  {item.patient?.email || "-"}
-                                </div>
-
-                                <div>
-                                  <strong>Type:</strong>{" "}
-                                  {formatAppointmentType(item.appointment_type)}
-                                </div>
-
-                                <div>
-                                  <strong>Notes:</strong> {item.notes || "-"}
-                                </div>
-
-                                {item.clinical_notes ? (
-                                  <div>
-                                    <strong>Clinical Notes:</strong>{" "}
-                                    {item.clinical_notes}
-                                  </div>
-                                ) : null}
-
-                                {item.diagnosis ? (
-                                  <div>
-                                    <strong>Diagnosis:</strong> {item.diagnosis}
-                                  </div>
-                                ) : null}
-
-                                {item.next_step ? (
-                                  <div>
-                                    <strong>Next Step:</strong> {item.next_step}
-                                  </div>
-                                ) : null}
-                              </div>
-
-                              <div className="mt-3 d-flex flex-wrap gap-2">
-                                {item.patient?.id ? (
-                                  <Link
-                                    to={`/admin/erp/patients/${item.patient.id}/profile`}
-                                    className="btn btn-sm btn-outline-primary"
-                                  >
-                                    Patient
-                                  </Link>
-                                ) : null}
-
-                                {item.treatment_plan_id ? (
-                                  <Link
-                                    to={`/admin/erp/treatment-plans/${item.treatment_plan_id}`}
-                                    className="btn btn-sm btn-outline-info"
-                                  >
-                                    Treatment Plan
-                                  </Link>
-                                ) : null}
-
-                                {item.invoice_id ? (
-                                  <Link
-                                    to={`/admin/erp/invoices/${item.invoice_id}`}
-                                    className="btn btn-sm btn-outline-success"
-                                  >
-                                    Invoice
-                                  </Link>
-                                ) : null}
-
-                                <Link
-                                  to={`/admin/erp/appointments/${item.id}/activity`}
-                                  className="btn btn-sm btn-outline-secondary"
-                                >
-                                  Activity
-                                </Link>
-                              </div>
-                            </div>
+                              item={item}
+                              normalizeTime={normalizeTime}
+                              formatAppointmentType={formatAppointmentType}
+                              t={t}
+                            />
                           ))}
                         </div>
                       )}
@@ -418,31 +367,127 @@ export default function AppointmentCalendarPage() {
   );
 }
 
-function StatusBadge({ status }) {
-  const value = String(status || "").toLowerCase();
-  let cls = "secondary";
+// AppointmentCard Component
+function AppointmentCard({ item, normalizeTime, formatAppointmentType, t }) {
+  const status = String(item.status || "").toLowerCase();
 
-  if (["completed"].includes(value)) cls = "success";
-  else if (["cancelled", "no_show"].includes(value)) cls = "danger";
-  else if (["scheduled"].includes(value)) cls = "warning";
-  else if (["in_progress"].includes(value)) cls = "info";
+  const getStatusColor = () => {
+    if (status === "completed") return "success";
+    if (status === "cancelled" || status === "no_show") return "danger";
+    if (status === "scheduled") return "warning";
+    if (status === "in_progress") return "info";
+    return "secondary";
+  };
 
-  return <span className={`badge bg-${cls}`}>{status || "-"}</span>;
-}
+  const getTypeColor = () => {
+    const type = String(item.appointment_type || "").toLowerCase();
+    if (type === "consultation") return "primary";
+    if (type === "treatment") return "info";
+    return "secondary";
+  };
 
-function AppointmentTypeBadge({ type }) {
-  const value = String(type || "").toLowerCase();
+  return (
+    <div className={`appointment-card status-${getStatusColor()}`}>
+      <div className="appointment-header">
+        <div className="appointment-time">
+          <i className="fas fa-clock me-1"></i>
+          {normalizeTime(item.appointment_time)}
+        </div>
+        <div className="appointment-badges">
+          <span className={`badge-type type-${getTypeColor()}`}>
+            {formatAppointmentType(item.appointment_type)}
+          </span>
+          <span className={`badge-status status-${getStatusColor()}`}>
+            {t(item.status || "-")}
+          </span>
+        </div>
+      </div>
 
-  let cls = "secondary";
-  let label = type || "-";
+      <div className="appointment-patient">
+        <div className="patient-name">
+          <i className="fas fa-user-circle me-2"></i>
+          {item.patient?.name || t("Unknown Patient")}
+        </div>
+        <div className="patient-details">
+          <span>{item.patient?.email || "-"}</span>
+          <span className="separator">•</span>
+          <span>{item.doctor?.name || item.doctor_name || "-"}</span>
+        </div>
+      </div>
 
-  if (value === "consultation") {
-    cls = "primary";
-    label = "Consultation";
-  } else if (value === "treatment") {
-    cls = "info text-dark";
-    label = "Treatment";
-  }
+      {item.notes && (
+        <div className="appointment-notes">
+          <i className="fas fa-pencil-alt me-1"></i>
+          <span>{item.notes}</span>
+        </div>
+      )}
 
-  return <span className={`badge bg-${cls}`}>{label}</span>;
+      {(item.clinical_notes || item.diagnosis || item.next_step) && (
+        <div className="appointment-clinical">
+          {item.clinical_notes && (
+            <div className="clinical-item">
+              <i className="fas fa-notes-medical me-1"></i>
+              <strong>{t("Clinical Notes")}:</strong> {item.clinical_notes}
+            </div>
+          )}
+          {item.diagnosis && (
+            <div className="clinical-item">
+              <i className="fas fa-stethoscope me-1"></i>
+              <strong>{t("Diagnosis")}:</strong> {item.diagnosis}
+            </div>
+          )}
+          {item.next_step && (
+            <div className="clinical-item">
+              <i className="fas fa-arrow-right me-1"></i>
+              <strong>{t("Next Step")}:</strong> {item.next_step}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="appointment-actions">
+        {item.patient?.id && (
+          <Link
+            to={`/admin/erp/patients/${item.patient.id}/profile`}
+            className="btn btn-sm btn-outline-primary"
+            title={t("View Patient")}
+          >
+            <i className="fas fa-user"></i>
+            <span>{t("Patient")}</span>
+          </Link>
+        )}
+
+        {item.treatment_plan_id && (
+          <Link
+            to={`/admin/erp/treatment-plans/${item.treatment_plan_id}`}
+            className="btn btn-sm btn-outline-info"
+            title={t("View Treatment Plan")}
+          >
+            <i className="fas fa-notes-medical"></i>
+            <span>{t("Plan")}</span>
+          </Link>
+        )}
+
+        {item.invoice_id && (
+          <Link
+            to={`/admin/erp/invoices/${item.invoice_id}`}
+            className="btn btn-sm btn-outline-success"
+            title={t("View Invoice")}
+          >
+            <i className="fas fa-file-invoice"></i>
+            <span>{t("Invoice")}</span>
+          </Link>
+        )}
+
+        <Link
+          to={`/admin/erp/appointments/${item.id}/activity`}
+          className="btn btn-sm btn-outline-secondary"
+          title={t("View Activity")}
+        >
+          <i className="fas fa-history"></i>
+          <span>{t("Activity")}</span>
+        </Link>
+      </div>
+    </div>
+  );
 }

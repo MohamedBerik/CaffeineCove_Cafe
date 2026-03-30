@@ -1,0 +1,492 @@
+/* Appointment Calendar Page Styles */
+.calendar-page {
+  padding: 0 0.5rem;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #1a237e, #283593);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  color: #6c757d;
+  margin: 0.25rem 0 0 0;
+  font-size: 0.875rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Filters Card */
+.filters-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.filters-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  color: #1a237e;
+}
+
+.filters-card-body {
+  padding: 1.25rem;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.date-nav-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.date-nav-buttons .btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.nav-text {
+  display: inline-block;
+}
+
+.selected-day-info {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.day-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.day-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a237e;
+}
+
+/* Schedule Card */
+.schedule-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.schedule-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  color: #1a237e;
+}
+
+.appointment-count {
+  margin-left: auto;
+  padding: 0.25rem 0.75rem;
+  background: #e9ecef;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.schedule-card-body {
+  padding: 1.25rem;
+}
+
+/* Timeline Layout */
+.schedule-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.timeline-row {
+  display: flex;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.timeline-row:last-child {
+  border-bottom: none;
+}
+
+.timeline-hour {
+  width: 100px;
+  padding: 1rem;
+  background: #fafbfc;
+  border-right: 1px solid #e9ecef;
+  flex-shrink: 0;
+}
+
+.hour-label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.875rem;
+}
+
+.timeline-slots {
+  flex: 1;
+  padding: 0.75rem;
+}
+
+.empty-slot {
+  padding: 0.75rem;
+  color: #adb5bd;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Appointment Card */
+.appointment-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1rem;
+  border-left: 4px solid;
+  transition: all 0.2s ease;
+}
+
+.appointment-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.appointment-card.status-success {
+  border-left-color: #28a745;
+}
+.appointment-card.status-danger {
+  border-left-color: #dc3545;
+}
+.appointment-card.status-warning {
+  border-left-color: #ffc107;
+}
+.appointment-card.status-info {
+  border-left-color: #17a2b8;
+}
+.appointment-card.status-secondary {
+  border-left-color: #6c757d;
+}
+
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.appointment-time {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.appointment-badges {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.badge-type,
+.badge-status {
+  padding: 0.25rem 0.625rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.badge-type.type-primary {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+.badge-type.type-info {
+  background: #e0f7fa;
+  color: #00838f;
+}
+.badge-type.type-secondary {
+  background: #eceff1;
+  color: #546e7a;
+}
+
+.badge-status.status-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.badge-status.status-danger {
+  background: #ffebee;
+  color: #c62828;
+}
+.badge-status.status-warning {
+  background: #fff3e0;
+  color: #ed6c02;
+}
+.badge-status.status-info {
+  background: #e3f2fd;
+  color: #0288d1;
+}
+.badge-status.status-secondary {
+  background: #eceff1;
+  color: #546e7a;
+}
+
+.appointment-patient {
+  margin-bottom: 0.75rem;
+}
+
+.patient-name {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.patient-details {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.patient-details .separator {
+  margin: 0 0.5rem;
+}
+
+.appointment-notes {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 8px;
+}
+
+.appointment-clinical {
+  font-size: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.clinical-item {
+  color: #495057;
+}
+
+.clinical-item i {
+  color: #6c757d;
+  width: 20px;
+}
+
+.appointment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.appointment-actions .btn-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.appointment-actions .btn-sm span {
+  display: inline-block;
+}
+
+/* Empty State */
+.empty-schedule {
+  padding: 3rem;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  color: #dee2e6;
+  margin-bottom: 1rem;
+}
+
+.empty-text {
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .timeline-hour {
+    width: 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar-page {
+    padding: 0;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: stretch;
+  }
+
+  .header-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .filters-card-body {
+    padding: 1rem;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .date-nav-buttons .btn {
+    justify-content: center;
+  }
+
+  .nav-text {
+    display: inline-block;
+  }
+
+  .schedule-card-body {
+    padding: 0.75rem;
+  }
+
+  .timeline-row {
+    flex-direction: column;
+  }
+
+  .timeline-hour {
+    width: 100%;
+    padding: 0.75rem;
+    border-right: none;
+    border-bottom: 1px solid #e9ecef;
+    background: #fafbfc;
+  }
+
+  .timeline-slots {
+    padding: 0.75rem;
+  }
+
+  .appointment-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .appointment-actions .btn-sm span {
+    display: none;
+  }
+
+  .appointment-actions .btn-sm {
+    padding: 0.375rem 0.5rem;
+  }
+
+  .appointment-actions .btn-sm i {
+    margin: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .schedule-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .appointment-count {
+    margin-left: 0;
+  }
+
+  .date-nav-buttons .btn {
+    padding: 0.375rem 0.5rem;
+  }
+
+  .nav-text {
+    display: none;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .timeline-hour {
+  border-right: none;
+  border-left: 1px solid #e9ecef;
+}
+
+[dir="rtl"] .appointment-card {
+  border-left: none;
+  border-right: 4px solid;
+}
+
+[dir="rtl"] .date-nav-buttons .btn i:first-child {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .date-nav-buttons .btn i:last-child {
+  transform: scaleX(-1);
+}

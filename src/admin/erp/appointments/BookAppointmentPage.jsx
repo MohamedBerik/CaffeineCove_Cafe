@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./BookAppointmentPage.css";
 
 export default function BookAppointmentPage() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -79,7 +82,7 @@ export default function BookAppointmentPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load booking references.",
+          t("Failed to load booking references."),
       );
     } finally {
       setLoadingRefs(false);
@@ -93,7 +96,7 @@ export default function BookAppointmentPage() {
       setSlots([]);
 
       if (!form.doctor_id || !form.appointment_date) {
-        setSlotError("Please select doctor and date first.");
+        setSlotError(t("Please select doctor and date first."));
         return;
       }
 
@@ -114,7 +117,7 @@ export default function BookAppointmentPage() {
       setSlotError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load available slots.",
+          t("Failed to load available slots."),
       );
     } finally {
       setLoadingSlots(false);
@@ -174,22 +177,22 @@ export default function BookAppointmentPage() {
       setError("");
 
       if (!form.patient_id) {
-        setError("Please select a patient.");
+        setError(t("Please select a patient."));
         return;
       }
 
       if (!form.doctor_id) {
-        setError("Please select a doctor.");
+        setError(t("Please select a doctor."));
         return;
       }
 
       if (!form.appointment_date) {
-        setError("Please select appointment date.");
+        setError(t("Please select appointment date."));
         return;
       }
 
       if (!form.appointment_time) {
-        setError("Please select appointment time.");
+        setError(t("Please select appointment time."));
         return;
       }
 
@@ -222,12 +225,12 @@ export default function BookAppointmentPage() {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setError(firstError || "Failed to book consultation.");
+        setError(firstError || t("Failed to book consultation."));
       } else {
         setError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to book consultation.",
+            t("Failed to book consultation."),
         );
       }
     } finally {
@@ -242,200 +245,317 @@ export default function BookAppointmentPage() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Book Consultation Appointment</h3>
-          <p className="text-muted mb-0">
-            Create a consultation appointment and continue the patient journey
+    <div className="book-appointment-page">
+      {/* Header Section */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Book Consultation Appointment")}</h1>
+          <p className="page-subtitle">
+            {t(
+              "Create a consultation appointment and continue the patient journey",
+            )}
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <Link
             to="/admin/erp/appointments"
             className="btn btn-outline-secondary"
           >
-            Back to Appointments
+            <i className="fas fa-arrow-left me-2"></i>
+            {t("Back to Appointments")}
           </Link>
         </div>
       </div>
 
-      {error ? <div className="alert alert-danger">{error}</div> : null}
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
+        </div>
+      )}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
-          <form className="row g-3" onSubmit={submit}>
-            <div className="col-12 col-md-6">
-              <label className="form-label fw-semibold">Patient</label>
-              <select
-                className="form-select"
-                name="patient_id"
-                value={form.patient_id}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select patient</option>
-                {patients.map((patient) => (
-                  <option key={patient.id} value={patient.id}>
-                    {patient.name}
-                    {patient.patient_code ? ` (${patient.patient_code})` : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
+      {/* Booking Form Card */}
+      <div className="booking-card">
+        <div className="booking-card-header">
+          <i className="fas fa-calendar-plus me-2"></i>
+          <h5 className="mb-0">{t("Appointment Details")}</h5>
+        </div>
 
-            <div className="col-12 col-md-6">
-              <label className="form-label fw-semibold">Doctor</label>
-              <select
-                className="form-select"
-                name="doctor_id"
-                value={form.doctor_id}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select doctor</option>
-                {doctors.map((doctor) => (
-                  <option key={doctor.id} value={doctor.id}>
-                    {doctor.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <div className="booking-card-body">
+          <form onSubmit={submit}>
+            <div className="form-grid">
+              {/* Patient Selection */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-user me-2"></i>
+                  {t("Patient")}
+                  <span className="required-star">*</span>
+                </label>
+                <select
+                  className="form-select"
+                  name="patient_id"
+                  value={form.patient_id}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">{t("Select patient")}</option>
+                  {patients.map((patient) => (
+                    <option key={patient.id} value={patient.id}>
+                      {patient.name}
+                      {patient.patient_code ? ` (${patient.patient_code})` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">Appointment Type</label>
-              <input
-                type="text"
-                className="form-control"
-                value="Consultation"
-                readOnly
-              />
-            </div>
+              {/* Doctor Selection */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-user-md me-2"></i>
+                  {t("Doctor")}
+                  <span className="required-star">*</span>
+                </label>
+                <select
+                  className="form-select"
+                  name="doctor_id"
+                  value={form.doctor_id}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">{t("Select doctor")}</option>
+                  {doctors.map((doctor) => (
+                    <option key={doctor.id} value={doctor.id}>
+                      {doctor.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">Date</label>
-              <input
-                type="date"
-                className="form-control"
-                name="appointment_date"
-                value={form.appointment_date}
-                onChange={handleChange}
-                min={today}
-                required
-              />
-            </div>
+              {/* Appointment Type (Read Only) */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-tag me-2"></i>
+                  {t("Appointment Type")}
+                </label>
+                <div className="type-badge-display">
+                  <i className="fas fa-stethoscope me-2"></i>
+                  {t("Consultation")}
+                </div>
+              </div>
 
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">Available Slots</label>
-              <div className="d-grid">
+              {/* Date Selection */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-calendar-day me-2"></i>
+                  {t("Date")}
+                  <span className="required-star">*</span>
+                </label>
+                <input
+                  type="date"
+                  className="form-control"
+                  name="appointment_date"
+                  value={form.appointment_date}
+                  onChange={handleChange}
+                  min={today}
+                  required
+                />
+              </div>
+
+              {/* Slots Button */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-clock me-2"></i>
+                  {t("Available Slots")}
+                </label>
                 <button
                   type="button"
-                  className="btn btn-outline-primary"
+                  className="btn btn-outline-primary w-100"
                   onClick={loadSlots}
                   disabled={
                     loadingSlots || !form.doctor_id || !form.appointment_date
                   }
                 >
-                  {loadingSlots ? "Loading Slots..." : "Reload Slots"}
+                  {loadingSlots ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      {t("Loading Slots...")}
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-sync-alt me-2"></i>
+                      {t("Reload Slots")}
+                    </>
+                  )}
                 </button>
               </div>
-            </div>
 
-            <div className="col-12 col-md-6">
-              <label className="form-label fw-semibold">Time</label>
-              <select
-                className="form-select"
-                name="appointment_time"
-                value={form.appointment_time}
-                onChange={handleChange}
-                required
-                disabled={!normalizedSlots.length}
-              >
-                <option value="">Select slot</option>
-                {normalizedSlots.map((slot, index) => (
-                  <option
-                    key={`${slot.value}-${index}`}
-                    value={slot.value}
-                    disabled={slot.available === false}
-                  >
-                    {slot.label}
-                    {slot.available === false ? " (Unavailable)" : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {slotError ? (
-              <div className="col-12">
-                <div className="alert alert-warning py-2 mb-0">{slotError}</div>
-              </div>
-            ) : null}
-
-            <div className="col-12">
-              <label className="form-label fw-semibold">Notes</label>
-              <textarea
-                className="form-control"
-                rows="3"
-                name="notes"
-                value={form.notes}
-                onChange={handleChange}
-                placeholder="Optional notes..."
-              />
-            </div>
-
-            {(selectedPatient || selectedDoctor) && (
-              <div className="col-12">
-                <div className="alert alert-light border mb-0">
-                  <div className="fw-semibold mb-1">Booking Summary</div>
-
-                  <div>Type: Consultation</div>
-
-                  {selectedPatient ? (
-                    <div>
-                      Patient: {selectedPatient.name}
-                      {selectedPatient.email
-                        ? ` — ${selectedPatient.email}`
-                        : ""}
+              {/* Time Selection */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-hourglass-half me-2"></i>
+                  {t("Time")}
+                  <span className="required-star">*</span>
+                </label>
+                <select
+                  className="form-select"
+                  name="appointment_time"
+                  value={form.appointment_time}
+                  onChange={handleChange}
+                  required
+                  disabled={!normalizedSlots.length}
+                >
+                  <option value="">{t("Select slot")}</option>
+                  {normalizedSlots.map((slot, index) => (
+                    <option
+                      key={`${slot.value}-${index}`}
+                      value={slot.value}
+                      disabled={slot.available === false}
+                      className={slot.available === false ? "text-muted" : ""}
+                    >
+                      {slot.label}
+                      {slot.available === false ? ` (${t("Unavailable")})` : ""}
+                    </option>
+                  ))}
+                </select>
+                {normalizedSlots.length === 0 &&
+                  form.doctor_id &&
+                  form.appointment_date &&
+                  !loadingSlots && (
+                    <div className="form-hint warning">
+                      <i className="fas fa-info-circle me-1"></i>
+                      {t("No slots available for this date")}
                     </div>
-                  ) : null}
+                  )}
+              </div>
 
-                  {selectedDoctor ? (
-                    <div>Doctor: {selectedDoctor.name}</div>
-                  ) : null}
+              {/* Slot Error */}
+              {slotError && (
+                <div className="form-group full-width">
+                  <div className="slot-error">
+                    <i className="fas fa-exclamation-triangle me-2"></i>
+                    {slotError}
+                  </div>
+                </div>
+              )}
 
-                  {form.appointment_date ? (
-                    <div>Date: {form.appointment_date}</div>
-                  ) : null}
+              {/* Notes */}
+              <div className="form-group full-width">
+                <label className="form-label">
+                  <i className="fas fa-pencil-alt me-2"></i>
+                  {t("Notes")}
+                </label>
+                <textarea
+                  className="form-control"
+                  rows="3"
+                  name="notes"
+                  value={form.notes}
+                  onChange={handleChange}
+                  placeholder={t("Optional notes...")}
+                />
+              </div>
+            </div>
 
-                  {form.appointment_time ? (
-                    <div>Time: {form.appointment_time}</div>
-                  ) : null}
+            {/* Booking Summary */}
+            {(selectedPatient ||
+              selectedDoctor ||
+              form.appointment_date ||
+              form.appointment_time) && (
+              <div className="booking-summary">
+                <div className="summary-header">
+                  <i className="fas fa-clipboard-list me-2"></i>
+                  <span className="fw-semibold">{t("Booking Summary")}</span>
+                </div>
+                <div className="summary-content">
+                  <div className="summary-item">
+                    <span className="summary-label">{t("Type")}:</span>
+                    <span className="summary-value">
+                      <span className="type-consultation">
+                        {t("Consultation")}
+                      </span>
+                    </span>
+                  </div>
+                  {selectedPatient && (
+                    <div className="summary-item">
+                      <span className="summary-label">{t("Patient")}:</span>
+                      <span className="summary-value">
+                        {selectedPatient.name}
+                        {selectedPatient.email && (
+                          <span className="summary-detail">
+                            {" "}
+                            — {selectedPatient.email}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  )}
+                  {selectedDoctor && (
+                    <div className="summary-item">
+                      <span className="summary-label">{t("Doctor")}:</span>
+                      <span className="summary-value">
+                        {selectedDoctor.name}
+                      </span>
+                    </div>
+                  )}
+                  {form.appointment_date && (
+                    <div className="summary-item">
+                      <span className="summary-label">{t("Date")}:</span>
+                      <span className="summary-value">
+                        {form.appointment_date}
+                      </span>
+                    </div>
+                  )}
+                  {form.appointment_time && (
+                    <div className="summary-item">
+                      <span className="summary-label">{t("Time")}:</span>
+                      <span className="summary-value">
+                        {form.appointment_time}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
-            <div className="col-12 d-flex gap-2">
+            {/* Form Actions */}
+            <div className="form-actions">
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="btn btn-primary btn-lg"
                 disabled={saving}
               >
-                {saving ? "Booking..." : "Book Consultation"}
+                {saving ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2"></span>
+                    {t("Booking...")}
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-check-circle me-2"></i>
+                    {t("Book Consultation")}
+                  </>
+                )}
               </button>
 
               <Link
                 to="/admin/erp/appointments"
-                className="btn btn-outline-secondary"
+                className="btn btn-outline-secondary btn-lg"
               >
-                Cancel
+                <i className="fas fa-times me-2"></i>
+                {t("Cancel")}
               </Link>
             </div>
           </form>

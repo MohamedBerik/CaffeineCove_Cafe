@@ -60,8 +60,8 @@ function Navbar() {
                 <strong className="d-block">Health Specialist</strong>
               </a>
               <li className="nav-item">
-                <a className="nav-link" href="#reviews">
-                  Testimonials
+                <a className="nav-link" href="/AllTestimonials">
+                  Reviews
                 </a>
               </li>
               <li className="nav-item">

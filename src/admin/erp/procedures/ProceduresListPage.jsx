@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./ProceduresListPage.css";
 
 export default function ProceduresListPage() {
+  const { t, i18n } = useTranslation();
   const [rows, setRows] = useState([]);
   const [meta, setMeta] = useState(null);
 
@@ -19,6 +22,30 @@ export default function ProceduresListPage() {
   useEffect(() => {
     loadProcedures();
   }, []);
+
+  const formatCurrency = (value) => {
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return new Intl.NumberFormat(lang, {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+  };
+
+  const formatDate = (value) => {
+    if (!value) return "-";
+    try {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleDateString(lang, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    } catch {
+      return value;
+    }
+  };
 
   const loadProcedures = async () => {
     try {
@@ -40,7 +67,7 @@ export default function ProceduresListPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load procedures.",
+          t("Failed to load procedures."),
       );
     } finally {
       setLoading(false);
@@ -69,25 +96,6 @@ export default function ProceduresListPage() {
     });
   }, [rows, search, statusFilter]);
 
-  const money = (value) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(Number(value || 0));
-
-  const formatDate = (value) => {
-    if (!value) return "-";
-    try {
-      return new Date(value).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-      });
-    } catch {
-      return value;
-    }
-  };
-
   const clearFilters = () => {
     setSearch("");
     setStatusFilter("");
@@ -99,8 +107,8 @@ export default function ProceduresListPage() {
 
     const confirmText =
       nextStatus === 1
-        ? `Activate procedure "${item.name}"?`
-        : `Deactivate procedure "${item.name}"?`;
+        ? t('Activate procedure "{{name}}"?', { name: item.name })
+        : t('Deactivate procedure "{{name}}"?', { name: item.name });
 
     const ok = window.confirm(confirmText);
     if (!ok) return;
@@ -118,8 +126,8 @@ export default function ProceduresListPage() {
 
       setActionSuccess(
         nextStatus === 1
-          ? "Procedure activated successfully."
-          : "Procedure deactivated successfully.",
+          ? t("Procedure activated successfully.")
+          : t("Procedure deactivated successfully."),
       );
 
       await loadProcedures();
@@ -127,12 +135,12 @@ export default function ProceduresListPage() {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setActionError(firstError || "Failed to update procedure.");
+        setActionError(firstError || t("Failed to update procedure."));
       } else {
         setActionError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to update procedure.",
+            t("Failed to update procedure."),
         );
       }
     } finally {
@@ -147,155 +155,203 @@ export default function ProceduresListPage() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Procedures</h3>
-          <p className="text-muted mb-0">
-            Manage clinic procedures, default prices, and active status
+    <div className="procedures-list-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Procedures")}</h1>
+          <p className="page-subtitle">
+            {t("Manage clinic procedures, default prices, and active status")}
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <Link
             to="/admin/erp/procedures/create"
             className="btn btn-outline-primary"
           >
-            Add Procedure
+            <i className="fas fa-plus-circle me-2"></i>
+            {t("Add Procedure")}
           </Link>
 
           <button className="btn btn-primary" onClick={loadProcedures}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
-      {error ? (
-        <div className="alert alert-danger d-flex justify-content-between align-items-center">
-          <span>{error}</span>
+      {/* Alerts */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
           <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={loadProcedures}
-          >
-            Retry
-          </button>
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
         </div>
-      ) : null}
+      )}
 
-      {actionError ? (
-        <div className="alert alert-danger">{actionError}</div>
-      ) : null}
+      {actionError && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-triangle me-2"></i>
+          {actionError}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setActionError("")}
+          ></button>
+        </div>
+      )}
 
-      {actionSuccess ? (
-        <div className="alert alert-success">{actionSuccess}</div>
-      ) : null}
+      {actionSuccess && (
+        <div className="alert alert-success alert-dismissible fade show">
+          <i className="fas fa-check-circle me-2"></i>
+          {actionSuccess}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setActionSuccess("")}
+          ></button>
+        </div>
+      )}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
-          <div className="row g-3 align-items-end">
-            <div className="col-12 col-lg-5">
-              <label className="form-label fw-semibold">Search</label>
+      {/* Filters Card */}
+      <div className="filters-card">
+        <div className="filters-card-header">
+          <i className="fas fa-filter me-2"></i>
+          <h5 className="mb-0">{t("Filters")}</h5>
+        </div>
+        <div className="filters-card-body">
+          <div className="filters-grid">
+            <div className="filter-group">
+              <label className="filter-label">
+                <i className="fas fa-search me-1"></i>
+                {t("Search")}
+              </label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="ID, procedure name, default price..."
+                placeholder={t("ID, procedure name, default price...")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
 
-            <div className="col-12 col-lg-3">
-              <label className="form-label fw-semibold">Status</label>
+            <div className="filter-group">
+              <label className="filter-label">
+                <i className="fas fa-tag me-1"></i>
+                {t("Status")}
+              </label>
               <select
                 className="form-select"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
-                <option value="">All Statuses</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="">{t("All Statuses")}</option>
+                <option value="active">{t("Active")}</option>
+                <option value="inactive">{t("Inactive")}</option>
               </select>
             </div>
 
-            <div className="col-12 col-lg-2">
-              <label className="form-label fw-semibold">Total Loaded</label>
-              <div className="form-control bg-light">
-                {meta?.total ?? rows.length}
-              </div>
+            <div className="filter-group">
+              <label className="filter-label">
+                <i className="fas fa-database me-1"></i>
+                {t("Total Loaded")}
+              </label>
+              <div className="filter-badge">{meta?.total ?? rows.length}</div>
             </div>
 
-            <div className="col-12 col-lg-2">
-              <label className="form-label fw-semibold">Filtered</label>
-              <div className="form-control bg-light">{filteredRows.length}</div>
+            <div className="filter-group">
+              <label className="filter-label">
+                <i className="fas fa-eye me-1"></i>
+                {t("Filtered")}
+              </label>
+              <div className="filter-badge">{filteredRows.length}</div>
             </div>
 
-            <div className="col-12 d-flex gap-2">
+            <div className="filter-actions">
               <button
                 type="button"
                 className="btn btn-outline-secondary"
                 onClick={clearFilters}
               >
-                Clear Filters
+                <i className="fas fa-eraser me-2"></i>
+                {t("Clear Filters")}
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Procedures List</h5>
+      {/* Procedures Table */}
+      <div className="procedures-card">
+        <div className="procedures-card-header">
+          <i className="fas fa-list me-2"></i>
+          <h5 className="mb-0">{t("Procedures List")}</h5>
+          <span className="procedure-count">
+            {filteredRows.length} {t("procedures")}
+          </span>
         </div>
 
-        <div className="card-body p-0">
+        <div className="procedures-card-body">
           {filteredRows.length === 0 ? (
-            <div className="p-4 text-muted">No procedures found.</div>
+            <div className="empty-state">
+              <i className="fas fa-stethoscope empty-icon"></i>
+              <p className="empty-text">{t("No procedures found.")}</p>
+            </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light">
+              <table className="procedures-table">
+                <thead>
                   <tr>
-                    <th style={{ minWidth: 90 }}>ID</th>
-                    <th style={{ minWidth: 240 }}>Procedure</th>
-                    <th style={{ minWidth: 150 }}>Default Price</th>
-                    <th style={{ minWidth: 140 }}>Status</th>
-                    <th style={{ minWidth: 160 }}>Created</th>
-                    <th style={{ minWidth: 220 }}>Actions</th>
+                    <th>{t("ID")}</th>
+                    <th>{t("Procedure")}</th>
+                    <th>{t("Default Price")}</th>
+                    <th>{t("Status")}</th>
+                    <th>{t("Created")}</th>
+                    <th>{t("Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredRows.map((item) => (
                     <tr key={item.id}>
-                      <td>
-                        <span className="fw-semibold">#{item.id}</span>
+                      <td data-label={t("ID")}>
+                        <span className="procedure-id">#{item.id}</span>
                       </td>
-
-                      <td>
-                        <div className="fw-semibold">{item.name || "-"}</div>
+                      <td data-label={t("Procedure")}>
+                        <div className="procedure-name">{item.name || "-"}</div>
                       </td>
-
-                      <td>{money(item.default_price)}</td>
-
-                      <td>
-                        <ProcedureActiveBadge isActive={item.is_active} />
+                      <td
+                        data-label={t("Default Price")}
+                        className="price-cell"
+                      >
+                        {formatCurrency(item.default_price)}
                       </td>
-
-                      <td>{formatDate(item.created_at)}</td>
-
-                      <td>
-                        <div className="d-flex flex-wrap gap-2">
+                      <td data-label={t("Status")}>
+                        <ProcedureActiveBadge isActive={item.is_active} t={t} />
+                      </td>
+                      <td data-label={t("Created")}>
+                        {formatDate(item.created_at)}
+                      </td>
+                      <td data-label={t("Actions")}>
+                        <div className="action-buttons">
                           <Link
                             to={`/admin/erp/procedures/${item.id}/edit`}
                             className="btn btn-sm btn-outline-primary"
+                            title={t("Edit Procedure")}
                           >
-                            Edit
+                            <i className="fas fa-edit"></i>
+                            <span>{t("Edit")}</span>
                           </Link>
 
                           <button
@@ -308,13 +364,36 @@ export default function ProceduresListPage() {
                             }`}
                             onClick={() => toggleProcedureStatus(item)}
                             disabled={actingId === item.id}
+                            title={
+                              Number(item.is_active) === 1 ||
+                              item.is_active === true
+                                ? t("Deactivate")
+                                : t("Activate")
+                            }
                           >
-                            {actingId === item.id
-                              ? "Saving..."
-                              : Number(item.is_active) === 1 ||
+                            {actingId === item.id ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm me-1"></span>
+                                {t("Saving...")}
+                              </>
+                            ) : (
+                              <>
+                                <i
+                                  className={`fas ${
+                                    Number(item.is_active) === 1 ||
+                                    item.is_active === true
+                                      ? "fa-ban"
+                                      : "fa-check-circle"
+                                  } me-1`}
+                                ></i>
+                                <span>
+                                  {Number(item.is_active) === 1 ||
                                   item.is_active === true
-                                ? "Deactivate"
-                                : "Activate"}
+                                    ? t("Deactivate")
+                                    : t("Activate")}
+                                </span>
+                              </>
+                            )}
                           </button>
                         </div>
                       </td>
@@ -330,12 +409,18 @@ export default function ProceduresListPage() {
   );
 }
 
-function ProcedureActiveBadge({ isActive }) {
+// ProcedureActiveBadge Component
+function ProcedureActiveBadge({ isActive, t }) {
   const active = Number(isActive) === 1 || isActive === true;
 
   return (
-    <span className={`badge ${active ? "bg-success" : "bg-secondary"}`}>
-      {active ? "Active" : "Inactive"}
+    <span
+      className={`status-badge ${active ? "status-active" : "status-inactive"}`}
+    >
+      <i
+        className={`fas fa-${active ? "check-circle" : "times-circle"} me-1`}
+      ></i>
+      {active ? t("Active") : t("Inactive")}
     </span>
   );
 }

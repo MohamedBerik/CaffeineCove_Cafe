@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./TreatmentPlansListPage.css";
 
 export default function TreatmentPlansListPage() {
+  const { t, i18n } = useTranslation();
   const [rows, setRows] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,11 +34,21 @@ export default function TreatmentPlansListPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load treatment plans.",
+          t("Failed to load treatment plans."),
       );
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatCurrency = (value) => {
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return new Intl.NumberFormat(lang, {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
   };
 
   const filteredRows = useMemo(() => {
@@ -59,12 +72,6 @@ export default function TreatmentPlansListPage() {
     });
   }, [rows, search]);
 
-  const money = (value) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(Number(value || 0));
-
   if (loading) {
     return (
       <div
@@ -72,137 +79,194 @@ export default function TreatmentPlansListPage() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Treatment Plans</h3>
-          <p className="text-muted mb-0">
-            View treatment plans, balances, progress, and linked patient data
+    <div className="treatment-plans-page">
+      {/* Header Section */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Treatment Plans")}</h1>
+          <p className="page-subtitle">
+            {t(
+              "View treatment plans, balances, progress, and linked patient data",
+            )}
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <Link
             to="/admin/erp/treatment-plans/create"
             className="btn btn-outline-primary"
           >
-            Create Treatment Plan
+            <i className="fas fa-plus-circle me-2"></i>
+            {t("Create Treatment Plan")}
           </Link>
 
           <button className="btn btn-primary" onClick={loadPlans}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
-      {error ? (
-        <div className="alert alert-danger d-flex justify-content-between align-items-center">
-          <span>{error}</span>
-          <button className="btn btn-sm btn-outline-danger" onClick={loadPlans}>
-            Retry
-          </button>
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
         </div>
-      ) : null}
+      )}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
-          <div className="row g-3 align-items-center">
-            <div className="col-12 col-lg-8">
-              <label className="form-label fw-semibold">Search</label>
+      {/* Search Card */}
+      <div className="search-card">
+        <div className="search-card-header">
+          <i className="fas fa-search me-2"></i>
+          <h5 className="mb-0">{t("Search Plans")}</h5>
+        </div>
+        <div className="search-card-body">
+          <div className="search-grid">
+            <div className="search-group">
+              <label className="search-label">
+                <i className="fas fa-filter me-1"></i>
+                {t("Search")}
+              </label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="Search by title, patient, email, status, or notes..."
+                placeholder={t(
+                  "Search by title, patient, email, status, or notes...",
+                )}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
 
-            <div className="col-12 col-lg-4">
-              <label className="form-label fw-semibold">Total Loaded</label>
-              <div className="form-control bg-light">
-                {meta?.total ?? rows.length}
-              </div>
+            <div className="search-group">
+              <label className="search-label">
+                <i className="fas fa-database me-1"></i>
+                {t("Total Plans")}
+              </label>
+              <div className="total-badge">{meta?.total ?? rows.length}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Treatment Plans List</h5>
+      {/* Plans Table Card */}
+      <div className="plans-card">
+        <div className="plans-card-header">
+          <i className="fas fa-notes-medical me-2"></i>
+          <h5 className="mb-0">{t("Treatment Plans List")}</h5>
+          <span className="plan-count">
+            {filteredRows.length} {t("plans")}
+          </span>
         </div>
 
-        <div className="card-body p-0">
+        <div className="plans-card-body">
           {filteredRows.length === 0 ? (
-            <div className="p-4 text-muted">No treatment plans found.</div>
+            <div className="empty-state">
+              <i className="fas fa-folder-open empty-icon"></i>
+              <p className="empty-text">{t("No treatment plans found.")}</p>
+            </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light">
+              <table className="plans-table">
+                <thead>
                   <tr>
-                    <th style={{ minWidth: 240 }}>Title</th>
-                    <th style={{ minWidth: 220 }}>Patient</th>
-                    <th style={{ minWidth: 130 }}>Total Cost</th>
-                    <th style={{ minWidth: 130 }}>Total Paid</th>
-                    <th style={{ minWidth: 130 }}>Net Paid</th>
-                    <th style={{ minWidth: 130 }}>Remaining</th>
-                    <th style={{ minWidth: 120 }}>Status</th>
-                    <th style={{ minWidth: 180 }}>Actions</th>
+                    <th>{t("Title")}</th>
+                    <th>{t("Patient")}</th>
+                    <th>{t("Total Cost")}</th>
+                    <th>{t("Total Paid")}</th>
+                    <th>{t("Net Paid")}</th>
+                    <th>{t("Remaining")}</th>
+                    <th>{t("Status")}</th>
+                    <th>{t("Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredRows.map((plan) => (
                     <tr key={plan.id}>
-                      <td>
-                        <div className="fw-semibold">{plan.title || "-"}</div>
-                        <div className="small text-muted">
-                          {plan.notes || "-"}
+                      <td data-label={t("Title")}>
+                        <div className="plan-title">{plan.title || "-"}</div>
+                        {plan.notes && (
+                          <div className="plan-notes">{plan.notes}</div>
+                        )}
+                      </td>
+
+                      <td data-label={t("Patient")}>
+                        <div className="patient-info">
+                          <div className="patient-name">
+                            {plan.customer?.name || "-"}
+                          </div>
+                          {plan.customer?.email && (
+                            <div className="patient-email">
+                              {plan.customer?.email}
+                            </div>
+                          )}
                         </div>
                       </td>
 
-                      <td>
-                        <div className="fw-semibold">
-                          {plan.customer?.name || "-"}
-                        </div>
-                        <div className="small text-muted">
-                          {plan.customer?.email || "-"}
-                        </div>
+                      <td data-label={t("Total Cost")} className="amount-cell">
+                        <span className="amount-value">
+                          {formatCurrency(plan.total_cost)}
+                        </span>
                       </td>
 
-                      <td>{money(plan.total_cost)}</td>
-                      <td>{money(plan.total_paid)}</td>
-                      <td>{money(plan.net_paid)}</td>
-                      <td>{money(plan.remaining)}</td>
-
-                      <td>
-                        <StatusBadge status={plan.status} />
+                      <td data-label={t("Total Paid")} className="amount-cell">
+                        <span className="amount-value">
+                          {formatCurrency(plan.total_paid)}
+                        </span>
                       </td>
 
-                      <td>
-                        <div className="d-flex flex-wrap gap-2">
+                      <td data-label={t("Net Paid")} className="amount-cell">
+                        <span className="amount-value net-paid">
+                          {formatCurrency(plan.net_paid)}
+                        </span>
+                      </td>
+
+                      <td data-label={t("Remaining")} className="amount-cell">
+                        <span
+                          className={`amount-value ${Number(plan.remaining) > 0 ? "remaining" : "paid"}`}
+                        >
+                          {formatCurrency(plan.remaining)}
+                        </span>
+                      </td>
+
+                      <td data-label={t("Status")}>
+                        <StatusBadge status={plan.status} t={t} />
+                      </td>
+
+                      <td data-label={t("Actions")}>
+                        <div className="action-buttons">
                           <Link
                             to={`/admin/erp/treatment-plans/${plan.id}`}
                             className="btn btn-sm btn-outline-primary"
+                            title={t("View Plan")}
                           >
-                            View
+                            <i className="fas fa-eye"></i>
+                            <span>{t("View")}</span>
                           </Link>
 
-                          {plan.customer?.id ? (
+                          {plan.customer?.id && (
                             <Link
                               to={`/admin/erp/patients/${plan.customer.id}/profile`}
                               className="btn btn-sm btn-outline-secondary"
+                              title={t("View Patient")}
                             >
-                              Patient
+                              <i className="fas fa-user"></i>
+                              <span>{t("Patient")}</span>
                             </Link>
-                          ) : null}
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -217,14 +281,22 @@ export default function TreatmentPlansListPage() {
   );
 }
 
-function StatusBadge({ status }) {
+// StatusBadge Component
+function StatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
+  let variant = "secondary";
+  let label = status || "-";
 
-  let cls = "secondary";
+  if (value === "completed") {
+    variant = "success";
+    label = t("Completed");
+  } else if (value === "cancelled") {
+    variant = "danger";
+    label = t("Cancelled");
+  } else if (value === "active") {
+    variant = "warning";
+    label = t("Active");
+  }
 
-  if (["completed"].includes(value)) cls = "success";
-  else if (["cancelled"].includes(value)) cls = "danger";
-  else if (["active"].includes(value)) cls = "warning";
-
-  return <span className={`badge bg-${cls}`}>{status}</span>;
+  return <span className={`status-badge status-${variant}`}>{label}</span>;
 }

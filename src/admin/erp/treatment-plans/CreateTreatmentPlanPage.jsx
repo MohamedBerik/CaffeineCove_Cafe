@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./CreateTreatmentPlanPage";
 
 export default function CreateTreatmentPlanPage() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -41,7 +44,7 @@ export default function CreateTreatmentPlanPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load patients.",
+          t("Failed to load patients."),
       );
     } finally {
       setLoadingRefs(false);
@@ -77,7 +80,7 @@ export default function CreateTreatmentPlanPage() {
       const res = await axios.post("/erp/treatment-plans", payload);
       const created = res.data?.data;
 
-      setSuccess("Treatment plan created successfully.");
+      setSuccess(t("Treatment plan created successfully."));
 
       if (created?.id) {
         navigate(`/admin/erp/treatment-plans/${created.id}`);
@@ -86,12 +89,12 @@ export default function CreateTreatmentPlanPage() {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setError(firstError || "Failed to create treatment plan.");
+        setError(firstError || t("Failed to create treatment plan."));
       } else {
         setError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to create treatment plan.",
+            t("Failed to create treatment plan."),
         );
       }
     } finally {
@@ -106,119 +109,184 @@ export default function CreateTreatmentPlanPage() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Create Treatment Plan</h3>
-          <p className="text-muted mb-0">
-            Create a new treatment plan for a patient
+    <div className="create-treatment-plan-page">
+      {/* Header Section */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Create Treatment Plan")}</h1>
+          <p className="page-subtitle">
+            {t("Create a new treatment plan for a patient")}
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <Link
             to="/admin/erp/treatment-plans"
             className="btn btn-outline-secondary"
           >
-            Back to Plans
+            <i className="fas fa-arrow-left me-2"></i>
+            {t("Back to Plans")}
           </Link>
         </div>
       </div>
 
-      {error ? <div className="alert alert-danger">{error}</div> : null}
-      {success ? <div className="alert alert-success">{success}</div> : null}
+      {/* Alerts */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
+        </div>
+      )}
 
-      <div className="card shadow-sm border-0">
-        <div className="card-body">
-          <form className="row g-3" onSubmit={submit}>
-            <div className="col-12 col-md-6">
-              <label className="form-label fw-semibold">Patient</label>
-              <select
-                className="form-select"
-                name="customer_id"
-                value={form.customer_id}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select patient</option>
-                {patients.map((patient) => (
-                  <option key={patient.id} value={patient.id}>
-                    {patient.name}
-                    {patient.patient_code ? ` (${patient.patient_code})` : ""}
-                  </option>
-                ))}
-              </select>
+      {success && (
+        <div className="alert alert-success alert-dismissible fade show">
+          <i className="fas fa-check-circle me-2"></i>
+          {success}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setSuccess("")}
+          ></button>
+        </div>
+      )}
+
+      {/* Form Card */}
+      <div className="form-card">
+        <div className="form-card-header">
+          <i className="fas fa-notes-medical me-2"></i>
+          <h5 className="mb-0">{t("Treatment Plan Details")}</h5>
+        </div>
+
+        <div className="form-card-body">
+          <form onSubmit={submit}>
+            <div className="form-grid">
+              {/* Patient Selection */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-user me-2"></i>
+                  {t("Patient")}
+                  <span className="required-star">*</span>
+                </label>
+                <select
+                  className="form-select"
+                  name="customer_id"
+                  value={form.customer_id}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">{t("Select patient")}</option>
+                  {patients.map((patient) => (
+                    <option key={patient.id} value={patient.id}>
+                      {patient.name}
+                      {patient.patient_code ? ` (${patient.patient_code})` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Title */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-heading me-2"></i>
+                  {t("Title")}
+                  <span className="required-star">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="title"
+                  value={form.title}
+                  onChange={handleChange}
+                  placeholder={t("e.g. Ahmed Dental Plan")}
+                  required
+                />
+              </div>
+
+              {/* Notes */}
+              <div className="form-group full-width">
+                <label className="form-label">
+                  <i className="fas fa-pencil-alt me-2"></i>
+                  {t("Notes")}
+                </label>
+                <textarea
+                  className="form-control"
+                  rows="4"
+                  name="notes"
+                  value={form.notes}
+                  onChange={handleChange}
+                  placeholder={t("Optional notes...")}
+                />
+              </div>
             </div>
 
-            <div className="col-12 col-md-6">
-              <label className="form-label fw-semibold">Title</label>
-              <input
-                type="text"
-                className="form-control"
-                name="title"
-                value={form.title}
-                onChange={handleChange}
-                placeholder="e.g. Ahmed Dental Plan"
-                required
-              />
-            </div>
-
-            <div className="col-12">
-              <label className="form-label fw-semibold">Notes</label>
-              <textarea
-                className="form-control"
-                rows="4"
-                name="notes"
-                value={form.notes}
-                onChange={handleChange}
-                placeholder="Optional notes..."
-              />
-            </div>
-
-            <div className="col-12">
-              <div className="alert alert-light border mb-0">
-                <div className="fw-semibold">Plan Cost</div>
-                <div className="small text-muted">
-                  Total cost will be calculated automatically after adding plan
-                  items.
+            {/* Info Alert */}
+            <div className="info-alert">
+              <i className="fas fa-info-circle me-2"></i>
+              <div>
+                <div className="info-title">{t("Plan Cost")}</div>
+                <div className="info-text">
+                  {t(
+                    "Total cost will be calculated automatically after adding plan items.",
+                  )}
                 </div>
               </div>
             </div>
 
-            {selectedPatient ? (
-              <div className="col-12">
-                <div className="alert alert-light border mb-0">
-                  <div className="fw-semibold">Selected Patient</div>
-                  <div>{selectedPatient.name}</div>
-                  <div className="small text-muted">
+            {/* Selected Patient Summary */}
+            {selectedPatient && (
+              <div className="patient-summary">
+                <div className="summary-header">
+                  <i className="fas fa-user-circle me-2"></i>
+                  <span className="fw-semibold">{t("Selected Patient")}</span>
+                </div>
+                <div className="summary-content">
+                  <div className="patient-name">{selectedPatient.name}</div>
+                  <div className="patient-contact">
                     {selectedPatient.email || "-"} |{" "}
                     {selectedPatient.phone || "-"}
                   </div>
                 </div>
               </div>
-            ) : null}
+            )}
 
-            <div className="col-12 d-flex gap-2">
+            {/* Form Actions */}
+            <div className="form-actions">
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="btn btn-primary btn-lg"
                 disabled={saving}
               >
-                {saving ? "Saving..." : "Create Treatment Plan"}
+                {saving ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2"></span>
+                    {t("Saving...")}
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-save me-2"></i>
+                    {t("Create Treatment Plan")}
+                  </>
+                )}
               </button>
 
               <Link
                 to="/admin/erp/treatment-plans"
-                className="btn btn-outline-secondary"
+                className="btn btn-outline-secondary btn-lg"
               >
-                Cancel
+                <i className="fas fa-times me-2"></i>
+                {t("Cancel")}
               </Link>
             </div>
           </form>

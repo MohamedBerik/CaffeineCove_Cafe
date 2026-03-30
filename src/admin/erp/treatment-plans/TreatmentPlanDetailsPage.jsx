@@ -1,21 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
 
 const SURFACE_OPTIONS = [
-  { value: "", label: "Select surface" },
-  { value: "occlusal", label: "Occlusal" },
-  { value: "incisal", label: "Incisal" },
-  { value: "mesial", label: "Mesial" },
-  { value: "distal", label: "Distal" },
-  { value: "buccal", label: "Buccal" },
-  { value: "facial", label: "Facial" },
-  { value: "lingual", label: "Lingual" },
-  { value: "palatal", label: "Palatal" },
-  { value: "general", label: "General" },
+  { value: "", labelKey: "Select surface" },
+  { value: "occlusal", labelKey: "Occlusal" },
+  { value: "incisal", labelKey: "Incisal" },
+  { value: "mesial", labelKey: "Mesial" },
+  { value: "distal", labelKey: "Distal" },
+  { value: "buccal", labelKey: "Buccal" },
+  { value: "facial", labelKey: "Facial" },
+  { value: "lingual", labelKey: "Lingual" },
+  { value: "palatal", labelKey: "Palatal" },
+  { value: "general", labelKey: "General" },
 ];
 
 export default function TreatmentPlanDetailsPage() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
 
   const [plan, setPlan] = useState(null);
@@ -59,6 +61,30 @@ export default function TreatmentPlanDetailsPage() {
   useEffect(() => {
     loadAll();
   }, [id]);
+
+  const formatCurrency = (value) => {
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return new Intl.NumberFormat(lang, {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+  };
+
+  const formatDate = (value) => {
+    if (!value) return "-";
+    try {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleDateString(lang, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    } catch {
+      return value;
+    }
+  };
 
   const loadAll = async (options = {}) => {
     const { keepMessages = false } = options;
@@ -108,7 +134,7 @@ export default function TreatmentPlanDetailsPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load treatment plan details.",
+          t("Failed to load treatment plan details."),
       );
     } finally {
       setLoading(false);
@@ -164,7 +190,7 @@ export default function TreatmentPlanDetailsPage() {
 
       await axios.post(`/erp/treatment-plans/${id}/items`, payload);
 
-      setItemSuccess("Item added successfully.");
+      setItemSuccess(t("Item added successfully."));
 
       setItemForm({
         procedure_id: "",
@@ -180,12 +206,12 @@ export default function TreatmentPlanDetailsPage() {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setItemError(firstError || "Failed to add item.");
+        setItemError(firstError || t("Failed to add item."));
       } else {
         setItemError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to add item.",
+            t("Failed to add item."),
         );
       }
     } finally {
@@ -194,7 +220,7 @@ export default function TreatmentPlanDetailsPage() {
   };
 
   const deleteItem = async (itemId) => {
-    const confirmed = window.confirm("Delete this item?");
+    const confirmed = window.confirm(t("Delete this item?"));
     if (!confirmed) return;
 
     try {
@@ -204,13 +230,13 @@ export default function TreatmentPlanDetailsPage() {
 
       await axios.delete(`/erp/treatment-plan-items/${itemId}`);
 
-      setItemSuccess("Item deleted successfully.");
+      setItemSuccess(t("Item deleted successfully."));
       await loadAll({ keepMessages: true });
     } catch (err) {
       setItemError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to delete item.",
+          t("Failed to delete item."),
       );
     } finally {
       setDeletingItemId(null);
@@ -257,7 +283,7 @@ export default function TreatmentPlanDetailsPage() {
       }));
 
       if (!startForm.doctor_id || !startForm.appointment_date) {
-        setSlotError("Please select doctor and date first.");
+        setSlotError(t("Please select doctor and date first."));
         return;
       }
 
@@ -278,7 +304,7 @@ export default function TreatmentPlanDetailsPage() {
       setSlotError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load available slots.",
+          t("Failed to load available slots."),
       );
     } finally {
       setLoadingSlots(false);
@@ -304,19 +330,19 @@ export default function TreatmentPlanDetailsPage() {
 
       await axios.post(`/erp/treatment-plan-items/${itemId}/start`, payload);
 
-      setItemSuccess("Procedure started successfully.");
+      setItemSuccess(t("Procedure started successfully."));
       closeStartForm();
       await loadAll({ keepMessages: true });
     } catch (err) {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setItemError(firstError || "Failed to start procedure.");
+        setItemError(firstError || t("Failed to start procedure."));
       } else {
         setItemError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to start procedure.",
+            t("Failed to start procedure."),
         );
       }
     } finally {
@@ -372,20 +398,24 @@ export default function TreatmentPlanDetailsPage() {
 
   const getStatusLabel = (item) => {
     const status = getUiProcedureStatus(item);
-
-    if (status === "completed") return "Completed";
-    if (status === "in_progress") return "In Progress";
-    if (status === "cancelled") return "Cancelled";
-    return "Not Started";
+    const statusMap = {
+      completed: t("Completed"),
+      in_progress: t("In Progress"),
+      cancelled: t("Cancelled"),
+      not_started: t("Not Started"),
+    };
+    return statusMap[status] || t("Not Started");
   };
 
   const getStatusClass = (item) => {
     const status = getUiProcedureStatus(item);
-
-    if (status === "completed") return "success";
-    if (status === "in_progress") return "info";
-    if (status === "cancelled") return "danger";
-    return "warning";
+    const classMap = {
+      completed: "success",
+      in_progress: "info",
+      cancelled: "danger",
+      not_started: "warning",
+    };
+    return classMap[status] || "secondary";
   };
 
   const canStartProcedure = (item) => {
@@ -404,7 +434,7 @@ export default function TreatmentPlanDetailsPage() {
 
   const getStartButtonLabel = (item) => {
     const completed = getCompletedSessions(item);
-    return completed > 0 ? "Next Session" : "Start Procedure";
+    return completed > 0 ? t("Next Session") : t("Start Procedure");
   };
 
   const totalPlanned = items.reduce(
@@ -420,25 +450,6 @@ export default function TreatmentPlanDetailsPage() {
   const totalProgress =
     totalPlanned > 0 ? Math.round((totalCompleted / totalPlanned) * 100) : 0;
 
-  const money = (value) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(Number(value || 0));
-
-  const formatDate = (value) => {
-    if (!value) return "-";
-    try {
-      return new Date(value).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-      });
-    } catch {
-      return value;
-    }
-  };
-
   if (loading) {
     return (
       <div
@@ -446,7 +457,7 @@ export default function TreatmentPlanDetailsPage() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
@@ -457,7 +468,7 @@ export default function TreatmentPlanDetailsPage() {
       <div className="alert alert-danger d-flex justify-content-between align-items-center">
         <span>{error}</span>
         <button className="btn btn-sm btn-outline-danger" onClick={loadAll}>
-          Retry
+          {t("Retry")}
         </button>
       </div>
     );
@@ -471,138 +482,165 @@ export default function TreatmentPlanDetailsPage() {
   const credit = cashSummary?.customer_credit_balance || {};
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Treatment Plan Details</h3>
-          <p className="text-muted mb-0">
-            Review plan items, progress, invoices, and cash flow
+    <div className="treatment-plan-details-page">
+      {/* Header Section */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Treatment Plan Details")}</h1>
+          <p className="page-subtitle">
+            {t("Review plan items, progress, invoices, and cash flow")}
           </p>
         </div>
 
-        <div className="d-flex flex-wrap gap-2">
+        <div className="header-actions">
           <Link
             to="/admin/erp/treatment-plans"
             className="btn btn-outline-secondary"
           >
-            Back to Plans
+            <i className="fas fa-arrow-left me-2"></i>
+            {t("Back to Plans")}
           </Link>
 
-          {customer.id ? (
+          {customer.id && (
             <Link
               to={`/admin/erp/patients/${customer.id}/profile`}
               className="btn btn-outline-primary"
             >
-              Patient Profile
+              <i className="fas fa-user me-2"></i>
+              {t("Patient Profile")}
             </Link>
-          ) : null}
+          )}
 
           <button className="btn btn-primary" onClick={loadAll}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
-          <div className="row g-3">
-            <InfoItem label="Title" value={planData.title} />
-            <InfoItem label="Patient" value={customer.name} />
-            <InfoItem label="Email" value={customer.email} />
+      {/* Plan Info Card */}
+      <div className="info-card">
+        <div className="info-card-header">
+          <i className="fas fa-info-circle me-2"></i>
+          <h5 className="mb-0">{t("Plan Information")}</h5>
+        </div>
+        <div className="info-card-body">
+          <div className="details-grid">
+            <InfoItem label={t("Title")} value={planData.title} />
+            <InfoItem label={t("Patient")} value={customer.name} />
+            <InfoItem label={t("Email")} value={customer.email} />
             <InfoItem
-              label="Status"
-              value={<StatusBadge status={planData.status} />}
+              label={t("Status")}
+              value={<StatusBadge status={planData.status} t={t} />}
             />
-            <InfoItem label="Total Cost" value={money(planData.total_cost)} />
-            <InfoItem label="Created" value={formatDate(planData.created_at)} />
-            <div className="col-12">
-              <div className="small text-muted">Notes</div>
-              <div className="fw-semibold">{planData.notes || "-"}</div>
+            <InfoItem
+              label={t("Total Cost")}
+              value={formatCurrency(planData.total_cost)}
+            />
+            <InfoItem
+              label={t("Created")}
+              value={formatDate(planData.created_at)}
+            />
+            <div className="info-item full-width">
+              <div className="info-label">{t("Notes")}</div>
+              <div className="info-value">{planData.notes || "-"}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
-          <div className="d-flex justify-content-between mb-2">
-            <div className="fw-semibold">Treatment Progress</div>
-            <div>{totalProgress}%</div>
-          </div>
-
-          <div className="progress" style={{ height: "10px" }}>
-            <div
-              className="progress-bar"
-              style={{ width: `${totalProgress}%` }}
-            />
-          </div>
-
-          <div className="small text-muted mt-2">
-            {totalCompleted} / {totalPlanned} sessions completed
-          </div>
+      {/* Progress Card */}
+      <div className="progress-card">
+        <div className="progress-header">
+          <span className="progress-title">{t("Treatment Progress")}</span>
+          <span className="progress-percentage">{totalProgress}%</span>
+        </div>
+        <div className="progress-bar-container">
+          <div
+            className="progress-bar-fill"
+            style={{ width: `${totalProgress}%` }}
+          />
+        </div>
+        <div className="progress-stats">
+          {t("{{completed}} / {{planned}} sessions completed", {
+            completed: totalCompleted,
+            planned: totalPlanned,
+          })}
         </div>
       </div>
 
-      <div className="row g-3 mb-4">
+      {/* KPI Grid */}
+      <div className="kpi-grid">
         <KpiCard
-          title="Total Invoiced"
-          value={money(totals.total_invoiced)}
+          title={t("Total Invoiced")}
+          value={formatCurrency(totals.total_invoiced)}
           color="primary"
         />
         <KpiCard
-          title="Direct Paid"
-          value={money(totals.direct_paid)}
+          title={t("Direct Paid")}
+          value={formatCurrency(totals.direct_paid)}
           color="success"
         />
         <KpiCard
-          title="Credit Applied"
-          value={money(totals.credit_applied)}
+          title={t("Credit Applied")}
+          value={formatCurrency(totals.credit_applied)}
           color="secondary"
         />
         <KpiCard
-          title="Total Paid"
-          value={money(totals.total_paid)}
+          title={t("Total Paid")}
+          value={formatCurrency(totals.total_paid)}
           color="success"
         />
         <KpiCard
-          title="Total Refunded"
-          value={money(totals.total_refunded)}
+          title={t("Total Refunded")}
+          value={formatCurrency(totals.total_refunded)}
           color="danger"
         />
-        <KpiCard title="Net Paid" value={money(totals.net_paid)} color="info" />
         <KpiCard
-          title="Remaining"
-          value={money(totals.remaining_on_plan)}
+          title={t("Net Paid")}
+          value={formatCurrency(totals.net_paid)}
+          color="info"
+        />
+        <KpiCard
+          title={t("Remaining")}
+          value={formatCurrency(totals.remaining_on_plan)}
           color="warning"
         />
-        <KpiCard title="Cash In" value={money(cash.cash_in)} color="success" />
-        <KpiCard title="Net Cash" value={money(cash.net_cash)} color="dark" />
         <KpiCard
-          title="Customer Credit"
-          value={money(credit.net_credit)}
+          title={t("Cash In")}
+          value={formatCurrency(cash.cash_in)}
+          color="success"
+        />
+        <KpiCard
+          title={t("Net Cash")}
+          value={formatCurrency(cash.net_cash)}
+          color="dark"
+        />
+        <KpiCard
+          title={t("Customer Credit")}
+          value={formatCurrency(credit.net_credit)}
           color="secondary"
         />
       </div>
 
-      <div className="row g-4">
-        <div className="col-12">
-          <div className="card shadow-sm border-0">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Add Plan Item</h5>
-            </div>
+      <div className="two-columns">
+        {/* Add Item Form */}
+        <div className="add-item-card">
+          <div className="card-header-custom">
+            <i className="fas fa-plus-circle me-2"></i>
+            <h5 className="mb-0">{t("Add Plan Item")}</h5>
+          </div>
 
-            <div className="card-body">
-              {itemError ? (
-                <div className="alert alert-danger py-2">{itemError}</div>
-              ) : null}
+          <div className="card-body-custom">
+            {itemError && <div className="alert alert-danger">{itemError}</div>}
+            {itemSuccess && (
+              <div className="alert alert-success">{itemSuccess}</div>
+            )}
 
-              {itemSuccess ? (
-                <div className="alert alert-success py-2">{itemSuccess}</div>
-              ) : null}
-
-              <form className="row g-3" onSubmit={addItem}>
-                <div className="col-12 col-md-4">
-                  <label className="form-label fw-semibold">Procedure</label>
+            <form onSubmit={addItem}>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label">{t("Procedure")} *</label>
                   <select
                     className="form-select"
                     name="procedure_id"
@@ -610,32 +648,32 @@ export default function TreatmentPlanDetailsPage() {
                     onChange={handleItemChange}
                     required
                   >
-                    <option value="">Select procedure</option>
+                    <option value="">{t("Select procedure")}</option>
                     {procedures.map((procedure) => (
                       <option key={procedure.id} value={procedure.id}>
                         {procedure.name}
                         {procedure.default_price != null
-                          ? ` (${money(procedure.default_price)})`
+                          ? ` (${formatCurrency(procedure.default_price)})`
                           : ""}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                <div className="col-12 col-md-2">
-                  <label className="form-label fw-semibold">Tooth</label>
+                <div className="form-group">
+                  <label className="form-label">{t("Tooth")}</label>
                   <input
                     type="text"
                     className="form-control"
                     name="tooth_number"
                     value={itemForm.tooth_number}
                     onChange={handleItemChange}
-                    placeholder="16"
+                    placeholder={t("e.g., 16, 24, 36")}
                   />
                 </div>
 
-                <div className="col-12 col-md-2">
-                  <label className="form-label fw-semibold">Surface</label>
+                <div className="form-group">
+                  <label className="form-label">{t("Surface")}</label>
                   <select
                     className="form-select"
                     name="surface"
@@ -647,14 +685,14 @@ export default function TreatmentPlanDetailsPage() {
                         key={option.value || "empty"}
                         value={option.value}
                       >
-                        {option.label}
+                        {t(option.labelKey)}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                <div className="col-12 col-md-2">
-                  <label className="form-label fw-semibold">Price</label>
+                <div className="form-group">
+                  <label className="form-label">{t("Price")}</label>
                   <input
                     type="number"
                     step="0.01"
@@ -663,12 +701,12 @@ export default function TreatmentPlanDetailsPage() {
                     name="price"
                     value={itemForm.price}
                     onChange={handleItemChange}
-                    placeholder="Optional"
+                    placeholder={t("Optional")}
                   />
                 </div>
 
-                <div className="col-12 col-md-2">
-                  <label className="form-label fw-semibold">Sessions</label>
+                <div className="form-group">
+                  <label className="form-label">{t("Sessions")}</label>
                   <input
                     type="number"
                     min="1"
@@ -679,429 +717,486 @@ export default function TreatmentPlanDetailsPage() {
                   />
                 </div>
 
-                <div className="col-12 col-md-2 d-grid">
-                  <label className="form-label fw-semibold invisible">
-                    Add
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">{t("Add")}</label>
                   <button
                     type="submit"
-                    className="btn btn-primary"
+                    className="btn btn-primary w-100"
                     disabled={savingItem}
                   >
-                    {savingItem ? "Adding..." : "Add Item"}
+                    {savingItem ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2"></span>
+                        {t("Adding...")}
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-plus me-2"></i>
+                        {t("Add Item")}
+                      </>
+                    )}
                   </button>
                 </div>
 
-                <div className="col-12">
-                  <label className="form-label fw-semibold">Notes</label>
+                <div className="form-group full-width">
+                  <label className="form-label">{t("Notes")}</label>
                   <textarea
                     className="form-control"
                     rows="2"
                     name="notes"
                     value={itemForm.notes}
                     onChange={handleItemChange}
-                    placeholder="Optional notes..."
+                    placeholder={t("Optional notes...")}
                   />
                 </div>
-              </form>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
 
-        <div className="col-12 col-xl-7">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Plan Items</h5>
-            </div>
-            <div className="card-body p-0">
-              {items.length === 0 ? (
-                <div className="p-3 text-muted">No items found.</div>
-              ) : (
-                <div className="table-responsive">
-                  <table className="table table-hover mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th>Procedure</th>
-                        <th>Tooth</th>
-                        <th>Surface</th>
-                        <th>Price</th>
-                        <th>Sessions</th>
-                        <th>Remaining</th>
-                        <th style={{ minWidth: 180 }}>Progress</th>
-                        <th>Status</th>
-                        <th>Notes</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {items.map((item) => {
-                        const isStartOpen = openStartItemId === item.id;
+        {/* Plan Items Table */}
+        <div className="items-card">
+          <div className="card-header-custom">
+            <i className="fas fa-list-ul me-2"></i>
+            <h5 className="mb-0">{t("Plan Items")}</h5>
+            <span className="item-count">
+              {items.length} {t("items")}
+            </span>
+          </div>
 
-                        return (
-                          <FragmentRow
-                            key={item.id}
-                            row={
-                              <tr>
-                                <td>
-                                  <div className="fw-semibold">
-                                    {item.procedureRef?.name ||
-                                      item.procedure ||
-                                      "-"}
-                                  </div>
-                                </td>
+          <div className="card-body-custom">
+            {items.length === 0 ? (
+              <div className="empty-state">
+                <i className="fas fa-inbox empty-icon"></i>
+                <p className="empty-text">{t("No items found.")}</p>
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="items-table">
+                  <thead>
+                    <tr>
+                      <th>{t("Procedure")}</th>
+                      <th>{t("Tooth")}</th>
+                      <th>{t("Surface")}</th>
+                      <th>{t("Price")}</th>
+                      <th>{t("Sessions")}</th>
+                      <th>{t("Remaining")}</th>
+                      <th>{t("Progress")}</th>
+                      <th>{t("Status")}</th>
+                      <th>{t("Notes")}</th>
+                      <th>{t("Actions")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((item) => {
+                      const isStartOpen = openStartItemId === item.id;
 
-                                <td>{item.tooth_number || "-"}</td>
-                                <td>{item.surface || "-"}</td>
-                                <td>{money(item.price)}</td>
-
-                                <td>
-                                  <span className="fw-semibold">
-                                    {getCompletedSessions(item)}
-                                  </span>
-                                  /{getPlannedSessions(item)}
-                                </td>
-
-                                <td>{getRemainingSessions(item)}</td>
-
-                                <td style={{ minWidth: 180 }}>
-                                  <div className="d-flex justify-content-between small">
-                                    <span>{getProgress(item)}%</span>
-                                    <span>
-                                      {getCompletedSessions(item)} /{" "}
-                                      {getPlannedSessions(item)}
-                                    </span>
-                                  </div>
-
+                      return (
+                        <FragmentRow
+                          key={item.id}
+                          row={
+                            <tr>
+                              <td data-label={t("Procedure")}>
+                                <div className="procedure-name">
+                                  {item.procedureRef?.name ||
+                                    item.procedure ||
+                                    "-"}
+                                </div>
+                              </td>
+                              <td data-label={t("Tooth")}>
+                                {item.tooth_number || "-"}
+                              </td>
+                              <td data-label={t("Surface")}>
+                                {item.surface || "-"}
+                              </td>
+                              <td
+                                data-label={t("Price")}
+                                className="amount-cell"
+                              >
+                                {formatCurrency(item.price)}
+                              </td>
+                              <td data-label={t("Sessions")}>
+                                <span className="sessions-badge">
+                                  {getCompletedSessions(item)}/
+                                  {getPlannedSessions(item)}
+                                </span>
+                              </td>
+                              <td data-label={t("Remaining")}>
+                                {getRemainingSessions(item)}
+                              </td>
+                              <td data-label={t("Progress")}>
+                                <div className="progress-mini">
                                   <div
-                                    className="progress"
-                                    style={{ height: "6px" }}
-                                  >
-                                    <div
-                                      className="progress-bar"
-                                      style={{ width: `${getProgress(item)}%` }}
-                                    />
-                                  </div>
-                                </td>
-
-                                <td>
-                                  <span
-                                    className={`badge bg-${getStatusClass(item)}`}
-                                  >
-                                    {getStatusLabel(item)}
+                                    className="progress-mini-bar"
+                                    style={{ width: `${getProgress(item)}%` }}
+                                  />
+                                  <span className="progress-mini-text">
+                                    {getProgress(item)}%
                                   </span>
-                                </td>
-
-                                <td>{item.notes || "-"}</td>
-
-                                <td>
-                                  <div className="d-flex flex-wrap gap-2">
-                                    {canStartProcedure(item) ? (
-                                      <button
-                                        className="btn btn-sm btn-outline-success"
-                                        type="button"
-                                        onClick={() => openStartForm(item)}
-                                      >
-                                        {getStartButtonLabel(item)}
-                                      </button>
-                                    ) : null}
-
-                                    {canOpenAppointment(item) ? (
-                                      <Link
-                                        to={`/admin/erp/appointments/${item.appointment_id}/activity`}
-                                        className="btn btn-sm btn-outline-primary"
-                                      >
-                                        Open Appointment
-                                      </Link>
-                                    ) : null}
-
+                                </div>
+                              </td>
+                              <td data-label={t("Status")}>
+                                <span
+                                  className={`status-badge status-${getStatusClass(item)}`}
+                                >
+                                  {getStatusLabel(item)}
+                                </span>
+                              </td>
+                              <td
+                                data-label={t("Notes")}
+                                className="notes-cell"
+                              >
+                                {item.notes || "-"}
+                              </td>
+                              <td data-label={t("Actions")}>
+                                <div className="action-buttons">
+                                  {canStartProcedure(item) && (
                                     <button
-                                      className="btn btn-sm btn-outline-danger"
-                                      onClick={() => deleteItem(item.id)}
-                                      type="button"
-                                      disabled={deletingItemId === item.id}
+                                      className="btn btn-sm btn-outline-success"
+                                      onClick={() => openStartForm(item)}
+                                      title={getStartButtonLabel(item)}
                                     >
-                                      {deletingItemId === item.id
-                                        ? "Deleting..."
-                                        : "Delete"}
+                                      <i className="fas fa-play"></i>
+                                      <span>{getStartButtonLabel(item)}</span>
                                     </button>
+                                  )}
+
+                                  {canOpenAppointment(item) && (
+                                    <Link
+                                      to={`/admin/erp/appointments/${item.appointment_id}/activity`}
+                                      className="btn btn-sm btn-outline-primary"
+                                      title={t("Open Appointment")}
+                                    >
+                                      <i className="fas fa-calendar-alt"></i>
+                                      <span>{t("Appointment")}</span>
+                                    </Link>
+                                  )}
+
+                                  <button
+                                    className="btn btn-sm btn-outline-danger"
+                                    onClick={() => deleteItem(item.id)}
+                                    disabled={deletingItemId === item.id}
+                                    title={t("Delete")}
+                                  >
+                                    <i className="fas fa-trash"></i>
+                                    <span>{t("Delete")}</span>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          }
+                          extraRow={
+                            isStartOpen ? (
+                              <tr className="start-row">
+                                <td colSpan="10">
+                                  <div className="start-form">
+                                    <div className="start-form-header">
+                                      <i className="fas fa-calendar-plus me-2"></i>
+                                      <strong>
+                                        {getCompletedSessions(item) > 0
+                                          ? t("Start Next Session")
+                                          : t("Start Procedure")}
+                                      </strong>
+                                    </div>
+
+                                    <div className="start-form-info">
+                                      <i className="fas fa-info-circle me-2"></i>
+                                      {t(
+                                        "This will create a treatment appointment for this plan item. When that appointment is completed, one session will be billed and the completed sessions count will be increased.",
+                                      )}
+                                    </div>
+
+                                    <div className="start-form-grid">
+                                      <div className="start-field">
+                                        <label>{t("Doctor")}</label>
+                                        <select
+                                          className="form-select"
+                                          value={startForm.doctor_id}
+                                          onChange={(e) => {
+                                            setStartForm((prev) => ({
+                                              ...prev,
+                                              doctor_id: e.target.value,
+                                              appointment_time: "",
+                                            }));
+                                            setAvailableSlots([]);
+                                            setSlotError("");
+                                          }}
+                                        >
+                                          <option value="">
+                                            {t("Select doctor")}
+                                          </option>
+                                          {doctors.map((doctor) => (
+                                            <option
+                                              key={doctor.id}
+                                              value={doctor.id}
+                                            >
+                                              {doctor.name}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      </div>
+
+                                      <div className="start-field">
+                                        <label>{t("Date")}</label>
+                                        <input
+                                          type="date"
+                                          className="form-control"
+                                          value={startForm.appointment_date}
+                                          onChange={(e) => {
+                                            setStartForm((prev) => ({
+                                              ...prev,
+                                              appointment_date: e.target.value,
+                                              appointment_time: "",
+                                            }));
+                                            setAvailableSlots([]);
+                                            setSlotError("");
+                                          }}
+                                        />
+                                      </div>
+
+                                      <div className="start-field">
+                                        <label>{t("Available Slots")}</label>
+                                        <button
+                                          type="button"
+                                          className="btn btn-outline-primary w-100"
+                                          onClick={loadSlots}
+                                          disabled={
+                                            loadingSlots ||
+                                            !startForm.doctor_id ||
+                                            !startForm.appointment_date
+                                          }
+                                        >
+                                          {loadingSlots ? (
+                                            <>
+                                              <span className="spinner-border spinner-border-sm me-2"></span>
+                                              {t("Loading Slots...")}
+                                            </>
+                                          ) : (
+                                            <>
+                                              <i className="fas fa-sync-alt me-2"></i>
+                                              {t("Load Slots")}
+                                            </>
+                                          )}
+                                        </button>
+                                      </div>
+
+                                      <div className="start-field">
+                                        <label>{t("Time")}</label>
+                                        <select
+                                          className="form-select"
+                                          value={startForm.appointment_time}
+                                          onChange={(e) =>
+                                            setStartForm((prev) => ({
+                                              ...prev,
+                                              appointment_time: e.target.value,
+                                            }))
+                                          }
+                                        >
+                                          <option value="">
+                                            {t("Select slot")}
+                                          </option>
+                                          {normalizedSlots.map((slot, idx) => (
+                                            <option
+                                              key={`${slot.value}-${idx}`}
+                                              value={slot.value}
+                                            >
+                                              {slot.label}
+                                              {!slot.available &&
+                                                ` (${t("Unavailable")})`}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      </div>
+
+                                      {slotError && (
+                                        <div className="start-field full-width">
+                                          <div className="slot-error">
+                                            {slotError}
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      <div className="start-field full-width">
+                                        <label>{t("Notes")}</label>
+                                        <textarea
+                                          className="form-control"
+                                          rows="2"
+                                          value={startForm.notes}
+                                          onChange={(e) =>
+                                            setStartForm((prev) => ({
+                                              ...prev,
+                                              notes: e.target.value,
+                                            }))
+                                          }
+                                          placeholder={t("Optional notes...")}
+                                        />
+                                      </div>
+
+                                      <div className="start-actions">
+                                        <button
+                                          className="btn btn-success"
+                                          onClick={() =>
+                                            startProcedure(item.id)
+                                          }
+                                          disabled={
+                                            startingItemId === item.id ||
+                                            !startForm.appointment_time
+                                          }
+                                        >
+                                          {startingItemId === item.id ? (
+                                            <>
+                                              <span className="spinner-border spinner-border-sm me-2"></span>
+                                              {t("Starting...")}
+                                            </>
+                                          ) : (
+                                            <>
+                                              <i className="fas fa-check me-2"></i>
+                                              {t("Confirm Start")}
+                                            </>
+                                          )}
+                                        </button>
+
+                                        <button
+                                          className="btn btn-outline-secondary"
+                                          onClick={closeStartForm}
+                                          disabled={startingItemId === item.id}
+                                        >
+                                          <i className="fas fa-times me-2"></i>
+                                          {t("Close")}
+                                        </button>
+                                      </div>
+                                    </div>
                                   </div>
                                 </td>
                               </tr>
-                            }
-                            extraRow={
-                              isStartOpen ? (
-                                <tr>
-                                  <td colSpan="10" className="bg-light">
-                                    <div className="p-3">
-                                      <div className="fw-semibold mb-2">
-                                        {getCompletedSessions(item) > 0
-                                          ? "Start Next Session"
-                                          : "Start Procedure"}
-                                      </div>
-
-                                      <div className="alert alert-light border py-2 small">
-                                        This will create a treatment appointment
-                                        for this plan item. When that
-                                        appointment is completed, one session
-                                        will be billed and the completed
-                                        sessions count will be increased.
-                                      </div>
-
-                                      <div className="row g-3 align-items-end">
-                                        <div className="col-12 col-md-3">
-                                          <label className="form-label fw-semibold">
-                                            Doctor
-                                          </label>
-                                          <select
-                                            className="form-select"
-                                            value={startForm.doctor_id}
-                                            onChange={(e) => {
-                                              setStartForm((prev) => ({
-                                                ...prev,
-                                                doctor_id: e.target.value,
-                                                appointment_time: "",
-                                              }));
-                                              setAvailableSlots([]);
-                                              setSlotError("");
-                                            }}
-                                          >
-                                            <option value="">
-                                              Select doctor
-                                            </option>
-                                            {doctors.map((doctor) => (
-                                              <option
-                                                key={doctor.id}
-                                                value={doctor.id}
-                                              >
-                                                {doctor.name}
-                                              </option>
-                                            ))}
-                                          </select>
-                                        </div>
-
-                                        <div className="col-12 col-md-3">
-                                          <label className="form-label fw-semibold">
-                                            Date
-                                          </label>
-                                          <input
-                                            type="date"
-                                            className="form-control"
-                                            value={startForm.appointment_date}
-                                            onChange={(e) => {
-                                              setStartForm((prev) => ({
-                                                ...prev,
-                                                appointment_date:
-                                                  e.target.value,
-                                                appointment_time: "",
-                                              }));
-                                              setAvailableSlots([]);
-                                              setSlotError("");
-                                            }}
-                                          />
-                                        </div>
-
-                                        <div className="col-12 col-md-3">
-                                          <label className="form-label fw-semibold">
-                                            Available Slots
-                                          </label>
-                                          <div className="d-grid">
-                                            <button
-                                              type="button"
-                                              className="btn btn-outline-primary"
-                                              onClick={loadSlots}
-                                              disabled={loadingSlots}
-                                            >
-                                              {loadingSlots
-                                                ? "Loading Slots..."
-                                                : "Load Slots"}
-                                            </button>
-                                          </div>
-                                        </div>
-
-                                        <div className="col-12 col-md-3">
-                                          <label className="form-label fw-semibold">
-                                            Time
-                                          </label>
-                                          <select
-                                            className="form-select"
-                                            value={startForm.appointment_time}
-                                            onChange={(e) =>
-                                              setStartForm((prev) => ({
-                                                ...prev,
-                                                appointment_time:
-                                                  e.target.value,
-                                              }))
-                                            }
-                                          >
-                                            <option value="">
-                                              Select slot
-                                            </option>
-                                            {normalizedSlots.map(
-                                              (slot, index) => (
-                                                <option
-                                                  key={`${slot.value}-${index}`}
-                                                  value={slot.value}
-                                                  disabled={
-                                                    slot.available === false
-                                                  }
-                                                >
-                                                  {slot.label}
-                                                </option>
-                                              ),
-                                            )}
-                                          </select>
-                                        </div>
-
-                                        {slotError ? (
-                                          <div className="col-12">
-                                            <div className="alert alert-warning py-2 mb-0">
-                                              {slotError}
-                                            </div>
-                                          </div>
-                                        ) : null}
-
-                                        <div className="col-12 col-md-8">
-                                          <label className="form-label fw-semibold">
-                                            Notes
-                                          </label>
-                                          <textarea
-                                            className="form-control"
-                                            rows="2"
-                                            value={startForm.notes}
-                                            onChange={(e) =>
-                                              setStartForm((prev) => ({
-                                                ...prev,
-                                                notes: e.target.value,
-                                              }))
-                                            }
-                                          />
-                                        </div>
-
-                                        <div className="col-12 col-md-4 d-flex gap-2">
-                                          <button
-                                            type="button"
-                                            className="btn btn-success"
-                                            onClick={() =>
-                                              startProcedure(item.id)
-                                            }
-                                            disabled={
-                                              startingItemId === item.id ||
-                                              !startForm.appointment_time
-                                            }
-                                          >
-                                            {startingItemId === item.id
-                                              ? "Starting..."
-                                              : "Confirm Start"}
-                                          </button>
-
-                                          <button
-                                            type="button"
-                                            className="btn btn-outline-secondary"
-                                            onClick={closeStartForm}
-                                            disabled={
-                                              startingItemId === item.id
-                                            }
-                                          >
-                                            Close
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </td>
-                                </tr>
-                              ) : null
-                            }
-                          />
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-xl-5">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Linked Invoices</h5>
-            </div>
-            <div className="card-body p-0">
-              {invoices.length === 0 ? (
-                <div className="p-3 text-muted">
-                  No invoices linked to this plan.
-                </div>
-              ) : (
-                <div className="table-responsive">
-                  <table className="table table-hover mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th>Number</th>
-                        <th>Total</th>
-                        <th>Direct Paid</th>
-                        <th>Credit Applied</th>
-                        <th>Net Paid</th>
-                        <th>Remaining</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {invoices.map((inv) => (
-                        <tr key={inv.id}>
-                          <td>
-                            <Link
-                              to={`/admin/erp/invoices/${inv.id}`}
-                              className="text-decoration-none"
-                            >
-                              {inv.number}
-                            </Link>
-                          </td>
-                          <td>{money(inv.total)}</td>
-                          <td>{money(inv.direct_paid)}</td>
-                          <td>{money(inv.credit_applied)}</td>
-                          <td>{money(inv.net_paid)}</td>
-                          <td>{money(inv.remaining)}</td>
-                          <td>
-                            <StatusBadge status={inv.status} />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12">
-          <div className="card shadow-sm border-0">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Cash Summary</h5>
-            </div>
-            <div className="card-body">
-              <div className="row g-3">
-                <InfoItem label="Cash In" value={money(cash.cash_in)} />
-                <InfoItem
-                  label="Invoice Refunds"
-                  value={money(cash.cash_out_invoice_refunds)}
-                />
-                <InfoItem
-                  label="Credit Refunds"
-                  value={money(cash.cash_out_credit_refunds)}
-                />
-                <InfoItem label="Net Cash" value={money(cash.net_cash)} />
-                <InfoItem
-                  label="Credit Issued"
-                  value={money(credit.credit_issued)}
-                />
-                <InfoItem
-                  label="Credit Used"
-                  value={money(credit.credit_used)}
-                />
-                <InfoItem label="Net Credit" value={money(credit.net_credit)} />
+                            ) : null
+                          }
+                        />
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Invoices and Cash Summary */}
+      <div className="two-columns">
+        <div className="invoices-card">
+          <div className="card-header-custom">
+            <i className="fas fa-file-invoice me-2"></i>
+            <h5 className="mb-0">{t("Linked Invoices")}</h5>
+            <span className="invoice-count">
+              {invoices.length} {t("invoices")}
+            </span>
+          </div>
+
+          <div className="card-body-custom">
+            {invoices.length === 0 ? (
+              <div className="empty-state small">
+                <p className="empty-text">
+                  {t("No invoices linked to this plan.")}
+                </p>
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="invoices-table">
+                  <thead>
+                    <tr>
+                      <th>{t("Number")}</th>
+                      <th>{t("Total")}</th>
+                      <th>{t("Direct Paid")}</th>
+                      <th>{t("Credit Applied")}</th>
+                      <th>{t("Net Paid")}</th>
+                      <th>{t("Remaining")}</th>
+                      <th>{t("Status")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invoices.map((inv) => (
+                      <tr key={inv.id}>
+                        <td data-label={t("Number")}>
+                          <Link
+                            to={`/admin/erp/invoices/${inv.id}`}
+                            className="invoice-link"
+                          >
+                            {inv.number}
+                          </Link>
+                        </td>
+                        <td data-label={t("Total")} className="amount-cell">
+                          {formatCurrency(inv.total)}
+                        </td>
+                        <td
+                          data-label={t("Direct Paid")}
+                          className="amount-cell"
+                        >
+                          {formatCurrency(inv.direct_paid)}
+                        </td>
+                        <td
+                          data-label={t("Credit Applied")}
+                          className="amount-cell"
+                        >
+                          {formatCurrency(inv.credit_applied)}
+                        </td>
+                        <td data-label={t("Net Paid")} className="amount-cell">
+                          {formatCurrency(inv.net_paid)}
+                        </td>
+                        <td
+                          data-label={t("Remaining")}
+                          className="amount-cell remaining"
+                        >
+                          {formatCurrency(inv.remaining)}
+                        </td>
+                        <td data-label={t("Status")}>
+                          <StatusBadge status={inv.status} t={t} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="cash-summary-card">
+          <div className="card-header-custom">
+            <i className="fas fa-chart-line me-2"></i>
+            <h5 className="mb-0">{t("Cash Summary")}</h5>
+          </div>
+
+          <div className="card-body-custom">
+            <div className="cash-grid">
+              <InfoItem
+                label={t("Cash In")}
+                value={formatCurrency(cash.cash_in)}
+              />
+              <InfoItem
+                label={t("Invoice Refunds")}
+                value={formatCurrency(cash.cash_out_invoice_refunds)}
+              />
+              <InfoItem
+                label={t("Credit Refunds")}
+                value={formatCurrency(cash.cash_out_credit_refunds)}
+              />
+              <InfoItem
+                label={t("Net Cash")}
+                value={formatCurrency(cash.net_cash)}
+              />
+              <InfoItem
+                label={t("Credit Issued")}
+                value={formatCurrency(credit.credit_issued)}
+              />
+              <InfoItem
+                label={t("Credit Used")}
+                value={formatCurrency(credit.credit_used)}
+              />
+              <InfoItem
+                label={t("Net Credit")}
+                value={formatCurrency(credit.net_credit)}
+              />
             </div>
           </div>
         </div>
@@ -1110,6 +1205,7 @@ export default function TreatmentPlanDetailsPage() {
   );
 }
 
+// Helper Components
 function FragmentRow({ row, extraRow }) {
   return (
     <>
@@ -1120,12 +1216,24 @@ function FragmentRow({ row, extraRow }) {
 }
 
 function KpiCard({ title, value, color = "primary" }) {
+  const colorMap = {
+    primary: { bg: "rgba(26, 35, 126, 0.1)", text: "#1a237e" },
+    success: { bg: "rgba(76, 175, 80, 0.1)", text: "#4caf50" },
+    danger: { bg: "rgba(244, 67, 54, 0.1)", text: "#f44336" },
+    warning: { bg: "rgba(255, 152, 0, 0.1)", text: "#ff9800" },
+    info: { bg: "rgba(3, 169, 244, 0.1)", text: "#03a9f4" },
+    secondary: { bg: "rgba(108, 117, 125, 0.1)", text: "#6c757d" },
+    dark: { bg: "rgba(33, 37, 41, 0.1)", text: "#212529" },
+  };
+
+  const colors = colorMap[color] || colorMap.primary;
+
   return (
-    <div className="col-12 col-sm-6 col-xl-3">
-      <div className="card border-0 shadow-sm h-100">
-        <div className="card-body">
-          <div className="text-muted small mb-1">{title}</div>
-          <div className={`fs-4 fw-bold text-${color}`}>{value}</div>
+    <div className="kpi-card">
+      <div className="kpi-card-content">
+        <div className="kpi-title">{title}</div>
+        <div className="kpi-value" style={{ color: colors.text }}>
+          {value}
         </div>
       </div>
     </div>
@@ -1134,22 +1242,23 @@ function KpiCard({ title, value, color = "primary" }) {
 
 function InfoItem({ label, value }) {
   return (
-    <div className="col-12 col-md-6">
-      <div className="small text-muted">{label}</div>
-      <div className="fw-semibold">{value ?? "-"}</div>
+    <div className="info-item">
+      <div className="info-label">{label}</div>
+      <div className="info-value">{value ?? "-"}</div>
     </div>
   );
 }
 
-function StatusBadge({ status }) {
+function StatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
+  let variant = "secondary";
+  let label = status || "-";
 
-  let cls = "secondary";
-  if (["completed", "paid"].includes(value)) cls = "success";
-  else if (["cancelled", "unpaid"].includes(value)) cls = "danger";
+  if (["completed", "paid"].includes(value)) variant = "success";
+  else if (["cancelled", "unpaid"].includes(value)) variant = "danger";
   else if (["active", "partially_paid", "planned"].includes(value))
-    cls = "warning";
-  else if (["in_progress"].includes(value)) cls = "info";
+    variant = "warning";
+  else if (["in_progress"].includes(value)) variant = "info";
 
-  return <span className={`badge bg-${cls}`}>{status || "-"}</span>;
+  return <span className={`status-badge status-${variant}`}>{t(label)}</span>;
 }

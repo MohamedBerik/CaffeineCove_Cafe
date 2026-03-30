@@ -46,7 +46,7 @@ function Navbar() {
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#about">
+                <a className="nav-link" href="/about">
                   About
                 </a>
               </li>
@@ -60,7 +60,7 @@ function Navbar() {
                 <strong className="d-block">Health Specialist</strong>
               </a>
               <li className="nav-item">
-                <a className="nav-link" href="/AllTestimonials">
+                <a className="nav-link" href="/testimonials">
                   Reviews
                 </a>
               </li>
@@ -70,7 +70,7 @@ function Navbar() {
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#contact">
+                <a className="nav-link" href="/contact">
                   Contact
                 </a>
               </li>

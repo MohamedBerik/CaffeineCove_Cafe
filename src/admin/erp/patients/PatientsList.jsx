@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./PatientsList.css";
 
 export default function PatientsList() {
+  const { t, i18n } = useTranslation();
   const [rows, setRows] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,7 +34,7 @@ export default function PatientsList() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load patients.",
+          t("Failed to load patients."),
       );
     } finally {
       setLoading(false);
@@ -72,133 +75,196 @@ export default function PatientsList() {
         style={{ minHeight: "300px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Patients</h3>
-          <p className="text-muted mb-0">
-            Manage patients, open profile, timeline, and statement
+    <div className="patients-list-page">
+      {/* Header Section */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Patients")}</h1>
+          <p className="page-subtitle">
+            {t("Manage patients, open profile, timeline, and statement")}
           </p>
         </div>
-        <div className="d-flex gap-2">
+
+        <div className="header-actions">
           <Link
             to="/admin/erp/patients/create"
             className="btn btn-outline-primary"
           >
-            New Patient
+            <i className="fas fa-user-plus me-2"></i>
+            {t("New Patient")}
           </Link>
 
           <button className="btn btn-primary" onClick={loadPatients}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
-      {error ? (
-        <div className="alert alert-danger d-flex justify-content-between align-items-center">
-          <span>{error}</span>
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
           <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={loadPatients}
-          >
-            Retry
-          </button>
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
         </div>
-      ) : null}
+      )}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
-          <div className="row g-3 align-items-center">
-            <div className="col-12 col-lg-8">
-              <label className="form-label fw-semibold">Search</label>
+      {/* Search Card */}
+      <div className="search-card">
+        <div className="search-card-header">
+          <i className="fas fa-search me-2"></i>
+          <h5 className="mb-0">{t("Search Patients")}</h5>
+        </div>
+        <div className="search-card-body">
+          <div className="search-grid">
+            <div className="search-group">
+              <label className="search-label">
+                <i className="fas fa-filter me-1"></i>
+                {t("Search")}
+              </label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="Search by code, name, email, phone, or status..."
+                placeholder={t(
+                  "Search by code, name, email, phone, or status...",
+                )}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
 
-            <div className="col-12 col-lg-4">
-              <label className="form-label fw-semibold">Total Loaded</label>
-              <div className="form-control bg-light">
-                {meta?.total ?? rows.length}
-              </div>
+            <div className="search-group">
+              <label className="search-label">
+                <i className="fas fa-database me-1"></i>
+                {t("Total Patients")}
+              </label>
+              <div className="total-badge">{meta?.total ?? rows.length}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Patients List</h5>
+      {/* Patients Table Card */}
+      <div className="patients-card">
+        <div className="patients-card-header">
+          <i className="fas fa-users me-2"></i>
+          <h5 className="mb-0">{t("Patients List")}</h5>
+          <span className="patient-count">
+            {filteredRows.length} {t("patients")}
+          </span>
         </div>
 
-        <div className="card-body p-0">
+        <div className="patients-card-body">
           {filteredRows.length === 0 ? (
-            <div className="p-4 text-muted">No patients found.</div>
+            <div className="empty-state">
+              <i className="fas fa-user-slash empty-icon"></i>
+              <p className="empty-text">{t("No patients found.")}</p>
+            </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light">
+              <table className="patients-table">
+                <thead>
                   <tr>
-                    <th style={{ minWidth: 120 }}>Code</th>
-                    <th style={{ minWidth: 180 }}>Name</th>
-                    <th style={{ minWidth: 220 }}>Email</th>
-                    <th style={{ minWidth: 150 }}>Phone</th>
-                    <th style={{ minWidth: 120 }}>Status</th>
-                    <th style={{ minWidth: 320 }}>Actions</th>
+                    <th>{t("Code")}</th>
+                    <th>{t("Name")}</th>
+                    <th>{t("Email")}</th>
+                    <th>{t("Phone")}</th>
+                    <th>{t("Status")}</th>
+                    <th>{t("Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredRows.map((patient) => (
                     <tr key={patient.id}>
-                      <td>{patient.patient_code || "-"}</td>
-                      <td className="fw-semibold">{patient.name || "-"}</td>
-                      <td>{patient.email || "-"}</td>
-                      <td>{patient.phone || "-"}</td>
-                      <td>
-                        <StatusBadge status={normalizeStatus(patient.status)} />
+                      <td data-label={t("Code")}>
+                        <span className="patient-code">
+                          {patient.patient_code || "-"}
+                        </span>
                       </td>
-                      <td>
-                        <div className="d-flex flex-wrap gap-2">
-                          <div className="d-flex flex-wrap gap-2">
-                            <Link
-                              to={`/admin/erp/patients/${patient.id}/profile`}
-                              className="btn btn-sm btn-outline-primary"
-                            >
-                              Profile
-                            </Link>
+                      <td data-label={t("Name")}>
+                        <div className="patient-name">
+                          {patient.name || "-"}
+                        </div>
+                      </td>
+                      <td data-label={t("Email")}>
+                        {patient.email ? (
+                          <a
+                            href={`mailto:${patient.email}`}
+                            className="email-link"
+                          >
+                            {patient.email}
+                          </a>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                      <td data-label={t("Phone")}>
+                        {patient.phone ? (
+                          <a
+                            href={`tel:${patient.phone}`}
+                            className="phone-link"
+                          >
+                            {patient.phone}
+                          </a>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                      <td data-label={t("Status")}>
+                        <StatusBadge
+                          status={normalizeStatus(patient.status)}
+                          t={t}
+                        />
+                      </td>
+                      <td data-label={t("Actions")}>
+                        <div className="action-buttons">
+                          <Link
+                            to={`/admin/erp/patients/${patient.id}/profile`}
+                            className="btn btn-sm btn-outline-primary"
+                            title={t("View Profile")}
+                          >
+                            <i className="fas fa-user"></i>
+                            <span>{t("Profile")}</span>
+                          </Link>
 
-                            <Link
-                              to={`/admin/erp/patients/${patient.id}/edit`}
-                              className="btn btn-sm btn-outline-warning"
-                            >
-                              Edit
-                            </Link>
+                          <Link
+                            to={`/admin/erp/patients/${patient.id}/edit`}
+                            className="btn btn-sm btn-outline-warning"
+                            title={t("Edit Patient")}
+                          >
+                            <i className="fas fa-edit"></i>
+                            <span>{t("Edit")}</span>
+                          </Link>
 
-                            <Link
-                              to={`/admin/erp/patients/${patient.id}/timeline`}
-                              className="btn btn-sm btn-outline-info"
-                            >
-                              Timeline
-                            </Link>
+                          <Link
+                            to={`/admin/erp/patients/${patient.id}/timeline`}
+                            className="btn btn-sm btn-outline-info"
+                            title={t("View Timeline")}
+                          >
+                            <i className="fas fa-history"></i>
+                            <span>{t("Timeline")}</span>
+                          </Link>
 
-                            <Link
-                              to={`/admin/erp/patients/${patient.id}/statement`}
-                              className="btn btn-sm btn-outline-success"
-                            >
-                              Statement
-                            </Link>
-                          </div>
+                          <Link
+                            to={`/admin/erp/patients/${patient.id}/statement`}
+                            className="btn btn-sm btn-outline-success"
+                            title={t("View Statement")}
+                          >
+                            <i className="fas fa-file-invoice"></i>
+                            <span>{t("Statement")}</span>
+                          </Link>
                         </div>
                       </td>
                     </tr>
@@ -213,12 +279,20 @@ export default function PatientsList() {
   );
 }
 
-function StatusBadge({ status }) {
+// StatusBadge Component
+function StatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
+  let variant = "secondary";
+  let label = status || "-";
 
-  let cls = "secondary";
-  if (value === "active") cls = "success";
-  if (value === "inactive") cls = "danger";
+  if (value === "active") {
+    variant = "success";
+    label = t("Active");
+  }
+  if (value === "inactive") {
+    variant = "danger";
+    label = t("Inactive");
+  }
 
-  return <span className={`badge bg-${cls}`}>{status}</span>;
+  return <span className={`status-badge status-${variant}`}>{label}</span>;
 }

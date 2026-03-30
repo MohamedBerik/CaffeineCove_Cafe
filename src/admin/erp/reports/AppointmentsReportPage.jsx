@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
 import { exportToCsv } from "./utils/exportCsv";
 import { useTranslation } from "react-i18next";
+import "./AppointmentsReportPage.css";
 
 export default function AppointmentsReportPage() {
   const { t, i18n } = useTranslation();

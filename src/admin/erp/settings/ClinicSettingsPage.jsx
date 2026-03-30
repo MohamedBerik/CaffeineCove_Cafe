@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./ClinicSettingsPage.css";
 
 export default function ClinicSettingsPage() {
+  const { t, i18n } = useTranslation();
   const [data, setData] = useState(null);
   const [form, setForm] = useState({
     clinic_name: "",
@@ -56,7 +59,7 @@ export default function ClinicSettingsPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load clinic settings.",
+          t("Failed to load clinic settings."),
       );
     } finally {
       setLoading(false);
@@ -65,7 +68,6 @@ export default function ClinicSettingsPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setForm((prev) => ({
       ...prev,
       [name]: value,
@@ -96,7 +98,7 @@ export default function ClinicSettingsPage() {
       setSuccess(
         res?.data?.msg ||
           res?.data?.message ||
-          "Clinic settings updated successfully.",
+          t("Clinic settings updated successfully."),
       );
 
       const updatedPayload = res.data || {};
@@ -106,12 +108,12 @@ export default function ClinicSettingsPage() {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setError(firstError || "Failed to update clinic settings.");
+        setError(firstError || t("Failed to update clinic settings."));
       } else {
         setError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to update clinic settings.",
+            t("Failed to update clinic settings."),
         );
       }
     } finally {
@@ -126,77 +128,114 @@ export default function ClinicSettingsPage() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Clinic Settings</h3>
-          <p className="text-muted mb-0">
-            Manage clinic profile, invoice settings, and defaults
+    <div className="clinic-settings-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Clinic Settings")}</h1>
+          <p className="page-subtitle">
+            {t("Manage clinic profile, invoice settings, and defaults")}
           </p>
         </div>
 
         <button className="btn btn-primary" onClick={loadSettings}>
-          Refresh
+          <i className="fas fa-sync-alt me-2"></i>
+          {t("Refresh")}
         </button>
       </div>
 
-      {error ? <div className="alert alert-danger">{error}</div> : null}
-      {success ? <div className="alert alert-success">{success}</div> : null}
+      {/* Alerts */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
+        </div>
+      )}
+      {success && (
+        <div className="alert alert-success alert-dismissible fade show">
+          <i className="fas fa-check-circle me-2"></i>
+          {success}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setSuccess("")}
+          ></button>
+        </div>
+      )}
 
-      <div className="row g-4">
-        <div className="col-12 col-xl-8">
-          <div className="card shadow-sm border-0">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Settings Form</h5>
-            </div>
+      <div className="settings-grid">
+        {/* Settings Form */}
+        <div className="form-card">
+          <div className="form-card-header">
+            <i className="fas fa-sliders-h me-2"></i>
+            <h5 className="mb-0">{t("Settings Form")}</h5>
+          </div>
 
-            <div className="card-body">
-              <form className="row g-3" onSubmit={submit}>
-                <div className="col-12 col-md-6">
-                  <label className="form-label fw-semibold">Clinic Name</label>
+          <div className="form-card-body">
+            <form onSubmit={submit}>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label">
+                    <i className="fas fa-hospital me-2"></i>
+                    {t("Clinic Name")}
+                  </label>
                   <input
                     type="text"
                     className="form-control"
                     name="clinic_name"
                     value={form.clinic_name}
                     onChange={handleChange}
-                    placeholder="My Clinic"
+                    placeholder={t("My Clinic")}
                   />
                 </div>
 
-                <div className="col-12 col-md-6">
-                  <label className="form-label fw-semibold">Phone</label>
+                <div className="form-group">
+                  <label className="form-label">
+                    <i className="fas fa-phone me-2"></i>
+                    {t("Phone")}
+                  </label>
                   <input
                     type="text"
                     className="form-control"
                     name="phone"
                     value={form.phone}
                     onChange={handleChange}
-                    placeholder="+20..."
+                    placeholder={t("+20...")}
                   />
                 </div>
 
-                <div className="col-12 col-md-6">
-                  <label className="form-label fw-semibold">Email</label>
+                <div className="form-group">
+                  <label className="form-label">
+                    <i className="fas fa-envelope me-2"></i>
+                    {t("Email")}
+                  </label>
                   <input
                     type="email"
                     className="form-control"
                     name="email"
                     value={form.email}
                     onChange={handleChange}
-                    placeholder="clinic@example.com"
+                    placeholder={t("clinic@example.com")}
                   />
                 </div>
 
-                <div className="col-12 col-md-6">
-                  <label className="form-label fw-semibold">Currency</label>
+                <div className="form-group">
+                  <label className="form-label">
+                    <i className="fas fa-dollar-sign me-2"></i>
+                    {t("Currency")}
+                  </label>
                   <input
                     type="text"
                     className="form-control"
@@ -207,8 +246,11 @@ export default function ClinicSettingsPage() {
                   />
                 </div>
 
-                <div className="col-12 col-md-6">
-                  <label className="form-label fw-semibold">Timezone</label>
+                <div className="form-group">
+                  <label className="form-label">
+                    <i className="fas fa-globe me-2"></i>
+                    {t("Timezone")}
+                  </label>
                   <input
                     type="text"
                     className="form-control"
@@ -219,21 +261,26 @@ export default function ClinicSettingsPage() {
                   />
                 </div>
 
-                <div className="col-12 col-md-6">
-                  <label className="form-label fw-semibold">Language</label>
-                  <input
-                    type="text"
-                    className="form-control"
+                <div className="form-group">
+                  <label className="form-label">
+                    <i className="fas fa-language me-2"></i>
+                    {t("Language")}
+                  </label>
+                  <select
+                    className="form-select"
                     name="language"
                     value={form.language}
                     onChange={handleChange}
-                    placeholder="en"
-                  />
+                  >
+                    <option value="en">{t("English")}</option>
+                    <option value="ar">{t("Arabic")}</option>
+                  </select>
                 </div>
 
-                <div className="col-12 col-md-6">
-                  <label className="form-label fw-semibold">
-                    Invoice Prefix
+                <div className="form-group">
+                  <label className="form-label">
+                    <i className="fas fa-tag me-2"></i>
+                    {t("Invoice Prefix")}
                   </label>
                   <input
                     type="text"
@@ -245,9 +292,10 @@ export default function ClinicSettingsPage() {
                   />
                 </div>
 
-                <div className="col-12 col-md-6">
-                  <label className="form-label fw-semibold">
-                    Invoice Start Number
+                <div className="form-group">
+                  <label className="form-label">
+                    <i className="fas fa-sort-numeric-up me-2"></i>
+                    {t("Invoice Start Number")}
                   </label>
                   <input
                     type="number"
@@ -260,48 +308,88 @@ export default function ClinicSettingsPage() {
                   />
                 </div>
 
-                <div className="col-12 d-flex gap-2">
+                <div className="form-actions full-width">
                   <button
                     type="submit"
-                    className="btn btn-primary"
+                    className="btn btn-primary btn-lg"
                     disabled={saving}
                   >
-                    {saving ? "Saving..." : "Save Settings"}
+                    {saving ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2"></span>
+                        {t("Saving...")}
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-save me-2"></i>
+                        {t("Save Settings")}
+                      </>
+                    )}
                   </button>
 
                   <button
                     type="button"
-                    className="btn btn-outline-secondary"
+                    className="btn btn-outline-secondary btn-lg"
                     onClick={loadSettings}
                     disabled={saving}
                   >
-                    Reset
+                    <i className="fas fa-undo me-2"></i>
+                    {t("Reset")}
                   </button>
                 </div>
-              </form>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
 
-        <div className="col-12 col-xl-4">
-          <div className="card shadow-sm border-0">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Current Summary</h5>
-            </div>
+        {/* Current Summary */}
+        <div className="summary-card">
+          <div className="summary-card-header">
+            <i className="fas fa-chart-simple me-2"></i>
+            <h5 className="mb-0">{t("Current Summary")}</h5>
+          </div>
 
-            <div className="card-body">
-              <SummaryItem label="Clinic Name" value={form.clinic_name} />
-              <SummaryItem label="Phone" value={form.phone} />
-              <SummaryItem label="Email" value={form.email} />
-              <SummaryItem label="Currency" value={form.currency} />
-              <SummaryItem label="Timezone" value={form.timezone} />
-              <SummaryItem label="Language" value={form.language} />
-              <SummaryItem label="Invoice Prefix" value={form.invoice_prefix} />
-              <SummaryItem
-                label="Invoice Start Number"
-                value={form.invoice_start_number}
-              />
-            </div>
+          <div className="summary-card-body">
+            <SummaryItem
+              icon="fas fa-hospital"
+              label={t("Clinic Name")}
+              value={form.clinic_name}
+            />
+            <SummaryItem
+              icon="fas fa-phone"
+              label={t("Phone")}
+              value={form.phone}
+            />
+            <SummaryItem
+              icon="fas fa-envelope"
+              label={t("Email")}
+              value={form.email}
+            />
+            <SummaryItem
+              icon="fas fa-dollar-sign"
+              label={t("Currency")}
+              value={form.currency}
+            />
+            <SummaryItem
+              icon="fas fa-globe"
+              label={t("Timezone")}
+              value={form.timezone}
+            />
+            <SummaryItem
+              icon="fas fa-language"
+              label={t("Language")}
+              value={form.language === "ar" ? t("Arabic") : t("English")}
+            />
+            <SummaryItem
+              icon="fas fa-tag"
+              label={t("Invoice Prefix")}
+              value={form.invoice_prefix}
+            />
+            <SummaryItem
+              icon="fas fa-sort-numeric-up"
+              label={t("Invoice Start Number")}
+              value={form.invoice_start_number}
+            />
           </div>
         </div>
       </div>
@@ -309,11 +397,17 @@ export default function ClinicSettingsPage() {
   );
 }
 
-function SummaryItem({ label, value }) {
+// SummaryItem Component
+function SummaryItem({ icon, label, value }) {
   return (
-    <div className="mb-3">
-      <div className="small text-muted">{label}</div>
-      <div className="fw-semibold">{value || "-"}</div>
+    <div className="summary-item">
+      <div className="summary-icon">
+        <i className={icon}></i>
+      </div>
+      <div className="summary-content">
+        <div className="summary-label">{label}</div>
+        <div className="summary-value">{value || "-"}</div>
+      </div>
     </div>
   );
 }

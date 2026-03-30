@@ -1,89 +1,84 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 const navItems = [
   {
     to: "/admin/erp",
-    label: "Dashboard",
+    labelKey: "Dashboard",
     icon: "fas fa-chart-pie",
     end: true,
     permission: "finance.view",
   },
   {
     to: "/admin/erp/visits/start",
-    label: "Start Visit",
+    labelKey: "Start Visit",
     icon: "fas fa-stethoscope",
     permission: "appointments.view",
   },
   {
     to: "/admin/erp/doctors",
-    label: "Doctors",
+    labelKey: "Doctors",
     icon: "fas fa-user-md",
     permission: "appointments.view",
   },
   {
     to: "/admin/erp/procedures",
-    label: "Procedures",
+    labelKey: "Procedures",
     icon: "fas fa-procedures",
     permission: "appointments.view",
   },
   {
     to: "/admin/erp/patients",
-    label: "Patients",
+    labelKey: "Patients",
     icon: "fas fa-users",
     permission: "patients.view",
   },
   {
     to: "/admin/erp/appointments",
-    label: "Appointments",
+    labelKey: "Appointments",
     icon: "fas fa-calendar-check",
     permission: "appointments.view",
   },
   {
     to: "/admin/erp/treatment-plans",
-    label: "Treatment Plans",
+    labelKey: "Treatment Plans",
     icon: "fas fa-notes-medical",
     permission: "treatment_plans.view",
   },
   {
     to: "/admin/erp/dental-records",
-    label: "Dental Records",
+    labelKey: "Dental Records",
     icon: "fas fa-tooth",
     permission: "patients.view",
   },
   {
     to: "/admin/erp/invoices",
-    label: "Invoices",
+    labelKey: "Invoices",
     icon: "fas fa-file-invoice-dollar",
     permission: "finance.view",
   },
   {
     to: "/admin/erp/orders",
-    label: "Orders",
+    labelKey: "Orders",
     icon: "fas fa-shopping-cart",
     permission: "orders.view",
   },
   {
     to: "/admin/erp/purchase-orders",
-    label: "Purchase Orders",
+    labelKey: "Purchase Orders",
     icon: "fas fa-truck-loading",
     permission: "finance.view",
   },
-  // {
-  //   to: "/admin/erp/appointments/calendar",
-  //   label: "Calendar",
-  //   icon: "fas fa-calendar-alt",
-  //   permission: "appointments.view",
-  // },
   {
     to: "/admin/erp/reports",
-    label: "Reports",
+    labelKey: "Reports",
     icon: "fas fa-chart-bar",
     permission: "finance.view",
   },
   {
     to: "/admin/erp/settings/clinic",
-    label: "Clinic Settings",
+    labelKey: "Clinic Settings",
     icon: "fas fa-hospital",
     permission: "appointments.manage",
   },
@@ -91,6 +86,7 @@ const navItems = [
 
 export default function ErpNav() {
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const hasPermission = (permission) => {
     // Super admin يشوف الكل
@@ -119,29 +115,26 @@ export default function ErpNav() {
   );
 
   return (
-    <div className="card shadow-sm border-0">
-      <div className="card-body p-2">
-        <div className="small text-muted px-2 py-1 text-uppercase fw-semibold">
-          ERP Navigation
-        </div>
+    <div className="erp-nav-card">
+      <div className="erp-nav-header">
+        <i className="fas fa-compass"></i>
+        <span>{t("ERP Navigation")}</span>
+      </div>
 
-        <div className="nav nav-pills flex-column gap-1">
-          {visibleItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                `nav-link d-flex align-items-center gap-2 ${
-                  isActive ? "active" : "text-dark"
-                }`
-              }
-            >
-              <i className={item.icon} style={{ width: 18 }}></i>
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
-        </div>
+      <div className="erp-nav-menu">
+        {visibleItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            className={({ isActive }) =>
+              `erp-nav-link ${isActive ? "active" : ""}`
+            }
+          >
+            <i className={item.icon}></i>
+            <span>{t(item.labelKey)}</span>
+          </NavLink>
+        ))}
       </div>
     </div>
   );

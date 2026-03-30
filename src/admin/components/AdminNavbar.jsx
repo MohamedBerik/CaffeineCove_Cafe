@@ -1,11 +1,13 @@
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "./AdminNavbar.css";
 
 const AdminNavbar = () => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t, i18n } = useTranslation();
 
   const goHome = () => {
     // لو داخل ERP يرجع للـ ERP dashboard
@@ -13,7 +15,6 @@ const AdminNavbar = () => {
       navigate("/admin/erp");
       return;
     }
-
     // fallback
     navigate("/admin/erp");
   };
@@ -22,15 +23,24 @@ const AdminNavbar = () => {
     logout();
   };
 
+  const toggleLanguage = () => {
+    const newLang = i18n.language === "en" ? "ar" : "en";
+    i18n.changeLanguage(newLang);
+    localStorage.setItem("appLanguage", newLang);
+    // تغيير اتجاه الصفحة للغة العربية
+    document.documentElement.dir = newLang === "ar" ? "rtl" : "ltr";
+    document.documentElement.lang = newLang;
+  };
+
   const userRoleLabel = () => {
-    if (user?.is_super_admin) return "Super Admin";
+    if (user?.is_super_admin) return t("Super Admin");
     if (user?.role) return user.role;
-    return "Admin";
+    return t("Admin");
   };
 
   return (
     <>
-      <nav className="admin-navbar">
+      <nav className="admin-navbar" dir="ltr">
         <div className="navbar-container">
           {/* Brand */}
           <button
@@ -41,35 +51,50 @@ const AdminNavbar = () => {
             <i className="fas fa-chart-line"></i>
 
             <div className="brand-text">
-              <span className="brand-title">ERP System</span>
-              <span className="brand-subtitle">Clinic Admin Panel</span>
+              <span className="brand-title">{t("ERP System")}</span>
+              <span className="brand-subtitle">{t("Clinic Admin Panel")}</span>
             </div>
           </button>
 
           {/* Right section */}
-          <div className="navbar-user">
-            <div className="user-info">
-              <div className="user-avatar">
-                <i className="fas fa-user-circle"></i>
-              </div>
-
-              <div className="user-details">
-                <span className="user-name">
-                  {user?.name || "Administrator"}
-                </span>
-                <span className="user-role">{userRoleLabel()}</span>
-              </div>
-            </div>
-
+          <div className="navbar-actions">
+            {/* Language Switcher */}
             <button
               type="button"
-              className="logout-btn"
-              onClick={handleLogout}
-              title="Logout"
+              className="lang-switch-btn"
+              onClick={toggleLanguage}
+              title={i18n.language === "en" ? "العربية" : "English"}
             >
-              <i className="fas fa-sign-out-alt"></i>
-              <span>Logout</span>
+              <i
+                className={`fas ${i18n.language === "en" ? "fa-language" : "fa-globe"}`}
+              ></i>
+              <span>{i18n.language === "en" ? "AR" : "EN"}</span>
             </button>
+
+            <div className="navbar-user">
+              <div className="user-info">
+                <div className="user-avatar">
+                  <i className="fas fa-user-circle"></i>
+                </div>
+
+                <div className="user-details">
+                  <span className="user-name">
+                    {user?.name || "Administrator"}
+                  </span>
+                  <span className="user-role">{userRoleLabel()}</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="logout-btn"
+                onClick={handleLogout}
+                title={t("Logout")}
+              >
+                <i className="fas fa-sign-out-alt"></i>
+                <span>{t("Logout")}</span>
+              </button>
+            </div>
           </div>
         </div>
       </nav>

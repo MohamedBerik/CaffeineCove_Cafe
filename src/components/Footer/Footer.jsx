@@ -67,7 +67,7 @@ function Footer() {
                 <a
                   href="#"
                   title=""
-                  className="block flex items-center opacity-75 hover:opacity-100"
+                  className="flex items-center opacity-75 hover:opacity-100"
                 >
                   <span>
                     <svg
@@ -89,7 +89,7 @@ function Footer() {
                 <a
                   href="#"
                   title=""
-                  className="block flex items-center opacity-75 hover:opacity-100"
+                  className=" flex items-center opacity-75 hover:opacity-100"
                 >
                   <span>
                     <svg
@@ -114,7 +114,7 @@ function Footer() {
                 <a
                   href="#"
                   title=""
-                  className="block flex items-center opacity-75 hover:opacity-100"
+                  className="flex items-center opacity-75 hover:opacity-100"
                 >
                   <span>
                     <svg
@@ -134,7 +134,7 @@ function Footer() {
                 <a
                   href="#"
                   title=""
-                  className="block flex items-center opacity-75 hover:opacity-100"
+                  className=" flex items-center opacity-75 hover:opacity-100"
                 >
                   <span>
                     <svg

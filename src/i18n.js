@@ -82,6 +82,79 @@ const resources = {
 
       // Common
       "Loading...": "Loading...",
+
+      "Start Visit": "Start Visit",
+      "Start the patient journey by selecting the patient and visit path":
+        "Start the patient journey by selecting the patient and visit path",
+      "New Patient": "New Patient",
+      "New Treatment Plan": "New Treatment Plan",
+      "Visit Starter": "Visit Starter",
+      Patient: "Patient",
+      "Select patient": "Select patient",
+      "Visit Type": "Visit Type",
+      "Existing Treatment Plan": "Existing Treatment Plan",
+      "Select treatment plan": "Select treatment plan",
+      "Select patient first": "Select patient first",
+      "This patient has no treatment plans yet.":
+        "This patient has no treatment plans yet. Create a dental record or treatment plan first.",
+      "Selected Patient": "Selected Patient",
+      "Selected Plan": "Selected Plan",
+      Status: "Status",
+      "Total Cost": "Total Cost",
+      "Continuing...": "Continuing...",
+      "Book Consultation": "Book Consultation",
+      "Open Treatment Plan": "Open Treatment Plan",
+      "Open Patient Profile": "Open Patient Profile",
+      Cancel: "Cancel",
+      "Workflow Preview": "Workflow Preview",
+      "Consultation Flow": "Consultation Flow",
+      "Treatment From Plan Flow": "Treatment From Plan Flow",
+      "Emergency Treatment Flow": "Emergency Treatment Flow",
+      "Failed to load reference data.": "Failed to load reference data.",
+      "Please select a patient first.": "Please select a patient first.",
+      "Please select a treatment plan first.":
+        "Please select a treatment plan first.",
+      "Invalid visit type selected.": "Invalid visit type selected.",
+      Close: "Close",
+
+      // وصف الكروت
+      Consultation: "Consultation",
+      "Treatment From Plan": "Treatment From Plan",
+      "Emergency Treatment": "Emergency Treatment",
+      consultation_desc:
+        "Book a consultation appointment, collect consultation fee, then continue with exam and diagnosis.",
+      treatment_plan_desc:
+        "Use an existing treatment plan, open the plan, then start the required procedure and continue to billing.",
+      emergency_desc:
+        "Open the patient profile and dental chart first, add the urgent dental record, then convert it into treatment flow if needed.",
+      consultation_next: "Goes to consultation booking",
+      treatment_plan_next: "Goes to treatment plan details",
+      emergency_next: "Goes to patient profile and dental chart",
+
+      // Workflow steps
+      "Book consultation appointment": "Book consultation appointment",
+      "Consultation invoice is created": "Consultation invoice is created",
+      "Doctor examines patient": "Doctor examines patient",
+      "Complete appointment": "Complete appointment",
+      "Go to invoice/payment page": "Go to invoice/payment page",
+      "Create dental record if treatment is needed":
+        "Create dental record if treatment is needed",
+      "Open existing treatment plan": "Open existing treatment plan",
+      "Select the required plan item": "Select the required plan item",
+      "Start procedure": "Start procedure",
+      "Create treatment appointment": "Create treatment appointment",
+      "Create invoice and continue to payment":
+        "Create invoice and continue to payment",
+      "Open patient profile": "Open patient profile",
+      "Add dental record from dental chart":
+        "Add dental record from dental chart",
+      "Convert to treatment plan item if needed":
+        "Convert to treatment plan item if needed",
+      "Start procedure and book slot": "Start procedure and book slot",
+      "Complete appointment and continue to payment":
+        "Complete appointment and continue to payment",
+      "Dental Record and Treatment Plan remain part of the treatment workflow. Billing should happen only after a valid consultation or a valid treatment appointment completion.":
+        "Dental Record and Treatment Plan remain part of the treatment workflow. Billing should happen only after a valid consultation or a valid treatment appointment completion.",
     },
   },
   ar: {
@@ -163,6 +236,77 @@ const resources = {
 
       // Common
       "Loading...": "جاري التحميل...",
+
+      "Start Visit": "بدء زيارة",
+      "Start the patient journey by selecting the patient and visit path":
+        "ابدأ رحلة المريض باختيار المريض ومسار الزيارة",
+      "New Patient": "مريض جديد",
+      "New Treatment Plan": "خطة علاج جديدة",
+      "Visit Starter": " بدء الزيارة",
+      Patient: "المريض",
+      "Select patient": "اختر المريض",
+      "Visit Type": "نوع الزيارة",
+      "Existing Treatment Plan": "خطة علاج موجودة",
+      "Select treatment plan": "اختر خطة العلاج",
+      "Select patient first": "اختر المريض أولاً",
+      "This patient has no treatment plans yet.":
+        "هذا المريض ليس لديه خطط علاج حتى الآن. قم بإنشاء سجل أسنان أو خطة علاج أولاً.",
+      "Selected Patient": "المريض المختار",
+      "Selected Plan": "الخطة المختارة",
+      Status: "الحالة",
+      "Total Cost": "التكلفة الإجمالية",
+      "Continuing...": "جاري المتابعة...",
+      "Book Consultation": "حجز استشارة",
+      "Open Treatment Plan": "فتح خطة العلاج",
+      "Open Patient Profile": "فتح ملف المريض",
+      Cancel: "إلغاء",
+      "Workflow Preview": "معاينة سير العمل",
+      "Consultation Flow": "مسار الاستشارة",
+      "Treatment From Plan Flow": "مسار العلاج من الخطة",
+      "Emergency Treatment Flow": "مسار العلاج الطارئ",
+      "Failed to load reference data.": "فشل تحميل البيانات المرجعية.",
+      "Please select a patient first.": "الرجاء اختيار مريض أولاً.",
+      "Please select a treatment plan first.": "الرجاء اختيار خطة علاج أولاً.",
+      "Invalid visit type selected.": "نوع الزيارة المحدد غير صالح.",
+      Close: "إغلاق",
+
+      // وصف الكروت
+      Consultation: "استشارة",
+      "Treatment From Plan": "علاج من الخطة",
+      "Emergency Treatment": "علاج طارئ",
+      consultation_desc:
+        "حجز موعد استشارة، تحصيل رسوم الاستشارة، ثم متابعة الفحص والتشخيص.",
+      treatment_plan_desc:
+        "استخدام خطة علاج موجودة، فتح الخطة، ثم بدء الإجراء المطلوب والمتابعة إلى الفاتورة.",
+      emergency_desc:
+        "فتح ملف المريض والرسم البياني للأسنان أولاً، إضافة السجل السني العاجل، ثم تحويله إلى مسار علاج إذا لزم الأمر.",
+      consultation_next: "الانتقال إلى حجز الاستشارة",
+      treatment_plan_next: "الانتقال إلى تفاصيل خطة العلاج",
+      emergency_next: "الانتقال إلى ملف المريض والرسم البياني للأسنان",
+
+      // Workflow steps
+      "Book consultation appointment": "حجز موعد استشارة",
+      "Consultation invoice is created": "إنشاء فاتورة الاستشارة",
+      "Doctor examines patient": "فحص الطبيب للمريض",
+      "Complete appointment": "إكمال الموعد",
+      "Go to invoice/payment page": "الانتقال إلى صفحة الفاتورة/الدفع",
+      "Create dental record if treatment is needed":
+        "إنشاء سجل أسنان إذا كان العلاج مطلوباً",
+      "Open existing treatment plan": "فتح خطة العلاج الموجودة",
+      "Select the required plan item": "اختيار عنصر الخطة المطلوب",
+      "Start procedure": "بدء الإجراء",
+      "Create treatment appointment": "إنشاء موعد علاج",
+      "Create invoice and continue to payment":
+        "إنشاء فاتورة والمتابعة إلى الدفع",
+      "Open patient profile": "فتح ملف المريض",
+      "Add dental record from dental chart": "إضافة سجل أسنان من الرسم البياني",
+      "Convert to treatment plan item if needed":
+        "تحويل إلى عنصر خطة علاج إذا لزم الأمر",
+      "Start procedure and book slot": "بدء الإجراء وحجز موعد",
+      "Complete appointment and continue to payment":
+        "إكمال الموعد والمتابعة إلى الدفع",
+      "Dental Record and Treatment Plan remain part of the treatment workflow. Billing should happen only after a valid consultation or a valid treatment appointment completion.":
+        "يبقى السجل السني وخطة العلاج جزءاً من سير عمل العلاج. يجب أن تتم الفوترة فقط بعد استشارة صالحة أو إكمال موعد علاج صالح.",
     },
   },
 };

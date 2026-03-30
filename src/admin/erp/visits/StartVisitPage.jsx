@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./StartVisitPage.css";
 
 export default function StartVisitPage() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const [patients, setPatients] = useState([]);
@@ -58,7 +61,7 @@ export default function StartVisitPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load reference data.",
+          t("Failed to load reference data."),
       );
     } finally {
       setLoadingRefs(false);
@@ -67,7 +70,6 @@ export default function StartVisitPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setForm((prev) => ({
       ...prev,
       [name]: value,
@@ -80,7 +82,6 @@ export default function StartVisitPage() {
 
   const patientPlans = useMemo(() => {
     if (!form.customer_id) return [];
-
     return plans.filter(
       (plan) => String(plan.customer_id) === String(form.customer_id),
     );
@@ -96,12 +97,12 @@ export default function StartVisitPage() {
     e.preventDefault();
 
     if (!form.customer_id) {
-      setError("Please select a patient first.");
+      setError(t("Please select a patient first."));
       return;
     }
 
     if (form.visit_type === "treatment_from_plan" && !form.treatment_plan_id) {
-      setError("Please select a treatment plan first.");
+      setError(t("Please select a treatment plan first."));
       return;
     }
 
@@ -126,7 +127,7 @@ export default function StartVisitPage() {
         return;
       }
 
-      setError("Invalid visit type selected.");
+      setError(t("Invalid visit type selected."));
     } finally {
       setSubmitting(false);
     }
@@ -135,29 +136,26 @@ export default function StartVisitPage() {
   const visitCards = [
     {
       key: "consultation",
-      title: "Consultation",
+      titleKey: "Consultation",
       icon: "fas fa-stethoscope",
-      description:
-        "Book a consultation appointment, collect consultation fee, then continue with exam and diagnosis.",
-      nextStep: "Goes to consultation booking",
+      descriptionKey: "consultation_desc",
+      nextStepKey: "consultation_next",
       color: "primary",
     },
     {
       key: "treatment_from_plan",
-      title: "Treatment From Plan",
+      titleKey: "Treatment From Plan",
       icon: "fas fa-notes-medical",
-      description:
-        "Use an existing treatment plan, open the plan, then start the required procedure and continue to billing.",
-      nextStep: "Goes to treatment plan details",
+      descriptionKey: "treatment_plan_desc",
+      nextStepKey: "treatment_plan_next",
       color: "success",
     },
     {
       key: "emergency_treatment",
-      title: "Emergency Treatment",
+      titleKey: "Emergency Treatment",
       icon: "fas fa-tooth",
-      description:
-        "Open the patient profile and dental chart first, add the urgent dental record, then convert it into treatment flow if needed.",
-      nextStep: "Goes to patient profile and dental chart",
+      descriptionKey: "emergency_desc",
+      nextStepKey: "emergency_next",
       color: "warning",
     },
   ];
@@ -169,54 +167,78 @@ export default function StartVisitPage() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Start Visit</h3>
-          <p className="text-muted mb-0">
-            Start the patient journey by selecting the patient and visit path
+    <div className="start-visit-page">
+      {/* Header Section */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Start Visit")}</h1>
+          <p className="page-subtitle">
+            {t(
+              "Start the patient journey by selecting the patient and visit path",
+            )}
           </p>
         </div>
 
-        <div className="d-flex flex-wrap gap-2">
+        <div className="header-actions">
           <Link
             to="/admin/erp/patients/create"
-            className="btn btn-outline-primary btn-sm"
+            className="btn btn-outline-primary"
           >
-            <i className="fas fa-user-plus me-1"></i>
-            New Patient
+            <i className="fas fa-user-plus me-2"></i>
+            {t("New Patient")}
           </Link>
 
           <Link
             to="/admin/erp/treatment-plans/create"
-            className="btn btn-outline-secondary btn-sm"
+            className="btn btn-outline-secondary"
           >
-            <i className="fas fa-notes-medical me-1"></i>
-            New Treatment Plan
+            <i className="fas fa-notes-medical me-2"></i>
+            {t("New Treatment Plan")}
           </Link>
         </div>
       </div>
 
-      {error ? <div className="alert alert-danger">{error}</div> : null}
+      {error && (
+        <div
+          className="alert alert-danger alert-dismissible fade show"
+          role="alert"
+        >
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+            aria-label={t("Close")}
+          ></button>
+        </div>
+      )}
 
-      <div className="row g-4">
-        <div className="col-12 col-xl-8">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Visit Starter</h5>
+      <div className="visit-container">
+        {/* Main Form Section */}
+        <div className="visit-form-section">
+          <div className="form-card">
+            <div className="form-card-header">
+              <i className="fas fa-play-circle me-2"></i>
+              <h5 className="mb-0">{t("Visit Starter")}</h5>
             </div>
 
-            <div className="card-body">
-              <form className="row g-3" onSubmit={continueVisit}>
-                <div className="col-12">
-                  <label className="form-label fw-semibold">Patient</label>
+            <div className="form-card-body">
+              <form onSubmit={continueVisit}>
+                {/* Patient Selection */}
+                <div className="form-group">
+                  <label className="form-label">
+                    <i className="fas fa-user me-2"></i>
+                    {t("Patient")}
+                    <span className="required-star">*</span>
+                  </label>
                   <select
                     className="form-select"
                     name="customer_id"
@@ -224,7 +246,7 @@ export default function StartVisitPage() {
                     onChange={handleChange}
                     required
                   >
-                    <option value="">Select patient</option>
+                    <option value="">{t("Select patient")}</option>
                     {patients.map((patient) => (
                       <option key={patient.id} value={patient.id}>
                         {patient.name}
@@ -236,61 +258,64 @@ export default function StartVisitPage() {
                   </select>
                 </div>
 
-                <div className="col-12">
-                  <label className="form-label fw-semibold">Visit Type</label>
-                  <div className="row g-3">
+                {/* Visit Type Selection */}
+                <div className="form-group">
+                  <label className="form-label">
+                    <i className="fas fa-stethoscope me-2"></i>
+                    {t("Visit Type")}
+                    <span className="required-star">*</span>
+                  </label>
+                  <div className="visit-types-grid">
                     {visitCards.map((card) => {
                       const active = form.visit_type === card.key;
-
                       return (
-                        <div className="col-12 col-md-4" key={card.key}>
-                          <label
-                            className={`card h-100 border ${
-                              active ? `border-${card.color} shadow-sm` : ""
-                            }`}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <div className="card-body">
-                              <div className="form-check mb-2">
-                                <input
-                                  className="form-check-input"
-                                  type="radio"
-                                  name="visit_type"
-                                  value={card.key}
-                                  checked={active}
-                                  onChange={handleChange}
-                                  id={`visit_type_${card.key}`}
-                                />
-                                <label
-                                  className="form-check-label fw-semibold"
-                                  htmlFor={`visit_type_${card.key}`}
-                                >
-                                  <i className={`${card.icon} me-2`}></i>
-                                  {card.title}
-                                </label>
-                              </div>
-
-                              <div className="small text-muted mb-2">
-                                {card.description}
-                              </div>
-
-                              <div
-                                className={`small text-${card.color} fw-semibold`}
-                              >
-                                {card.nextStep}
-                              </div>
-                            </div>
-                          </label>
+                        <div
+                          key={card.key}
+                          className={`visit-card ${active ? `active ${card.color}` : ""}`}
+                          onClick={() => {
+                            setForm((prev) => ({
+                              ...prev,
+                              visit_type: card.key,
+                            }));
+                          }}
+                        >
+                          <div className="visit-card-radio">
+                            <input
+                              type="radio"
+                              name="visit_type"
+                              value={card.key}
+                              checked={active}
+                              onChange={handleChange}
+                              id={`visit_type_${card.key}`}
+                            />
+                            <label
+                              className="visit-card-title"
+                              htmlFor={`visit_type_${card.key}`}
+                            >
+                              <i className={`${card.icon} me-2`}></i>
+                              {t(card.titleKey)}
+                            </label>
+                          </div>
+                          <p className="visit-card-description">
+                            {t(card.descriptionKey)}
+                          </p>
+                          <div className={`visit-card-next text-${card.color}`}>
+                            <i className="fas fa-arrow-right me-1"></i>
+                            {t(card.nextStepKey)}
+                          </div>
                         </div>
                       );
                     })}
                   </div>
                 </div>
 
-                {form.visit_type === "treatment_from_plan" ? (
-                  <div className="col-12">
-                    <label className="form-label fw-semibold">
-                      Existing Treatment Plan
+                {/* Treatment Plan Selection */}
+                {form.visit_type === "treatment_from_plan" && (
+                  <div className="form-group">
+                    <label className="form-label">
+                      <i className="fas fa-notes-medical me-2"></i>
+                      {t("Existing Treatment Plan")}
+                      <span className="required-star">*</span>
                     </label>
                     <select
                       className="form-select"
@@ -302,56 +327,71 @@ export default function StartVisitPage() {
                     >
                       <option value="">
                         {form.customer_id
-                          ? "Select treatment plan"
-                          : "Select patient first"}
+                          ? t("Select treatment plan")
+                          : t("Select patient first")}
                       </option>
-
                       {patientPlans.map((plan) => (
                         <option key={plan.id} value={plan.id}>
                           #{plan.id} - {plan.title}
                         </option>
                       ))}
                     </select>
-
-                    {form.customer_id && patientPlans.length === 0 ? (
-                      <div className="form-text text-danger">
-                        This patient has no treatment plans yet. Create a dental
-                        record or treatment plan first.
+                    {form.customer_id && patientPlans.length === 0 && (
+                      <div className="form-hint error">
+                        <i className="fas fa-exclamation-triangle me-1"></i>
+                        {t("This patient has no treatment plans yet.")}
                       </div>
-                    ) : null}
+                    )}
                   </div>
-                ) : null}
+                )}
 
-                {selectedPatient ? (
-                  <div className="col-12">
-                    <div className="alert alert-info mb-0">
-                      <div className="fw-semibold mb-1">Selected Patient</div>
-                      <div>{selectedPatient.name}</div>
-                      <div className="small">
-                        {selectedPatient.email || "-"} |{" "}
-                        {selectedPatient.phone || "-"}
+                {/* Selected Patient Info */}
+                {selectedPatient && (
+                  <div className="info-card patient-info">
+                    <div className="info-card-header">
+                      <i className="fas fa-user-circle me-2"></i>
+                      <span className="fw-semibold">
+                        {t("Selected Patient")}
+                      </span>
+                    </div>
+                    <div className="info-card-body">
+                      <div className="patient-name">{selectedPatient.name}</div>
+                      <div className="patient-contact">
+                        <span>{selectedPatient.email || "-"}</span>
+                        <span className="separator">|</span>
+                        <span>{selectedPatient.phone || "-"}</span>
                       </div>
                     </div>
                   </div>
-                ) : null}
+                )}
 
-                {selectedPlan ? (
-                  <div className="col-12">
-                    <div className="alert alert-light border mb-0">
-                      <div className="fw-semibold mb-1">Selected Plan</div>
-                      <div>{selectedPlan.title}</div>
-                      <div className="small text-muted">
-                        Status: {selectedPlan.status || "-"} | Total Cost:{" "}
-                        {selectedPlan.total_cost ?? "-"}
+                {/* Selected Plan Info */}
+                {selectedPlan && (
+                  <div className="info-card plan-info">
+                    <div className="info-card-header">
+                      <i className="fas fa-clipboard-list me-2"></i>
+                      <span className="fw-semibold">{t("Selected Plan")}</span>
+                    </div>
+                    <div className="info-card-body">
+                      <div className="plan-title">{selectedPlan.title}</div>
+                      <div className="plan-details">
+                        <span>
+                          {t("Status")}: {selectedPlan.status || "-"}
+                        </span>
+                        <span className="separator">|</span>
+                        <span>
+                          {t("Total Cost")}: {selectedPlan.total_cost ?? "-"}
+                        </span>
                       </div>
                     </div>
                   </div>
-                ) : null}
+                )}
 
-                <div className="col-12 d-flex flex-wrap gap-2">
+                {/* Form Actions */}
+                <div className="form-actions">
                   <button
                     type="submit"
-                    className="btn btn-primary"
+                    className="btn btn-primary btn-lg"
                     disabled={
                       submitting ||
                       !form.customer_id ||
@@ -359,17 +399,26 @@ export default function StartVisitPage() {
                         !form.treatment_plan_id)
                     }
                   >
-                    {submitting
-                      ? "Continuing..."
-                      : form.visit_type === "consultation"
-                        ? "Book Consultation"
-                        : form.visit_type === "treatment_from_plan"
-                          ? "Open Treatment Plan"
-                          : "Open Patient Profile"}
+                    {submitting ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2"></span>
+                        {t("Continuing...")}
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-arrow-right me-2"></i>
+                        {form.visit_type === "consultation"
+                          ? t("Book Consultation")
+                          : form.visit_type === "treatment_from_plan"
+                            ? t("Open Treatment Plan")
+                            : t("Open Patient Profile")}
+                      </>
+                    )}
                   </button>
 
                   <Link to="/admin/erp" className="btn btn-outline-secondary">
-                    Cancel
+                    <i className="fas fa-times me-2"></i>
+                    {t("Cancel")}
                   </Link>
                 </div>
               </form>
@@ -377,65 +426,73 @@ export default function StartVisitPage() {
           </div>
         </div>
 
-        <div className="col-12 col-xl-4">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Workflow Preview</h5>
+        {/* Workflow Preview Section */}
+        <div className="workflow-section">
+          <div className="workflow-card">
+            <div className="workflow-card-header">
+              <i className="fas fa-diagram-project me-2"></i>
+              <h5 className="mb-0">{t("Workflow Preview")}</h5>
             </div>
 
-            <div className="card-body">
-              {form.visit_type === "consultation" ? (
-                <>
-                  <div className="fw-semibold mb-2">Consultation Flow</div>
-                  <ol className="small text-muted ps-3 mb-0">
-                    <li>Book consultation appointment</li>
-                    <li>Consultation invoice is created</li>
-                    <li>Doctor examines patient</li>
-                    <li>Complete appointment</li>
-                    <li>Go to invoice/payment page</li>
-                    <li>Create dental record if treatment is needed</li>
-                  </ol>
-                </>
-              ) : null}
-
-              {form.visit_type === "treatment_from_plan" ? (
-                <>
-                  <div className="fw-semibold mb-2">
-                    Treatment From Plan Flow
+            <div className="workflow-card-body">
+              {form.visit_type === "consultation" && (
+                <div className="workflow-steps">
+                  <div className="workflow-title">
+                    <i className="fas fa-stethoscope text-primary me-2"></i>
+                    {t("Consultation Flow")}
                   </div>
-                  <ol className="small text-muted ps-3 mb-0">
-                    <li>Open existing treatment plan</li>
-                    <li>Select the required plan item</li>
-                    <li>Start procedure</li>
-                    <li>Create treatment appointment</li>
-                    <li>Complete appointment</li>
-                    <li>Create invoice and continue to payment</li>
+                  <ol className="steps-list">
+                    <li>{t("Book consultation appointment")}</li>
+                    <li>{t("Consultation invoice is created")}</li>
+                    <li>{t("Doctor examines patient")}</li>
+                    <li>{t("Complete appointment")}</li>
+                    <li>{t("Go to invoice/payment page")}</li>
+                    <li>{t("Create dental record if treatment is needed")}</li>
                   </ol>
-                </>
-              ) : null}
+                </div>
+              )}
 
-              {form.visit_type === "emergency_treatment" ? (
-                <>
-                  <div className="fw-semibold mb-2">
-                    Emergency Treatment Flow
+              {form.visit_type === "treatment_from_plan" && (
+                <div className="workflow-steps">
+                  <div className="workflow-title">
+                    <i className="fas fa-notes-medical text-success me-2"></i>
+                    {t("Treatment From Plan Flow")}
                   </div>
-                  <ol className="small text-muted ps-3 mb-0">
-                    <li>Open patient profile</li>
-                    <li>Add dental record from dental chart</li>
-                    <li>Convert to treatment plan item if needed</li>
-                    <li>Open treatment plan</li>
-                    <li>Start procedure and book slot</li>
-                    <li>Complete appointment and continue to payment</li>
+                  <ol className="steps-list">
+                    <li>{t("Open existing treatment plan")}</li>
+                    <li>{t("Select the required plan item")}</li>
+                    <li>{t("Start procedure")}</li>
+                    <li>{t("Create treatment appointment")}</li>
+                    <li>{t("Complete appointment")}</li>
+                    <li>{t("Create invoice and continue to payment")}</li>
                   </ol>
-                </>
-              ) : null}
+                </div>
+              )}
 
-              <hr />
+              {form.visit_type === "emergency_treatment" && (
+                <div className="workflow-steps">
+                  <div className="workflow-title">
+                    <i className="fas fa-truck-medical text-warning me-2"></i>
+                    {t("Emergency Treatment Flow")}
+                  </div>
+                  <ol className="steps-list">
+                    <li>{t("Open patient profile")}</li>
+                    <li>{t("Add dental record from dental chart")}</li>
+                    <li>{t("Convert to treatment plan item if needed")}</li>
+                    <li>{t("Open treatment plan")}</li>
+                    <li>{t("Start procedure and book slot")}</li>
+                    <li>{t("Complete appointment and continue to payment")}</li>
+                  </ol>
+                </div>
+              )}
 
-              <div className="small text-muted">
-                Dental Record and Treatment Plan remain part of the treatment
-                workflow. Billing should happen only after a valid consultation
-                or a valid treatment appointment completion.
+              <hr className="workflow-divider" />
+
+              <div className="workflow-note">
+                <i className="fas fa-info-circle me-2"></i>
+                {t(
+                  "Dental Record and Treatment Plan remain part of the treatment workflow. Billing should happen only after a valid consultation or a valid treatment appointment completion.",
+                )}
               </div>
             </div>
           </div>

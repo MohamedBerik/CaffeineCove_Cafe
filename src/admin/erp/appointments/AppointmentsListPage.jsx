@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./AppointmentListPage.css";
 
 export default function AppointmentsListPage() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -67,7 +70,7 @@ export default function AppointmentsListPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load appointments.",
+          t("Failed to load appointments."),
       );
     } finally {
       setLoading(false);
@@ -77,7 +80,8 @@ export default function AppointmentsListPage() {
   const formatDate = (value) => {
     if (!value) return "-";
     try {
-      return new Date(value).toLocaleDateString("en-US", {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleDateString(lang, {
         year: "numeric",
         month: "short",
         day: "2-digit",
@@ -95,7 +99,8 @@ export default function AppointmentsListPage() {
   const formatDateTime = (value) => {
     if (!value) return "-";
     try {
-      return new Date(value).toLocaleString("en-US", {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleString(lang, {
         year: "numeric",
         month: "short",
         day: "2-digit",
@@ -109,8 +114,8 @@ export default function AppointmentsListPage() {
 
   const formatAppointmentType = (value) => {
     const type = String(value || "").toLowerCase();
-    if (type === "consultation") return "Consultation";
-    if (type === "treatment") return "Treatment";
+    if (type === "consultation") return t("Consultation");
+    if (type === "treatment") return t("Treatment");
     return value || "-";
   };
 
@@ -201,12 +206,12 @@ export default function AppointmentsListPage() {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setActionError(firstError || "Action failed.");
+        setActionError(firstError || t("Action failed."));
       } else {
         setActionError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Action failed.",
+            t("Action failed."),
         );
       }
     } finally {
@@ -215,27 +220,27 @@ export default function AppointmentsListPage() {
   };
 
   const handleCancel = async (item) => {
-    const ok = window.confirm("Cancel this appointment?");
+    const ok = window.confirm(t("Cancel this appointment?"));
     if (!ok) return;
 
     await postAction(
       `/erp/appointments/${item.id}/cancel`,
-      "Appointment cancelled successfully.",
+      t("Appointment cancelled successfully."),
     );
   };
 
   const handleNoShow = async (item) => {
-    const ok = window.confirm("Mark this appointment as no-show?");
+    const ok = window.confirm(t("Mark this appointment as no-show?"));
     if (!ok) return;
 
     await postAction(
       `/erp/appointments/${item.id}/no-show`,
-      "Appointment marked as no-show.",
+      t("Appointment marked as no-show."),
     );
   };
 
   const handleSendReminder = async (item) => {
-    const ok = window.confirm("Send reminder for this appointment?");
+    const ok = window.confirm(t("Send reminder for this appointment?"));
     if (!ok) return;
 
     try {
@@ -246,19 +251,19 @@ export default function AppointmentsListPage() {
         `/erp/appointments/${item.id}/send-reminder`,
       );
 
-      setActionSuccess(res?.data?.msg || "Reminder sent successfully.");
+      setActionSuccess(res?.data?.msg || t("Reminder sent successfully."));
 
       await loadAll();
     } catch (err) {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setActionError(firstError || "Failed to send reminder.");
+        setActionError(firstError || t("Failed to send reminder."));
       } else {
         setActionError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to send reminder.",
+            t("Failed to send reminder."),
         );
       }
     } finally {
@@ -269,7 +274,9 @@ export default function AppointmentsListPage() {
   const handleComplete = async (item) => {
     const typeLabel = formatAppointmentType(item.appointment_type);
     const ok = window.confirm(
-      `Complete this ${typeLabel.toLowerCase()} appointment?`,
+      t("Complete this {{type}} appointment?", {
+        type: typeLabel.toLowerCase(),
+      }),
     );
     if (!ok) return;
 
@@ -280,7 +287,7 @@ export default function AppointmentsListPage() {
       const res = await axios.post(`/erp/appointments/${item.id}/complete`, {});
       const result = res?.data || {};
 
-      setActionSuccess(result?.msg || "Appointment completed successfully.");
+      setActionSuccess(result?.msg || t("Appointment completed successfully."));
 
       await loadAll();
 
@@ -301,12 +308,12 @@ export default function AppointmentsListPage() {
 
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setActionError(firstError || "Failed to complete appointment.");
+        setActionError(firstError || t("Failed to complete appointment."));
       } else {
         setActionError(
           responseData?.message ||
             responseData?.msg ||
-            "Failed to complete appointment.",
+            t("Failed to complete appointment."),
         );
       }
 
@@ -344,19 +351,19 @@ export default function AppointmentsListPage() {
         payload,
       );
 
-      setActionSuccess("Appointment rescheduled successfully.");
+      setActionSuccess(t("Appointment rescheduled successfully."));
       closeInlineForms();
       await loadAll();
     } catch (err) {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setActionError(firstError || "Failed to reschedule appointment.");
+        setActionError(firstError || t("Failed to reschedule appointment."));
       } else {
         setActionError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to reschedule appointment.",
+            t("Failed to reschedule appointment."),
         );
       }
     } finally {
@@ -407,7 +414,7 @@ export default function AppointmentsListPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load appointments.",
+          t("Failed to load appointments."),
       );
     } finally {
       setLoading(false);
@@ -421,156 +428,209 @@ export default function AppointmentsListPage() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Appointments</h3>
-          <p className="text-muted mb-0">
-            Daily schedule, doctor bookings, and patient appointments
+    <div className="appointments-page">
+      {/* Header Section */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Appointments")}</h1>
+          <p className="page-subtitle">
+            {t("Daily schedule, doctor bookings, and patient appointments")}
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <Link
             to="/admin/erp/appointments/calendar"
             className="btn btn-outline-secondary"
           >
-            Calendar
+            <i className="fas fa-calendar-alt me-2"></i>
+            {t("Calendar")}
           </Link>
 
           <Link
             to="/admin/erp/appointments/create"
             className="btn btn-outline-primary"
           >
-            Book Appointment
+            <i className="fas fa-plus-circle me-2"></i>
+            {t("Book Appointment")}
           </Link>
 
           <button className="btn btn-primary" onClick={loadAll}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
-      {error ? (
-        <div className="alert alert-danger d-flex justify-content-between align-items-center">
-          <span>{error}</span>
-          <button className="btn btn-sm btn-outline-danger" onClick={loadAll}>
-            Retry
-          </button>
+      {/* Alerts */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
         </div>
-      ) : null}
+      )}
 
-      {actionError ? (
-        <div className="alert alert-danger">{actionError}</div>
-      ) : null}
+      {actionError && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-triangle me-2"></i>
+          {actionError}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setActionError("")}
+          ></button>
+        </div>
+      )}
 
-      {actionSuccess ? (
-        <div className="alert alert-success">{actionSuccess}</div>
-      ) : null}
+      {actionSuccess && (
+        <div className="alert alert-success alert-dismissible fade show">
+          <i className="fas fa-check-circle me-2"></i>
+          {actionSuccess}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setActionSuccess("")}
+          ></button>
+        </div>
+      )}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
-          <form className="row g-3 align-items-end" onSubmit={applySearch}>
-            <div className="col-12 col-lg-4">
-              <label className="form-label fw-semibold">Search</label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="ID, patient, doctor, date, time, status, type, invoice, plan..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-
-            <div className="col-12 col-lg-3">
-              <label className="form-label fw-semibold">Date</label>
-              <input
-                type="date"
-                className="form-control"
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-              />
-            </div>
-
-            <div className="col-12 col-lg-3">
-              <label className="form-label fw-semibold">Status</label>
-              <select
-                className="form-select"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="">All Statuses</option>
-                <option value="scheduled">Scheduled</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-                <option value="no_show">No Show</option>
-              </select>
-            </div>
-
-            <div className="col-12 col-lg-1">
-              <label className="form-label fw-semibold">Loaded</label>
-              <div className="form-control bg-light">
-                {meta?.total ?? rows.length}
+      {/* Search Filters Card */}
+      <div className="filters-card">
+        <div className="filters-card-header">
+          <i className="fas fa-filter me-2"></i>
+          <h5 className="mb-0">{t("Search & Filters")}</h5>
+        </div>
+        <div className="filters-card-body">
+          <form onSubmit={applySearch}>
+            <div className="filters-grid">
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-search me-1"></i>
+                  {t("Search")}
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder={t(
+                    "ID, patient, doctor, date, time, status, type, invoice, plan...",
+                  )}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
               </div>
-            </div>
 
-            <div className="col-12 col-lg-1">
-              <label className="form-label fw-semibold">Shown</label>
-              <div className="form-control bg-light">{filteredRows.length}</div>
-            </div>
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-calendar me-1"></i>
+                  {t("Date")}
+                </label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                />
+              </div>
 
-            <div className="col-12 d-flex gap-2">
-              <button type="submit" className="btn btn-outline-primary">
-                Search
-              </button>
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-tag me-1"></i>
+                  {t("Status")}
+                </label>
+                <select
+                  className="form-select"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="">{t("All Statuses")}</option>
+                  <option value="scheduled">{t("Scheduled")}</option>
+                  <option value="completed">{t("Completed")}</option>
+                  <option value="cancelled">{t("Cancelled")}</option>
+                  <option value="no_show">{t("No Show")}</option>
+                </select>
+              </div>
 
-              <button
-                type="button"
-                className="btn btn-outline-secondary"
-                onClick={clearFilters}
-              >
-                Clear Filters
-              </button>
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-database me-1"></i>
+                  {t("Loaded")}
+                </label>
+                <div className="filter-badge">{meta?.total ?? rows.length}</div>
+              </div>
+
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-eye me-1"></i>
+                  {t("Shown")}
+                </label>
+                <div className="filter-badge">{filteredRows.length}</div>
+              </div>
+
+              <div className="filter-actions">
+                <button type="submit" className="btn btn-primary">
+                  <i className="fas fa-search me-2"></i>
+                  {t("Search")}
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={clearFilters}
+                >
+                  <i className="fas fa-eraser me-2"></i>
+                  {t("Clear Filters")}
+                </button>
+              </div>
             </div>
           </form>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Appointments List</h5>
+      {/* Appointments Table */}
+      <div className="appointments-table-card">
+        <div className="table-card-header">
+          <i className="fas fa-calendar-check me-2"></i>
+          <h5 className="mb-0">{t("Appointments List")}</h5>
         </div>
 
-        <div className="card-body p-0">
+        <div className="table-card-body">
           {filteredRows.length === 0 ? (
-            <div className="p-4 text-muted">No appointments found.</div>
+            <div className="empty-state">
+              <i className="fas fa-calendar-times empty-icon"></i>
+              <p className="empty-text">{t("No appointments found.")}</p>
+            </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light">
+              <table className="appointments-table">
+                <thead>
                   <tr>
-                    <th style={{ minWidth: 110 }}>ID</th>
-                    <th style={{ minWidth: 180 }}>Patient</th>
-                    <th style={{ minWidth: 180 }}>Doctor</th>
-                    <th style={{ minWidth: 130 }}>Date</th>
-                    <th style={{ minWidth: 100 }}>Time</th>
-                    <th style={{ minWidth: 140 }}>Type</th>
-                    <th style={{ minWidth: 120 }}>Status</th>
-                    <th style={{ minWidth: 140 }}>Reminder</th>
-                    <th style={{ minWidth: 180 }}>Next Reminder</th>
-                    <th style={{ minWidth: 180 }}>Last Reminder</th>
-                    <th style={{ minWidth: 180 }}>Follow-up</th>
-                    <th style={{ minWidth: 120 }}>Invoice</th>
-                    <th style={{ minWidth: 140 }}>Treatment Plan</th>
-                    <th style={{ minWidth: 220 }}>Notes</th>
-                    <th style={{ minWidth: 420 }}>Actions</th>
+                    <th>{t("ID")}</th>
+                    <th>{t("Patient")}</th>
+                    <th>{t("Doctor")}</th>
+                    <th>{t("Date")}</th>
+                    <th>{t("Time")}</th>
+                    <th>{t("Type")}</th>
+                    <th>{t("Status")}</th>
+                    <th>{t("Reminder")}</th>
+                    <th>{t("Next Reminder")}</th>
+                    <th>{t("Last Reminder")}</th>
+                    <th>{t("Follow-up")}</th>
+                    <th>{t("Invoice")}</th>
+                    <th>{t("Treatment Plan")}</th>
+                    <th>{t("Notes")}</th>
+                    <th>{t("Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -595,6 +655,7 @@ export default function AppointmentsListPage() {
                       formatDateTime={formatDateTime}
                       formatAppointmentType={formatAppointmentType}
                       highlightAppointmentId={highlightAppointmentId}
+                      t={t}
                     />
                   ))}
                 </tbody>
@@ -607,6 +668,7 @@ export default function AppointmentsListPage() {
   );
 }
 
+// AppointmentRow Component
 function AppointmentRow({
   item,
   doctors,
@@ -626,6 +688,7 @@ function AppointmentRow({
   formatDateTime,
   formatAppointmentType,
   highlightAppointmentId,
+  t,
 }) {
   const isRescheduleOpen = openRescheduleId === item.id;
   const isHighlighted =
@@ -646,48 +709,52 @@ function AppointmentRow({
 
   return (
     <>
-      <tr
-        className={isHighlighted ? "table-warning" : ""}
-        style={isHighlighted ? { boxShadow: "inset 4px 0 0 #ffc107" } : {}}
-      >
-        <td>
-          <span className="fw-semibold">APT-{item.id}</span>
+      <tr className={isHighlighted ? "highlighted-row" : ""}>
+        <td data-label={t("ID")}>
+          <span className="appointment-id">APT-{item.id}</span>
         </td>
 
-        <td>
-          <div className="fw-semibold">
-            {patientId ? (
-              <Link
-                to={`/admin/erp/patients/${patientId}/profile`}
-                className="text-decoration-none"
-              >
-                {item.patient?.name || `Patient #${patientId}`}
-              </Link>
-            ) : (
-              item.patient?.name || "-"
-            )}
-          </div>
-          <div className="small text-muted">{item.patient?.email || "-"}</div>
-        </td>
-
-        <td>{item.doctor?.name || item.doctor_name || "-"}</td>
-        <td>{formatDate(item.appointment_date)}</td>
-        <td>{formatTime(item.appointment_time)}</td>
-        <td>
-          <AppointmentTypeBadge type={item.appointment_type} />
-        </td>
-        <td>
-          <StatusBadge status={item.status} />
-        </td>
-
-        <td>
-          <ReminderStatusBadge status={item.reminder_status} />
-          <div className="small text-muted">
-            Sent: {Number(item.reminder_sent_count || 0)}
+        <td data-label={t("Patient")}>
+          <div className="patient-info">
+            <div className="patient-name">
+              {patientId ? (
+                <Link
+                  to={`/admin/erp/patients/${patientId}/profile`}
+                  className="patient-link"
+                >
+                  {item.patient?.name || `Patient #${patientId}`}
+                </Link>
+              ) : (
+                item.patient?.name || "-"
+              )}
+            </div>
+            <div className="patient-email">{item.patient?.email || "-"}</div>
           </div>
         </td>
 
-        <td>
+        <td data-label={t("Doctor")}>
+          {item.doctor?.name || item.doctor_name || "-"}
+        </td>
+
+        <td data-label={t("Date")}>{formatDate(item.appointment_date)}</td>
+        <td data-label={t("Time")}>{formatTime(item.appointment_time)}</td>
+
+        <td data-label={t("Type")}>
+          <AppointmentTypeBadge type={item.appointment_type} t={t} />
+        </td>
+
+        <td data-label={t("Status")}>
+          <StatusBadge status={item.status} t={t} />
+        </td>
+
+        <td data-label={t("Reminder")}>
+          <ReminderStatusBadge status={item.reminder_status} t={t} />
+          <div className="reminder-count">
+            {t("Sent")}: {Number(item.reminder_sent_count || 0)}
+          </div>
+        </td>
+
+        <td data-label={t("Next Reminder")}>
           {item.next_reminder_at ? (
             new Date(item.next_reminder_at) < new Date() ? (
               <span className="text-danger fw-semibold">
@@ -700,20 +767,26 @@ function AppointmentRow({
             "-"
           )}
         </td>
-        <td>{formatDateTime(item.last_reminder_at)}</td>
-        <td>
+
+        <td data-label={t("Last Reminder")}>
+          {formatDateTime(item.last_reminder_at)}
+        </td>
+
+        <td data-label={t("Follow-up")}>
           <FollowUpStatusBadge
             state={item.follow_up_state}
             retryCount={item.follow_up_retry_count}
             nextRetryAt={item.follow_up_next_retry_at}
             formatDateTime={formatDateTime}
+            t={t}
           />
         </td>
-        <td>
+
+        <td data-label={t("Invoice")}>
           {invoiceId ? (
             <Link
               to={`/admin/erp/invoices/${invoiceId}`}
-              className="text-decoration-none"
+              className="invoice-link"
             >
               #{invoiceId}
             </Link>
@@ -722,11 +795,11 @@ function AppointmentRow({
           )}
         </td>
 
-        <td>
+        <td data-label={t("Treatment Plan")}>
           {treatmentPlanId ? (
             <Link
               to={`/admin/erp/treatment-plans/${treatmentPlanId}`}
-              className="text-decoration-none"
+              className="plan-link"
             >
               #{treatmentPlanId}
             </Link>
@@ -735,109 +808,119 @@ function AppointmentRow({
           )}
         </td>
 
-        <td>{item.notes || "-"}</td>
+        <td data-label={t("Notes")} className="notes-cell">
+          {item.notes || "-"}
+        </td>
 
-        <td>
-          <div className="d-flex flex-wrap gap-2">
-            {patientId ? (
+        <td data-label={t("Actions")}>
+          <div className="action-buttons">
+            {patientId && (
               <Link
                 to={`/admin/erp/patients/${patientId}/profile`}
                 className="btn btn-sm btn-outline-primary"
+                title={t("View Patient")}
               >
-                Patient
+                <i className="fas fa-user"></i>
               </Link>
-            ) : null}
+            )}
 
             <Link
               to={`/admin/erp/appointments/${item.id}/activity`}
               className="btn btn-sm btn-outline-secondary"
+              title={t("View Activity")}
             >
-              Activity
+              <i className="fas fa-history"></i>
             </Link>
 
-            {invoiceId ? (
+            {invoiceId && (
               <Link
                 to={`/admin/erp/invoices/${invoiceId}`}
                 className="btn btn-sm btn-outline-success"
+                title={t("View Invoice")}
               >
-                Invoice
+                <i className="fas fa-file-invoice"></i>
               </Link>
-            ) : null}
+            )}
 
-            {treatmentPlanId ? (
+            {treatmentPlanId && (
               <Link
                 to={`/admin/erp/treatment-plans/${treatmentPlanId}`}
                 className="btn btn-sm btn-outline-info"
+                title={t("View Treatment Plan")}
               >
-                Plan
+                <i className="fas fa-notes-medical"></i>
               </Link>
-            ) : null}
+            )}
 
-            {canCancel ? (
+            {canCancel && (
               <button
                 className="btn btn-sm btn-outline-danger"
                 onClick={() => onCancel(item)}
                 disabled={actingId === `/erp/appointments/${item.id}/cancel`}
+                title={t("Cancel")}
               >
-                Cancel
+                <i className="fas fa-times"></i>
               </button>
-            ) : null}
+            )}
 
-            {canNoShow ? (
+            {canNoShow && (
               <button
                 className="btn btn-sm btn-outline-warning"
                 onClick={() => onNoShow(item)}
                 disabled={actingId === `/erp/appointments/${item.id}/no-show`}
+                title={t("Mark as No Show")}
               >
-                No Show
+                <i className="fas fa-user-slash"></i>
               </button>
-            ) : null}
+            )}
 
-            {canSendReminder ? (
+            {canSendReminder && (
               <button
                 className="btn btn-sm btn-outline-dark"
                 onClick={() => onSendReminder(item)}
                 disabled={actingId === `reminder-${item.id}`}
+                title={t("Send Reminder")}
               >
-                {actingId === `reminder-${item.id}`
-                  ? "Sending..."
-                  : "Send Reminder"}
+                <i className="fas fa-bell"></i>
               </button>
-            ) : null}
+            )}
 
-            {canComplete ? (
+            {canComplete && (
               <button
                 className="btn btn-sm btn-outline-success"
                 onClick={() => onComplete(item)}
                 disabled={actingId === `complete-${item.id}`}
+                title={t("Complete")}
               >
-                {actingId === `complete-${item.id}`
-                  ? "Completing..."
-                  : "Complete"}
+                <i className="fas fa-check"></i>
               </button>
-            ) : null}
+            )}
 
-            {canReschedule ? (
+            {canReschedule && (
               <button
                 className="btn btn-sm btn-outline-info"
                 onClick={() => onOpenReschedule(item)}
+                title={t("Reschedule")}
               >
-                Reschedule
+                <i className="fas fa-calendar-alt"></i>
               </button>
-            ) : null}
+            )}
           </div>
         </td>
       </tr>
 
-      {isRescheduleOpen ? (
-        <tr>
-          <td colSpan="15" className="bg-light">
-            <div className="p-3">
-              <div className="fw-semibold mb-3">Reschedule Appointment</div>
+      {isRescheduleOpen && (
+        <tr className="reschedule-row">
+          <td colSpan="15">
+            <div className="reschedule-form">
+              <div className="reschedule-header">
+                <i className="fas fa-calendar-week me-2"></i>
+                <strong>{t("Reschedule Appointment")}</strong>
+              </div>
 
-              <div className="row g-3 align-items-end">
-                <div className="col-12 col-md-3">
-                  <label className="form-label fw-semibold">Date</label>
+              <div className="reschedule-fields">
+                <div className="reschedule-field">
+                  <label>{t("Date")}</label>
                   <input
                     type="date"
                     className="form-control"
@@ -851,8 +934,8 @@ function AppointmentRow({
                   />
                 </div>
 
-                <div className="col-12 col-md-3">
-                  <label className="form-label fw-semibold">Time</label>
+                <div className="reschedule-field">
+                  <label>{t("Time")}</label>
                   <input
                     type="time"
                     className="form-control"
@@ -866,8 +949,8 @@ function AppointmentRow({
                   />
                 </div>
 
-                <div className="col-12 col-md-3">
-                  <label className="form-label fw-semibold">Doctor</label>
+                <div className="reschedule-field">
+                  <label>{t("Doctor")}</label>
                   <select
                     className="form-select"
                     value={rescheduleForm.doctor_id}
@@ -878,7 +961,7 @@ function AppointmentRow({
                       }))
                     }
                   >
-                    <option value="">Select doctor</option>
+                    <option value="">{t("Select doctor")}</option>
                     {doctors.map((doctor) => (
                       <option key={doctor.id} value={doctor.id}>
                         {doctor.name}
@@ -887,80 +970,98 @@ function AppointmentRow({
                   </select>
                 </div>
 
-                <div className="col-12 col-md-3 d-flex gap-2">
+                <div className="reschedule-actions">
                   <button
-                    className="btn btn-info text-white"
+                    className="btn btn-primary"
                     onClick={() => onSubmitReschedule(item.id)}
                     disabled={actingId === `reschedule-${item.id}`}
-                    type="button"
                   >
-                    {actingId === `reschedule-${item.id}`
-                      ? "Saving..."
-                      : "Confirm"}
+                    {actingId === `reschedule-${item.id}` ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2"></span>
+                        {t("Saving...")}
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-save me-2"></i>
+                        {t("Confirm")}
+                      </>
+                    )}
                   </button>
 
                   <button
                     className="btn btn-outline-secondary"
                     onClick={onCloseInlineForms}
-                    type="button"
                   >
-                    Close
+                    <i className="fas fa-times me-2"></i>
+                    {t("Close")}
                   </button>
                 </div>
               </div>
             </div>
           </td>
         </tr>
-      ) : null}
+      )}
     </>
   );
 }
 
-function StatusBadge({ status }) {
+// Badge Components
+function StatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
-  let cls = "secondary";
+  let variant = "secondary";
+  let label = status || "-";
 
-  if (["completed"].includes(value)) cls = "success";
-  else if (["cancelled", "no_show"].includes(value)) cls = "danger";
-  else if (["scheduled"].includes(value)) cls = "warning";
+  if (value === "completed") {
+    variant = "success";
+    label = t("Completed");
+  } else if (value === "cancelled") {
+    variant = "danger";
+    label = t("Cancelled");
+  } else if (value === "no_show") {
+    variant = "danger";
+    label = t("No Show");
+  } else if (value === "scheduled") {
+    variant = "warning";
+    label = t("Scheduled");
+  }
 
-  return <span className={`badge bg-${cls}`}>{status || "-"}</span>;
+  return <span className={`status-badge status-${variant}`}>{label}</span>;
 }
 
-function AppointmentTypeBadge({ type }) {
+function AppointmentTypeBadge({ type, t }) {
   const value = String(type || "").toLowerCase();
-
-  let cls = "secondary";
+  let variant = "secondary";
   let label = type || "-";
 
   if (value === "consultation") {
-    cls = "primary";
-    label = "Consultation";
+    variant = "primary";
+    label = t("Consultation");
   } else if (value === "treatment") {
-    cls = "info";
-    label = "Treatment";
+    variant = "info";
+    label = t("Treatment");
   }
 
-  return <span className={`badge bg-${cls}`}>{label}</span>;
+  return <span className={`type-badge type-${variant}`}>{label}</span>;
 }
-function ReminderStatusBadge({ status }) {
-  const value = String(status || "").toLowerCase();
 
-  let cls = "secondary";
+function ReminderStatusBadge({ status, t }) {
+  const value = String(status || "").toLowerCase();
+  let variant = "secondary";
   let label = status || "-";
 
   if (value === "pending") {
-    cls = "warning";
-    label = "Pending";
+    variant = "warning";
+    label = t("Pending");
   } else if (value === "sent") {
-    cls = "success";
-    label = "Sent";
+    variant = "success";
+    label = t("Sent");
   } else if (value === "not_needed") {
-    cls = "secondary";
-    label = "Not Needed";
+    variant = "secondary";
+    label = t("Not Needed");
   }
 
-  return <span className={`badge bg-${cls}`}>{label}</span>;
+  return <span className={`reminder-badge reminder-${variant}`}>{label}</span>;
 }
 
 function FollowUpStatusBadge({
@@ -968,49 +1069,45 @@ function FollowUpStatusBadge({
   retryCount,
   nextRetryAt,
   formatDateTime,
+  t,
 }) {
   const value = String(state || "").toLowerCase();
-
-  let cls = "secondary";
+  let variant = "secondary";
   let label = state || "-";
 
   if (value === "pending") {
-    cls = "warning";
-    label = "Pending";
+    variant = "warning";
+    label = t("Pending");
   } else if (value === "processing") {
-    cls = "info";
-    label = "Processing";
+    variant = "info";
+    label = t("Processing");
   } else if (value === "sent") {
-    cls = "success";
-    label = "Sent";
+    variant = "success";
+    label = t("Sent");
   } else if (value === "retrying") {
-    cls = "dark";
-    label = "Retrying";
+    variant = "dark";
+    label = t("Retrying");
   } else if (value === "stopped") {
-    cls = "danger";
-    label = "Stopped";
+    variant = "danger";
+    label = t("Stopped");
   } else if (value === "skipped") {
-    cls = "secondary";
-    label = "Skipped";
+    variant = "secondary";
+    label = t("Skipped");
   }
 
   return (
-    <div>
-      <span className={`badge bg-${cls}`}>{label}</span>
-
-      <div className="small text-muted">Retries: {Number(retryCount || 0)}</div>
-
-      {nextRetryAt ? (
-        new Date(nextRetryAt) < new Date() ? (
-          <div className="small text-danger fw-semibold">
-            Next: {formatDateTime(nextRetryAt)}
-          </div>
-        ) : (
-          <div className="small text-muted">
-            Next: {formatDateTime(nextRetryAt)}
-          </div>
-        )
-      ) : null}
+    <div className="followup-info">
+      <span className={`followup-badge followup-${variant}`}>{label}</span>
+      <div className="followup-retries">
+        {t("Retries")}: {Number(retryCount || 0)}
+      </div>
+      {nextRetryAt && (
+        <div
+          className={`followup-next ${new Date(nextRetryAt) < new Date() ? "overdue" : ""}`}
+        >
+          {t("Next")}: {formatDateTime(nextRetryAt)}
+        </div>
+      )}
     </div>
   );
 }

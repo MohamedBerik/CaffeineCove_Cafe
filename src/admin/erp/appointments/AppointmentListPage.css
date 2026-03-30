@@ -1,0 +1,473 @@
+/* Appointments Page Styles */
+.appointments-page {
+  padding: 0 0.5rem;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #1a237e, #283593);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  color: #6c757d;
+  margin: 0.25rem 0 0 0;
+  font-size: 0.875rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Filters Card */
+.filters-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.filters-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  color: #1a237e;
+}
+
+.filters-card-body {
+  padding: 1.25rem;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.filter-badge {
+  padding: 0.5rem 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #1a237e;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Appointments Table Card */
+.appointments-table-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.table-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  color: #1a237e;
+}
+
+.table-card-body {
+  padding: 0;
+}
+
+/* Appointments Table */
+.appointments-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.appointments-table thead tr {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.appointments-table th {
+  padding: 0.875rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  text-align: left;
+}
+
+.appointments-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f3f5;
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+.appointments-table tr:hover td {
+  background-color: #f8f9ff;
+}
+
+.highlighted-row {
+  background-color: #fff8e7;
+  box-shadow: inset 4px 0 0 #ffc107;
+}
+
+.appointment-id {
+  font-weight: 600;
+  color: #1a237e;
+}
+
+.patient-link,
+.invoice-link,
+.plan-link {
+  color: #1a237e;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.patient-link:hover,
+.invoice-link:hover,
+.plan-link:hover {
+  text-decoration: underline;
+}
+
+.patient-email {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.notes-cell {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.action-buttons .btn-sm {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Badges */
+.status-badge,
+.type-badge,
+.reminder-badge,
+.followup-badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.status-danger {
+  background: #ffebee;
+  color: #c62828;
+}
+.status-warning {
+  background: #fff3e0;
+  color: #ed6c02;
+}
+.status-secondary {
+  background: #eceff1;
+  color: #546e7a;
+}
+
+.type-primary {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+.type-info {
+  background: #e0f7fa;
+  color: #00838f;
+}
+
+.reminder-warning {
+  background: #fff3e0;
+  color: #ed6c02;
+}
+.reminder-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.reminder-secondary {
+  background: #eceff1;
+  color: #546e7a;
+}
+
+.followup-info {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+.followup-dark {
+  background: #eceff1;
+  color: #37474f;
+}
+.followup-danger {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.reminder-count {
+  font-size: 0.7rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+/* Follow-up Info */
+.followup-info {
+  font-size: 0.75rem;
+}
+
+.followup-retries {
+  color: #6c757d;
+  margin-top: 0.125rem;
+}
+
+.followup-next {
+  color: #6c757d;
+  margin-top: 0.125rem;
+}
+
+.followup-next.overdue {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+/* Reschedule Form */
+.reschedule-row td {
+  padding: 0;
+  background: #f8f9fa;
+}
+
+.reschedule-form {
+  padding: 1.25rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.reschedule-header {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: #1a237e;
+}
+
+.reschedule-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.reschedule-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reschedule-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.reschedule-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Empty State */
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  color: #dee2e6;
+  margin-bottom: 1rem;
+}
+
+.empty-text {
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .filters-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .appointments-page {
+    padding: 0;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: stretch;
+  }
+
+  .header-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .filters-card-body {
+    padding: 1rem;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+  }
+
+  .filter-actions .btn {
+    width: 100%;
+  }
+
+  /* Mobile Table */
+  .appointments-table thead {
+    display: none;
+  }
+
+  .appointments-table tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    background: white;
+  }
+
+  .appointments-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f3f5;
+  }
+
+  .appointments-table td:last-child {
+    border-bottom: none;
+  }
+
+  .appointments-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-right: 1rem;
+  }
+
+  .action-buttons {
+    justify-content: flex-end;
+  }
+
+  .reschedule-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .reschedule-actions {
+    flex-direction: column;
+  }
+
+  .reschedule-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .action-buttons {
+    flex-wrap: wrap;
+  }
+
+  .notes-cell {
+    white-space: normal;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .appointments-table th,
+[dir="rtl"] .appointments-table td {
+  text-align: right;
+}
+
+[dir="rtl"] .action-buttons .btn-sm i {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .reschedule-actions .btn i {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .appointments-table td::before {
+  margin-right: 0;
+  margin-left: 1rem;
+}

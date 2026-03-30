@@ -1,0 +1,293 @@
+/* Create Dental Record Page Styles */
+.create-dental-record-page {
+  padding: 0 0.5rem;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #1a237e, #283593);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  color: #6c757d;
+  margin: 0.25rem 0 0 0;
+  font-size: 0.875rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Info Banner */
+.info-banner {
+  background: #e3f2fd;
+  border-left: 4px solid #1976d2;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  color: #1976d2;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Success Banner */
+.success-banner {
+  background: #e8f5e9;
+  border-left: 4px solid #2e7d32;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.banner-content {
+  padding: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.banner-title {
+  font-weight: 600;
+  color: #2e7d32;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.banner-text {
+  font-size: 0.875rem;
+  color: #2c3e50;
+}
+
+.banner-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Form Card */
+.form-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.form-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  color: #1a237e;
+}
+
+.form-card-body {
+  padding: 1.5rem;
+}
+
+/* Form Grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #2c3e50;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.required-star {
+  color: #dc3545;
+  margin-left: 0.25rem;
+}
+
+/* Record Summary */
+.record-summary {
+  margin-top: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+.summary-header {
+  padding: 0.75rem 1rem;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #1a237e;
+}
+
+.summary-content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.summary-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.summary-label {
+  font-weight: 600;
+  color: #6c757d;
+  min-width: 100px;
+}
+
+.summary-value {
+  color: #2c3e50;
+}
+
+.summary-detail {
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.btn-lg {
+  padding: 0.625rem 1.5rem;
+  font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .create-dental-record-page {
+    padding: 0;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: stretch;
+  }
+
+  .header-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .form-card-body {
+    padding: 1rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .banner-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .banner-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .banner-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .summary-item {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .summary-label {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .form-card-header h5 {
+    font-size: 1rem;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .page-header .btn i {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .form-actions .btn i {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .info-banner {
+  border-left: none;
+  border-right: 4px solid #1976d2;
+}
+
+[dir="rtl"] .success-banner {
+  border-left: none;
+  border-right: 4px solid #2e7d32;
+}
+
+[dir="rtl"] .required-star {
+  margin-left: 0;
+  margin-right: 0.25rem;
+}

@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./DentalRecordsListPage.css";
 
 export default function DentalRecordsListPage() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const highlightRecordId = searchParams.get("record_id") || "";
@@ -55,7 +58,7 @@ export default function DentalRecordsListPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load dental records.",
+          t("Failed to load dental records."),
       );
     } finally {
       setLoading(false);
@@ -124,7 +127,7 @@ export default function DentalRecordsListPage() {
   const convertRecord = async (recordId) => {
     try {
       if (!selectedPlanId) {
-        setActionError("Please select a treatment plan first.");
+        setActionError(t("Please select a treatment plan first."));
         return;
       }
 
@@ -145,12 +148,12 @@ export default function DentalRecordsListPage() {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setActionError(firstError || "Failed to convert dental record.");
+        setActionError(firstError || t("Failed to convert dental record."));
       } else {
         setActionError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to convert dental record.",
+            t("Failed to convert dental record."),
         );
       }
     } finally {
@@ -165,175 +168,228 @@ export default function DentalRecordsListPage() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Dental Records</h3>
-          <p className="text-muted mb-0">
-            Review patient chart records, procedures, teeth, and statuses
+    <div className="dental-records-page">
+      {/* Header Section */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Dental Records")}</h1>
+          <p className="page-subtitle">
+            {t("Review patient chart records, procedures, teeth, and statuses")}
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <Link
             to="/admin/erp/dental-records/create"
             className="btn btn-outline-primary"
           >
-            Create Dental Record
+            <i className="fas fa-tooth me-2"></i>
+            {t("Create Dental Record")}
           </Link>
 
           <button className="btn btn-primary" onClick={loadRecordsAndPlans}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
-      {error ? (
-        <div className="alert alert-danger d-flex justify-content-between align-items-center">
-          <span>{error}</span>
+      {/* Alerts */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
           <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={loadRecordsAndPlans}
-          >
-            Retry
-          </button>
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
         </div>
-      ) : null}
+      )}
 
-      {actionMessage ? (
-        <div className="alert alert-success">{actionMessage}</div>
-      ) : null}
-      {actionError ? (
-        <div className="alert alert-danger">{actionError}</div>
-      ) : null}
+      {actionMessage && (
+        <div className="alert alert-success alert-dismissible fade show">
+          <i className="fas fa-check-circle me-2"></i>
+          {actionMessage}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setActionMessage("")}
+          ></button>
+        </div>
+      )}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
-          <div className="row g-3 align-items-center">
-            <div className="col-12 col-lg-8">
-              <label className="form-label fw-semibold">Search</label>
+      {actionError && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-triangle me-2"></i>
+          {actionError}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setActionError("")}
+          ></button>
+        </div>
+      )}
+
+      {/* Search Card */}
+      <div className="search-card">
+        <div className="search-card-header">
+          <i className="fas fa-search me-2"></i>
+          <h5 className="mb-0">{t("Search Records")}</h5>
+        </div>
+        <div className="search-card-body">
+          <div className="search-grid">
+            <div className="search-group">
+              <label className="search-label">
+                <i className="fas fa-filter me-1"></i>
+                {t("Search")}
+              </label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="Patient, procedure, tooth, surface, status, notes..."
+                placeholder={t(
+                  "Patient, procedure, tooth, surface, status, notes...",
+                )}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
 
-            <div className="col-12 col-lg-4">
-              <label className="form-label fw-semibold">Total Loaded</label>
-              <div className="form-control bg-light">
-                {meta?.total ?? rows.length}
-              </div>
+            <div className="search-group">
+              <label className="search-label">
+                <i className="fas fa-database me-1"></i>
+                {t("Total Records")}
+              </label>
+              <div className="total-badge">{meta?.total ?? rows.length}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Dental Records List</h5>
+      {/* Records Table Card */}
+      <div className="records-card">
+        <div className="records-card-header">
+          <i className="fas fa-list me-2"></i>
+          <h5 className="mb-0">{t("Dental Records List")}</h5>
+          <span className="record-count">
+            {filteredRows.length} {t("records")}
+          </span>
         </div>
 
-        <div className="card-body p-0">
+        <div className="records-card-body">
           {filteredRows.length === 0 ? (
-            <div className="p-4 text-muted">No dental records found.</div>
+            <div className="empty-state">
+              <i className="fas fa-tooth empty-icon"></i>
+              <p className="empty-text">{t("No dental records found.")}</p>
+            </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light">
+              <table className="records-table">
+                <thead>
                   <tr>
-                    <th style={{ minWidth: 220 }}>Patient</th>
-                    <th style={{ minWidth: 180 }}>Procedure</th>
-                    <th style={{ minWidth: 100 }}>Tooth</th>
-                    <th style={{ minWidth: 120 }}>Surface</th>
-                    <th style={{ minWidth: 120 }}>Status</th>
-                    <th style={{ minWidth: 220 }}>Notes</th>
-                    <th style={{ minWidth: 260 }}>Actions</th>
+                    <th>{t("Patient")}</th>
+                    <th>{t("Procedure")}</th>
+                    <th>{t("Tooth")}</th>
+                    <th>{t("Surface")}</th>
+                    <th>{t("Status")}</th>
+                    <th>{t("Notes")}</th>
+                    <th>{t("Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredRows.map((record) => {
                     const matchingPlans = availablePlansForRecord(record);
+                    const isHighlighted =
+                      String(record.id) === String(highlightRecordId);
 
                     return (
                       <>
                         <tr
                           key={record.id}
-                          className={
-                            String(record.id) === String(highlightRecordId)
-                              ? "table-warning"
-                              : ""
-                          }
-                          style={
-                            String(record.id) === String(highlightRecordId)
-                              ? { boxShadow: "inset 4px 0 0 #ffc107" }
-                              : {}
-                          }
+                          className={isHighlighted ? "highlighted-row" : ""}
                         >
-                          <td>
-                            <div className="fw-semibold">
-                              {record.customer?.name || "-"}
-                            </div>
-                            <div className="small text-muted">
-                              {record.customer?.email || "-"}
+                          <td data-label={t("Patient")}>
+                            <div className="patient-info">
+                              <div className="patient-name">
+                                {record.customer?.name || "-"}
+                              </div>
+                              <div className="patient-email">
+                                {record.customer?.email || "-"}
+                              </div>
                             </div>
                           </td>
-
-                          <td>{record.procedure?.name || "-"}</td>
-                          <td>{record.tooth_number || "-"}</td>
-                          <td>{record.surface || "-"}</td>
-                          <td>
-                            <StatusBadge status={record.status} />
+                          <td data-label={t("Procedure")}>
+                            {record.procedure?.name || "-"}
                           </td>
-                          <td>{record.notes || "-"}</td>
-                          <td>
-                            <div className="d-flex flex-wrap gap-2">
-                              {record.customer?.id ? (
-                                <Link
-                                  to={`/admin/erp/patients/${record.customer.id}/profile`}
-                                  className="btn btn-sm btn-outline-primary"
-                                >
-                                  Patient
-                                </Link>
-                              ) : null}
+                          <td data-label={t("Tooth")}>
+                            {record.tooth_number || "-"}
+                          </td>
+                          <td data-label={t("Surface")}>
+                            {record.surface || "-"}
+                          </td>
+                          <td data-label={t("Status")}>
+                            <StatusBadge status={record.status} t={t} />
+                          </td>
+                          <td data-label={t("Notes")} className="notes-cell">
+                            {record.notes || "-"}
+                          </td>
+                          <td data-label={t("Actions")}>
+                            <div className="action-buttons">
+                              {record.customer?.id && (
+                                <>
+                                  <Link
+                                    to={`/admin/erp/patients/${record.customer.id}/profile`}
+                                    className="btn btn-sm btn-outline-primary"
+                                    title={t("View Patient")}
+                                  >
+                                    <i className="fas fa-user"></i>
+                                    <span>{t("Patient")}</span>
+                                  </Link>
 
-                              {record.customer?.id ? (
-                                <Link
-                                  to={`/admin/erp/patients/${record.customer.id}/timeline`}
-                                  className="btn btn-sm btn-outline-info"
-                                >
-                                  Timeline
-                                </Link>
-                              ) : null}
+                                  <Link
+                                    to={`/admin/erp/patients/${record.customer.id}/timeline`}
+                                    className="btn btn-sm btn-outline-info"
+                                    title={t("View Timeline")}
+                                  >
+                                    <i className="fas fa-history"></i>
+                                    <span>{t("Timeline")}</span>
+                                  </Link>
+                                </>
+                              )}
 
                               <button
                                 className="btn btn-sm btn-outline-success"
                                 onClick={() => openConvert(record)}
+                                title={t("Convert to Treatment Plan")}
                               >
-                                Convert
+                                <i className="fas fa-exchange-alt"></i>
+                                <span>{t("Convert")}</span>
                               </button>
                             </div>
                           </td>
                         </tr>
 
-                        {openConvertId === record.id ? (
-                          <tr>
-                            <td colSpan="7" className="bg-light">
-                              <div className="p-3">
-                                <div className="row g-3 align-items-end">
-                                  <div className="col-12 col-md-8">
-                                    <label className="form-label fw-semibold">
-                                      Select Treatment Plan
-                                    </label>
+                        {openConvertId === record.id && (
+                          <tr className="convert-row">
+                            <td colSpan="7">
+                              <div className="convert-form">
+                                <div className="convert-header">
+                                  <i className="fas fa-exchange-alt me-2"></i>
+                                  <strong>
+                                    {t("Convert to Treatment Plan")}
+                                  </strong>
+                                </div>
+
+                                <div className="convert-fields">
+                                  <div className="convert-field">
+                                    <label>{t("Select Treatment Plan")}</label>
                                     <select
                                       className="form-select"
                                       value={selectedPlanId}
@@ -341,22 +397,26 @@ export default function DentalRecordsListPage() {
                                         setSelectedPlanId(e.target.value)
                                       }
                                     >
-                                      <option value="">Select plan</option>
+                                      <option value="">
+                                        {t("Select plan")}
+                                      </option>
                                       {matchingPlans.map((plan) => (
                                         <option key={plan.id} value={plan.id}>
-                                          {plan.title} - {plan.status}
+                                          {plan.title} - {t(plan.status || "-")}
                                         </option>
                                       ))}
                                     </select>
-                                    {matchingPlans.length === 0 ? (
-                                      <div className="small text-danger mt-2">
-                                        No treatment plans found for this
-                                        patient.
+                                    {matchingPlans.length === 0 && (
+                                      <div className="form-hint error">
+                                        <i className="fas fa-exclamation-triangle me-1"></i>
+                                        {t(
+                                          "No treatment plans found for this patient.",
+                                        )}
                                       </div>
-                                    ) : null}
+                                    )}
                                   </div>
 
-                                  <div className="col-12 col-md-4 d-flex gap-2">
+                                  <div className="convert-actions">
                                     <button
                                       className="btn btn-success"
                                       onClick={() => convertRecord(record.id)}
@@ -364,9 +424,17 @@ export default function DentalRecordsListPage() {
                                         converting || matchingPlans.length === 0
                                       }
                                     >
-                                      {converting
-                                        ? "Converting..."
-                                        : "Confirm Convert"}
+                                      {converting ? (
+                                        <>
+                                          <span className="spinner-border spinner-border-sm me-2"></span>
+                                          {t("Converting...")}
+                                        </>
+                                      ) : (
+                                        <>
+                                          <i className="fas fa-check me-2"></i>
+                                          {t("Confirm Convert")}
+                                        </>
+                                      )}
                                     </button>
 
                                     <button
@@ -374,14 +442,15 @@ export default function DentalRecordsListPage() {
                                       onClick={closeConvert}
                                       type="button"
                                     >
-                                      Cancel
+                                      <i className="fas fa-times me-2"></i>
+                                      {t("Cancel")}
                                     </button>
                                   </div>
                                 </div>
                               </div>
                             </td>
                           </tr>
-                        ) : null}
+                        )}
                       </>
                     );
                   })}
@@ -395,15 +464,25 @@ export default function DentalRecordsListPage() {
   );
 }
 
-function StatusBadge({ status }) {
+// StatusBadge Component
+function StatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
+  let variant = "secondary";
+  let label = status || "-";
 
-  let cls = "secondary";
+  if (value === "completed") {
+    variant = "success";
+    label = t("Completed");
+  } else if (value === "cancelled") {
+    variant = "danger";
+    label = t("Cancelled");
+  } else if (value === "planned") {
+    variant = "warning";
+    label = t("Planned");
+  } else if (value === "in_progress") {
+    variant = "info";
+    label = t("In Progress");
+  }
 
-  if (["completed"].includes(value)) cls = "success";
-  else if (["cancelled"].includes(value)) cls = "danger";
-  else if (["planned"].includes(value)) cls = "warning";
-  else if (["in_progress"].includes(value)) cls = "info";
-
-  return <span className={`badge bg-${cls}`}>{status}</span>;
+  return <span className={`status-badge status-${variant}`}>{label}</span>;
 }

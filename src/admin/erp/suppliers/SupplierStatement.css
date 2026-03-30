@@ -1,0 +1,529 @@
+/* Supplier Statement Page Styles */
+.supplier-statement-page {
+  padding: 0 0.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Loading Container */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+}
+
+.loading-text {
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(135deg, #1a237e, #283593);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.supplier-info {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.supplier-info strong {
+  color: #2c3e50;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Filters Card */
+.filters-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.filters-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  color: #1a237e;
+}
+
+.filters-card-body {
+  padding: 1.25rem;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Summary Grid */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.summary-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.summary-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.summary-content {
+  flex: 1;
+}
+
+.summary-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.summary-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+/* Period Info */
+.period-info {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #495057;
+  border: 1px solid #e9ecef;
+}
+
+/* Entries Card */
+.entries-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.entries-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  color: #1a237e;
+}
+
+.entries-card-header h5 {
+  margin: 0;
+  flex: 1;
+}
+
+.entry-count {
+  padding: 0.25rem 0.75rem;
+  background: #e9ecef;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.entries-card-body {
+  padding: 1.25rem;
+}
+
+/* Entry Section */
+.entry-section {
+  margin: 1rem 0;
+}
+
+.entry-section.opening {
+  margin-top: 0;
+}
+
+.entry-section.closing {
+  margin-bottom: 0;
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.entry-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.opening-badge,
+.closing-badge {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.entry-amount {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.opening-amount,
+.closing-amount {
+  color: #1a237e;
+}
+
+/* Entries List */
+.entries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.entry-item {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+  border-left: 4px solid #1a237e;
+}
+
+.entry-item:hover {
+  background: #f0f2ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.entry-date-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.entry-date {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6c757d;
+}
+
+.entry-type-badge.purchase_order {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.entry-type-badge.payment {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.entry-type-badge.refund {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.entry-description-section {
+  margin-bottom: 0.75rem;
+}
+
+.entry-description {
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.entry-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.7rem;
+  color: #6c757d;
+}
+
+.meta-link i {
+  margin-right: 0.25rem;
+}
+
+.entry-amounts-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.amount-item {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.amount-label {
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.amount-value {
+  font-weight: 600;
+}
+
+.amount-item.debit .amount-value {
+  color: #dc3545;
+}
+
+.amount-item.credit .amount-value {
+  color: #28a745;
+}
+
+.amount-item.balance .amount-value {
+  color: #1a237e;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  color: #dee2e6;
+  margin-bottom: 0.5rem;
+}
+
+.empty-text {
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .supplier-statement-page {
+    padding: 0;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: stretch;
+  }
+
+  .header-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .filters-card-body {
+    padding: 1rem;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+  }
+
+  .filter-actions .btn {
+    width: 100%;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .summary-card {
+    padding: 0.75rem;
+  }
+
+  .summary-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .summary-value {
+    font-size: 1rem;
+  }
+
+  .entries-card-body {
+    padding: 1rem;
+  }
+
+  .entry-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .entry-date-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .entry-amounts-section {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .amount-item {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .entries-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .entry-count {
+    align-self: flex-start;
+  }
+
+  .entry-item {
+    padding: 0.75rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .header-actions,
+  .filters-card,
+  .filter-actions,
+  .btn,
+  .summary-icon {
+    display: none !important;
+  }
+
+  .page-header {
+    margin-bottom: 1rem;
+  }
+
+  .page-title {
+    -webkit-text-fill-color: #1a237e;
+    background: none;
+  }
+
+  .summary-grid {
+    break-inside: avoid;
+  }
+
+  .entry-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .entry-item {
+  border-left: none;
+  border-right: 4px solid #1a237e;
+}
+
+[dir="rtl"] .filter-actions .btn i {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .meta-link i {
+  margin-right: 0;
+  margin-left: 0.25rem;
+}

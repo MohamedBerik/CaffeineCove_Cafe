@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./AppointmentActivityPage.css";
 
 export default function AppointmentActivityPage() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
 
   const [appointment, setAppointment] = useState(null);
@@ -81,7 +84,7 @@ export default function AppointmentActivityPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load appointment details.",
+          t("Failed to load appointment details."),
       );
     } finally {
       setLoading(false);
@@ -122,7 +125,8 @@ export default function AppointmentActivityPage() {
   const formatDateTime = (value) => {
     if (!value) return "-";
     try {
-      return new Date(value).toLocaleString("en-US", {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleString(lang, {
         year: "numeric",
         month: "short",
         day: "2-digit",
@@ -137,7 +141,8 @@ export default function AppointmentActivityPage() {
   const formatDate = (value) => {
     if (!value) return "-";
     try {
-      return new Date(value).toLocaleDateString("en-US", {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleDateString(lang, {
         year: "numeric",
         month: "short",
         day: "2-digit",
@@ -150,6 +155,16 @@ export default function AppointmentActivityPage() {
   const formatTime = (value) => {
     if (!value) return "-";
     return String(value).slice(0, 5) || "-";
+  };
+
+  const formatCurrency = (value) => {
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return new Intl.NumberFormat(lang, {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
   };
 
   const formatJson = (value) => {
@@ -195,18 +210,18 @@ export default function AppointmentActivityPage() {
         next_step: notesForm.next_step || null,
       });
 
-      setNotesSuccess("Clinical notes saved successfully.");
+      setNotesSuccess(t("Clinical notes saved successfully."));
       await loadPage();
     } catch (err) {
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setNotesError(firstError || "Failed to save clinical notes.");
+        setNotesError(firstError || t("Failed to save clinical notes."));
       } else {
         setNotesError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
-            "Failed to save clinical notes.",
+            t("Failed to save clinical notes."),
         );
       }
     } finally {
@@ -235,7 +250,9 @@ export default function AppointmentActivityPage() {
       const result = res.data || {};
 
       setCompleteResult(result);
-      setCompleteSuccess(result?.msg || "Appointment completed successfully.");
+      setCompleteSuccess(
+        result?.msg || t("Appointment completed successfully."),
+      );
 
       await loadPage();
     } catch (err) {
@@ -244,12 +261,12 @@ export default function AppointmentActivityPage() {
 
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];
-        setCompleteError(firstError || "Failed to complete appointment.");
+        setCompleteError(firstError || t("Failed to complete appointment."));
       } else {
         setCompleteError(
           responseData?.message ||
             responseData?.msg ||
-            "Failed to complete appointment.",
+            t("Failed to complete appointment."),
         );
       }
 
@@ -302,107 +319,124 @@ export default function AppointmentActivityPage() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Appointment Activity</h3>
-          <p className="text-muted mb-0">
-            Timeline of changes and actions for appointment #{id}
+    <div className="appointment-activity-page">
+      {/* Header Section */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Appointment Activity")}</h1>
+          <p className="page-subtitle">
+            {t("Timeline of changes and actions for appointment")} #{id}
           </p>
         </div>
 
-        <div className="d-flex flex-wrap gap-2">
+        <div className="header-actions">
           <Link
             to="/admin/erp/appointments"
             className="btn btn-outline-secondary"
           >
-            Back to Appointments
+            <i className="fas fa-arrow-left me-2"></i>
+            {t("Back to Appointments")}
           </Link>
 
-          {patientId ? (
+          {patientId && (
             <Link
               to={`/admin/erp/patients/${patientId}/profile`}
               className="btn btn-outline-primary"
             >
-              Patient Profile
+              <i className="fas fa-user me-2"></i>
+              {t("Patient Profile")}
             </Link>
-          ) : null}
+          )}
 
-          {treatmentPlanId ? (
+          {treatmentPlanId && (
             <Link
               to={`/admin/erp/treatment-plans/${treatmentPlanId}`}
               className="btn btn-outline-info"
             >
-              Treatment Plan
+              <i className="fas fa-notes-medical me-2"></i>
+              {t("Treatment Plan")}
             </Link>
-          ) : null}
+          )}
 
-          {invoiceId ? (
+          {invoiceId && (
             <Link
               to={`/admin/erp/invoices/${invoiceId}`}
               className="btn btn-outline-success"
             >
-              Invoice
+              <i className="fas fa-file-invoice me-2"></i>
+              {t("Invoice")}
             </Link>
-          ) : null}
+          )}
 
           <button className="btn btn-primary" onClick={loadPage}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
-      {error ? (
-        <div className="alert alert-danger d-flex justify-content-between align-items-center">
-          <span>{error}</span>
-          <button className="btn btn-sm btn-outline-danger" onClick={loadPage}>
-            Retry
-          </button>
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
         </div>
-      ) : null}
+      )}
 
-      <div className="row g-3 mb-4">
-        <KpiCard title="Appointment ID" value={`#${id}`} />
+      {/* KPI Cards */}
+      <div className="kpi-grid">
+        <KpiCard title={t("Appointment ID")} value={`#${id}`} />
         <KpiCard
-          title="Status"
-          value={<StatusBadge status={appointment?.status} />}
+          title={t("Status")}
+          value={<StatusBadge status={appointment?.status} t={t} />}
         />
         <KpiCard
-          title="Type"
-          value={<AppointmentTypeBadge type={appointment?.appointment_type} />}
+          title={t("Type")}
+          value={
+            <AppointmentTypeBadge type={appointment?.appointment_type} t={t} />
+          }
         />
-        <KpiCard title="Events" value={sortedRows.length} />
+        <KpiCard title={t("Events")} value={sortedRows.length} />
       </div>
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Appointment Details</h5>
+      {/* Appointment Details Card */}
+      <div className="details-card">
+        <div className="card-header-custom">
+          <i className="fas fa-info-circle me-2"></i>
+          <h5 className="mb-0">{t("Appointment Details")}</h5>
         </div>
-        <div className="card-body">
+        <div className="card-body-custom">
           {!appointment ? (
-            <div className="text-muted">Appointment details not found.</div>
+            <div className="text-muted">
+              {t("Appointment details not found.")}
+            </div>
           ) : (
-            <div className="row g-3">
-              <InfoItem label="Appointment ID" value={appointment.id} />
+            <div className="details-grid">
+              <InfoItem label={t("Appointment ID")} value={appointment.id} />
 
               <InfoItem
-                label="Patient"
+                label={t("Patient")}
                 value={
                   patientId ? (
                     <Link
                       to={`/admin/erp/patients/${patientId}/profile`}
-                      className="text-decoration-none"
+                      className="patient-link"
                     >
                       {appointment.patient?.name ||
                         appointment.patient_name ||
-                        `Patient #${patientId}`}
+                        `${t("Patient")} #${patientId}`}
                     </Link>
                   ) : (
                     appointment.patient?.name || appointment.patient_name || "-"
@@ -411,131 +445,129 @@ export default function AppointmentActivityPage() {
               />
 
               <InfoItem
-                label="Doctor"
+                label={t("Doctor")}
                 value={
                   appointment.doctor?.name || appointment.doctor_name || "-"
                 }
               />
 
               <InfoItem
-                label="Date"
+                label={t("Date")}
                 value={formatDate(appointment.appointment_date)}
               />
 
               <InfoItem
-                label="Time"
+                label={t("Time")}
                 value={formatTime(appointment.appointment_time)}
               />
 
               <InfoItem
-                label="Type"
+                label={t("Type")}
                 value={
-                  <AppointmentTypeBadge type={appointment.appointment_type} />
+                  <AppointmentTypeBadge
+                    type={appointment.appointment_type}
+                    t={t}
+                  />
                 }
               />
 
               <InfoItem
-                label="Status"
-                value={<StatusBadge status={appointment.status} />}
+                label={t("Status")}
+                value={<StatusBadge status={appointment.status} t={t} />}
               />
 
               <InfoItem
-                label="Created At"
+                label={t("Created At")}
                 value={formatDateTime(appointment.created_at)}
               />
 
-              {"updated_at" in (appointment || {}) ? (
+              {"updated_at" in (appointment || {}) && (
                 <InfoItem
-                  label="Updated At"
+                  label={t("Updated At")}
                   value={formatDateTime(appointment.updated_at)}
                 />
-              ) : null}
+              )}
 
-              <div className="col-12">
-                <div className="small text-muted">Clinical Notes</div>
-                <div className="fw-semibold">
-                  {appointment.clinical_notes || "-"}
-                </div>
-              </div>
+              <InfoItem
+                label={t("Clinical Notes")}
+                value={appointment.clinical_notes || "-"}
+              />
 
-              <div className="col-12 col-md-6">
-                <div className="small text-muted">Diagnosis</div>
-                <div className="fw-semibold">
-                  {appointment.diagnosis || "-"}
-                </div>
-              </div>
+              <InfoItem
+                label={t("Diagnosis")}
+                value={appointment.diagnosis || "-"}
+              />
 
-              <div className="col-12 col-md-6">
-                <div className="small text-muted">Next Step</div>
-                <div className="fw-semibold">
-                  {appointment.next_step || "-"}
-                </div>
-              </div>
+              <InfoItem
+                label={t("Next Step")}
+                value={appointment.next_step || "-"}
+              />
 
-              {treatmentPlanId ? (
+              {treatmentPlanId && (
                 <InfoItem
-                  label="Treatment Plan"
+                  label={t("Treatment Plan")}
                   value={
                     <Link
                       to={`/admin/erp/treatment-plans/${treatmentPlanId}`}
-                      className="text-decoration-none"
+                      className="plan-link"
                     >
                       #{treatmentPlanId}
                     </Link>
                   }
                 />
-              ) : null}
+              )}
 
-              {invoiceId ? (
+              {invoiceId && (
                 <InfoItem
-                  label="Invoice"
+                  label={t("Invoice")}
                   value={
                     <Link
                       to={`/admin/erp/invoices/${invoiceId}`}
-                      className="text-decoration-none"
+                      className="invoice-link"
                     >
                       #{invoiceId}
                     </Link>
                   }
                 />
-              ) : null}
+              )}
 
-              <div className="col-12">
-                <div className="small text-muted">Notes</div>
-                <div className="fw-semibold">{appointment.notes || "-"}</div>
-              </div>
+              <InfoItem label={t("Notes")} value={appointment.notes || "-"} />
             </div>
           )}
         </div>
       </div>
 
-      {isScheduled ? (
-        <div className="card shadow-sm border-0 mb-4">
-          <div className="card-header bg-white d-flex justify-content-between align-items-center">
-            <h5 className="mb-0">Complete Appointment</h5>
-            <span className="badge bg-warning text-dark">Scheduled</span>
+      {/* Complete Appointment Section (if scheduled) */}
+      {isScheduled && (
+        <div className="complete-card">
+          <div className="card-header-custom">
+            <i className="fas fa-check-circle me-2"></i>
+            <h5 className="mb-0">{t("Complete Appointment")}</h5>
+            <span className="badge-status-scheduled">{t("Scheduled")}</span>
           </div>
 
-          <div className="card-body">
-            {completeError ? (
-              <div className="alert alert-danger py-2">{completeError}</div>
-            ) : null}
+          <div className="card-body-custom">
+            {completeError && (
+              <div className="alert alert-danger">{completeError}</div>
+            )}
 
-            {completeSuccess ? (
-              <div className="alert alert-success py-2">{completeSuccess}</div>
-            ) : null}
+            {completeSuccess && (
+              <div className="alert alert-success">{completeSuccess}</div>
+            )}
 
-            {completeResult?.invoice_id ? (
-              <div className="alert alert-light border">
-                <div className="fw-semibold mb-2">Completion Result</div>
-
-                <div className="row g-2">
+            {completeResult?.invoice_id && (
+              <div className="completion-result">
+                <div className="result-header">
+                  <i className="fas fa-chart-line me-2"></i>
+                  <span className="fw-semibold">{t("Completion Result")}</span>
+                </div>
+                <div className="result-grid">
                   <InfoItem
-                    label="Invoice"
+                    label={t("Invoice")}
                     value={
                       <Link
                         to={`/admin/erp/invoices/${completeResult.invoice_id}`}
-                        className="text-decoration-none"
+                        className="invoice-link"
                       >
                         {completeResult.invoice_number ||
                           `#${completeResult.invoice_id}`}
@@ -543,140 +575,152 @@ export default function AppointmentActivityPage() {
                     }
                   />
 
-                  {completeResult.treatment_plan_id ? (
+                  {completeResult.treatment_plan_id && (
                     <InfoItem
-                      label="Treatment Plan"
+                      label={t("Treatment Plan")}
                       value={
                         <Link
                           to={`/admin/erp/treatment-plans/${completeResult.treatment_plan_id}`}
-                          className="text-decoration-none"
+                          className="plan-link"
                         >
                           #{completeResult.treatment_plan_id}
                         </Link>
                       }
                     />
-                  ) : null}
+                  )}
 
-                  {"total" in completeResult ? (
+                  {"total" in completeResult && (
                     <InfoItem
-                      label="Invoice Total"
-                      value={money(completeResult.total)}
+                      label={t("Invoice Total")}
+                      value={formatCurrency(completeResult.total)}
                     />
-                  ) : null}
+                  )}
 
-                  {"invoice_status" in completeResult ? (
+                  {"invoice_status" in completeResult && (
                     <InfoItem
-                      label="Invoice Status"
+                      label={t("Invoice Status")}
                       value={
-                        <StatusBadge status={completeResult.invoice_status} />
+                        <StatusBadge
+                          status={completeResult.invoice_status}
+                          t={t}
+                        />
                       }
                     />
-                  ) : null}
+                  )}
 
-                  {"completed_sessions" in completeResult ? (
+                  {"completed_sessions" in completeResult && (
                     <InfoItem
-                      label="Completed Sessions"
+                      label={t("Completed Sessions")}
                       value={completeResult.completed_sessions}
                     />
-                  ) : null}
+                  )}
 
-                  {"planned_sessions" in completeResult ? (
+                  {"planned_sessions" in completeResult && (
                     <InfoItem
-                      label="Planned Sessions"
+                      label={t("Planned Sessions")}
                       value={completeResult.planned_sessions}
                     />
-                  ) : null}
+                  )}
 
-                  {"remaining_sessions" in completeResult ? (
+                  {"remaining_sessions" in completeResult && (
                     <InfoItem
-                      label="Remaining Sessions"
+                      label={t("Remaining Sessions")}
                       value={completeResult.remaining_sessions}
                     />
-                  ) : null}
+                  )}
 
-                  {"item_status" in completeResult ? (
+                  {"item_status" in completeResult && (
                     <InfoItem
-                      label="Item Status"
+                      label={t("Item Status")}
                       value={
-                        <StatusBadge status={completeResult.item_status} />
+                        <StatusBadge
+                          status={completeResult.item_status}
+                          t={t}
+                        />
                       }
                     />
-                  ) : null}
+                  )}
                 </div>
               </div>
-            ) : null}
+            )}
 
             <form onSubmit={completeAppointment}>
-              <div className="row g-3">
-                <div className="col-12 col-md-6">
-                  <label className="form-label fw-semibold">Doctor Name</label>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label">{t("Doctor Name")}</label>
                   <input
                     className="form-control"
                     name="doctor_name"
                     value={completeForm.doctor_name}
                     onChange={handleCompleteChange}
-                    placeholder="Optional doctor name override"
+                    placeholder={t("Optional doctor name override")}
                   />
                 </div>
 
-                <div className="col-12 col-md-6">
-                  <label className="form-label fw-semibold">
-                    General Notes
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">{t("General Notes")}</label>
                   <input
                     className="form-control"
                     name="notes"
                     value={completeForm.notes}
                     onChange={handleCompleteChange}
-                    placeholder="Optional notes"
+                    placeholder={t("Optional notes")}
                   />
                 </div>
 
-                <div className="col-12">
-                  <label className="form-label fw-semibold">
-                    Clinical Notes
-                  </label>
+                <div className="form-group full-width">
+                  <label className="form-label">{t("Clinical Notes")}</label>
                   <textarea
                     className="form-control"
                     rows="4"
                     name="clinical_notes"
                     value={completeForm.clinical_notes}
                     onChange={handleCompleteChange}
-                    placeholder="Enter clinical notes..."
+                    placeholder={t("Enter clinical notes...")}
                   />
                 </div>
 
-                <div className="col-12 col-md-6">
-                  <label className="form-label fw-semibold">Diagnosis</label>
+                <div className="form-group">
+                  <label className="form-label">{t("Diagnosis")}</label>
                   <textarea
                     className="form-control"
                     rows="3"
                     name="diagnosis"
                     value={completeForm.diagnosis}
                     onChange={handleCompleteChange}
-                    placeholder="Enter diagnosis..."
+                    placeholder={t("Enter diagnosis...")}
                   />
                 </div>
 
-                <div className="col-12 col-md-6">
-                  <label className="form-label fw-semibold">Next Step</label>
+                <div className="form-group">
+                  <label className="form-label">{t("Next Step")}</label>
                   <textarea
                     className="form-control"
                     rows="3"
                     name="next_step"
                     value={completeForm.next_step}
                     onChange={handleCompleteChange}
-                    placeholder="Enter next step..."
+                    placeholder={t("Enter next step...")}
                   />
                 </div>
 
-                <div className="col-12 d-flex gap-2">
+                <div className="form-actions">
                   <button
                     type="submit"
-                    className="btn btn-success"
+                    className="btn btn-success btn-lg"
                     disabled={completing}
                   >
-                    {completing ? "Completing..." : "Complete Appointment"}
+                    {completing ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2"></span>
+                        {t("Completing...")}
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-check-circle me-2"></i>
+                        {t("Complete Appointment")}
+                      </>
+                    )}
                   </button>
 
                   <button
@@ -685,77 +729,89 @@ export default function AppointmentActivityPage() {
                     onClick={resetCompleteForm}
                     disabled={completing}
                   >
-                    Reset
+                    <i className="fas fa-undo me-2"></i>
+                    {t("Reset")}
                   </button>
                 </div>
               </div>
             </form>
           </div>
         </div>
-      ) : null}
+      )}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-header bg-white d-flex justify-content-between align-items-center">
-          <h5 className="mb-0">Clinical Notes</h5>
-          {isCompleted ? (
-            <span className="badge bg-secondary">Completed Appointment</span>
-          ) : null}
+      {/* Clinical Notes Card */}
+      <div className="notes-card">
+        <div className="card-header-custom">
+          <i className="fas fa-notes-medical me-2"></i>
+          <h5 className="mb-0">{t("Clinical Notes")}</h5>
+          {isCompleted && (
+            <span className="badge-status-completed">
+              {t("Completed Appointment")}
+            </span>
+          )}
         </div>
 
-        <div className="card-body">
-          {notesError ? (
-            <div className="alert alert-danger py-2">{notesError}</div>
-          ) : null}
-
-          {notesSuccess ? (
-            <div className="alert alert-success py-2">{notesSuccess}</div>
-          ) : null}
+        <div className="card-body-custom">
+          {notesError && <div className="alert alert-danger">{notesError}</div>}
+          {notesSuccess && (
+            <div className="alert alert-success">{notesSuccess}</div>
+          )}
 
           <form onSubmit={saveClinicalNotes}>
-            <div className="row g-3">
-              <div className="col-12">
-                <label className="form-label fw-semibold">Clinical Notes</label>
+            <div className="form-grid">
+              <div className="form-group full-width">
+                <label className="form-label">{t("Clinical Notes")}</label>
                 <textarea
                   className="form-control"
                   rows="4"
                   name="clinical_notes"
                   value={notesForm.clinical_notes}
                   onChange={handleNotesChange}
-                  placeholder="Enter clinical notes..."
+                  placeholder={t("Enter clinical notes...")}
                 />
               </div>
 
-              <div className="col-12 col-md-6">
-                <label className="form-label fw-semibold">Diagnosis</label>
+              <div className="form-group">
+                <label className="form-label">{t("Diagnosis")}</label>
                 <textarea
                   className="form-control"
                   rows="3"
                   name="diagnosis"
                   value={notesForm.diagnosis}
                   onChange={handleNotesChange}
-                  placeholder="Enter diagnosis..."
+                  placeholder={t("Enter diagnosis...")}
                 />
               </div>
 
-              <div className="col-12 col-md-6">
-                <label className="form-label fw-semibold">Next Step</label>
+              <div className="form-group">
+                <label className="form-label">{t("Next Step")}</label>
                 <textarea
                   className="form-control"
                   rows="3"
                   name="next_step"
                   value={notesForm.next_step}
                   onChange={handleNotesChange}
-                  placeholder="Enter next step..."
+                  placeholder={t("Enter next step...")}
                 />
               </div>
 
-              <div className="col-12 d-flex gap-2">
+              <div className="form-actions">
                 <button
                   type="submit"
                   className="btn btn-primary"
                   disabled={savingNotes || !appointment || !hasNotesChanged}
                 >
-                  {savingNotes ? "Saving..." : "Save Clinical Notes"}
+                  {savingNotes ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      {t("Saving...")}
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-save me-2"></i>
+                      {t("Save Clinical Notes")}
+                    </>
+                  )}
                 </button>
 
                 <button
@@ -764,7 +820,8 @@ export default function AppointmentActivityPage() {
                   onClick={resetClinicalNotesForm}
                   disabled={savingNotes}
                 >
-                  Reset
+                  <i className="fas fa-undo me-2"></i>
+                  {t("Reset")}
                 </button>
               </div>
             </div>
@@ -772,42 +829,51 @@ export default function AppointmentActivityPage() {
         </div>
       </div>
 
-      {latestEvent ? (
-        <div className="card shadow-sm border-0 mb-4">
-          <div className="card-header bg-white">
-            <h5 className="mb-0">Latest Activity</h5>
+      {/* Latest Activity Card */}
+      {latestEvent && (
+        <div className="latest-activity-card">
+          <div className="card-header-custom">
+            <i className="fas fa-clock me-2"></i>
+            <h5 className="mb-0">{t("Latest Activity")}</h5>
           </div>
-          <div className="card-body">
-            <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
-              <span className={`badge ${actionBadgeClass(latestEvent.action)}`}>
-                {prettyAction(latestEvent.action)}
+          <div className="card-body-custom">
+            <div className="latest-activity-content">
+              <span
+                className={`activity-badge ${actionBadgeClass(latestEvent.action)}`}
+              >
+                {prettyAction(latestEvent.action, t)}
               </span>
-              <span className="text-muted small">
+              <span className="activity-time">
                 {formatDateTime(latestEvent.created_at)}
               </span>
             </div>
-            <div className="small text-muted">
-              Last recorded action for this appointment.
+            <div className="activity-note">
+              {t("Last recorded action for this appointment.")}
             </div>
           </div>
         </div>
-      ) : null}
+      )}
 
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-white d-flex justify-content-between align-items-center">
-          <h5 className="mb-0">Activity Log</h5>
-          <span className="badge bg-light text-dark">
-            {sortedRows.length} events
+      {/* Activity Log Card */}
+      <div className="activity-log-card">
+        <div className="card-header-custom">
+          <i className="fas fa-list-ul me-2"></i>
+          <h5 className="mb-0">{t("Activity Log")}</h5>
+          <span className="event-count">
+            {sortedRows.length} {t("events")}
           </span>
         </div>
 
-        <div className="card-body">
+        <div className="card-body-custom">
           {sortedRows.length === 0 ? (
-            <div className="text-muted">
-              No activity found for this appointment.
+            <div className="empty-state">
+              <i className="fas fa-inbox empty-icon"></i>
+              <p className="empty-text">
+                {t("No activity found for this appointment.")}
+              </p>
             </div>
           ) : (
-            <div className="d-flex flex-column gap-3">
+            <div className="activity-timeline">
               {sortedRows.map((item) => {
                 const properties = parseProperties(item.properties);
 
@@ -819,291 +885,295 @@ export default function AppointmentActivityPage() {
                   properties?.treatment_plan_item_id || null;
 
                 return (
-                  <div key={item.id} className="border rounded p-3 bg-light">
-                    <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-                      <div>
-                        <div className="d-flex align-items-center gap-2 flex-wrap">
-                          <span
-                            className={`badge ${actionBadgeClass(item.action)}`}
-                          >
-                            {prettyAction(item.action)}
-                          </span>
-
-                          <span className="small text-muted">
-                            {formatDateTime(item.created_at)}
-                          </span>
-                        </div>
-
-                        <div className="small text-muted mt-1">
-                          Raw action: {item.action || "-"}
-                        </div>
+                  <div key={item.id} className="activity-item">
+                    <div className="activity-item-header">
+                      <div className="activity-badges">
+                        <span
+                          className={`activity-badge ${actionBadgeClass(item.action)}`}
+                        >
+                          {prettyAction(item.action, t)}
+                        </span>
+                        <span className="activity-time">
+                          {formatDateTime(item.created_at)}
+                        </span>
                       </div>
-
-                      <span className="badge bg-secondary">
-                        User #{item.user_id || "-"}
+                      <span className="user-badge">
+                        {t("User")} #{item.user_id || "-"}
                       </span>
                     </div>
 
-                    <div className="row g-3">
-                      <InfoItem label="Log ID" value={item.id} />
-                      <InfoItem label="Company ID" value={item.company_id} />
-                      <InfoItem label="Subject ID" value={item.subject_id} />
-                      <InfoItem
-                        label="Subject Type"
-                        value={shortSubjectType(item.subject_type)}
-                      />
+                    <div className="activity-details">
+                      <div className="details-grid compact">
+                        <InfoItem label={t("Log ID")} value={item.id} />
+                        <InfoItem
+                          label={t("Company ID")}
+                          value={item.company_id}
+                        />
+                        <InfoItem
+                          label={t("Subject ID")}
+                          value={item.subject_id}
+                        />
+                        <InfoItem
+                          label={t("Subject Type")}
+                          value={shortSubjectType(item.subject_type)}
+                        />
 
-                      {properties && typeof properties === "object" ? (
-                        <>
-                          {"appointment_type" in properties ? (
-                            <InfoItem
-                              label="Appointment Type"
-                              value={
-                                <AppointmentTypeBadge
-                                  type={properties.appointment_type}
-                                />
-                              }
-                            />
-                          ) : null}
+                        {properties && typeof properties === "object" && (
+                          <>
+                            {"appointment_type" in properties && (
+                              <InfoItem
+                                label={t("Appointment Type")}
+                                value={
+                                  <AppointmentTypeBadge
+                                    type={properties.appointment_type}
+                                    t={t}
+                                  />
+                                }
+                              />
+                            )}
 
-                          {"old_status" in properties ? (
-                            <InfoItem
-                              label="Old Status"
-                              value={
-                                <StatusBadge status={properties.old_status} />
-                              }
-                            />
-                          ) : null}
+                            {"old_status" in properties && (
+                              <InfoItem
+                                label={t("Old Status")}
+                                value={
+                                  <StatusBadge
+                                    status={properties.old_status}
+                                    t={t}
+                                  />
+                                }
+                              />
+                            )}
 
-                          {"new_status" in properties ? (
-                            <InfoItem
-                              label="New Status"
-                              value={
-                                <StatusBadge status={properties.new_status} />
-                              }
-                            />
-                          ) : null}
+                            {"new_status" in properties && (
+                              <InfoItem
+                                label={t("New Status")}
+                                value={
+                                  <StatusBadge
+                                    status={properties.new_status}
+                                    t={t}
+                                  />
+                                }
+                              />
+                            )}
 
-                          {"item_status" in properties ? (
-                            <InfoItem
-                              label="Item Status"
-                              value={
-                                <StatusBadge status={properties.item_status} />
-                              }
-                            />
-                          ) : null}
+                            {"item_status" in properties && (
+                              <InfoItem
+                                label={t("Item Status")}
+                                value={
+                                  <StatusBadge
+                                    status={properties.item_status}
+                                    t={t}
+                                  />
+                                }
+                              />
+                            )}
 
-                          {"old_date" in properties ? (
-                            <InfoItem
-                              label="Old Date"
-                              value={formatDate(properties.old_date)}
-                            />
-                          ) : null}
+                            {"old_date" in properties && (
+                              <InfoItem
+                                label={t("Old Date")}
+                                value={formatDate(properties.old_date)}
+                              />
+                            )}
 
-                          {"new_date" in properties ? (
-                            <InfoItem
-                              label="New Date"
-                              value={formatDate(properties.new_date)}
-                            />
-                          ) : null}
+                            {"new_date" in properties && (
+                              <InfoItem
+                                label={t("New Date")}
+                                value={formatDate(properties.new_date)}
+                              />
+                            )}
 
-                          {"date" in properties ? (
-                            <InfoItem
-                              label="Date"
-                              value={formatDate(properties.date)}
-                            />
-                          ) : null}
+                            {"date" in properties && (
+                              <InfoItem
+                                label={t("Date")}
+                                value={formatDate(properties.date)}
+                              />
+                            )}
 
-                          {"old_time" in properties ? (
-                            <InfoItem
-                              label="Old Time"
-                              value={formatTime(properties.old_time)}
-                            />
-                          ) : null}
+                            {"old_time" in properties && (
+                              <InfoItem
+                                label={t("Old Time")}
+                                value={formatTime(properties.old_time)}
+                              />
+                            )}
 
-                          {"new_time" in properties ? (
-                            <InfoItem
-                              label="New Time"
-                              value={formatTime(properties.new_time)}
-                            />
-                          ) : null}
+                            {"new_time" in properties && (
+                              <InfoItem
+                                label={t("New Time")}
+                                value={formatTime(properties.new_time)}
+                              />
+                            )}
 
-                          {"time" in properties ? (
-                            <InfoItem
-                              label="Time"
-                              value={formatTime(properties.time)}
-                            />
-                          ) : null}
+                            {"time" in properties && (
+                              <InfoItem
+                                label={t("Time")}
+                                value={formatTime(properties.time)}
+                              />
+                            )}
 
-                          {"doctor_id" in properties ? (
-                            <InfoItem
-                              label="Doctor ID"
-                              value={properties.doctor_id}
-                            />
-                          ) : null}
+                            {"doctor_id" in properties && (
+                              <InfoItem
+                                label={t("Doctor ID")}
+                                value={properties.doctor_id}
+                              />
+                            )}
 
-                          {"clinical_notes" in properties ? (
-                            <InfoItem
-                              label="Clinical Notes"
-                              value={properties.clinical_notes}
-                            />
-                          ) : null}
+                            {"clinical_notes" in properties && (
+                              <InfoItem
+                                label={t("Clinical Notes")}
+                                value={properties.clinical_notes}
+                              />
+                            )}
 
-                          {"diagnosis" in properties ? (
-                            <InfoItem
-                              label="Diagnosis"
-                              value={properties.diagnosis}
-                            />
-                          ) : null}
+                            {"diagnosis" in properties && (
+                              <InfoItem
+                                label={t("Diagnosis")}
+                                value={properties.diagnosis}
+                              />
+                            )}
 
-                          {"next_step" in properties ? (
-                            <InfoItem
-                              label="Next Step"
-                              value={properties.next_step}
-                            />
-                          ) : null}
+                            {"next_step" in properties && (
+                              <InfoItem
+                                label={t("Next Step")}
+                                value={properties.next_step}
+                              />
+                            )}
 
-                          {rowPatientId ? (
-                            <InfoItem
-                              label="Patient"
-                              value={
-                                <Link
-                                  to={`/admin/erp/patients/${rowPatientId}/profile`}
-                                  className="text-decoration-none"
-                                >
-                                  #{rowPatientId}
-                                </Link>
-                              }
-                            />
-                          ) : null}
+                            {rowPatientId && (
+                              <InfoItem
+                                label={t("Patient")}
+                                value={
+                                  <Link
+                                    to={`/admin/erp/patients/${rowPatientId}/profile`}
+                                    className="patient-link"
+                                  >
+                                    #{rowPatientId}
+                                  </Link>
+                                }
+                              />
+                            )}
 
-                          {rowInvoiceId ? (
-                            <InfoItem
-                              label="Invoice"
-                              value={
-                                <Link
-                                  to={`/admin/erp/invoices/${rowInvoiceId}`}
-                                  className="text-decoration-none"
-                                >
-                                  {properties.invoice_number
-                                    ? properties.invoice_number
-                                    : `#${rowInvoiceId}`}
-                                </Link>
-                              }
-                            />
-                          ) : null}
+                            {rowInvoiceId && (
+                              <InfoItem
+                                label={t("Invoice")}
+                                value={
+                                  <Link
+                                    to={`/admin/erp/invoices/${rowInvoiceId}`}
+                                    className="invoice-link"
+                                  >
+                                    {properties.invoice_number
+                                      ? properties.invoice_number
+                                      : `#${rowInvoiceId}`}
+                                  </Link>
+                                }
+                              />
+                            )}
 
-                          {rowTreatmentPlanId ? (
-                            <InfoItem
-                              label="Treatment Plan"
-                              value={
-                                <Link
-                                  to={`/admin/erp/treatment-plans/${rowTreatmentPlanId}`}
-                                  className="text-decoration-none"
-                                >
-                                  #{rowTreatmentPlanId}
-                                </Link>
-                              }
-                            />
-                          ) : null}
+                            {rowTreatmentPlanId && (
+                              <InfoItem
+                                label={t("Treatment Plan")}
+                                value={
+                                  <Link
+                                    to={`/admin/erp/treatment-plans/${rowTreatmentPlanId}`}
+                                    className="plan-link"
+                                  >
+                                    #{rowTreatmentPlanId}
+                                  </Link>
+                                }
+                              />
+                            )}
 
-                          {rowPlanItemId ? (
-                            <InfoItem
-                              label="Plan Item ID"
-                              value={rowPlanItemId}
-                            />
-                          ) : null}
+                            {rowPlanItemId && (
+                              <InfoItem
+                                label={t("Plan Item ID")}
+                                value={rowPlanItemId}
+                              />
+                            )}
 
-                          {"procedure_id" in properties ? (
-                            <InfoItem
-                              label="Procedure ID"
-                              value={properties.procedure_id}
-                            />
-                          ) : null}
+                            {"procedure_id" in properties && (
+                              <InfoItem
+                                label={t("Procedure ID")}
+                                value={properties.procedure_id}
+                              />
+                            )}
 
-                          {"procedure" in properties ? (
-                            <InfoItem
-                              label="Procedure"
-                              value={properties.procedure}
-                            />
-                          ) : null}
+                            {"procedure" in properties && (
+                              <InfoItem
+                                label={t("Procedure")}
+                                value={properties.procedure}
+                              />
+                            )}
 
-                          {"total" in properties ? (
-                            <InfoItem
-                              label="Total"
-                              value={money(properties.total)}
-                            />
-                          ) : null}
+                            {"total" in properties && (
+                              <InfoItem
+                                label={t("Total")}
+                                value={formatCurrency(properties.total)}
+                              />
+                            )}
 
-                          {"completed_sessions" in properties ? (
-                            <InfoItem
-                              label="Completed Sessions"
-                              value={properties.completed_sessions}
-                            />
-                          ) : null}
+                            {"completed_sessions" in properties && (
+                              <InfoItem
+                                label={t("Completed Sessions")}
+                                value={properties.completed_sessions}
+                              />
+                            )}
 
-                          {"planned_sessions" in properties ? (
-                            <InfoItem
-                              label="Planned Sessions"
-                              value={properties.planned_sessions}
-                            />
-                          ) : null}
+                            {"planned_sessions" in properties && (
+                              <InfoItem
+                                label={t("Planned Sessions")}
+                                value={properties.planned_sessions}
+                              />
+                            )}
 
-                          {"remaining_sessions" in properties ? (
-                            <InfoItem
-                              label="Remaining Sessions"
-                              value={properties.remaining_sessions}
-                            />
-                          ) : null}
-                        </>
-                      ) : null}
-
-                      <div className="col-12 d-flex flex-wrap gap-2">
-                        {rowPatientId ? (
-                          <Link
-                            to={`/admin/erp/patients/${rowPatientId}/profile`}
-                            className="btn btn-sm btn-outline-primary"
-                          >
-                            Patient
-                          </Link>
-                        ) : null}
-
-                        {rowTreatmentPlanId ? (
-                          <Link
-                            to={`/admin/erp/treatment-plans/${rowTreatmentPlanId}`}
-                            className="btn btn-sm btn-outline-info"
-                          >
-                            Treatment Plan
-                          </Link>
-                        ) : null}
-
-                        {rowInvoiceId ? (
-                          <Link
-                            to={`/admin/erp/invoices/${rowInvoiceId}`}
-                            className="btn btn-sm btn-outline-success"
-                          >
-                            Invoice
-                          </Link>
-                        ) : null}
+                            {"remaining_sessions" in properties && (
+                              <InfoItem
+                                label={t("Remaining Sessions")}
+                                value={properties.remaining_sessions}
+                              />
+                            )}
+                          </>
+                        )}
                       </div>
 
-                      <div className="col-12">
-                        <details>
-                          <summary className="small text-primary fw-semibold">
-                            Show raw properties
-                          </summary>
-                          <pre
-                            className="mb-0 mt-2 p-3 bg-white border rounded"
-                            style={{
-                              whiteSpace: "pre-wrap",
-                              wordBreak: "break-word",
-                              fontSize: "0.875rem",
-                            }}
-                          >
-                            {formatJson(item.properties)}
-                          </pre>
-                        </details>
-                      </div>
+                      {(rowPatientId || rowTreatmentPlanId || rowInvoiceId) && (
+                        <div className="action-links">
+                          {rowPatientId && (
+                            <Link
+                              to={`/admin/erp/patients/${rowPatientId}/profile`}
+                              className="btn btn-sm btn-outline-primary"
+                            >
+                              <i className="fas fa-user"></i> {t("Patient")}
+                            </Link>
+                          )}
+                          {rowTreatmentPlanId && (
+                            <Link
+                              to={`/admin/erp/treatment-plans/${rowTreatmentPlanId}`}
+                              className="btn btn-sm btn-outline-info"
+                            >
+                              <i className="fas fa-notes-medical"></i>{" "}
+                              {t("Plan")}
+                            </Link>
+                          )}
+                          {rowInvoiceId && (
+                            <Link
+                              to={`/admin/erp/invoices/${rowInvoiceId}`}
+                              className="btn btn-sm btn-outline-success"
+                            >
+                              <i className="fas fa-file-invoice"></i>{" "}
+                              {t("Invoice")}
+                            </Link>
+                          )}
+                        </div>
+                      )}
+
+                      <details className="raw-data">
+                        <summary>
+                          <i className="fas fa-code me-1"></i>
+                          {t("Show raw properties")}
+                        </summary>
+                        <pre className="raw-json">
+                          {formatJson(item.properties)}
+                        </pre>
+                      </details>
                     </div>
                   </div>
                 );
@@ -1116,21 +1186,13 @@ export default function AppointmentActivityPage() {
   );
 }
 
-function money(value) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(Number(value || 0));
-}
-
+// Helper Components
 function KpiCard({ title, value }) {
   return (
-    <div className="col-12 col-sm-6 col-xl-3">
-      <div className="card border-0 shadow-sm h-100">
-        <div className="card-body">
-          <div className="text-muted small mb-1">{title}</div>
-          <div className="fw-bold fs-5">{value ?? "-"}</div>
-        </div>
+    <div className="kpi-card">
+      <div className="kpi-card-content">
+        <div className="kpi-title">{title}</div>
+        <div className="kpi-value">{value ?? "-"}</div>
       </div>
     </div>
   );
@@ -1138,60 +1200,41 @@ function KpiCard({ title, value }) {
 
 function InfoItem({ label, value }) {
   return (
-    <div className="col-12 col-md-6">
-      <div className="small text-muted">{label}</div>
-      <div className="fw-semibold">{value ?? "-"}</div>
+    <div className="info-item">
+      <div className="info-label">{label}</div>
+      <div className="info-value">{value ?? "-"}</div>
     </div>
   );
 }
 
-function prettyAction(action) {
-  switch (action) {
-    case "appointment.booked":
-      return "Booked";
-    case "appointment.rebooked":
-      return "Rebooked";
-    case "appointment.rescheduled":
-      return "Rescheduled";
-    case "appointment.cancelled":
-      return "Cancelled";
-    case "appointment.no_show":
-      return "No Show";
-    case "appointment.completed":
-      return "Completed";
-    case "treatment_plan_item.started":
-      return "Procedure Started";
-    case "treatment_plan_item.session_completed":
-      return "Session Completed";
-    case "appointment.updated":
-      return "Updated";
-    default:
-      return action || "-";
-  }
+function prettyAction(action, t) {
+  const actionMap = {
+    "appointment.booked": "Booked",
+    "appointment.rebooked": "Rebooked",
+    "appointment.rescheduled": "Rescheduled",
+    "appointment.cancelled": "Cancelled",
+    "appointment.no_show": "No Show",
+    "appointment.completed": "Completed",
+    "treatment_plan_item.started": "Procedure Started",
+    "treatment_plan_item.session_completed": "Session Completed",
+    "appointment.updated": "Updated",
+  };
+  return t(actionMap[action] || action || "-");
 }
 
 function actionBadgeClass(action) {
-  switch (action) {
-    case "appointment.booked":
-    case "appointment.rebooked":
-      return "bg-primary";
-    case "appointment.rescheduled":
-      return "bg-info text-dark";
-    case "appointment.cancelled":
-      return "bg-danger";
-    case "appointment.no_show":
-      return "bg-dark";
-    case "appointment.completed":
-      return "bg-success";
-    case "treatment_plan_item.started":
-      return "bg-warning text-dark";
-    case "treatment_plan_item.session_completed":
-      return "bg-success";
-    case "appointment.updated":
-      return "bg-secondary";
-    default:
-      return "bg-secondary";
-  }
+  const classMap = {
+    "appointment.booked": "booked",
+    "appointment.rebooked": "booked",
+    "appointment.rescheduled": "rescheduled",
+    "appointment.cancelled": "cancelled",
+    "appointment.no_show": "no-show",
+    "appointment.completed": "completed",
+    "treatment_plan_item.started": "started",
+    "treatment_plan_item.session_completed": "completed",
+    "appointment.updated": "updated",
+  };
+  return classMap[action] || "default";
 }
 
 function shortSubjectType(value) {
@@ -1200,32 +1243,35 @@ function shortSubjectType(value) {
   return parts[parts.length - 1] || value;
 }
 
-function StatusBadge({ status }) {
+function StatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
 
-  let cls = "secondary";
-  if (["completed", "paid"].includes(value)) cls = "success";
-  else if (["cancelled", "no_show", "unpaid"].includes(value)) cls = "danger";
-  else if (["scheduled", "partially_paid", "planned"].includes(value))
-    cls = "warning";
-  else if (["in_progress", "active"].includes(value)) cls = "info";
+  let variant = "secondary";
+  let label = status || "-";
 
-  return <span className={`badge bg-${cls}`}>{status || "-"}</span>;
+  if (["completed", "paid"].includes(value)) variant = "success";
+  else if (["cancelled", "no_show", "unpaid"].includes(value))
+    variant = "danger";
+  else if (["scheduled", "partially_paid", "planned"].includes(value))
+    variant = "warning";
+  else if (["in_progress", "active"].includes(value)) variant = "info";
+
+  return <span className={`badge-status ${variant}`}>{t(label)}</span>;
 }
 
-function AppointmentTypeBadge({ type }) {
+function AppointmentTypeBadge({ type, t }) {
   const value = String(type || "").toLowerCase();
 
-  let cls = "secondary";
+  let variant = "secondary";
   let label = type || "-";
 
   if (value === "consultation") {
-    cls = "primary";
-    label = "Consultation";
+    variant = "primary";
+    label = t("Consultation");
   } else if (value === "treatment") {
-    cls = "info";
-    label = "Treatment";
+    variant = "info";
+    label = t("Treatment");
   }
 
-  return <span className={`badge bg-${cls}`}>{label}</span>;
+  return <span className={`badge-type ${variant}`}>{label}</span>;
 }

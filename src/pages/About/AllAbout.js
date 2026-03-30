@@ -6,39 +6,43 @@ function AllAbout() {
   return (
     <div>
       <Navbar />
-      <section id="about">
-        <div class="container">
-          <div class="row">
-            <img src="img/about-img.png" alt="Coffee" />
-            <div class="about-content">
-              <h2>
-                <span class="text-primary">Caffeine Cove</span> About Info
-              </h2>
+      <section className="section-padding" id="about">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-6 col-md-6 col-12">
+              <h2 className="mb-lg-3 mb-3">Meet Dr. Carson</h2>
               <p>
-                Caffeine Cove began as a small neighborhood cafe with a passion
-                for great coffee and a welcoming atmosphere. Today, it's a go-to
-                spot for coffee lovers seeking quality and comfort.
+                Protect yourself and others by wearing masks and washing hands
+                frequently. Outdoor is safer than indoor for gatherings or
+                holding events. People who get sick with Coronavirus disease
+                (COVID-19) will experience mild to moderate symptoms and recover
+                without special treatments.
               </p>
-              <div class="item">
-                <h3>A Cozy Escape</h3>
-                <p>
-                  Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                  Nesciunt, consectetur animi incidunt minus voluptatum
-                  accusantium velit sunt soluta neque quo.
-                </p>
-              </div>
-              <div class="item">
-                <h3>Quality &amp; sustainability</h3>
-                <p>
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                  Impedit voluptate aliquam totam quia fuga cupiditate vitae sed
-                  in ea porro.
+              <p>
+                You can feel free to use this CSS template for your medical
+                profession or health care related websites. You can{" "}
+                <a
+                  rel="nofollow"
+                  href="http://paypal.me/templatemo"
+                  target="_blank"
+                >
+                  support us a little
+                </a>{" "}
+                via PayPal if this template is good and useful for your work.
+              </p>
+            </div>
+            <div className="col-lg-4 col-md-5 col-12 mx-auto">
+              <div className="featured-circle bg-white shadow-lg d-flex justify-content-center align-items-center">
+                <p className="featured-text">
+                  <span className="featured-number">12</span> Years
+                  <br /> of Experiences
                 </p>
               </div>
             </div>
           </div>
         </div>
       </section>
+
       <Footer />
     </div>
   );

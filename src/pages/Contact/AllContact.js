@@ -69,94 +69,78 @@ function AllContact() {
     <div>
       <Navbar />
 
-      <section id="contact">
+      <section className="section-padding" id="booking">
         <div className="container">
-          <div className="heading">
-            <span className="text-primary">What Happens Here</span>
-            <h2>Reservation Area</h2>
-          </div>
-
           <div className="row">
-            <div className="map">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d884780.515123437!2d31.502804734375005!3d29.974432300000007!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x145856f81d43dbed%3A0x42cb3cb3dfd7e8b6!2sCosta%20Coffee!5e0!3m2!1sar!2seg!4v1749718038688!5m2!1sar!2seg"
-                width="600"
-                height="450"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Map"
-              ></iframe>
-            </div>
-
-            <div className="contact-content">
-              <h3>Book a Table</h3>
-
-              {error && <p style={{ color: "red" }}>{error}</p>}
-              {success && <p style={{ color: "green" }}>{success}</p>}
-
-              <form onSubmit={handleSubmit}>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Your Name"
-                  required
-                />
-
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Your Email"
-                  required
-                />
-
-                <input
-                  type="number"
-                  name="persons"
-                  value={formData.persons}
-                  onChange={handleChange}
-                  placeholder="Persons"
-                  min="1"
-                  required
-                />
-
-                <input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  required
-                />
-
-                <input
-                  type="time"
-                  name="time"
-                  value={formData.time}
-                  onChange={handleChange}
-                  required
-                />
-
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder="Your Message"
-                  rows="6"
-                ></textarea>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  class="btn btn-success"
-                >
-                  {loading ? "Booking..." : "Book a Table"}
-                </button>
-              </form>
+            <div className="col-lg-8 col-12 mx-auto">
+              <div className="booking-form">
+                <h2 className="text-center mb-lg-3 mb-2">
+                  Book an appointment
+                </h2>
+                <form role="form" action="#booking" method="post">
+                  <div className="row">
+                    <div className="col-lg-6 col-12">
+                      <input
+                        type="text"
+                        name="name"
+                        id="name"
+                        className="form-control"
+                        placeholder="Full name"
+                        required=""
+                      />
+                    </div>
+                    <div className="col-lg-6 col-12">
+                      <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        pattern="[^ @]*@[^ @]*"
+                        className="form-control"
+                        placeholder="Email address"
+                        required=""
+                      />
+                    </div>
+                    <div className="col-lg-6 col-12">
+                      <input
+                        type="telephone"
+                        name="phone"
+                        id="phone"
+                        pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                        className="form-control"
+                        placeholder="Phone: 123-456-7890"
+                      />
+                    </div>
+                    <div className="col-lg-6 col-12">
+                      <input
+                        type="date"
+                        name="date"
+                        id="date"
+                        defaultValue=""
+                        className="form-control"
+                      />
+                    </div>
+                    <div className="col-12">
+                      <textarea
+                        className="form-control"
+                        rows={5}
+                        id="message"
+                        name="message"
+                        placeholder="Additional Message"
+                        defaultValue={""}
+                      />
+                    </div>
+                    <div className="col-lg-3 col-md-4 col-6 mx-auto">
+                      <button
+                        type="submit"
+                        className="form-control"
+                        id="submit-button"
+                      >
+                        Book Now
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>

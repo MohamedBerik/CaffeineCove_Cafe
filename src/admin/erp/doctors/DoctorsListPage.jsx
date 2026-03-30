@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./DoctorsListPage.css";
 
 export default function DoctorsListPage() {
+  const { t, i18n } = useTranslation();
   const [rows, setRows] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,7 +34,7 @@ export default function DoctorsListPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load doctors.",
+          t("Failed to load doctors."),
       );
     } finally {
       setLoading(false);
@@ -68,142 +71,192 @@ export default function DoctorsListPage() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Doctors</h3>
-          <p className="text-muted mb-0">
-            Manage doctors, working hours, and availability
+    <div className="doctors-list-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Doctors")}</h1>
+          <p className="page-subtitle">
+            {t("Manage doctors, working hours, and availability")}
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <Link
             to="/admin/erp/doctors/create"
             className="btn btn-outline-primary"
           >
-            New Doctor
+            <i className="fas fa-user-md me-2"></i>
+            {t("New Doctor")}
           </Link>
 
           <button className="btn btn-primary" onClick={loadDoctors}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
-      {error ? (
-        <div className="alert alert-danger d-flex justify-content-between align-items-center">
-          <span>{error}</span>
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
           <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={loadDoctors}
-          >
-            Retry
-          </button>
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
         </div>
-      ) : null}
+      )}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
-          <div className="row g-3 align-items-center">
-            <div className="col-12 col-lg-8">
-              <label className="form-label fw-semibold">Search</label>
+      {/* Search Card */}
+      <div className="search-card">
+        <div className="search-card-header">
+          <i className="fas fa-search me-2"></i>
+          <h5 className="mb-0">{t("Search Doctors")}</h5>
+        </div>
+        <div className="search-card-body">
+          <div className="search-grid">
+            <div className="search-group">
+              <label className="search-label">
+                <i className="fas fa-filter me-1"></i>
+                {t("Search")}
+              </label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="Name, email, phone, specialty..."
+                placeholder={t("Name, email, phone, specialty...")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
 
-            <div className="col-12 col-lg-4">
-              <label className="form-label fw-semibold">Total Loaded</label>
-              <div className="form-control bg-light">
-                {meta?.total ?? rows.length}
-              </div>
+            <div className="search-group">
+              <label className="search-label">
+                <i className="fas fa-database me-1"></i>
+                {t("Total Doctors")}
+              </label>
+              <div className="total-badge">{meta?.total ?? rows.length}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Doctors List</h5>
+      {/* Doctors Table Card */}
+      <div className="doctors-card">
+        <div className="doctors-card-header">
+          <i className="fas fa-list me-2"></i>
+          <h5 className="mb-0">{t("Doctors List")}</h5>
+          <span className="doctor-count">
+            {filteredRows.length} {t("doctors")}
+          </span>
         </div>
 
-        <div className="card-body p-0">
+        <div className="doctors-card-body">
           {filteredRows.length === 0 ? (
-            <div className="p-4 text-muted">No doctors found.</div>
+            <div className="empty-state">
+              <i className="fas fa-user-md empty-icon"></i>
+              <p className="empty-text">{t("No doctors found.")}</p>
+            </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light">
+              <table className="doctors-table">
+                <thead>
                   <tr>
-                    <th style={{ minWidth: 200 }}>Doctor</th>
-                    <th style={{ minWidth: 180 }}>Specialty</th>
-                    <th style={{ minWidth: 120 }}>Working Hours</th>
-                    <th style={{ minWidth: 120 }}>Slot Minutes</th>
-                    <th style={{ minWidth: 120 }}>Status</th>
-                    <th style={{ minWidth: 220 }}>Actions</th>
+                    <th>{t("Doctor")}</th>
+                    <th>{t("Specialty")}</th>
+                    <th>{t("Working Hours")}</th>
+                    <th>{t("Slot Minutes")}</th>
+                    <th>{t("Status")}</th>
+                    <th>{t("Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredRows.map((doctor) => (
                     <tr key={doctor.id}>
-                      <td>
-                        <div className="fw-semibold">{doctor.name || "-"}</div>
-                        <div className="small text-muted">
-                          {doctor.email || "-"}{" "}
-                          {doctor.phone ? `| ${doctor.phone}` : ""}
+                      <td data-label={t("Doctor")}>
+                        <div className="doctor-info">
+                          <div className="doctor-name">
+                            {doctor.name || "-"}
+                          </div>
+                          <div className="doctor-contact">
+                            {doctor.email && <span>{doctor.email}</span>}
+                            {doctor.phone && (
+                              <>
+                                <span className="separator">|</span>
+                                <span>{doctor.phone}</span>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </td>
-
-                      <td>{doctor.specialty || "-"}</td>
-
-                      <td>
-                        {doctor.work_start || "-"}{" "}
-                        {doctor.work_end ? `→ ${doctor.work_end}` : ""}
+                      <td data-label={t("Specialty")}>
+                        <span className="specialty-badge">
+                          {doctor.specialty || "-"}
+                        </span>
                       </td>
-
-                      <td>{doctor.slot_minutes || "-"}</td>
-
-                      <td>
+                      <td data-label={t("Working Hours")}>
+                        {doctor.work_start && doctor.work_end ? (
+                          <div className="working-hours">
+                            <i className="fas fa-clock me-1"></i>
+                            {doctor.work_start} → {doctor.work_end}
+                          </div>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                      <td data-label={t("Slot Minutes")}>
+                        {doctor.slot_minutes ? (
+                          <span className="slot-minutes">
+                            {doctor.slot_minutes} {t("min")}
+                          </span>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                      <td data-label={t("Status")}>
                         <StatusBadge
                           active={
                             doctor.is_active === true || doctor.is_active === 1
                           }
+                          t={t}
                         />
                       </td>
-
-                      <td>
-                        <div className="d-flex flex-wrap gap-2">
+                      <td data-label={t("Actions")}>
+                        <div className="action-buttons">
                           <Link
                             to={`/admin/erp/doctors/${doctor.id}/availability`}
                             className="btn btn-sm btn-outline-primary"
+                            title={t("Manage Availability")}
                           >
-                            Availability
+                            <i className="fas fa-calendar-alt"></i>
+                            <span>{t("Availability")}</span>
                           </Link>
 
                           <Link
                             to={`/admin/erp/doctors/${doctor.id}/edit`}
                             className="btn btn-sm btn-outline-warning"
+                            title={t("Edit Doctor")}
                           >
-                            Edit
+                            <i className="fas fa-edit"></i>
+                            <span>{t("Edit")}</span>
                           </Link>
 
                           <Link
                             to={`/admin/erp/appointments/create?doctor_id=${doctor.id}`}
                             className="btn btn-sm btn-outline-success"
+                            title={t("Book Appointment")}
                           >
-                            Book Appointment
+                            <i className="fas fa-calendar-plus"></i>
+                            <span>{t("Book")}</span>
                           </Link>
                         </div>
                       </td>
@@ -219,10 +272,16 @@ export default function DoctorsListPage() {
   );
 }
 
-function StatusBadge({ active }) {
+// StatusBadge Component
+function StatusBadge({ active, t }) {
   return (
-    <span className={`badge bg-${active ? "success" : "danger"}`}>
-      {active ? "active" : "inactive"}
+    <span
+      className={`status-badge ${active ? "status-active" : "status-inactive"}`}
+    >
+      <i
+        className={`fas fa-${active ? "check-circle" : "times-circle"} me-1`}
+      ></i>
+      {active ? t("Active") : t("Inactive")}
     </span>
   );
 }

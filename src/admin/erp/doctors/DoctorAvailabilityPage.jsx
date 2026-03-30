@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./DoctorAvailabilityPage.css";
 
 export default function DoctorAvailabilityPage() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
 
   const [doctor, setDoctor] = useState(null);
@@ -15,6 +18,20 @@ export default function DoctorAvailabilityPage() {
   useEffect(() => {
     loadDoctor();
   }, [id]);
+
+  const formatDate = (value) => {
+    if (!value) return "-";
+    try {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleDateString(lang, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    } catch {
+      return value;
+    }
+  };
 
   const loadDoctor = async () => {
     try {
@@ -29,7 +46,7 @@ export default function DoctorAvailabilityPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load doctor details.",
+          t("Failed to load doctor details."),
       );
     } finally {
       setLoading(false);
@@ -43,7 +60,7 @@ export default function DoctorAvailabilityPage() {
       setRows([]);
 
       if (!date) {
-        setError("Please select a date first.");
+        setError(t("Please select a date first."));
         return;
       }
 
@@ -61,7 +78,7 @@ export default function DoctorAvailabilityPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load doctor availability.",
+          t("Failed to load doctor availability."),
       );
     } finally {
       setChecking(false);
@@ -86,63 +103,98 @@ export default function DoctorAvailabilityPage() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Doctor Availability</h3>
-          <p className="text-muted mb-0">
-            Check available slots for this doctor
+    <div className="doctor-availability-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Doctor Availability")}</h1>
+          <p className="page-subtitle">
+            {t("Check available slots for this doctor")}
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <Link to="/admin/erp/doctors" className="btn btn-outline-secondary">
-            Back to Doctors
+            <i className="fas fa-arrow-left me-2"></i>
+            {t("Back to Doctors")}
           </Link>
 
           <Link
             to={`/admin/erp/appointments/create?doctor_id=${id}`}
             className="btn btn-outline-success"
           >
-            Book Appointment
+            <i className="fas fa-calendar-plus me-2"></i>
+            {t("Book Appointment")}
           </Link>
         </div>
       </div>
 
-      {error ? <div className="alert alert-danger">{error}</div> : null}
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
+        </div>
+      )}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
-          <div className="row g-3">
-            <InfoItem label="Doctor Name" value={doctor?.name} />
-            <InfoItem label="Email" value={doctor?.email} />
-            <InfoItem label="Phone" value={doctor?.phone} />
-            <InfoItem label="Specialty" value={doctor?.specialty} />
+      {/* Doctor Info Card */}
+      <div className="info-card">
+        <div className="info-card-header">
+          <i className="fas fa-user-md me-2"></i>
+          <h5 className="mb-0">{t("Doctor Information")}</h5>
+        </div>
+        <div className="info-card-body">
+          <div className="info-grid">
+            <InfoItem label={t("Doctor Name")} value={doctor?.name} />
+            <InfoItem label={t("Email")} value={doctor?.email} />
+            <InfoItem label={t("Phone")} value={doctor?.phone} />
+            <InfoItem label={t("Specialty")} value={doctor?.specialty} />
             <InfoItem
-              label="Working Hours"
-              value={`${doctor?.work_start || "-"} ${doctor?.work_end ? `→ ${doctor.work_end}` : ""}`}
+              label={t("Working Hours")}
+              value={
+                doctor?.work_start && doctor?.work_end
+                  ? `${doctor.work_start} → ${doctor.work_end}`
+                  : "-"
+              }
             />
-            <InfoItem label="Slot Minutes" value={doctor?.slot_minutes} />
+            <InfoItem
+              label={t("Slot Duration")}
+              value={
+                doctor?.slot_minutes
+                  ? `${doctor.slot_minutes} ${t("minutes")}`
+                  : "-"
+              }
+            />
           </div>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Check Availability</h5>
+      {/* Availability Check Card */}
+      <div className="availability-card">
+        <div className="availability-card-header">
+          <i className="fas fa-calendar-check me-2"></i>
+          <h5 className="mb-0">{t("Check Availability")}</h5>
         </div>
 
-        <div className="card-body">
-          <div className="row g-3 align-items-end">
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">Date</label>
+        <div className="availability-card-body">
+          <div className="availability-form">
+            <div className="date-field">
+              <label className="field-label">
+                <i className="fas fa-calendar-day me-1"></i>
+                {t("Select Date")}
+              </label>
               <input
                 type="date"
                 className="form-control"
@@ -151,39 +203,67 @@ export default function DoctorAvailabilityPage() {
               />
             </div>
 
-            <div className="col-12 col-md-3 d-grid">
-              <button
-                className="btn btn-primary"
-                onClick={loadAvailability}
-                disabled={checking}
-              >
-                {checking ? "Checking..." : "Load Availability"}
-              </button>
-            </div>
+            <button
+              className="btn btn-primary btn-load"
+              onClick={loadAvailability}
+              disabled={checking}
+            >
+              {checking ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2"></span>
+                  {t("Checking...")}
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-search me-2"></i>
+                  {t("Load Availability")}
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Available Slots</h5>
+      {/* Available Slots Card */}
+      <div className="slots-card">
+        <div className="slots-card-header">
+          <i className="fas fa-clock me-2"></i>
+          <h5 className="mb-0">{t("Available Slots")}</h5>
+          {date && rows.length > 0 && (
+            <span className="selected-date">
+              <i className="fas fa-calendar me-1"></i>
+              {formatDate(date)}
+            </span>
+          )}
         </div>
 
-        <div className="card-body">
+        <div className="slots-card-body">
           {rows.length === 0 ? (
-            <div className="text-muted">No slots loaded yet.</div>
+            <div className="empty-slots">
+              <i className="fas fa-calendar-times empty-icon"></i>
+              <p className="empty-text">
+                {date
+                  ? t("No slots available for this date")
+                  : t("Select a date to check availability")}
+              </p>
+            </div>
           ) : (
-            <div className="d-flex flex-wrap gap-2">
+            <div className="slots-grid">
               {rows.map((slot, index) => {
                 const item = normalizeSlot(slot);
-
                 return (
-                  <span
+                  <div
                     key={`${item.label}-${index}`}
-                    className={`badge fs-6 px-3 py-2 bg-${item.available ? "success" : "secondary"}`}
+                    className={`slot-item ${item.available ? "available" : "unavailable"}`}
                   >
-                    {item.label}
-                  </span>
+                    <i
+                      className={`fas fa-${item.available ? "check-circle" : "times-circle"} me-2`}
+                    ></i>
+                    <span className="slot-time">{item.label}</span>
+                    {!item.available && (
+                      <span className="slot-badge">{t("Booked")}</span>
+                    )}
+                  </div>
                 );
               })}
             </div>
@@ -194,11 +274,12 @@ export default function DoctorAvailabilityPage() {
   );
 }
 
+// InfoItem Component
 function InfoItem({ label, value }) {
   return (
-    <div className="col-12 col-md-4">
-      <div className="small text-muted">{label}</div>
-      <div className="fw-semibold">{value || "-"}</div>
+    <div className="info-item">
+      <div className="info-label">{label}</div>
+      <div className="info-value">{value || "-"}</div>
     </div>
   );
 }

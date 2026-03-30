@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import App from "./App";
+import "./i18n";
 
 /* ================= Public Pages ================= */
 import AllAbout from "./pages/About/AllAbout";

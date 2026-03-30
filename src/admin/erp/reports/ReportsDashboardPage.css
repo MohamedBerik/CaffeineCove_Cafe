@@ -1,0 +1,359 @@
+/* Reports Dashboard Page Styles */
+.reports-dashboard-page {
+  padding: 0 0.5rem;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #1a237e, #283593);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  color: #6c757d;
+  margin: 0.25rem 0 0 0;
+  font-size: 0.875rem;
+}
+
+/* Filters Card */
+.filters-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.filters-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  color: #1a237e;
+}
+
+.filters-card-body {
+  padding: 1.25rem;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.filters-note {
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Reports Grid */
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.report-card-link {
+  text-decoration: none;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.report-card-link:hover {
+  transform: translateY(-4px);
+}
+
+.report-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.report-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: #1a237e;
+}
+
+.report-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.report-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.report-icon.success {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+}
+
+.report-icon.primary {
+  background: rgba(26, 35, 126, 0.1);
+  color: #1a237e;
+}
+
+.report-icon.info {
+  background: rgba(3, 169, 244, 0.1);
+  color: #03a9f4;
+}
+
+.report-icon.warning {
+  background: rgba(255, 152, 0, 0.1);
+  color: #ff9800;
+}
+
+.report-icon.secondary {
+  background: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+}
+
+.report-icon.dark {
+  background: rgba(33, 37, 41, 0.1);
+  color: #212529;
+}
+
+.report-badge {
+  padding: 0.25rem 0.75rem;
+  background: #e9ecef;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.report-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+}
+
+.report-description {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Recommended Card */
+.recommended-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.recommended-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  color: #1a237e;
+}
+
+.recommended-card-body {
+  padding: 1.25rem;
+}
+
+.recommended-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* Report Hint */
+.report-hint {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.report-hint:hover {
+  background: #f0f2ff;
+  border-color: #1a237e;
+}
+
+.report-hint-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 193, 7, 0.1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffc107;
+  font-size: 1.25rem;
+}
+
+.report-hint-content {
+  flex: 1;
+}
+
+.report-hint-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #2c3e50;
+  font-size: 0.875rem;
+}
+
+.report-hint-text {
+  font-size: 0.75rem;
+  color: #6c757d;
+  line-height: 1.4;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .reports-dashboard-page {
+    padding: 0;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-header .btn {
+    justify-content: center;
+  }
+
+  .filters-card-body {
+    padding: 1rem;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .reports-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .report-card {
+    padding: 1rem;
+  }
+
+  .report-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .report-title {
+    font-size: 0.9rem;
+  }
+
+  .report-description {
+    font-size: 0.8rem;
+  }
+
+  .recommended-card-body {
+    padding: 1rem;
+  }
+
+  .recommended-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .report-hint {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .filters-card-header h5,
+  .recommended-card-header h5 {
+    font-size: 0.9rem;
+  }
+
+  .report-hint-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .report-hint-title {
+    font-size: 0.8rem;
+  }
+
+  .report-hint-text {
+    font-size: 0.7rem;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .page-header .btn i {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .report-card-header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .report-hint {
+  flex-direction: row-reverse;
+}

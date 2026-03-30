@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
+import { useTranslation } from "react-i18next";
+import "./AnalyticsDashboardPage.css";
+
 import {
   ResponsiveContainer,
   LineChart,
@@ -16,7 +19,11 @@ import {
   Cell,
 } from "recharts";
 
+// Colors for Pie Chart
+const COLORS = ["#1a237e", "#4caf50", "#f44336", "#ff9800", "#03a9f4"];
+
 export default function AnalyticsDashboardPage() {
+  const { t, i18n } = useTranslation();
   const today = new Date().toISOString().slice(0, 10);
 
   const [filters, setFilters] = useState({
@@ -34,6 +41,30 @@ export default function AnalyticsDashboardPage() {
   useEffect(() => {
     loadAnalytics();
   }, []);
+
+  const formatCurrency = (value) => {
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return new Intl.NumberFormat(lang, {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+  };
+
+  const formatDate = (value) => {
+    if (!value) return "-";
+    try {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleDateString(lang, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    } catch {
+      return value;
+    }
+  };
 
   const loadAnalytics = async () => {
     try {
@@ -69,7 +100,7 @@ export default function AnalyticsDashboardPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load analytics.",
+          t("Failed to load analytics."),
       );
     } finally {
       setLoading(false);
@@ -102,13 +133,6 @@ export default function AnalyticsDashboardPage() {
     );
   }, [invoices, filters]);
 
-  const money = (value) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 2,
-    }).format(Number(value || 0));
-
   const revenueTrendData = useMemo(() => {
     const map = {};
 
@@ -121,7 +145,7 @@ export default function AnalyticsDashboardPage() {
 
       if (!map[date]) {
         map[date] = {
-          date,
+          date: formatDate(date),
           invoiced: 0,
           paid: 0,
         };
@@ -135,6 +159,14 @@ export default function AnalyticsDashboardPage() {
   }, [filteredInvoices]);
 
   const appointmentStatusData = useMemo(() => {
+    const statusMap = {
+      scheduled: t("Scheduled"),
+      completed: t("Completed"),
+      cancelled: t("Cancelled"),
+      no_show: t("No Show"),
+      in_progress: t("In Progress"),
+    };
+
     const counts = {
       scheduled: 0,
       completed: 0,
@@ -148,10 +180,12 @@ export default function AnalyticsDashboardPage() {
       if (counts[key] != null) counts[key] += 1;
     });
 
-    return Object.entries(counts).map(([name, value]) => ({
-      name,
-      value,
-    }));
+    return Object.entries(counts)
+      .filter(([_, value]) => value > 0)
+      .map(([name, value]) => ({
+        name: statusMap[name] || name,
+        value,
+      }));
   }, [filteredAppointments]);
 
   const doctorLoadData = useMemo(() => {
@@ -161,7 +195,7 @@ export default function AnalyticsDashboardPage() {
       );
 
       return {
-        name: doctor.name || `Doctor #${doctor.id}`,
+        name: doctor.name || `${t("Doctor")} #${doctor.id}`,
         total: doctorAppointments.length,
         completed: doctorAppointments.filter((a) => a.status === "completed")
           .length,
@@ -197,10 +231,10 @@ export default function AnalyticsDashboardPage() {
     });
 
     return [
-      { name: "Invoiced", value: invoiced },
-      { name: "Paid", value: paid },
-      { name: "Refunded", value: refunded },
-      { name: "Remaining", value: remaining },
+      { name: t("Invoiced"), value: invoiced, color: "#1a237e" },
+      { name: t("Paid"), value: paid, color: "#4caf50" },
+      { name: t("Refunded"), value: refunded, color: "#f44336" },
+      { name: t("Remaining"), value: remaining, color: "#ff9800" },
     ];
   }, [filteredInvoices]);
 
@@ -230,6 +264,7 @@ export default function AnalyticsDashboardPage() {
 
   const applyFilters = async (e) => {
     e.preventDefault();
+    // Filters are already applied via useMemo
   };
 
   if (loading) {
@@ -239,195 +274,277 @@ export default function AnalyticsDashboardPage() {
         style={{ minHeight: "320px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Analytics Dashboard</h3>
-          <p className="text-muted mb-0">
-            Visual overview of revenue, appointments, doctors, and collections
+    <div className="analytics-dashboard-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Analytics Dashboard")}</h1>
+          <p className="page-subtitle">
+            {t(
+              "Visual overview of revenue, appointments, doctors, and collections",
+            )}
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <Link to="/admin/erp/reports" className="btn btn-outline-secondary">
-            Back to Reports
+            <i className="fas fa-chart-bar me-2"></i>
+            {t("Back to Reports")}
           </Link>
 
           <button className="btn btn-primary" onClick={loadAnalytics}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
-      {error ? <div className="alert alert-danger">{error}</div> : null}
-
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Filters</h5>
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
         </div>
+      )}
 
-        <div className="card-body">
-          <form className="row g-3 align-items-end" onSubmit={applyFilters}>
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">From</label>
-              <input
-                type="date"
-                className="form-control"
-                name="from"
-                value={filters.from}
-                onChange={handleChange}
-              />
-            </div>
+      {/* Filters Card */}
+      <div className="filters-card">
+        <div className="filters-card-header">
+          <i className="fas fa-filter me-2"></i>
+          <h5 className="mb-0">{t("Date Range Filter")}</h5>
+        </div>
+        <div className="filters-card-body">
+          <form onSubmit={applyFilters}>
+            <div className="filters-grid">
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-calendar-alt me-1"></i>
+                  {t("From Date")}
+                </label>
+                <input
+                  type="date"
+                  className="form-control"
+                  name="from"
+                  value={filters.from}
+                  onChange={handleChange}
+                />
+              </div>
 
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">To</label>
-              <input
-                type="date"
-                className="form-control"
-                name="to"
-                value={filters.to}
-                onChange={handleChange}
-              />
-            </div>
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-calendar-alt me-1"></i>
+                  {t("To Date")}
+                </label>
+                <input
+                  type="date"
+                  className="form-control"
+                  name="to"
+                  value={filters.to}
+                  onChange={handleChange}
+                />
+              </div>
 
-            <div className="col-12 col-md-4 d-grid">
-              <button type="submit" className="btn btn-outline-primary">
-                Apply Filters
-              </button>
+              <div className="filter-actions">
+                <button type="submit" className="btn btn-primary">
+                  <i className="fas fa-search me-2"></i>
+                  {t("Apply Filters")}
+                </button>
+              </div>
             </div>
           </form>
         </div>
       </div>
 
-      <div className="row g-3 mb-4">
+      {/* KPI Cards */}
+      <div className="kpi-grid">
         <MetricCard
-          title="Appointments"
+          title={t("Total Appointments")}
           value={kpis.totalAppointments}
-          subtitle="Filtered range"
+          subtitle={t("Filtered range")}
+          icon="fas fa-calendar-check"
+          color="primary"
         />
         <MetricCard
-          title="Completed"
+          title={t("Completed Appointments")}
           value={kpis.completedAppointments}
-          subtitle="Appointments done"
+          subtitle={t("Appointments done")}
+          icon="fas fa-check-circle"
+          color="success"
         />
         <MetricCard
-          title="Invoiced"
-          value={money(kpis.totalInvoiced)}
-          subtitle="Total billed"
+          title={t("Total Invoiced")}
+          value={formatCurrency(kpis.totalInvoiced)}
+          subtitle={t("Total billed")}
+          icon="fas fa-file-invoice"
+          color="primary"
         />
         <MetricCard
-          title="Collected"
-          value={money(kpis.totalPaid)}
-          subtitle="Net paid"
+          title={t("Total Collected")}
+          value={formatCurrency(kpis.totalPaid)}
+          subtitle={t("Net paid")}
+          icon="fas fa-money-bill-wave"
+          color="success"
         />
       </div>
 
-      <div className="row g-4">
-        <div className="col-12 col-xl-8">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Revenue Trend</h5>
-            </div>
-            <div className="card-body">
-              {revenueTrendData.length === 0 ? (
-                <div className="text-muted">No revenue data in this range.</div>
-              ) : (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={revenueTrendData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="invoiced" strokeWidth={2} />
-                    <Line type="monotone" dataKey="paid" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              )}
-            </div>
+      <div className="charts-grid">
+        {/* Revenue Trend Chart */}
+        <div className="chart-card large">
+          <div className="chart-card-header">
+            <i className="fas fa-chart-line me-2"></i>
+            <h5 className="mb-0">{t("Revenue Trend")}</h5>
           </div>
-        </div>
-
-        <div className="col-12 col-xl-4">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Appointment Status Mix</h5>
-            </div>
-            <div className="card-body">
-              {appointmentStatusData.every((x) => x.value === 0) ? (
-                <div className="text-muted">
-                  No appointment data in this range.
-                </div>
-              ) : (
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={appointmentStatusData}
-                      dataKey="value"
-                      nameKey="name"
-                      outerRadius={100}
-                      label
-                    >
-                      {appointmentStatusData.map((entry, index) => (
-                        <Cell key={index} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-xl-7">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Doctor Load</h5>
-            </div>
-            <div className="card-body">
-              {doctorLoadData.length === 0 ? (
-                <div className="text-muted">No doctor data available.</div>
-              ) : (
-                <ResponsiveContainer width="100%" height={320}>
-                  <BarChart data={doctorLoadData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="total" />
-                    <Bar dataKey="completed" />
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-xl-5">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-header bg-white">
-              <h5 className="mb-0">Payment Snapshot</h5>
-            </div>
-            <div className="card-body">
-              <div className="d-flex flex-column gap-3">
-                {paymentSnapshot.map((item) => (
-                  <div
-                    key={item.name}
-                    className="d-flex justify-content-between align-items-center border rounded p-3 bg-light"
-                  >
-                    <div className="fw-semibold">{item.name}</div>
-                    <div className="fw-bold">{money(item.value)}</div>
-                  </div>
-                ))}
+          <div className="chart-card-body">
+            {revenueTrendData.length === 0 ? (
+              <div className="empty-chart">
+                <i className="fas fa-chart-line empty-icon"></i>
+                <p className="empty-text">
+                  {t("No revenue data in this range.")}
+                </p>
               </div>
-            </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={revenueTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                  <Tooltip formatter={(value) => formatCurrency(value)} />
+                  <Line
+                    type="monotone"
+                    dataKey="invoiced"
+                    stroke="#1a237e"
+                    strokeWidth={2}
+                    name={t("Invoiced")}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="paid"
+                    stroke="#4caf50"
+                    strokeWidth={2}
+                    name={t("Paid")}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        {/* Appointment Status Pie Chart */}
+        <div className="chart-card">
+          <div className="chart-card-header">
+            <i className="fas fa-chart-pie me-2"></i>
+            <h5 className="mb-0">{t("Appointment Status")}</h5>
+          </div>
+          <div className="chart-card-body">
+            {appointmentStatusData.length === 0 ? (
+              <div className="empty-chart">
+                <i className="fas fa-chart-pie empty-icon"></i>
+                <p className="empty-text">
+                  {t("No appointment data in this range.")}
+                </p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={appointmentStatusData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label={({ name, percent }) =>
+                      `${name}: ${(percent * 100).toFixed(0)}%`
+                    }
+                  >
+                    {appointmentStatusData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => value} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        {/* Doctor Load Bar Chart */}
+        <div className="chart-card large">
+          <div className="chart-card-header">
+            <i className="fas fa-chart-bar me-2"></i>
+            <h5 className="mb-0">{t("Doctor Load")}</h5>
+          </div>
+          <div className="chart-card-body">
+            {doctorLoadData.length === 0 ||
+            doctorLoadData.every((d) => d.total === 0) ? (
+              <div className="empty-chart">
+                <i className="fas fa-chart-bar empty-icon"></i>
+                <p className="empty-text">{t("No doctor data available.")}</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={doctorLoadData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="name"
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                  />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar
+                    dataKey="total"
+                    fill="#1a237e"
+                    name={t("Total Appointments")}
+                  />
+                  <Bar
+                    dataKey="completed"
+                    fill="#4caf50"
+                    name={t("Completed")}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        {/* Payment Snapshot Card */}
+        <div className="snapshot-card">
+          <div className="snapshot-card-header">
+            <i className="fas fa-wallet me-2"></i>
+            <h5 className="mb-0">{t("Payment Snapshot")}</h5>
+          </div>
+          <div className="snapshot-card-body">
+            {paymentSnapshot.map((item) => (
+              <div key={item.name} className="snapshot-item">
+                <div className="snapshot-label">
+                  <div
+                    className="snapshot-dot"
+                    style={{ backgroundColor: item.color }}
+                  ></div>
+                  <span>{item.name}</span>
+                </div>
+                <div className="snapshot-value">
+                  {formatCurrency(item.value)}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -435,15 +552,29 @@ export default function AnalyticsDashboardPage() {
   );
 }
 
-function MetricCard({ title, value, subtitle }) {
+// MetricCard Component
+function MetricCard({ title, value, subtitle, icon, color = "primary" }) {
+  const colorMap = {
+    primary: { bg: "rgba(26, 35, 126, 0.1)", text: "#1a237e" },
+    success: { bg: "rgba(76, 175, 80, 0.1)", text: "#4caf50" },
+    danger: { bg: "rgba(244, 67, 54, 0.1)", text: "#f44336" },
+    warning: { bg: "rgba(255, 152, 0, 0.1)", text: "#ff9800" },
+    info: { bg: "rgba(3, 169, 244, 0.1)", text: "#03a9f4" },
+  };
+  const colors = colorMap[color] || colorMap.primary;
+
   return (
-    <div className="col-12 col-sm-6 col-xl-3">
-      <div className="card shadow-sm border-0 h-100">
-        <div className="card-body">
-          <div className="text-muted small mb-1">{title}</div>
-          <div className="fs-4 fw-bold">{value}</div>
-          <div className="small text-muted mt-1">{subtitle}</div>
-        </div>
+    <div className="metric-card">
+      <div
+        className="metric-icon"
+        style={{ backgroundColor: colors.bg, color: colors.text }}
+      >
+        <i className={icon}></i>
+      </div>
+      <div className="metric-content">
+        <div className="metric-title">{title}</div>
+        <div className="metric-value">{value}</div>
+        <div className="metric-subtitle">{subtitle}</div>
       </div>
     </div>
   );

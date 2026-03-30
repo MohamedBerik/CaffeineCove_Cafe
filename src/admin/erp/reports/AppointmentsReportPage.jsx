@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
 import { exportToCsv } from "./utils/exportCsv";
+import { useTranslation } from "react-i18next";
 
 export default function AppointmentsReportPage() {
+  const { t, i18n } = useTranslation();
   const today = new Date().toISOString().slice(0, 10);
 
   const [filters, setFilters] = useState({
@@ -31,18 +33,11 @@ export default function AppointmentsReportPage() {
     loadReport();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   const formatDate = (value) => {
     if (!value) return "-";
     try {
-      return new Date(value).toLocaleDateString("en-US", {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleDateString(lang, {
         year: "numeric",
         month: "short",
         day: "2-digit",
@@ -50,6 +45,14 @@ export default function AppointmentsReportPage() {
     } catch {
       return value;
     }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const loadReport = async () => {
@@ -120,7 +123,7 @@ export default function AppointmentsReportPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load appointments report.",
+          t("Failed to load appointments report."),
       );
     } finally {
       setLoading(false);
@@ -128,30 +131,29 @@ export default function AppointmentsReportPage() {
   };
 
   const doctorLabel = useMemo(() => {
-    if (!filters.doctor_id) return "All Doctors";
+    if (!filters.doctor_id) return t("All Doctors");
     const doctor = doctors.find(
       (d) => String(d.id) === String(filters.doctor_id),
     );
-    return doctor?.name || `Doctor #${filters.doctor_id}`;
+    return doctor?.name || `${t("Doctor")} #${filters.doctor_id}`;
   }, [filters.doctor_id, doctors]);
+
+  const statusLabel = useMemo(() => {
+    if (!filters.status) return t("All Statuses");
+    const statusMap = {
+      scheduled: t("Scheduled"),
+      completed: t("Completed"),
+      cancelled: t("Cancelled"),
+      no_show: t("No Show"),
+      in_progress: t("In Progress"),
+    };
+    return statusMap[filters.status] || filters.status;
+  }, [filters.status]);
 
   const applyFilters = async (e) => {
     e.preventDefault();
     await loadReport();
   };
-
-  if (loading) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ minHeight: "320px" }}
-      >
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
 
   const exportRows = () => {
     const csvRows = rows.map((row) => ({
@@ -170,230 +172,293 @@ export default function AppointmentsReportPage() {
   const printReport = () => {
     window.print();
   };
+
+  if (loading) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "320px" }}
+      >
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">{t("Loading...")}</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Appointments Report</h3>
-          <p className="text-muted mb-0">
-            Operational report for scheduling, completion, cancellation, and
-            no-show trends
+    <div className="appointments-report-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Appointments Report")}</h1>
+          <p className="page-subtitle">
+            {t(
+              "Operational report for scheduling, completion, cancellation, and no-show trends",
+            )}
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <Link to="/admin/erp/reports" className="btn btn-outline-secondary">
-            Back to Reports
+            <i className="fas fa-arrow-left me-2"></i>
+            {t("Back to Reports")}
           </Link>
 
           <button className="btn btn-outline-dark" onClick={printReport}>
-            Print
+            <i className="fas fa-print me-2"></i>
+            {t("Print")}
           </button>
 
           <button className="btn btn-outline-success" onClick={exportRows}>
-            Export CSV
+            <i className="fas fa-file-csv me-2"></i>
+            {t("Export CSV")}
           </button>
 
           <button className="btn btn-primary" onClick={loadReport}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
-      {error ? (
-        <div className="alert alert-danger d-flex justify-content-between align-items-center">
-          <span>{error}</span>
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
           <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={loadReport}
-          >
-            Retry
-          </button>
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
         </div>
-      ) : null}
+      )}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Filters</h5>
+      {/* Filters Card */}
+      <div className="filters-card">
+        <div className="filters-card-header">
+          <i className="fas fa-filter me-2"></i>
+          <h5 className="mb-0">{t("Filters")}</h5>
         </div>
+        <div className="filters-card-body">
+          <form onSubmit={applyFilters}>
+            <div className="filters-grid">
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-calendar-alt me-1"></i>
+                  {t("From Date")}
+                </label>
+                <input
+                  type="date"
+                  className="form-control"
+                  name="from"
+                  value={filters.from}
+                  onChange={handleChange}
+                />
+              </div>
 
-        <div className="card-body">
-          <form className="row g-3 align-items-end" onSubmit={applyFilters}>
-            <div className="col-12 col-md-3">
-              <label className="form-label fw-semibold">From</label>
-              <input
-                type="date"
-                className="form-control"
-                name="from"
-                value={filters.from}
-                onChange={handleChange}
-              />
-            </div>
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-calendar-alt me-1"></i>
+                  {t("To Date")}
+                </label>
+                <input
+                  type="date"
+                  className="form-control"
+                  name="to"
+                  value={filters.to}
+                  onChange={handleChange}
+                />
+              </div>
 
-            <div className="col-12 col-md-3">
-              <label className="form-label fw-semibold">To</label>
-              <input
-                type="date"
-                className="form-control"
-                name="to"
-                value={filters.to}
-                onChange={handleChange}
-              />
-            </div>
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-user-md me-1"></i>
+                  {t("Doctor")}
+                </label>
+                <select
+                  className="form-select"
+                  name="doctor_id"
+                  value={filters.doctor_id}
+                  onChange={handleChange}
+                >
+                  <option value="">{t("All Doctors")}</option>
+                  {doctors.map((doctor) => (
+                    <option key={doctor.id} value={doctor.id}>
+                      {doctor.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="col-12 col-md-3">
-              <label className="form-label fw-semibold">Doctor</label>
-              <select
-                className="form-select"
-                name="doctor_id"
-                value={filters.doctor_id}
-                onChange={handleChange}
-              >
-                <option value="">All Doctors</option>
-                {doctors.map((doctor) => (
-                  <option key={doctor.id} value={doctor.id}>
-                    {doctor.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-tag me-1"></i>
+                  {t("Status")}
+                </label>
+                <select
+                  className="form-select"
+                  name="status"
+                  value={filters.status}
+                  onChange={handleChange}
+                >
+                  <option value="">{t("All Statuses")}</option>
+                  <option value="scheduled">{t("Scheduled")}</option>
+                  <option value="completed">{t("Completed")}</option>
+                  <option value="cancelled">{t("Cancelled")}</option>
+                  <option value="no_show">{t("No Show")}</option>
+                  <option value="in_progress">{t("In Progress")}</option>
+                </select>
+              </div>
 
-            <div className="col-12 col-md-3">
-              <label className="form-label fw-semibold">Status</label>
-              <select
-                className="form-select"
-                name="status"
-                value={filters.status}
-                onChange={handleChange}
-              >
-                <option value="">All Statuses</option>
-                <option value="scheduled">scheduled</option>
-                <option value="completed">completed</option>
-                <option value="cancelled">cancelled</option>
-                <option value="no_show">no_show</option>
-                <option value="in_progress">in_progress</option>
-              </select>
-            </div>
-
-            <div className="col-12 d-grid d-md-block">
-              <button type="submit" className="btn btn-outline-primary">
-                Apply Filters
-              </button>
+              <div className="filter-actions">
+                <button type="submit" className="btn btn-primary">
+                  <i className="fas fa-search me-2"></i>
+                  {t("Apply Filters")}
+                </button>
+              </div>
             </div>
           </form>
         </div>
       </div>
 
-      <div className="row g-3 mb-4">
+      {/* Summary Cards */}
+      <div className="summary-grid">
         <ReportCard
-          title="Total Appointments"
+          title={t("Total Appointments")}
           value={summary.total}
           color="primary"
+          icon="fas fa-calendar-check"
         />
         <ReportCard
-          title="Scheduled"
+          title={t("Scheduled")}
           value={summary.scheduled}
           color="warning"
+          icon="fas fa-clock"
         />
         <ReportCard
-          title="Completed"
+          title={t("Completed")}
           value={summary.completed}
           color="success"
+          icon="fas fa-check-circle"
         />
         <ReportCard
-          title="Cancelled"
+          title={t("Cancelled")}
           value={summary.cancelled}
           color="danger"
+          icon="fas fa-times-circle"
         />
-        <ReportCard title="No Show" value={summary.no_show} color="dark" />
         <ReportCard
-          title="In Progress"
+          title={t("No Show")}
+          value={summary.no_show}
+          color="dark"
+          icon="fas fa-user-slash"
+        />
+        <ReportCard
+          title={t("In Progress")}
           value={summary.in_progress}
           color="info"
+          icon="fas fa-spinner"
         />
       </div>
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-header bg-white d-flex justify-content-between align-items-center">
-          <h5 className="mb-0">Report Summary</h5>
-          <span className="badge bg-light text-dark">
+      {/* Report Summary Info */}
+      <div className="info-card">
+        <div className="info-card-header">
+          <i className="fas fa-info-circle me-2"></i>
+          <h5 className="mb-0">{t("Report Summary")}</h5>
+          <span className="report-badge">
             {doctorLabel} | {filters.from || "-"} → {filters.to || "-"}
+            {filters.status && ` | ${statusLabel}`}
           </span>
         </div>
-
-        <div className="card-body">
-          <p className="text-muted mb-0">
-            This report is currently built from the appointments listing
-            response and is ready to be switched later to a dedicated reporting
-            API.
+        <div className="info-card-body">
+          <p className="info-text">
+            {t(
+              "This report is currently built from the appointments listing response and is ready to be switched later to a dedicated reporting API.",
+            )}
           </p>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Appointment Rows</h5>
+      {/* Appointments Table */}
+      <div className="table-card">
+        <div className="table-card-header">
+          <i className="fas fa-table me-2"></i>
+          <h5 className="mb-0">{t("Appointment Rows")}</h5>
+          <span className="row-count">
+            {rows.length} {t("appointments")}
+          </span>
         </div>
 
-        <div className="card-body p-0">
+        <div className="table-card-body">
           {rows.length === 0 ? (
-            <div className="p-4 text-muted">
-              No appointments found for this report.
+            <div className="empty-state">
+              <i className="fas fa-calendar-times empty-icon"></i>
+              <p className="empty-text">
+                {t("No appointments found for this report.")}
+              </p>
             </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light">
+              <table className="report-table">
+                <thead>
                   <tr>
-                    <th style={{ minWidth: 180 }}>Patient</th>
-                    <th style={{ minWidth: 180 }}>Doctor</th>
-                    <th style={{ minWidth: 130 }}>Date</th>
-                    <th style={{ minWidth: 100 }}>Time</th>
-                    <th style={{ minWidth: 120 }}>Status</th>
-                    <th style={{ minWidth: 220 }}>Notes</th>
-                    <th style={{ minWidth: 180 }}>Actions</th>
+                    <th>{t("Patient")}</th>
+                    <th>{t("Doctor")}</th>
+                    <th>{t("Date")}</th>
+                    <th>{t("Time")}</th>
+                    <th>{t("Status")}</th>
+                    <th>{t("Notes")}</th>
+                    <th>{t("Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((item) => (
                     <tr key={item.id}>
-                      <td>
-                        <div className="fw-semibold">
+                      <td data-label={t("Patient")}>
+                        <div className="patient-name">
                           {item.patient?.name || "-"}
                         </div>
-                        <div className="small text-muted">
+                        <div className="patient-email">
                           {item.patient?.email || "-"}
                         </div>
                       </td>
-
-                      <td>{item.doctor?.name || item.doctor_name || "-"}</td>
-                      <td>{formatDate(item.appointment_date)}</td>
-                      <td>
+                      <td data-label={t("Doctor")}>
+                        {item.doctor?.name || item.doctor_name || "-"}
+                      </td>
+                      <td data-label={t("Date")}>
+                        {formatDate(item.appointment_date)}
+                      </td>
+                      <td data-label={t("Time")}>
                         {String(item.appointment_time || "").slice(0, 5) || "-"}
                       </td>
-
-                      <td>
-                        <StatusBadge status={item.status} />
+                      <td data-label={t("Status")}>
+                        <StatusBadge status={item.status} t={t} />
                       </td>
-
-                      <td>{item.notes || "-"}</td>
-
-                      <td>
-                        <div className="d-flex flex-wrap gap-2">
-                          {item.patient?.id ? (
+                      <td data-label={t("Notes")} className="notes-cell">
+                        {item.notes || "-"}
+                      </td>
+                      <td data-label={t("Actions")}>
+                        <div className="action-buttons">
+                          {item.patient?.id && (
                             <Link
                               to={`/admin/erp/patients/${item.patient.id}/profile`}
                               className="btn btn-sm btn-outline-primary"
+                              title={t("View Patient")}
                             >
-                              Patient
+                              <i className="fas fa-user"></i>
+                              <span>{t("Patient")}</span>
                             </Link>
-                          ) : null}
-
+                          )}
                           <Link
                             to={`/admin/erp/appointments/${item.id}/activity`}
                             className="btn btn-sm btn-outline-secondary"
+                            title={t("View Activity")}
                           >
-                            Activity
+                            <i className="fas fa-history"></i>
+                            <span>{t("Activity")}</span>
                           </Link>
                         </div>
                       </td>
@@ -409,27 +474,55 @@ export default function AppointmentsReportPage() {
   );
 }
 
-function ReportCard({ title, value, color = "primary" }) {
+// ReportCard Component
+function ReportCard({ title, value, color = "primary", icon }) {
+  const colorMap = {
+    primary: { bg: "rgba(26, 35, 126, 0.1)", text: "#1a237e" },
+    success: { bg: "rgba(76, 175, 80, 0.1)", text: "#4caf50" },
+    danger: { bg: "rgba(244, 67, 54, 0.1)", text: "#f44336" },
+    warning: { bg: "rgba(255, 152, 0, 0.1)", text: "#ff9800" },
+    info: { bg: "rgba(3, 169, 244, 0.1)", text: "#03a9f4" },
+    dark: { bg: "rgba(33, 37, 41, 0.1)", text: "#212529" },
+  };
+  const colors = colorMap[color] || colorMap.primary;
+
   return (
-    <div className="col-12 col-sm-6 col-xl-4">
-      <div className="card border-0 shadow-sm h-100">
-        <div className="card-body">
-          <div className="text-muted small mb-1">{title}</div>
-          <div className={`fs-4 fw-bold text-${color}`}>{value}</div>
+    <div className="report-card">
+      <div
+        className="report-icon"
+        style={{ backgroundColor: colors.bg, color: colors.text }}
+      >
+        <i className={icon}></i>
+      </div>
+      <div className="report-content">
+        <div className="report-title">{title}</div>
+        <div className="report-value" style={{ color: colors.text }}>
+          {value}
         </div>
       </div>
     </div>
   );
 }
 
-function StatusBadge({ status }) {
+// StatusBadge Component
+function StatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
+  let variant = "secondary";
+  let label = status || "-";
 
-  let cls = "secondary";
-  if (["completed"].includes(value)) cls = "success";
-  else if (["cancelled", "no_show"].includes(value)) cls = "danger";
-  else if (["scheduled"].includes(value)) cls = "warning";
-  else if (["in_progress"].includes(value)) cls = "info";
+  if (value === "completed") {
+    variant = "success";
+    label = t("Completed");
+  } else if (value === "cancelled" || value === "no_show") {
+    variant = "danger";
+    label = t(value === "cancelled" ? "Cancelled" : "No Show");
+  } else if (value === "scheduled") {
+    variant = "warning";
+    label = t("Scheduled");
+  } else if (value === "in_progress") {
+    variant = "info";
+    label = t("In Progress");
+  }
 
-  return <span className={`badge bg-${cls}`}>{status}</span>;
+  return <span className={`status-badge status-${variant}`}>{label}</span>;
 }

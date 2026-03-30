@@ -1,0 +1,509 @@
+/* Doctor Performance Report Page Styles */
+.doctor-performance-page {
+  padding: 0 0.5rem;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #1a237e, #283593);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  color: #6c757d;
+  margin: 0.25rem 0 0 0;
+  font-size: 0.875rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Filters Card */
+.filters-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.filters-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  color: #1a237e;
+}
+
+.filters-card-body {
+  padding: 1.25rem;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Summary Stats */
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+/* Period Info */
+.period-info {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #495057;
+  border: 1px solid #e9ecef;
+}
+
+/* Doctors Table Card */
+.doctors-table-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.table-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  color: #1a237e;
+}
+
+.table-card-header h5 {
+  margin: 0;
+  flex: 1;
+}
+
+.doctor-count {
+  padding: 0.25rem 0.75rem;
+  background: #e9ecef;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.table-card-body {
+  padding: 0;
+}
+
+/* Performance Table */
+.performance-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.performance-table thead tr {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.performance-table th {
+  padding: 0.875rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  text-align: left;
+}
+
+.performance-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f3f5;
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+.performance-table tr:hover td {
+  background-color: #f8f9ff;
+}
+
+/* Doctor Info */
+.doctor-name {
+  font-weight: 600;
+  color: #1a237e;
+}
+
+/* Specialty Badge */
+.specialty-badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  background: #e3f2fd;
+  color: #1976d2;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Stat Numbers */
+.stat-number {
+  font-weight: 600;
+}
+
+.stat-number.success {
+  color: #2e7d32;
+}
+
+.stat-number.warning {
+  color: #ed6c02;
+}
+
+.stat-number.danger {
+  color: #c62828;
+}
+
+/* Rate Container */
+.rate-container {
+  min-width: 100px;
+}
+
+.rate-badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.rate-high {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.rate-medium {
+  background: #fff3e0;
+  color: #ed6c02;
+}
+
+.rate-low {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.rate-bar {
+  height: 4px;
+  background: #e9ecef;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.rate-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.rate-bar-fill.rate-high {
+  background: #4caf50;
+}
+
+.rate-bar-fill.rate-medium {
+  background: #ff9800;
+}
+
+.rate-bar-fill.rate-low {
+  background: #f44336;
+}
+
+/* Empty State */
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  color: #dee2e6;
+  margin-bottom: 1rem;
+}
+
+.empty-text {
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Print Styles */
+@media print {
+  .header-actions,
+  .filters-card,
+  .period-info,
+  .rate-bar {
+    display: none !important;
+  }
+
+  .page-header {
+    margin-bottom: 1rem;
+  }
+
+  .page-title {
+    -webkit-text-fill-color: #1a237e;
+    background: none;
+  }
+
+  .performance-table {
+    font-size: 10pt;
+  }
+
+  .performance-table th,
+  .performance-table td {
+    padding: 0.5rem;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .filters-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .doctor-performance-page {
+    padding: 0;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: stretch;
+  }
+
+  .header-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .filters-card-body {
+    padding: 1rem;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-actions {
+    justify-content: stretch;
+  }
+
+  .filter-actions .btn {
+    width: 100%;
+  }
+
+  .summary-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .stat-card {
+    padding: 0.75rem;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  /* Mobile Table */
+  .performance-table thead {
+    display: none;
+  }
+
+  .performance-table tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    background: white;
+  }
+
+  .performance-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f3f5;
+  }
+
+  .performance-table td:last-child {
+    border-bottom: none;
+  }
+
+  .performance-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-right: 1rem;
+  }
+
+  .rate-container {
+    text-align: right;
+    min-width: auto;
+  }
+
+  .rate-badge {
+    margin-bottom: 0;
+    margin-right: 0.5rem;
+  }
+
+  .rate-bar {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .summary-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .table-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .doctor-count {
+    align-self: flex-start;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .performance-table th,
+[dir="rtl"] .performance-table td {
+  text-align: right;
+}
+
+[dir="rtl"] .performance-table td::before {
+  margin-right: 0;
+  margin-left: 1rem;
+}
+
+[dir="rtl"] .filter-actions .btn i {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .rate-badge {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+[dir="rtl"] .rate-container {
+  text-align: left;
+}

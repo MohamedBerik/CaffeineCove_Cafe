@@ -2,8 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
 import { exportToCsv } from "./utils/exportCsv";
+import { useTranslation } from "react-i18next";
+import "./RevenueReportPage.css";
 
 export default function RevenueReportPage() {
+  const { t, i18n } = useTranslation();
   const today = new Date().toISOString().slice(0, 10);
 
   const [filters, setFilters] = useState({
@@ -23,20 +26,21 @@ export default function RevenueReportPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    loadRevenueReport();
-  }, []);
-
-  const money = (value) =>
-    new Intl.NumberFormat("en-US", {
+  const formatCurrency = (value) => {
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return new Intl.NumberFormat(lang, {
       style: "currency",
       currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(Number(value || 0));
+  };
 
   const formatDate = (value) => {
     if (!value) return "-";
     try {
-      return new Date(value).toLocaleDateString("en-US", {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleDateString(lang, {
         year: "numeric",
         month: "short",
         day: "2-digit",
@@ -59,7 +63,6 @@ export default function RevenueReportPage() {
       setLoading(true);
       setError("");
 
-      // مؤقتًا نعتمد على invoices list الموجودة
       const res = await axios.get("/erp/invoices");
       const payload = res.data || {};
 
@@ -133,7 +136,7 @@ export default function RevenueReportPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load revenue report.",
+          t("Failed to load revenue report."),
       );
     } finally {
       setLoading(false);
@@ -146,21 +149,8 @@ export default function RevenueReportPage() {
   };
 
   const exportHint = useMemo(() => {
-    return `Range: ${filters.from || "-"} → ${filters.to || "-"}`;
+    return `${t("Range")}: ${filters.from || "-"} → ${filters.to || "-"}`;
   }, [filters]);
-
-  if (loading) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ minHeight: "320px" }}
-      >
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
 
   const exportRows = () => {
     const csvRows = rows.map((row) => ({
@@ -181,173 +171,244 @@ export default function RevenueReportPage() {
   const printReport = () => {
     window.print();
   };
+
+  if (loading) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "320px" }}
+      >
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">{t("Loading...")}</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Revenue Report</h3>
-          <p className="text-muted mb-0">
-            Revenue analysis based on invoices, payments, refunds, and balances
+    <div className="revenue-report-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Revenue Report")}</h1>
+          <p className="page-subtitle">
+            {t(
+              "Revenue analysis based on invoices, payments, refunds, and balances",
+            )}
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <Link to="/admin/erp/reports" className="btn btn-outline-secondary">
-            Back to Reports
+            <i className="fas fa-arrow-left me-2"></i>
+            {t("Back to Reports")}
           </Link>
 
           <button className="btn btn-outline-dark" onClick={printReport}>
-            Print
+            <i className="fas fa-print me-2"></i>
+            {t("Print")}
           </button>
 
           <button className="btn btn-outline-success" onClick={exportRows}>
-            Export CSV
+            <i className="fas fa-file-csv me-2"></i>
+            {t("Export CSV")}
           </button>
 
           <button className="btn btn-primary" onClick={loadRevenueReport}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
-      {error ? (
-        <div className="alert alert-danger d-flex justify-content-between align-items-center">
-          <span>{error}</span>
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
           <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={loadRevenueReport}
-          >
-            Retry
-          </button>
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
         </div>
-      ) : null}
+      )}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Filters</h5>
+      {/* Filters Card */}
+      <div className="filters-card">
+        <div className="filters-card-header">
+          <i className="fas fa-filter me-2"></i>
+          <h5 className="mb-0">{t("Filters")}</h5>
         </div>
+        <div className="filters-card-body">
+          <form onSubmit={applyFilters}>
+            <div className="filters-grid">
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-calendar-alt me-1"></i>
+                  {t("From Date")}
+                </label>
+                <input
+                  type="date"
+                  className="form-control"
+                  name="from"
+                  value={filters.from}
+                  onChange={handleChange}
+                />
+              </div>
 
-        <div className="card-body">
-          <form className="row g-3 align-items-end" onSubmit={applyFilters}>
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">From</label>
-              <input
-                type="date"
-                className="form-control"
-                name="from"
-                value={filters.from}
-                onChange={handleChange}
-              />
-            </div>
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-calendar-alt me-1"></i>
+                  {t("To Date")}
+                </label>
+                <input
+                  type="date"
+                  className="form-control"
+                  name="to"
+                  value={filters.to}
+                  onChange={handleChange}
+                />
+              </div>
 
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">To</label>
-              <input
-                type="date"
-                className="form-control"
-                name="to"
-                value={filters.to}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="col-12 col-md-4 d-grid">
-              <button type="submit" className="btn btn-outline-primary">
-                Apply Filters
-              </button>
+              <div className="filter-actions">
+                <button type="submit" className="btn btn-primary">
+                  <i className="fas fa-search me-2"></i>
+                  {t("Apply Filters")}
+                </button>
+              </div>
             </div>
           </form>
         </div>
       </div>
 
-      <div className="row g-3 mb-4">
+      {/* Summary Cards */}
+      <div className="summary-grid">
         <ReportCard
-          title="Total Invoiced"
-          value={money(summary.total_invoiced)}
+          title={t("Total Invoiced")}
+          value={formatCurrency(summary.total_invoiced)}
           color="primary"
+          icon="fas fa-file-invoice"
         />
         <ReportCard
-          title="Gross Paid"
-          value={money(summary.gross_paid)}
+          title={t("Gross Paid")}
+          value={formatCurrency(summary.gross_paid)}
           color="success"
+          icon="fas fa-money-bill-wave"
         />
         <ReportCard
-          title="Refunded"
-          value={money(summary.refunded)}
+          title={t("Refunded")}
+          value={formatCurrency(summary.refunded)}
           color="danger"
+          icon="fas fa-undo-alt"
         />
         <ReportCard
-          title="Net Paid"
-          value={money(summary.net_paid)}
+          title={t("Net Paid")}
+          value={formatCurrency(summary.net_paid)}
           color="info"
+          icon="fas fa-check-circle"
         />
         <ReportCard
-          title="Remaining"
-          value={money(summary.remaining)}
+          title={t("Remaining")}
+          value={formatCurrency(summary.remaining)}
           color="warning"
+          icon="fas fa-hourglass-half"
         />
       </div>
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-header bg-white d-flex justify-content-between align-items-center">
-          <h5 className="mb-0">Report Summary</h5>
-          <span className="badge bg-light text-dark">{exportHint}</span>
+      {/* Report Summary Info */}
+      <div className="info-card">
+        <div className="info-card-header">
+          <i className="fas fa-info-circle me-2"></i>
+          <h5 className="mb-0">{t("Report Summary")}</h5>
+          <span className="report-badge">{exportHint}</span>
         </div>
-
-        <div className="card-body">
-          <p className="text-muted mb-0">
-            This report is currently derived from the invoices listing response.
-            It is ready to be switched later to a dedicated revenue-report API
-            without changing the UI structure.
+        <div className="info-card-body">
+          <p className="info-text">
+            {t(
+              "This report is currently derived from the invoices listing response. It is ready to be switched later to a dedicated revenue-report API without changing the UI structure.",
+            )}
           </p>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Revenue Rows</h5>
+      {/* Revenue Table */}
+      <div className="table-card">
+        <div className="table-card-header">
+          <i className="fas fa-table me-2"></i>
+          <h5 className="mb-0">{t("Revenue Rows")}</h5>
+          <span className="row-count">
+            {rows.length} {t("invoices")}
+          </span>
         </div>
 
-        <div className="card-body p-0">
+        <div className="table-card-body">
           {rows.length === 0 ? (
-            <div className="p-4 text-muted">No revenue rows found.</div>
+            <div className="empty-state">
+              <i className="fas fa-chart-line empty-icon"></i>
+              <p className="empty-text">{t("No revenue rows found.")}</p>
+            </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light">
+              <table className="revenue-table">
+                <thead>
                   <tr>
-                    <th style={{ minWidth: 160 }}>Invoice</th>
-                    <th style={{ minWidth: 180 }}>Customer</th>
-                    <th style={{ minWidth: 120 }}>Invoiced</th>
-                    <th style={{ minWidth: 120 }}>Gross Paid</th>
-                    <th style={{ minWidth: 120 }}>Refunded</th>
-                    <th style={{ minWidth: 120 }}>Net Paid</th>
-                    <th style={{ minWidth: 120 }}>Remaining</th>
-                    <th style={{ minWidth: 120 }}>Status</th>
-                    <th style={{ minWidth: 140 }}>Issued</th>
+                    <th>{t("Invoice")}</th>
+                    <th>{t("Customer")}</th>
+                    <th>{t("Invoiced")}</th>
+                    <th>{t("Gross Paid")}</th>
+                    <th>{t("Refunded")}</th>
+                    <th>{t("Net Paid")}</th>
+                    <th>{t("Remaining")}</th>
+                    <th>{t("Status")}</th>
+                    <th>{t("Issued")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((row) => (
                     <tr key={row.id}>
-                      <td>
+                      <td data-label={t("Invoice")}>
                         <Link
                           to={`/admin/erp/invoices/${row.id}`}
-                          className="text-decoration-none fw-semibold"
+                          className="invoice-link"
                         >
                           {row.number}
                         </Link>
                       </td>
-                      <td>{row.customer_name}</td>
-                      <td>{money(row.total)}</td>
-                      <td>{money(row.gross_paid)}</td>
-                      <td>{money(row.refunded)}</td>
-                      <td>{money(row.net_paid)}</td>
-                      <td>{money(row.remaining)}</td>
-                      <td>
-                        <StatusBadge status={row.status} />
+                      <td data-label={t("Customer")}>{row.customer_name}</td>
+                      <td data-label={t("Invoiced")} className="amount-cell">
+                        {formatCurrency(row.total)}
                       </td>
-                      <td>{formatDate(row.issued_at)}</td>
+                      <td
+                        data-label={t("Gross Paid")}
+                        className="amount-cell success"
+                      >
+                        {formatCurrency(row.gross_paid)}
+                      </td>
+                      <td
+                        data-label={t("Refunded")}
+                        className="amount-cell danger"
+                      >
+                        {formatCurrency(row.refunded)}
+                      </td>
+                      <td
+                        data-label={t("Net Paid")}
+                        className="amount-cell info"
+                      >
+                        {formatCurrency(row.net_paid)}
+                      </td>
+                      <td
+                        data-label={t("Remaining")}
+                        className={`amount-cell ${row.remaining > 0 ? "warning" : "success"}`}
+                      >
+                        {formatCurrency(row.remaining)}
+                      </td>
+                      <td data-label={t("Status")}>
+                        <StatusBadge status={row.status} t={t} />
+                      </td>
+                      <td data-label={t("Issued")}>
+                        {formatDate(row.issued_at)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -360,26 +421,52 @@ export default function RevenueReportPage() {
   );
 }
 
-function ReportCard({ title, value, color = "primary" }) {
+// ReportCard Component
+function ReportCard({ title, value, color = "primary", icon }) {
+  const colorMap = {
+    primary: { bg: "rgba(26, 35, 126, 0.1)", text: "#1a237e" },
+    success: { bg: "rgba(76, 175, 80, 0.1)", text: "#4caf50" },
+    danger: { bg: "rgba(244, 67, 54, 0.1)", text: "#f44336" },
+    warning: { bg: "rgba(255, 152, 0, 0.1)", text: "#ff9800" },
+    info: { bg: "rgba(3, 169, 244, 0.1)", text: "#03a9f4" },
+    secondary: { bg: "rgba(108, 117, 125, 0.1)", text: "#6c757d" },
+  };
+  const colors = colorMap[color] || colorMap.primary;
+
   return (
-    <div className="col-12 col-sm-6 col-xl-4">
-      <div className="card border-0 shadow-sm h-100">
-        <div className="card-body">
-          <div className="text-muted small mb-1">{title}</div>
-          <div className={`fs-4 fw-bold text-${color}`}>{value}</div>
+    <div className="report-card">
+      <div
+        className="report-icon"
+        style={{ backgroundColor: colors.bg, color: colors.text }}
+      >
+        <i className={icon}></i>
+      </div>
+      <div className="report-content">
+        <div className="report-title">{title}</div>
+        <div className="report-value" style={{ color: colors.text }}>
+          {value}
         </div>
       </div>
     </div>
   );
 }
 
-function StatusBadge({ status }) {
+// StatusBadge Component
+function StatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
+  let variant = "secondary";
+  let label = status || "-";
 
-  let cls = "secondary";
-  if (["paid"].includes(value)) cls = "success";
-  else if (["unpaid", "cancelled"].includes(value)) cls = "danger";
-  else if (["partially_paid"].includes(value)) cls = "warning";
+  if (value === "paid") {
+    variant = "success";
+    label = t("Paid");
+  } else if (value === "unpaid" || value === "cancelled") {
+    variant = "danger";
+    label = t(value === "cancelled" ? "Cancelled" : "Unpaid");
+  } else if (value === "partially_paid") {
+    variant = "warning";
+    label = t("Partially Paid");
+  }
 
-  return <span className={`badge bg-${cls}`}>{status}</span>;
+  return <span className={`status-badge status-${variant}`}>{label}</span>;
 }

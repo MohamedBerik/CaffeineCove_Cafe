@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
 import { exportToCsv } from "./utils/exportCsv";
+import { useTranslation } from "react-i18next";
+import "./DoctorPerformanceReportPage.css";
 
 export default function DoctorPerformanceReportPage() {
+  const { t, i18n } = useTranslation();
   const today = new Date().toISOString().slice(0, 10);
 
   const [filters, setFilters] = useState({
@@ -18,6 +21,20 @@ export default function DoctorPerformanceReportPage() {
   useEffect(() => {
     loadReport();
   }, []);
+
+  const formatDate = (value) => {
+    if (!value) return "-";
+    try {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleDateString(lang, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    } catch {
+      return value;
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -87,7 +104,7 @@ export default function DoctorPerformanceReportPage() {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.msg ||
-          "Failed to load doctor performance report.",
+          t("Failed to load doctor performance report."),
       );
     } finally {
       setLoading(false);
@@ -98,17 +115,6 @@ export default function DoctorPerformanceReportPage() {
     e.preventDefault();
     await loadReport();
   };
-
-  if (loading) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ minHeight: "320px" }}
-      >
-        <div className="spinner-border text-primary" />
-      </div>
-    );
-  }
 
   const exportRows = () => {
     const csvRows = rows.map((row) => ({
@@ -128,131 +134,274 @@ export default function DoctorPerformanceReportPage() {
   const printReport = () => {
     window.print();
   };
+
+  if (loading) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "320px" }}
+      >
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">{t("Loading...")}</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Doctor Performance Report</h3>
-          <p className="text-muted mb-0">
-            Compare doctors by appointments, completion rate, and attendance
+    <div className="doctor-performance-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Doctor Performance Report")}</h1>
+          <p className="page-subtitle">
+            {t(
+              "Compare doctors by appointments, completion rate, and attendance",
+            )}
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <Link to="/admin/erp/reports" className="btn btn-outline-secondary">
-            Back to Reports
+            <i className="fas fa-arrow-left me-2"></i>
+            {t("Back to Reports")}
           </Link>
 
           <button className="btn btn-outline-dark" onClick={printReport}>
-            Print
+            <i className="fas fa-print me-2"></i>
+            {t("Print")}
           </button>
 
           <button className="btn btn-outline-success" onClick={exportRows}>
-            Export CSV
+            <i className="fas fa-file-csv me-2"></i>
+            {t("Export CSV")}
           </button>
 
           <button className="btn btn-primary" onClick={loadReport}>
-            Refresh
+            <i className="fas fa-sync-alt me-2"></i>
+            {t("Refresh")}
           </button>
         </div>
       </div>
 
+      {/* Error Alert */}
       {error && (
-        <div className="alert alert-danger d-flex justify-content-between align-items-center">
-          <span>{error}</span>
+        <div className="alert alert-danger alert-dismissible fade show">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
           <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={loadReport}
-          >
-            Retry
-          </button>
+            type="button"
+            className="btn-close"
+            onClick={() => setError("")}
+          ></button>
         </div>
       )}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Filters</h5>
+      {/* Filters Card */}
+      <div className="filters-card">
+        <div className="filters-card-header">
+          <i className="fas fa-filter me-2"></i>
+          <h5 className="mb-0">{t("Filters")}</h5>
         </div>
+        <div className="filters-card-body">
+          <form onSubmit={applyFilters}>
+            <div className="filters-grid">
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-calendar-alt me-1"></i>
+                  {t("From Date")}
+                </label>
+                <input
+                  type="date"
+                  className="form-control"
+                  name="from"
+                  value={filters.from}
+                  onChange={handleChange}
+                />
+              </div>
 
-        <div className="card-body">
-          <form className="row g-3 align-items-end" onSubmit={applyFilters}>
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">From</label>
-              <input
-                type="date"
-                className="form-control"
-                name="from"
-                value={filters.from}
-                onChange={handleChange}
-              />
-            </div>
+              <div className="filter-group">
+                <label className="filter-label">
+                  <i className="fas fa-calendar-alt me-1"></i>
+                  {t("To Date")}
+                </label>
+                <input
+                  type="date"
+                  className="form-control"
+                  name="to"
+                  value={filters.to}
+                  onChange={handleChange}
+                />
+              </div>
 
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">To</label>
-              <input
-                type="date"
-                className="form-control"
-                name="to"
-                value={filters.to}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="col-12 col-md-4 d-grid">
-              <button type="submit" className="btn btn-outline-primary">
-                Apply Filters
-              </button>
+              <div className="filter-actions">
+                <button type="submit" className="btn btn-primary">
+                  <i className="fas fa-search me-2"></i>
+                  {t("Apply Filters")}
+                </button>
+              </div>
             </div>
           </form>
         </div>
       </div>
 
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Doctor Statistics</h5>
+      {/* Summary Stats */}
+      <div className="summary-stats">
+        <div className="stat-card">
+          <div
+            className="stat-icon"
+            style={{
+              backgroundColor: "rgba(26, 35, 126, 0.1)",
+              color: "#1a237e",
+            }}
+          >
+            <i className="fas fa-user-md"></i>
+          </div>
+          <div className="stat-content">
+            <div className="stat-title">{t("Total Doctors")}</div>
+            <div className="stat-value">{rows.length}</div>
+          </div>
         </div>
 
-        <div className="card-body p-0">
+        <div className="stat-card">
+          <div
+            className="stat-icon"
+            style={{
+              backgroundColor: "rgba(76, 175, 80, 0.1)",
+              color: "#4caf50",
+            }}
+          >
+            <i className="fas fa-calendar-check"></i>
+          </div>
+          <div className="stat-content">
+            <div className="stat-title">{t("Total Appointments")}</div>
+            <div className="stat-value">
+              {rows.reduce((sum, r) => sum + r.total, 0)}
+            </div>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div
+            className="stat-icon"
+            style={{
+              backgroundColor: "rgba(33, 150, 243, 0.1)",
+              color: "#2196f3",
+            }}
+          >
+            <i className="fas fa-chart-line"></i>
+          </div>
+          <div className="stat-content">
+            <div className="stat-title">{t("Avg Completion Rate")}</div>
+            <div className="stat-value">
+              {rows.length
+                ? `${Math.round(rows.reduce((sum, r) => sum + r.completionRate, 0) / rows.length)}%`
+                : "0%"}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Report Period Info */}
+      <div className="period-info">
+        <i className="fas fa-calendar-alt me-2"></i>
+        <span>
+          {t("Report Period")}: {formatDate(filters.from) || "-"} →{" "}
+          {formatDate(filters.to) || "-"}
+        </span>
+      </div>
+
+      {/* Doctors Table */}
+      <div className="doctors-table-card">
+        <div className="table-card-header">
+          <i className="fas fa-chart-bar me-2"></i>
+          <h5 className="mb-0">{t("Doctor Statistics")}</h5>
+          <span className="doctor-count">
+            {rows.length} {t("doctors")}
+          </span>
+        </div>
+
+        <div className="table-card-body">
           {rows.length === 0 ? (
-            <div className="p-4 text-muted">No data available.</div>
+            <div className="empty-state">
+              <i className="fas fa-chart-line empty-icon"></i>
+              <p className="empty-text">{t("No data available.")}</p>
+            </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light">
+              <table className="performance-table">
+                <thead>
                   <tr>
-                    <th>Doctor</th>
-                    <th>Specialty</th>
-                    <th>Total</th>
-                    <th>Completed</th>
-                    <th>Scheduled</th>
-                    <th>Cancelled</th>
-                    <th>No Show</th>
-                    <th>Completion Rate</th>
+                    <th>{t("Doctor")}</th>
+                    <th>{t("Specialty")}</th>
+                    <th>{t("Total")}</th>
+                    <th>{t("Completed")}</th>
+                    <th>{t("Scheduled")}</th>
+                    <th>{t("Cancelled")}</th>
+                    <th>{t("No Show")}</th>
+                    <th>{t("Completion Rate")}</th>
                   </tr>
                 </thead>
-
                 <tbody>
-                  {rows.map((row) => (
-                    <tr key={row.id}>
-                      <td className="fw-semibold">{row.name}</td>
+                  {rows.map((row) => {
+                    let rateClass = "rate-low";
+                    if (row.completionRate >= 70) rateClass = "rate-high";
+                    else if (row.completionRate >= 40)
+                      rateClass = "rate-medium";
 
-                      <td>{row.specialty}</td>
-
-                      <td>{row.total}</td>
-                      <td>{row.completed}</td>
-                      <td>{row.scheduled}</td>
-                      <td>{row.cancelled}</td>
-                      <td>{row.no_show}</td>
-
-                      <td>
-                        <span
-                          className={`badge bg-${row.completionRate >= 70 ? "success" : row.completionRate >= 40 ? "warning" : "danger"}`}
+                    return (
+                      <tr key={row.id}>
+                        <td data-label={t("Doctor")}>
+                          <div className="doctor-name">{row.name}</div>
+                        </td>
+                        <td data-label={t("Specialty")}>
+                          <span className="specialty-badge">
+                            {row.specialty}
+                          </span>
+                        </td>
+                        <td data-label={t("Total")} className="stat-number">
+                          {row.total}
+                        </td>
+                        <td
+                          data-label={t("Completed")}
+                          className="stat-number success"
                         >
-                          {row.completionRate}%
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                          {row.completed}
+                        </td>
+                        <td
+                          data-label={t("Scheduled")}
+                          className="stat-number warning"
+                        >
+                          {row.scheduled}
+                        </td>
+                        <td
+                          data-label={t("Cancelled")}
+                          className="stat-number danger"
+                        >
+                          {row.cancelled}
+                        </td>
+                        <td
+                          data-label={t("No Show")}
+                          className="stat-number danger"
+                        >
+                          {row.no_show}
+                        </td>
+                        <td data-label={t("Completion Rate")}>
+                          <div className="rate-container">
+                            <div className={`rate-badge ${rateClass}`}>
+                              {row.completionRate}%
+                            </div>
+                            <div className="rate-bar">
+                              <div
+                                className={`rate-bar-fill ${rateClass}`}
+                                style={{ width: `${row.completionRate}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

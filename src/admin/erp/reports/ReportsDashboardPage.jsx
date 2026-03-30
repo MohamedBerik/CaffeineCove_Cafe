@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import "./ReportsDashboardPage.css";
 
 export default function ReportsDashboardPage() {
+  const { t, i18n } = useTranslation();
   const today = new Date().toISOString().slice(0, 10);
 
   const [filters, setFilters] = useState({
@@ -13,54 +16,50 @@ export default function ReportsDashboardPage() {
   const reportCards = useMemo(
     () => [
       {
-        title: "Revenue Report",
-        description: "Track revenue, paid amounts, and outstanding balances.",
+        titleKey: "Revenue Report",
+        descriptionKey: "revenue_report_desc",
         icon: "fas fa-money-bill-wave",
         color: "success",
         to: "/admin/erp/reports/revenue",
       },
       {
-        title: "Appointments Report",
-        description:
-          "Review scheduled, completed, cancelled, and no-show visits.",
+        titleKey: "Appointments Report",
+        descriptionKey: "appointments_report_desc",
         icon: "fas fa-calendar-check",
         color: "primary",
         to: "/admin/erp/reports/appointments",
       },
       {
-        title: "Doctor Performance",
-        description:
-          "Compare doctors by appointment volume and completed visits.",
+        titleKey: "Doctor Performance",
+        descriptionKey: "doctor_performance_desc",
         icon: "fas fa-user-md",
         color: "info",
         to: "/admin/erp/reports/doctors",
       },
       {
-        title: "Analytics Dashboard",
-        description:
-          "Visual charts for revenue, appointments, doctor load, and collections.",
+        titleKey: "Analytics Dashboard",
+        descriptionKey: "analytics_dashboard_desc",
         icon: "fas fa-chart-line",
         color: "primary",
         to: "/admin/erp/reports/analytics",
       },
       {
-        title: "Payments Report",
-        description: "Analyze payments, refunds, and payment methods.",
+        titleKey: "Payments Report",
+        descriptionKey: "payments_report_desc",
         icon: "fas fa-credit-card",
         color: "warning",
         to: "/admin/erp/reports/payments",
       },
       {
-        title: "Treatment Plans Report",
-        description: "Review plan totals, invoicing, and collection progress.",
+        titleKey: "Treatment Plans Report",
+        descriptionKey: "treatment_plans_report_desc",
         icon: "fas fa-notes-medical",
         color: "secondary",
         to: "/admin/erp/reports/treatment-plans",
       },
       {
-        title: "Patients Report",
-        description:
-          "See active patients, new registrations, and patient activity.",
+        titleKey: "Patients Report",
+        descriptionKey: "patients_report_desc",
         icon: "fas fa-users",
         color: "dark",
         to: "/admin/erp/reports/patients",
@@ -77,31 +76,53 @@ export default function ReportsDashboardPage() {
     }));
   };
 
+  const formatDate = (value) => {
+    if (!value) return "-";
+    try {
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+      return new Date(value).toLocaleDateString(lang, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    } catch {
+      return value;
+    }
+  };
+
   return (
-    <div className="container-fluid px-0">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-          <h3 className="fw-bold mb-1">Clinic Reports</h3>
-          <p className="text-muted mb-0">
-            Reporting hub for finance, appointments, doctors, and patient
-            activity
+    <div className="reports-dashboard-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-text">
+          <h1 className="page-title">{t("Clinic Reports")}</h1>
+          <p className="page-subtitle">
+            {t(
+              "Reporting hub for finance, appointments, doctors, and patient activity",
+            )}
           </p>
         </div>
 
         <Link to="/admin/erp" className="btn btn-outline-secondary">
-          Back to Dashboard
+          <i className="fas fa-tachometer-alt me-2"></i>
+          {t("Back to Dashboard")}
         </Link>
       </div>
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Global Filters</h5>
+      {/* Global Filters Card */}
+      <div className="filters-card">
+        <div className="filters-card-header">
+          <i className="fas fa-globe me-2"></i>
+          <h5 className="mb-0">{t("Global Filters")}</h5>
         </div>
 
-        <div className="card-body">
-          <div className="row g-3">
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">From</label>
+        <div className="filters-card-body">
+          <div className="filters-grid">
+            <div className="filter-group">
+              <label className="filter-label">
+                <i className="fas fa-calendar-alt me-1"></i>
+                {t("From Date")}
+              </label>
               <input
                 type="date"
                 className="form-control"
@@ -111,8 +132,11 @@ export default function ReportsDashboardPage() {
               />
             </div>
 
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">To</label>
+            <div className="filter-group">
+              <label className="filter-label">
+                <i className="fas fa-calendar-alt me-1"></i>
+                {t("To Date")}
+              </label>
               <input
                 type="date"
                 className="form-control"
@@ -122,68 +146,69 @@ export default function ReportsDashboardPage() {
               />
             </div>
 
-            <div className="col-12 col-md-4">
-              <label className="form-label fw-semibold">Doctor ID</label>
+            <div className="filter-group">
+              <label className="filter-label">
+                <i className="fas fa-user-md me-1"></i>
+                {t("Doctor ID")}
+              </label>
               <input
                 type="number"
                 className="form-control"
                 name="doctor_id"
                 value={filters.doctor_id}
                 onChange={handleChange}
-                placeholder="Optional"
+                placeholder={t("Optional")}
               />
             </div>
           </div>
 
-          <div className="mt-3 small text-muted">
-            These filters are UI-ready and can be wired to report APIs next.
+          <div className="filters-note">
+            <i className="fas fa-info-circle me-1"></i>
+            {t(
+              "These filters are UI-ready and can be wired to report APIs next.",
+            )}
           </div>
         </div>
       </div>
 
-      <div className="row g-4">
+      {/* Report Cards Grid */}
+      <div className="reports-grid">
         {reportCards.map((card) => (
-          <div className="col-12 col-md-6 col-xl-4" key={card.to}>
-            <Link to={card.to} className="text-decoration-none text-dark">
-              <div className="card shadow-sm border-0 h-100">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-start mb-3">
-                    <div
-                      className={`text-${card.color} bg-${card.color} bg-opacity-10 rounded p-3`}
-                    >
-                      <i className={card.icon}></i>
-                    </div>
-
-                    <span className="badge bg-light text-dark">Report</span>
-                  </div>
-
-                  <h5 className="fw-bold mb-2">{card.title}</h5>
-                  <p className="text-muted mb-0">{card.description}</p>
+          <Link to={card.to} className="report-card-link" key={card.to}>
+            <div className="report-card">
+              <div className="report-card-header">
+                <div className={`report-icon ${card.color}`}>
+                  <i className={card.icon}></i>
                 </div>
+                <span className="report-badge">{t("Report")}</span>
               </div>
-            </Link>
-          </div>
+              <h5 className="report-title">{t(card.titleKey)}</h5>
+              <p className="report-description">{t(card.descriptionKey)}</p>
+            </div>
+          </Link>
         ))}
       </div>
 
-      <div className="card shadow-sm border-0 mt-4">
-        <div className="card-header bg-white">
-          <h5 className="mb-0">Recommended First Reports</h5>
+      {/* Recommended Reports Section */}
+      <div className="recommended-card">
+        <div className="recommended-card-header">
+          <i className="fas fa-star me-2"></i>
+          <h5 className="mb-0">{t("Recommended First Reports")}</h5>
         </div>
 
-        <div className="card-body">
-          <div className="row g-3">
+        <div className="recommended-card-body">
+          <div className="recommended-grid">
             <ReportHint
-              title="Revenue Report"
-              text="Most important for management because it connects invoices, payments, refunds, and remaining balances."
+              title={t("Revenue Report")}
+              text={t("revenue_hint_text")}
             />
             <ReportHint
-              title="Appointments Report"
-              text="Critical for operations because it shows booking load, completion rate, cancellation, and no-show patterns."
+              title={t("Appointments Report")}
+              text={t("appointments_hint_text")}
             />
             <ReportHint
-              title="Doctor Performance"
-              text="Useful for comparing doctors and planning schedules, staffing, and productivity."
+              title={t("Doctor Performance")}
+              text={t("doctor_performance_hint_text")}
             />
           </div>
         </div>
@@ -192,12 +217,16 @@ export default function ReportsDashboardPage() {
   );
 }
 
+// ReportHint Component
 function ReportHint({ title, text }) {
   return (
-    <div className="col-12 col-md-4">
-      <div className="border rounded p-3 h-100 bg-light">
-        <div className="fw-bold mb-2">{title}</div>
-        <div className="text-muted small">{text}</div>
+    <div className="report-hint">
+      <div className="report-hint-icon">
+        <i className="fas fa-lightbulb"></i>
+      </div>
+      <div className="report-hint-content">
+        <div className="report-hint-title">{title}</div>
+        <div className="report-hint-text">{text}</div>
       </div>
     </div>
   );

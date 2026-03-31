@@ -74,6 +74,22 @@ function Navbar() {
                   Contact
                 </a>
               </li>
+              {!user ? (
+                <li className="auth-buttons">
+                  <NavLink to="/login" className="btn btn-primary">
+                    Login
+                  </NavLink>
+                  <NavLink to="/register" className="btn btn-primary">
+                    Register
+                  </NavLink>
+                </li>
+              ) : (
+                <li>
+                  <button onClick={handleLogout} className="btn btn-danger">
+                    Logout
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
         </div>

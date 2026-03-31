@@ -61,7 +61,7 @@ function Navbar() {
               </a>
               <li className="nav-item">
                 <a className="nav-link" href="/testimonials">
-                  Reviews
+                  Testimonials
                 </a>
               </li>
               <li className="nav-item">

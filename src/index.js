@@ -8,8 +8,9 @@ import "./i18n";
 
 /* ================= Public Pages ================= */
 import AllAbout from "./pages/About/AllAbout";
-import AllMenu from "./pages/Booking/AllBooking";
+import AllTimeline from "./pages/Timeline/AllTimeline";
 import AllTestimonials from "./pages/Testimonials/AllTestimonials";
+import AllBooking from "./pages/Booking/AllBooking";
 import AllContact from "./pages/Contact/AllContact";
 
 /* ================= Auth ================= */
@@ -89,8 +90,9 @@ createRoot(document.getElementById("root")).render(
         {/* ================= Public ================= */}
         <Route path="/" element={<App />} />
         <Route path="/about" element={<AllAbout />} />
-        <Route path="/menu" element={<AllMenu />} />
+        <Route path="/timeline" element={<AllTimeline />} />
         <Route path="/testimonials" element={<AllTestimonials />} />
+        <Route path="/booking" element={<AllBooking />} />
         <Route path="/contact" element={<AllContact />} />
 
         {/* ================= Auth ================= */}

@@ -55,7 +55,7 @@ function Navbar() {
                   Timeline
                 </a>
               </li>
-              <a className="navbar-brand d-none d-lg-block" href="index.html">
+              <a className="navbar-brand d-none d-lg-block" href="/">
                 Medic Care
                 <strong className="d-block">Health Specialist</strong>
               </a>

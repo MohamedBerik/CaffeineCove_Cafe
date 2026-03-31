@@ -218,6 +218,7 @@ export default function ErpDashboardHome() {
           link="/admin/erp/invoices"
         />
 
+        {/* Reminders KPIs - Added translations */}
         <KpiCard
           title={t("Reminders Pending")}
           value={reminderStats.pending ?? 0}
@@ -420,7 +421,8 @@ export default function ErpDashboardHome() {
             )}
           </div>
         </div>
-        {/* Failed Reminders */}
+
+        {/* Failed Reminders Table - Added translations */}
         <div className="dashboard-card">
           <div className="card-header-custom">
             <h5 className="card-title">
@@ -447,13 +449,20 @@ export default function ErpDashboardHome() {
                   <tbody>
                     {failedReminders.map((item) => (
                       <tr key={item.id}>
-                        <td>#{item.id}</td>
-                        <td>{item.doctor_name || "-"}</td>
-                        <td>{item.appointment_date}</td>
-                        <td className="text-danger fw-bold">
+                        <td data-label={t("Appointment")}>#{item.id}</td>
+                        <td data-label={t("Doctor")}>
+                          {item.doctor_name || "-"}
+                        </td>
+                        <td data-label={t("Date")}>{item.appointment_date}</td>
+                        <td
+                          data-label={t("Retries")}
+                          className="text-danger fw-bold"
+                        >
                           {item.reminder_retry_count}
                         </td>
-                        <td>{formatDateTime(item.reminder_last_attempt_at)}</td>
+                        <td data-label={t("Last Attempt")}>
+                          {formatDateTime(item.reminder_last_attempt_at)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

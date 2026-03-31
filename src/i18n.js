@@ -80,6 +80,26 @@ const resources = {
       "In Progress": "In Progress",
       Pending: "Pending",
 
+      // Reminders KPIs
+      "Reminders Pending": "Reminders Pending",
+      "Reminders Failed": "Reminders Failed",
+      "Reminders Sent": "Reminders Sent",
+      "Reminders Processing": "Reminders Processing",
+      "Reminders Skipped": "Reminders Skipped",
+      "Reminders Stuck": "Reminders Stuck",
+      "Reminders Success Rate": "Reminders Success Rate",
+
+      // Failed Reminders Table
+      "Failed Reminders": "Failed Reminders",
+      Appointment: "Appointment",
+      Retries: "Retries",
+      "Last Attempt": "Last Attempt",
+      "No failed reminders.": "No failed reminders.",
+
+      // Additional
+      "Doctor Name": "Doctor Name",
+      "Appointment Date": "Appointment Date",
+      "Reminder Stage": "Reminder Stage",
       // Common
       "Loading...": "Loading...",
 
@@ -1492,6 +1512,27 @@ const resources = {
       Scheduled: "مجدول",
       "In Progress": "قيد التنفيذ",
       Pending: "قيد الانتظار",
+
+      // ErpDashboardHome - Reminders KPIs
+      "Reminders Pending": "تذكيرات قيد الانتظار",
+      "Reminders Failed": "تذكيرات فاشلة",
+      "Reminders Sent": "تذكيرات مرسلة",
+      "Reminders Processing": "تذكيرات قيد المعالجة",
+      "Reminders Skipped": "تذكيرات تم تخطيها",
+      "Reminders Stuck": "تذكيرات عالقة",
+      "Reminders Success Rate": "نسبة نجاح التذكيرات",
+
+      // ErpDashboardHome - Failed Reminders Table
+      "Failed Reminders": "التذكيرات الفاشلة",
+      Appointment: "الموعد",
+      Retries: "محاولات إعادة",
+      "Last Attempt": "آخر محاولة",
+      "No failed reminders.": "لا توجد تذكيرات فاشلة",
+
+      // ErpDashboardHome - Additional Table Headers
+      "Doctor Name": "اسم الطبيب",
+      "Appointment Date": "تاريخ الموعد",
+      "Reminder Stage": "مرحلة التذكير",
 
       // Common
       "Loading...": "جاري التحميل...",

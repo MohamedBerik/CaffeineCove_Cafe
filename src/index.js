@@ -8,7 +8,7 @@ import "./i18n";
 
 /* ================= Public Pages ================= */
 import AllAbout from "./pages/About/AllAbout";
-import AllMenu from "./pages/Menu/AllMenu";
+import AllMenu from "./pages/Booking/AllBooking";
 import AllTestimonials from "./pages/Testimonials/AllTestimonials";
 import AllContact from "./pages/Contact/AllContact";
 

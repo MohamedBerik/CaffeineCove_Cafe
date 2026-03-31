@@ -51,7 +51,7 @@ function Navbar() {
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#timeline">
+                <a className="nav-link" href="/timeline">
                   Timeline
                 </a>
               </li>

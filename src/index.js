@@ -26,7 +26,6 @@ import AdminLayout from "./admin/layouts/AdminLayout";
 
 /* ================= Route Guards ================= */
 import { AdminRoute } from "./admin/routes/ProtectedRoute";
-
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

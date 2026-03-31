@@ -16,22 +16,6 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
 
-/* ================= ERP ================= */
-import ERPDashboard from "./admin/erp/ERPDashboard";
-import ErpDashboardHome from "./admin/erp/ErpDashboardHome";
-import OrdersList from "./admin/erp/components/OrdersList";
-import CreateOrder from "./admin/erp/components/CreateOrder";
-import OrderDetails from "./admin/erp/components/OrderDetails";
-import InvoicesList from "./admin/erp/invoices/InvoicesList";
-import InvoiceDetails from "./admin/erp/invoices/InvoiceDetails";
-import PurchaseOrdersList from "./admin/erp/components/PurchaseOrdersList";
-import PurchaseOrderCreate from "./admin/erp/components/PurchaseOrderCreate";
-import PurchaseOrderDetails from "./admin/erp/components/PurchaseOrderDetails";
-import PurchaseOrderReturns from "./admin/erp/components/PurchaseOrderReturns";
-import PurchaseOrderReturnsHistory from "./admin/erp/components/PurchaseOrderReturnsHistory";
-import PatientStatement from "./admin/erp/patients/PatientStatement";
-import SupplierStatement from "./admin/erp/suppliers/SupplierStatement";
-
 /* ================= Generic CRUD (temporary) ================= */
 import CrudTable from "./admin/components/CrudTable";
 import CrudForm from "./admin/components/CrudForm";
@@ -45,6 +29,22 @@ import { AdminRoute } from "./admin/routes/ProtectedRoute";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+/* ================= ERP ================= */
+import ERPDashboard from "./admin/erp/ERPDashboard";
+import ErpDashboardHome from "./admin/erp/ErpDashboardHome";
+import OrdersList from "./admin/erp/orders/OrdersList";
+import CreateOrder from "./admin/erp/orders/CreateOrder";
+import OrderDetails from "./admin/erp/orders/OrderDetails";
+import InvoicesList from "./admin/erp/invoices/InvoicesList";
+import InvoiceDetails from "./admin/erp/invoices/InvoiceDetails";
+import PurchaseOrdersList from "./admin/erp/purchase-orders/PurchaseOrdersList";
+import PurchaseOrderCreate from "./admin/erp/purchase-orders/PurchaseOrderCreate";
+import PurchaseOrderDetails from "./admin/erp/purchase-orders/PurchaseOrderDetails";
+import PurchaseOrderReturns from "./admin/erp/purchase-orders/PurchaseOrderReturns";
+import PurchaseOrderReturnsHistory from "./admin/erp/purchase-orders/PurchaseOrderReturnsHistory";
+import PatientStatement from "./admin/erp/patients/PatientStatement";
+import SupplierStatement from "./admin/erp/suppliers/SupplierStatement";
 import PatientsList from "./admin/erp/patients/PatientsList";
 import PatientProfilePage from "./admin/erp/patients/PatientProfilePage";
 import PatientTimelinePage from "./admin/erp/patients/PatientTimelinePage";

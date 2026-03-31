@@ -83,6 +83,7 @@ const resources = {
       // Common
       "Loading...": "Loading...",
 
+      // ====================  Start Visit  ====================
       "Start Visit": "Start Visit",
       "Start the patient journey by selecting the patient and visit path":
         "Start the patient journey by selecting the patient and visit path",
@@ -156,6 +157,7 @@ const resources = {
       "Dental Record and Treatment Plan remain part of the treatment workflow. Billing should happen only after a valid consultation or a valid treatment appointment completion.":
         "Dental Record and Treatment Plan remain part of the treatment workflow. Billing should happen only after a valid consultation or a valid treatment appointment completion.",
 
+      // ====================  Appointments  ====================
       Appointments: "Appointments",
       "Daily schedule, doctor bookings, and patient appointments":
         "Daily schedule, doctor bookings, and patient appointments",
@@ -234,6 +236,7 @@ const resources = {
         "Appointment rescheduled successfully.",
       "Failed to reschedule appointment.": "Failed to reschedule appointment.",
 
+      // ====================  Book Appointment  ====================
       "Book Consultation Appointment": "Book Consultation Appointment",
       "Create a consultation appointment and continue the patient journey":
         "Create a consultation appointment and continue the patient journey",
@@ -271,6 +274,7 @@ const resources = {
       "Select patient": "Select patient",
       "Select doctor": "Select doctor",
 
+      // ====================  Appointment Calendar  ====================
       "Appointment Calendar": "Appointment Calendar",
       "Daily clinic schedule by date and doctor":
         "Daily clinic schedule by date and doctor",
@@ -308,6 +312,7 @@ const resources = {
         "Failed to load appointment calendar.",
       "In Progress": "In Progress",
 
+      // ====================  Appointment Activity  ====================
       "Appointment Activity": "Appointment Activity",
       "Timeline of changes and actions for appointment":
         "Timeline of changes and actions for appointment",
@@ -401,6 +406,7 @@ const resources = {
       "In Progress": "In Progress",
       Active: "Active",
 
+      // ==================== Dental Records   ====================
       "Dental Records": "Dental Records",
       "Review patient chart records, procedures, teeth, and statuses":
         "Review patient chart records, procedures, teeth, and statuses",
@@ -440,6 +446,7 @@ const resources = {
       Planned: "Planned",
       "In Progress": "In Progress",
 
+      // ==================== Create Dental Record   ====================
       "Create Dental Record": "Create Dental Record",
       "Add a clinical dental record for a patient before treatment planning":
         "Add a clinical dental record for a patient before treatment planning",
@@ -475,6 +482,7 @@ const resources = {
       "Failed to load reference data.": "Failed to load reference data.",
       "Failed to create dental record.": "Failed to create dental record.",
 
+      // ==================== Treatment Plans  ====================
       "Treatment Plans": "Treatment Plans",
       "View treatment plans, balances, progress, and linked patient data":
         "View treatment plans, balances, progress, and linked patient data",
@@ -502,6 +510,7 @@ const resources = {
       Cancelled: "Cancelled",
       Active: "Active",
 
+      // ==================== Treatment Plan Details  ====================
       "Treatment Plan Details": "Treatment Plan Details",
       "Review plan items, progress, invoices, and cash flow":
         "Review plan items, progress, invoices, and cash flow",
@@ -612,6 +621,7 @@ const resources = {
       Paid: "Paid",
       "e.g., 16, 24, 36": "e.g., 16, 24, 36",
 
+      // ==================== Create Treatment Plan  ====================
       "Create Treatment Plan": "Create Treatment Plan",
       "Create a new treatment plan for a patient":
         "Create a new treatment plan for a patient",
@@ -635,6 +645,7 @@ const resources = {
         "Treatment plan created successfully.",
       "Failed to create treatment plan.": "Failed to create treatment plan.",
 
+      // ==================== patients  ====================
       Patients: "Patients",
       "Manage patients, open profile, timeline, and statement":
         "Manage patients, open profile, timeline, and statement",
@@ -666,6 +677,7 @@ const resources = {
       Inactive: "Inactive",
       "Failed to load patients.": "Failed to load patients.",
 
+      // ==================== patient profile  ====================
       "Failed to load patient profile": "Failed to load patient profile",
       "Dental record updated successfully.":
         "Dental record updated successfully.",
@@ -804,6 +816,7 @@ const resources = {
       "Statement Entries": "Statement Entries",
       Description: "Description",
 
+      // ==================== PatientTimelinePage ====================
       "Failed to load patient timeline.": "Failed to load patient timeline.",
       "No patient timeline data available.":
         "No patient timeline data available.",
@@ -867,6 +880,7 @@ const resources = {
       Retry: "Retry",
       "Loading...": "Loading...",
 
+      // ==================== Create Patient ====================
       "Edit Patient": "Edit Patient",
       "Create Patient": "Create Patient",
       "Update patient basic information": "Update patient basic information",
@@ -894,6 +908,7 @@ const resources = {
       "Failed to load patient.": "Failed to load patient.",
       "Failed to save patient.": "Failed to save patient.",
 
+      // ==================== Doctors ====================
       Doctors: "Doctors",
       "Manage doctors, working hours, and availability":
         "Manage doctors, working hours, and availability",
@@ -923,6 +938,7 @@ const resources = {
       min: "min",
       "Failed to load doctors.": "Failed to load doctors.",
 
+      // ==================== Create Doctor ====================
       "Edit Doctor": "Edit Doctor",
       "Create Doctor": "Create Doctor",
       "Manage doctor profile, hours, and booking slot settings":
@@ -951,6 +967,7 @@ const resources = {
       "Failed to load doctor.": "Failed to load doctor.",
       "Failed to save doctor.": "Failed to save doctor.",
 
+      // ==================== Doctor Availability ====================
       "Doctor Availability": "Doctor Availability",
       "Check available slots for this doctor":
         "Check available slots for this doctor",
@@ -978,6 +995,7 @@ const resources = {
       "Failed to load doctor availability.":
         "Failed to load doctor availability.",
 
+      // ==================== Invoices ====================
       Invoices: "Invoices",
       "Review invoice balances, payment status, and customer billing":
         "Review invoice balances, payment status, and customer billing",
@@ -1010,6 +1028,7 @@ const resources = {
       Cancelled: "Cancelled",
       "Failed to load invoices.": "Failed to load invoices.",
 
+      // ==================== Invoice Details ====================
       "Invoice Details": "Invoice Details",
       "Review invoice, payments, refunds, and accounting impact":
         "Review invoice, payments, refunds, and accounting impact",
@@ -1093,6 +1112,7 @@ const resources = {
       Cancelled: "Cancelled",
       Paid: "Paid",
 
+      // ==================== Analytics Dashboard ====================
       "Analytics Dashboard": "Analytics Dashboard",
       "Visual overview of revenue, appointments, doctors, and collections":
         "Visual overview of revenue, appointments, doctors, and collections",
@@ -1128,6 +1148,7 @@ const resources = {
       Total: "Total",
       "In Progress": "In Progress",
 
+      // ==================== Appointments Report ====================
       "Appointments Report": "Appointments Report",
       "Operational report for scheduling, completion, cancellation, and no-show trends":
         "Operational report for scheduling, completion, cancellation, and no-show trends",
@@ -1169,6 +1190,7 @@ const resources = {
         "Failed to load appointments report.",
       Doctor: "Doctor",
 
+      // ==================== Doctor Performance Report  ====================
       "Doctor Performance Report": "Doctor Performance Report",
       "Compare doctors by appointments, completion rate, and attendance":
         "Compare doctors by appointments, completion rate, and attendance",
@@ -1198,6 +1220,7 @@ const resources = {
       "Failed to load doctor performance report.":
         "Failed to load doctor performance report.",
 
+      // ==================== Clinic Reports  ====================
       "Clinic Reports": "Clinic Reports",
       "Reporting hub for finance, appointments, doctors, and patient activity":
         "Reporting hub for finance, appointments, doctors, and patient activity",
@@ -1238,6 +1261,7 @@ const resources = {
       patients_report_desc:
         "See active patients, new registrations, and patient activity.",
 
+      // ==================== Revenue Report ====================
       "Revenue Report": "Revenue Report",
       "Revenue analysis based on invoices, payments, refunds, and balances":
         "Revenue analysis based on invoices, payments, refunds, and balances",
@@ -1274,6 +1298,7 @@ const resources = {
       "Partially Paid": "Partially Paid",
       "Failed to load revenue report.": "Failed to load revenue report.",
 
+      // ==================== Clinic Settings  ====================
       "Clinic Settings": "Clinic Settings",
       "Manage clinic profile, invoice settings, and defaults":
         "Manage clinic profile, invoice settings, and defaults",
@@ -1299,6 +1324,7 @@ const resources = {
       Arabic: "Arabic",
       "Saving...": "Saving...",
 
+      // ==================== Procedures  ====================
       Procedures: "Procedures",
       "Manage clinic procedures, default prices, and active status":
         "Manage clinic procedures, default prices, and active status",
@@ -1336,6 +1362,7 @@ const resources = {
         "Procedure deactivated successfully.",
       "Failed to update procedure.": "Failed to update procedure.",
 
+      // ==================== Edit Procedure  ====================
       "Edit Procedure": "Edit Procedure",
       "Add Procedure": "Add Procedure",
       "Manage procedure name, default price, and active status":
@@ -1468,6 +1495,8 @@ const resources = {
 
       // Common
       "Loading...": "جاري التحميل...",
+
+      // ====================  Start Visit  ====================
 
       "Start Visit": "بدء زيارة",
       "Start the patient journey by selecting the patient and visit path":
@@ -1614,6 +1643,8 @@ const resources = {
       "Appointment rescheduled successfully.": "تمت إعادة جدولة الموعد بنجاح",
       "Failed to reschedule appointment.": "فشل إعادة جدولة الموعد",
 
+      // ====================  Book Appointment  ====================
+
       "Book Consultation Appointment": "حجز موعد استشارة",
       "Create a consultation appointment and continue the patient journey":
         "إنشاء موعد استشارة ومتابعة رحلة المريض",
@@ -1650,6 +1681,8 @@ const resources = {
       "Select patient": "اختر المريض",
       "Select doctor": "اختر الطبيب",
 
+      // ====================  Appointment Calendar  ====================
+
       "Appointment Calendar": "تقويم المواعيد",
       "Daily clinic schedule by date and doctor":
         "جدول العيادة اليومي حسب التاريخ والطبيب",
@@ -1685,6 +1718,8 @@ const resources = {
       Activity: "النشاط",
       "Failed to load appointment calendar.": "فشل تحميل تقويم المواعيد",
       "In Progress": "قيد التنفيذ",
+
+      // ====================  Appointment Activity  ====================
 
       "Appointment Activity": "نشاط الموعد",
       "Timeline of changes and actions for appointment":
@@ -1776,6 +1811,8 @@ const resources = {
       "In Progress": "قيد التنفيذ",
       Active: "نشط",
 
+      // ====================  Dental Records  ====================
+
       "Dental Records": "السجلات السنية",
       "Review patient chart records, procedures, teeth, and statuses":
         "مراجعة سجلات المرضى، الإجراءات، الأسنان، والحالات",
@@ -1814,6 +1851,8 @@ const resources = {
       Planned: "مخطط",
       "In Progress": "قيد التنفيذ",
 
+      // ====================  Create Dental Record  ====================
+
       "Create Dental Record": "إنشاء سجل سني",
       "Add a clinical dental record for a patient before treatment planning":
         "إضافة سجل سني سريري لمريض قبل تخطيط العلاج",
@@ -1848,6 +1887,8 @@ const resources = {
       "Failed to load reference data.": "فشل تحميل البيانات المرجعية",
       "Failed to create dental record.": "فشل إنشاء السجل السني",
 
+      // ====================  Treatment Plans  ====================
+
       "Treatment Plans": "خطط العلاج",
       "View treatment plans, balances, progress, and linked patient data":
         "عرض خطط العلاج، الأرصدة، التقدم، وبيانات المرضى المرتبطة",
@@ -1874,6 +1915,8 @@ const resources = {
       Completed: "مكتمل",
       Cancelled: "ملغي",
       Active: "نشط",
+
+      // ====================  Treatment Plan Details  ====================
 
       "Treatment Plan Details": "تفاصيل خطة العلاج",
       "Review plan items, progress, invoices, and cash flow":
@@ -1982,6 +2025,8 @@ const resources = {
       Paid: "مدفوع",
       "e.g., 16, 24, 36": "مثال: 16، 24، 36",
 
+      // ====================  Create Treatment Plan   ====================
+
       "Create Treatment Plan": "إنشاء خطة علاج",
       "Create a new treatment plan for a patient": "إنشاء خطة علاج جديدة لمريض",
       "Back to Plans": "العودة إلى الخطط",
@@ -2002,6 +2047,8 @@ const resources = {
       "Failed to load patients.": "فشل تحميل المرضى",
       "Treatment plan created successfully.": "تم إنشاء خطة العلاج بنجاح",
       "Failed to create treatment plan.": "فشل إنشاء خطة العلاج",
+
+      // ====================  Patients  ====================
 
       Patients: "المرضى",
       "Manage patients, open profile, timeline, and statement":
@@ -2033,6 +2080,8 @@ const resources = {
       Active: "نشط",
       Inactive: "غير نشط",
       "Failed to load patients.": "فشل تحميل المرضى",
+
+      // ====================  patient profile  ====================
 
       "Failed to load patient profile": "فشل تحميل ملف المريض",
       "Dental record updated successfully.": "تم تحديث السجل السني بنجاح",
@@ -2167,6 +2216,8 @@ const resources = {
       "Statement Entries": "إدخالات كشف الحساب",
       Description: "الوصف",
 
+      // ====================  patient timeline  ====================
+
       "Failed to load patient timeline.": "فشل تحميل الجدول الزمني للمريض",
       "No patient timeline data available.":
         "لا توجد بيانات للجدول الزمني للمريض",
@@ -2230,6 +2281,8 @@ const resources = {
       Retry: "إعادة المحاولة",
       "Loading...": "جاري التحميل...",
 
+      // ====================  Create Patient  ====================
+
       "Edit Patient": "تعديل مريض",
       "Create Patient": "إنشاء مريض",
       "Update patient basic information": "تحديث المعلومات الأساسية للمريض",
@@ -2255,6 +2308,8 @@ const resources = {
       "Update Patient": "تحديث المريض",
       "Failed to load patient.": "فشل تحميل بيانات المريض",
       "Failed to save patient.": "فشل حفظ بيانات المريض",
+
+      // ====================  Doctors  ====================
 
       Doctors: "الأطباء",
       "Manage doctors, working hours, and availability":
@@ -2286,6 +2341,8 @@ const resources = {
       min: "دقيقة",
       "Failed to load doctors.": "فشل تحميل الأطباء",
 
+      // ====================  Create Doctor  ====================
+
       "Edit Doctor": "تعديل طبيب",
       "Create Doctor": "إنشاء طبيب",
       "Manage doctor profile, hours, and booking slot settings":
@@ -2313,6 +2370,8 @@ const resources = {
       "Failed to load doctor.": "فشل تحميل بيانات الطبيب",
       "Failed to save doctor.": "فشل حفظ بيانات الطبيب",
 
+      // ====================  Doctor Availability  ====================
+
       "Doctor Availability": "توفر الطبيب",
       "Check available slots for this doctor":
         "تحقق من المواعيد المتاحة لهذا الطبيب",
@@ -2337,6 +2396,8 @@ const resources = {
       "Failed to load doctor details.": "فشل تحميل تفاصيل الطبيب",
       "Please select a date first.": "الرجاء اختيار تاريخ أولاً",
       "Failed to load doctor availability.": "فشل تحميل مواعيد توفر الطبيب",
+
+      // ====================  Invoices  ====================
 
       Invoices: "الفواتير",
       "Review invoice balances, payment status, and customer billing":
@@ -2369,6 +2430,8 @@ const resources = {
       Unpaid: "غير مدفوع",
       Cancelled: "ملغي",
       "Failed to load invoices.": "فشل تحميل الفواتير",
+
+      // ====================  Invoice Details ====================
 
       "Invoice Details": "تفاصيل الفاتورة",
       "Review invoice, payments, refunds, and accounting impact":
@@ -2452,6 +2515,8 @@ const resources = {
       Cancelled: "ملغي",
       Paid: "مدفوع",
 
+      // ====================  Analytics Dashboard  ====================
+
       "Analytics Dashboard": "لوحة التحليل",
       "Visual overview of revenue, appointments, doctors, and collections":
         "نظرة عامة مرئية للإيرادات، المواعيد، الأطباء، والتحصيلات",
@@ -2486,6 +2551,8 @@ const resources = {
       Completed: "مكتمل",
       Total: "الإجمالي",
       "In Progress": "قيد التنفيذ",
+
+      // ====================  Appointments Report  ====================
 
       "Appointments Report": "تقرير المواعيد",
       "Operational report for scheduling, completion, cancellation, and no-show trends":
@@ -2526,6 +2593,8 @@ const resources = {
       "Failed to load appointments report.": "فشل تحميل تقرير المواعيد",
       Doctor: "الطبيب",
 
+      // ====================  Doctor Performance Report  ====================
+
       "Doctor Performance Report": "تقرير أداء الأطباء",
       "Compare doctors by appointments, completion rate, and attendance":
         "مقارنة الأطباء حسب المواعيد، نسبة الإنجاز، والحضور",
@@ -2554,6 +2623,8 @@ const resources = {
       "Completion Rate": "نسبة الإنجاز",
       "Failed to load doctor performance report.":
         "فشل تحميل تقرير أداء الأطباء",
+
+      // ====================  Clinic Reports  ====================
 
       "Clinic Reports": "تقارير العيادة",
       "Reporting hub for finance, appointments, doctors, and patient activity":

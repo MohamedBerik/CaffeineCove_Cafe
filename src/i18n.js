@@ -2666,6 +2666,8 @@ const resources = {
       patients_report_desc:
         "عرض المرضى النشطين، التسجيلات الجديدة، ونشاط المرضى.",
 
+      // ====================  Revenue Report  ====================
+
       "Revenue Report": "تقرير الإيرادات",
       "Revenue analysis based on invoices, payments, refunds, and balances":
         "تحليل الإيرادات بناءً على الفواتير، المدفوعات، المبالغ المستردة، والأرصدة",
@@ -2702,6 +2704,8 @@ const resources = {
       "Partially Paid": "مدفوع جزئياً",
       "Failed to load revenue report.": "فشل تحميل تقرير الإيرادات",
 
+      // ====================  Clinic Settings  ====================
+
       "Clinic Settings": "إعدادات العيادة",
       "Manage clinic profile, invoice settings, and defaults":
         "إدارة ملف العيادة، إعدادات الفواتير، والإعدادات الافتراضية",
@@ -2725,6 +2729,8 @@ const resources = {
       English: "الإنجليزية",
       Arabic: "العربية",
       "Saving...": "جاري الحفظ...",
+
+      // ====================  Procedures  ====================
 
       Procedures: "الإجراءات",
       "Manage clinic procedures, default prices, and active status":
@@ -2761,6 +2767,8 @@ const resources = {
       "Procedure activated successfully.": "تم تنشيط الإجراء بنجاح",
       "Procedure deactivated successfully.": "تم إلغاء تنشيط الإجراء بنجاح",
       "Failed to update procedure.": "فشل تحديث الإجراء",
+
+      // ====================  Create Procedure  ====================
 
       "Edit Procedure": "تعديل إجراء",
       "Add Procedure": "إضافة إجراء",

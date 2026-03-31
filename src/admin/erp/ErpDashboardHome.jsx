@@ -112,6 +112,8 @@ export default function ErpDashboardHome() {
   const recentAppointments = data.recent_appointments || [];
   const recentInvoices = data.recent_invoices || [];
   const recentPayments = data.recent_payments || [];
+  const reminderStats = data.reminders?.stats || {};
+  const failedReminders = data.reminders?.failed_recent || [];
 
   return (
     <div className="erp-dashboard">
@@ -214,6 +216,27 @@ export default function ErpDashboardHome() {
           icon="fas fa-check-double"
           color="success"
           link="/admin/erp/invoices"
+        />
+
+        <KpiCard
+          title={t("Reminders Pending")}
+          value={reminderStats.pending ?? 0}
+          icon="fas fa-hourglass-half"
+          color="warning"
+        />
+
+        <KpiCard
+          title={t("Reminders Failed")}
+          value={reminderStats.failed ?? 0}
+          icon="fas fa-exclamation-triangle"
+          color="danger"
+        />
+
+        <KpiCard
+          title={t("Reminders Sent")}
+          value={reminderStats.sent ?? 0}
+          icon="fas fa-paper-plane"
+          color="success"
         />
       </div>
 
@@ -389,6 +412,48 @@ export default function ErpDashboardHome() {
                         <td data-label={t("Paid At")}>
                           {formatDateTime(item.paid_at || item.created_at)}
                         </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+        {/* Failed Reminders */}
+        <div className="dashboard-card">
+          <div className="card-header-custom">
+            <h5 className="card-title">
+              <i className="fas fa-bell-slash me-2"></i>
+              {t("Failed Reminders")}
+            </h5>
+          </div>
+
+          <div className="card-body-custom">
+            {failedReminders.length === 0 ? (
+              <EmptyState text={t("No failed reminders.")} />
+            ) : (
+              <div className="table-responsive">
+                <table className="dashboard-table">
+                  <thead>
+                    <tr>
+                      <th>{t("Appointment")}</th>
+                      <th>{t("Doctor")}</th>
+                      <th>{t("Date")}</th>
+                      <th>{t("Retries")}</th>
+                      <th>{t("Last Attempt")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {failedReminders.map((item) => (
+                      <tr key={item.id}>
+                        <td>#{item.id}</td>
+                        <td>{item.doctor_name || "-"}</td>
+                        <td>{item.appointment_date}</td>
+                        <td className="text-danger fw-bold">
+                          {item.reminder_retry_count}
+                        </td>
+                        <td>{formatDateTime(item.reminder_last_attempt_at)}</td>
                       </tr>
                     ))}
                   </tbody>

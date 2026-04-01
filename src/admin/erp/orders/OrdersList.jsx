@@ -20,7 +20,7 @@ const OrdersList = () => {
   }, []);
 
   const formatCurrency = (value) => {
-    const lang = i18n.language === 'ar' ? 'ar-EG' : 'en-US';
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
     return new Intl.NumberFormat(lang, {
       style: "currency",
       currency: "USD",
@@ -32,7 +32,7 @@ const OrdersList = () => {
   const formatDate = (value) => {
     if (!value) return "-";
     try {
-      const lang = i18n.language === 'ar' ? 'ar-EG' : 'en-US';
+      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
       return new Date(value).toLocaleDateString(lang, {
         year: "numeric",
         month: "short",
@@ -145,7 +145,9 @@ const OrdersList = () => {
             className={`filter-btn ${filter === status ? "active" : ""}`}
             onClick={() => setFilter(status)}
           >
-            {status === "all" ? t("All") : t(status.charAt(0).toUpperCase() + status.slice(1))}
+            {status === "all"
+              ? t("All")
+              : t(status.charAt(0).toUpperCase() + status.slice(1))}
           </button>
         ))}
       </div>
@@ -156,7 +158,9 @@ const OrdersList = () => {
           <p>
             {filter === "all"
               ? t("No orders found")
-              : t("No {status} orders found", { status: t(filter.charAt(0).toUpperCase() + filter.slice(1)) })}
+              : t("No {status} orders found", {
+                  status: t(filter.charAt(0).toUpperCase() + filter.slice(1)),
+                })}
           </p>
           <button
             className="btn-create"
@@ -172,12 +176,16 @@ const OrdersList = () => {
             <div key={order.id} className="order-card">
               <div className="order-header">
                 <div>
-                  <h4 className="order-id">{t("Order")} #{order.id}</h4>
+                  <h4 className="order-id">
+                    {t("Order")} #{order.id}
+                  </h4>
                   <p className="order-customer">
                     {order.customer?.name || t("No Customer")}
                   </p>
                 </div>
-                <span className={`status-badge ${getStatusBadgeClass(order.status)}`}>
+                <span
+                  className={`status-badge ${getStatusBadgeClass(order.status)}`}
+                >
                   {getStatusLabel(order.status)}
                 </span>
               </div>
@@ -235,7 +243,9 @@ const OrdersList = () => {
       <div className="orders-header">
         <div>
           <h2>{t("Orders Management")}</h2>
-          <p className="header-subtitle">{t("Manage and track all customer orders")}</p>
+          <p className="header-subtitle">
+            {t("Manage and track all customer orders")}
+          </p>
         </div>
         <div className="header-actions">
           <div className="filters">
@@ -245,7 +255,9 @@ const OrdersList = () => {
                 className={`filter-btn ${filter === status ? "active" : ""}`}
                 onClick={() => setFilter(status)}
               >
-                {status === "all" ? t("All") : t(status.charAt(0).toUpperCase() + status.slice(1))}
+                {status === "all"
+                  ? t("All")
+                  : t(status.charAt(0).toUpperCase() + status.slice(1))}
               </button>
             ))}
           </div>
@@ -269,7 +281,8 @@ const OrdersList = () => {
               <th>{t("Status")}</th>
               <th>{t("Date")}</th>
               <th>{t("Actions")}</th>
-             </thead>
+            </tr>
+          </thead>
           <tbody>
             {filteredOrders.length === 0 ? (
               <tr>
@@ -278,7 +291,11 @@ const OrdersList = () => {
                   <p>
                     {filter === "all"
                       ? t("No orders found")
-                      : t("No {status} orders found", { status: t(filter.charAt(0).toUpperCase() + filter.slice(1)) })}
+                      : t("No {status} orders found", {
+                          status: t(
+                            filter.charAt(0).toUpperCase() + filter.slice(1),
+                          ),
+                        })}
                   </p>
                   <button
                     className="btn-create"
@@ -302,11 +319,11 @@ const OrdersList = () => {
                     </button>
                   </td>
                   <td>{order.customer?.name || "-"}</td>
-                  <td className="total-cell">
-                    {formatCurrency(order.total)}
-                  </td>
+                  <td className="total-cell">{formatCurrency(order.total)}</td>
                   <td>
-                    <span className={`status-badge ${getStatusBadgeClass(order.status)}`}>
+                    <span
+                      className={`status-badge ${getStatusBadgeClass(order.status)}`}
+                    >
                       {getStatusLabel(order.status)}
                     </span>
                   </td>
@@ -331,7 +348,9 @@ const OrdersList = () => {
                       </button>
                       <button
                         className="btn-action-icon btn-primary"
-                        onClick={() => navigate(`/admin/erp/orders/${order.id}`)}
+                        onClick={() =>
+                          navigate(`/admin/erp/orders/${order.id}`)
+                        }
                         title={t("View details")}
                       >
                         <i className="fas fa-eye"></i>
@@ -348,7 +367,8 @@ const OrdersList = () => {
       {filteredOrders.length > 0 && (
         <div className="table-footer">
           <span className="text-muted">
-            {t("Showing")} {filteredOrders.length} {t("of")} {orders.length} {t("orders")}
+            {t("Showing")} {filteredOrders.length} {t("of")} {orders.length}{" "}
+            {t("orders")}
           </span>
         </div>
       )}
@@ -358,4 +378,4 @@ const OrdersList = () => {
   return isMobile ? renderMobileView() : renderDesktopView();
 };
 
-export default OrdersList; 
+export default OrdersList;

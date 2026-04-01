@@ -114,6 +114,7 @@ export default function ErpDashboardHome() {
   const recentPayments = data.recent_payments || [];
   const reminderStats = data.reminders?.stats || {};
   const failedReminders = data.reminders?.failed_recent || [];
+  const alerts = data.reminders?.alerts || [];
 
   return (
     <div className="erp-dashboard">
@@ -141,6 +142,17 @@ export default function ErpDashboardHome() {
           </button>
         </div>
       </div>
+
+      {alerts.length > 0 && (
+        <div className="mb-3">
+          {alerts.map((alert, index) => (
+            <div key={index} className={`alert alert-${alert.type}`}>
+              <i className="fas fa-exclamation-triangle me-2"></i>
+              {t(alert.message)}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* KPIs Grid */}
       <div className="kpis-grid">

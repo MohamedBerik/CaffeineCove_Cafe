@@ -22,7 +22,8 @@ function App() {
       description: t("Professional dental services for your perfect smile"),
     },
     {
-      image: "images/slider/istockphoto-1277540209-612x612.jpg",
+      image:
+        "images/slider/TC-dental-group-upper-Mt-Gravatt-dentist-periodontal-disease-treatment-options.jpg",
       alt: t("Female dentist"),
       title: t("Modern Dental Clinic"),
       description: t("State-of-the-art equipment and comfortable environment"),

@@ -96,6 +96,13 @@ const resources = {
       "Last Attempt": "Last Attempt",
       "No failed reminders.": "No failed reminders.",
 
+      // Alerts Section - English
+      "High failed reminders": "High failed reminders",
+      "Reminders stuck in processing": "Reminders stuck in processing",
+      "There are {{count}} failed reminders that need review":
+        "There are {{count}} failed reminders that need review",
+      "There are {{count}} reminders stuck for more than 10 minutes":
+        "There are {{count}} reminders stuck for more than 10 minutes",
       // Additional
       "Doctor Name": "Doctor Name",
       "Appointment Date": "Appointment Date",
@@ -1534,6 +1541,13 @@ const resources = {
       "Appointment Date": "تاريخ الموعد",
       "Reminder Stage": "مرحلة التذكير",
 
+      // Alerts Section
+      "High failed reminders": "تذكيرات فاشلة كثيرة",
+      "Reminders stuck in processing": "تذكيرات عالقة قيد المعالجة",
+      "High failed reminders_desc":
+        "هناك {{count}} تذكيرات فاشلة تحتاج إلى مراجعة",
+      "Reminders stuck in processing_desc":
+        "هناك {{count}} تذكيرات عالقة منذ أكثر من 10 دقائق",
       // Common
       "Loading...": "جاري التحميل...",
 

@@ -1985,6 +1985,69 @@ const resources = {
       "Had a great experience with us? We'd love to hear about it!":
         "Had a great experience with us? We'd love to hear about it!",
       "Write a Review": "Write a Review",
+
+      // أضف ضمن كائن en:
+      "Our Journey": "Our Journey",
+      "A timeline of our growth, milestones, and commitment to excellence in dental care":
+        "A timeline of our growth, milestones, and commitment to excellence in dental care",
+      "Year Established": "Year Established",
+      "Years Combined Experience": "Years Combined Experience",
+      "Happy Patients": "Happy Patients",
+      "Awards & Recognitions": "Awards & Recognitions",
+      "Our Timeline": "Our Timeline",
+      "Milestones that shaped our dental clinic into what it is today":
+        "Milestones that shaped our dental clinic into what it is today",
+      "Key Achievements": "Key Achievements",
+      "Looking Ahead": "Looking Ahead",
+      "We're committed to continuous improvement and innovation in dental care. Our future plans include:":
+        "We're committed to continuous improvement and innovation in dental care. Our future plans include:",
+      "AI-Powered Diagnostics": "AI-Powered Diagnostics",
+      "Implementing artificial intelligence for early detection of dental issues":
+        "Implementing artificial intelligence for early detection of dental issues",
+      "Tele-dentistry Services": "Tele-dentistry Services",
+      "Virtual consultations and remote monitoring for patient convenience":
+        "Virtual consultations and remote monitoring for patient convenience",
+      "Dental Education Center": "Dental Education Center",
+      "Community outreach and educational programs for oral health awareness":
+        "Community outreach and educational programs for oral health awareness",
+      "State-of-the-Art Dental Equipment": "State-of-the-Art Dental Equipment",
+      "We invested in the latest digital imaging technology, including 3D CBCT scanners and intraoral cameras, allowing for more precise diagnoses and treatment planning.":
+        "We invested in the latest digital imaging technology, including 3D CBCT scanners and intraoral cameras, allowing for more precise diagnoses and treatment planning.",
+      "3D CBCT Scanner installed": "3D CBCT Scanner installed",
+      "Intraoral cameras for all operatories":
+        "Intraoral cameras for all operatories",
+      "Digital smile design software": "Digital smile design software",
+      "New Pediatric Wing Opening": "New Pediatric Wing Opening",
+      "We opened a dedicated pediatric dentistry wing designed specifically for children, featuring a kid-friendly environment, entertainment systems, and specialized pediatric dentists.":
+        "We opened a dedicated pediatric dentistry wing designed specifically for children, featuring a kid-friendly environment, entertainment systems, and specialized pediatric dentists.",
+      "Child-friendly treatment rooms": "Child-friendly treatment rooms",
+      "Sedation dentistry services": "Sedation dentistry services",
+      "School outreach program launched": "School outreach program launched",
+      "Expanded Orthodontic Services": "Expanded Orthodontic Services",
+      "Dr. Michael Chen joined our team, bringing expertise in traditional braces and modern clear aligners. We now offer comprehensive orthodontic treatments for all ages.":
+        "Dr. Michael Chen joined our team, bringing expertise in traditional braces and modern clear aligners. We now offer comprehensive orthodontic treatments for all ages.",
+      "Clear aligner treatments available":
+        "Clear aligner treatments available",
+      "Early intervention orthodontics": "Early intervention orthodontics",
+      "Retainer services": "Retainer services",
+      "Emergency Dental Care 24/7": "Emergency Dental Care 24/7",
+      "Launched our 24/7 emergency dental service to provide immediate care for dental emergencies, including severe toothaches, broken teeth, and dental trauma.":
+        "Launched our 24/7 emergency dental service to provide immediate care for dental emergencies, including severe toothaches, broken teeth, and dental trauma.",
+      "24/7 on-call dentists": "24/7 on-call dentists",
+      "Emergency treatment within 1 hour": "Emergency treatment within 1 hour",
+      "Pain management protocols": "Pain management protocols",
+      "Dental Implant Center Established": "Dental Implant Center Established",
+      "We established a dedicated dental implant center, bringing together specialists in oral surgery and restorative dentistry to provide comprehensive implant solutions.":
+        "We established a dedicated dental implant center, bringing together specialists in oral surgery and restorative dentistry to provide comprehensive implant solutions.",
+      "Same-day implant placement": "Same-day implant placement",
+      "All-on-4 implant solutions": "All-on-4 implant solutions",
+      "Implant-supported dentures": "Implant-supported dentures",
+      "Clinic Founded": "Clinic Founded",
+      "Our dental clinic opened its doors with a mission to provide exceptional, patient-centered dental care using the latest technology and techniques.":
+        "Our dental clinic opened its doors with a mission to provide exceptional, patient-centered dental care using the latest technology and techniques.",
+      "2 treatment rooms": "2 treatment rooms",
+      "3 experienced dentists": "3 experienced dentists",
+      "Comprehensive dental services": "Comprehensive dental services",
     },
   },
   ar: {
@@ -3958,6 +4021,68 @@ const resources = {
       "Had a great experience with us? We'd love to hear about it!":
         "هل كانت لديك تجربة رائعة معنا؟ نحن نحب أن نسمع عنها!",
       "Write a Review": "اكتب تقييماً",
+
+      // وفي كائن ar:
+      "Our Journey": "رحلتنا",
+      "A timeline of our growth, milestones, and commitment to excellence in dental care":
+        "جدول زمني لنمونا وإنجازاتنا والتزامنا بالتميز في رعاية الأسنان",
+      "Year Established": "سنة التأسيس",
+      "Years Combined Experience": "سنوات الخبرة المشتركة",
+      "Happy Patients": "مرضى سعداء",
+      "Awards & Recognitions": "جوائز وتكريمات",
+      "Our Timeline": "الجدول الزمني",
+      "Milestones that shaped our dental clinic into what it is today":
+        "محطات رئيسية شكلت عيادتنا للأسنان إلى ما هي عليه اليوم",
+      "Key Achievements": "إنجازات رئيسية",
+      "Looking Ahead": "نظرة إلى المستقبل",
+      "We're committed to continuous improvement and innovation in dental care. Our future plans include:":
+        "نحن ملتزمون بالتحسين المستمر والابتكار في رعاية الأسنان. خططنا المستقبلية تشمل:",
+      "AI-Powered Diagnostics": "تشخيص مدعوم بالذكاء الاصطناعي",
+      "Implementing artificial intelligence for early detection of dental issues":
+        "تطبيق الذكاء الاصطناعي للكشف المبكر عن مشاكل الأسنان",
+      "Tele-dentistry Services": "خدمات طب الأسنان عن بعد",
+      "Virtual consultations and remote monitoring for patient convenience":
+        "استشارات افتراضية ومراقبة عن بعد لراحة المرضى",
+      "Dental Education Center": "مركز التثقيف السني",
+      "Community outreach and educational programs for oral health awareness":
+        "برامج توعوية مجتمعية للتوعية بصحة الفم",
+      "State-of-the-Art Dental Equipment": "معدات أسنان حديثة",
+      "We invested in the latest digital imaging technology, including 3D CBCT scanners and intraoral cameras, allowing for more precise diagnoses and treatment planning.":
+        "استثمرنا في أحدث تقنيات التصوير الرقمي، بما في ذلك ماسحات CBCT ثلاثية الأبعاد والكاميرات داخل الفم، مما يتيح تشخيصاً أكثر دقة وتخطيطاً للعلاج.",
+      "3D CBCT Scanner installed": "تركيب ماسح CBCT ثلاثي الأبعاد",
+      "Intraoral cameras for all operatories":
+        "كاميرات داخل الفم لجميع العيادات",
+      "Digital smile design software": "برنامج تصميم الابتسامة الرقمي",
+      "New Pediatric Wing Opening": "افتتاح جناح طب أسنان الأطفال الجديد",
+      "We opened a dedicated pediatric dentistry wing designed specifically for children, featuring a kid-friendly environment, entertainment systems, and specialized pediatric dentists.":
+        "افتتحنا جناحاً متخصصاً في طب أسنان الأطفال مصمماً خصيصاً للأطفال، يتميز ببيئة صديقة للأطفال وأنظمة ترفيهية وأطباء أسنان متخصصين في الأطفال.",
+      "Child-friendly treatment rooms": "غرف علاج صديقة للأطفال",
+      "Sedation dentistry services": "خدمات طب الأسنان بالتخدير",
+      "School outreach program launched": "إطلاق برنامج التوعية المدرسية",
+      "Expanded Orthodontic Services": "توسيع خدمات تقويم الأسنان",
+      "Dr. Michael Chen joined our team, bringing expertise in traditional braces and modern clear aligners. We now offer comprehensive orthodontic treatments for all ages.":
+        "انضم الدكتور مايكل تشين إلى فريقنا، مما أضاف خبرة في التقويم التقليدي والمصففات الشفافة الحديثة. نقدم الآن علاجات تقويم شاملة لجميع الأعمار.",
+      "Clear aligner treatments available": "علاجات المصففات الشفافة متاحة",
+      "Early intervention orthodontics": "تقويم التدخل المبكر",
+      "Retainer services": "خدمات المثبتات",
+      "Emergency Dental Care 24/7": "رعاية أسنان طارئة على مدار الساعة",
+      "Launched our 24/7 emergency dental service to provide immediate care for dental emergencies, including severe toothaches, broken teeth, and dental trauma.":
+        "أطلقنا خدمة الطوارئ السنية على مدار الساعة لتوفير رعاية فورية لحالات الطوارئ السنية، بما في ذلك آلام الأسنان الشديدة وكسر الأسنان وإصابات الفم.",
+      "24/7 on-call dentists": "أطباء أسنان على مدار الساعة",
+      "Emergency treatment within 1 hour": "علاج طارئ خلال ساعة",
+      "Pain management protocols": "بروتوكولات إدارة الألم",
+      "Dental Implant Center Established": "إنشاء مركز زراعة الأسنان",
+      "We established a dedicated dental implant center, bringing together specialists in oral surgery and restorative dentistry to provide comprehensive implant solutions.":
+        "أنشأنا مركزاً متخصصاً لزراعة الأسنان، يجمع متخصصين في جراحة الفم وطب الأسنان الترميمي لتقديم حلول زراعة شاملة.",
+      "Same-day implant placement": "زراعة الأسنان في نفس اليوم",
+      "All-on-4 implant solutions": "حلول زراعة All-on-4",
+      "Implant-supported dentures": "أطقم أسنان مدعومة بالزرعات",
+      "Clinic Founded": "تأسيس العيادة",
+      "Our dental clinic opened its doors with a mission to provide exceptional, patient-centered dental care using the latest technology and techniques.":
+        "افتتحت عيادتنا للأسنان أبوابها بمهمة تقديم رعاية أسنان استثنائية تركز على المريض باستخدام أحدث التقنيات والأساليب.",
+      "2 treatment rooms": "غرفتي علاج",
+      "3 experienced dentists": "3 أطباء أسنان ذوي خبرة",
+      "Comprehensive dental services": "خدمات أسنان شاملة",
     },
   },
 };

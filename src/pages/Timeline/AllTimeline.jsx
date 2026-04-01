@@ -1,115 +1,282 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
+import "./AllTimeline.css";
 
 function AllTimeline() {
+  const { t, i18n } = useTranslation();
+  const [activeEvent, setActiveEvent] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const timelineEvents = [
+    {
+      id: 1,
+      date: "2024-03-15",
+      title: t("State-of-the-Art Dental Equipment"),
+      description: t(
+        "We invested in the latest digital imaging technology, including 3D CBCT scanners and intraoral cameras, allowing for more precise diagnoses and treatment planning.",
+      ),
+      icon: "fas fa-microscope",
+      category: "technology",
+      achievements: [
+        t("3D CBCT Scanner installed"),
+        t("Intraoral cameras for all operatories"),
+        t("Digital smile design software"),
+      ],
+    },
+    {
+      id: 2,
+      date: "2023-11-20",
+      title: t("New Pediatric Wing Opening"),
+      description: t(
+        "We opened a dedicated pediatric dentistry wing designed specifically for children, featuring a kid-friendly environment, entertainment systems, and specialized pediatric dentists.",
+      ),
+      icon: "fas fa-child",
+      category: "facility",
+      achievements: [
+        t("Child-friendly treatment rooms"),
+        t("Sedation dentistry services"),
+        t("School outreach program launched"),
+      ],
+    },
+    {
+      id: 3,
+      date: "2023-08-01",
+      title: t("Expanded Orthodontic Services"),
+      description: t(
+        "Dr. Michael Chen joined our team, bringing expertise in traditional braces and modern clear aligners. We now offer comprehensive orthodontic treatments for all ages.",
+      ),
+      icon: "fas fa-smile",
+      category: "staff",
+      achievements: [
+        t("Clear aligner treatments available"),
+        t("Early intervention orthodontics"),
+        t("Retainer services"),
+      ],
+    },
+    {
+      id: 4,
+      date: "2022-12-10",
+      title: t("Emergency Dental Care 24/7"),
+      description: t(
+        "Launched our 24/7 emergency dental service to provide immediate care for dental emergencies, including severe toothaches, broken teeth, and dental trauma.",
+      ),
+      icon: "fas fa-ambulance",
+      category: "service",
+      achievements: [
+        t("24/7 on-call dentists"),
+        t("Emergency treatment within 1 hour"),
+        t("Pain management protocols"),
+      ],
+    },
+    {
+      id: 5,
+      date: "2021-06-15",
+      title: t("Dental Implant Center Established"),
+      description: t(
+        "We established a dedicated dental implant center, bringing together specialists in oral surgery and restorative dentistry to provide comprehensive implant solutions.",
+      ),
+      icon: "fas fa-tooth",
+      category: "service",
+      achievements: [
+        t("Same-day implant placement"),
+        t("All-on-4 implant solutions"),
+        t("Implant-supported dentures"),
+      ],
+    },
+    {
+      id: 6,
+      date: "2019-09-01",
+      title: t("Clinic Founded"),
+      description: t(
+        "Our dental clinic opened its doors with a mission to provide exceptional, patient-centered dental care using the latest technology and techniques.",
+      ),
+      icon: "fas fa-clinic-medical",
+      category: "founding",
+      achievements: [
+        t("2 treatment rooms"),
+        t("3 experienced dentists"),
+        t("Comprehensive dental services"),
+      ],
+    },
+  ];
+
+  const formatDate = (dateString) => {
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return new Date(dateString).toLocaleDateString(lang, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const getIconBackground = (category) => {
+    switch (category) {
+      case "technology":
+        return "#1a237e";
+      case "facility":
+        return "#2e7d32";
+      case "staff":
+        return "#ed6c02";
+      case "service":
+        return "#0288d1";
+      case "founding":
+        return "#6c757d";
+      default:
+        return "#1a237e";
+    }
+  };
+
   return (
-    <div>
+    <div
+      className="all-timeline-page"
+      dir={i18n.language === "ar" ? "rtl" : "ltr"}
+    >
       <Navbar />
-      <section className="section-padding pb-0" id="timeline">
+
+      {/* Hero Section */}
+      <section className="timeline-hero">
+        <div className="hero-overlay"></div>
         <div className="container">
-          <div className="row">
-            <h2 className="text-center mb-lg-5 mb-4">Our Timeline</h2>
-            <div className="timeline">
-              <div className="row g-0 justify-content-end justify-content-md-around align-items-start timeline-nodes">
-                <div className="col-9 col-md-5 me-md-4 me-lg-0 order-3 order-md-1 timeline-content bg-white shadow-lg">
-                  <h3 className=" text-light">Get the vaccine</h3>
-                  <p>
-                    Donec facilisis urna dui, a dignissim mauris pretium a.
-                    Quisque quis libero fermentum, tempus felis eu, consequat
-                    nibh.
-                  </p>
+          <div className="hero-content">
+            <h1>{t("Our Journey")}</h1>
+            <p>
+              {t(
+                "A timeline of our growth, milestones, and commitment to excellence in dental care",
+              )}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Milestone Stats */}
+      <section className="stats-section">
+        <div className="container">
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-number">2019</div>
+              <div className="stat-label">{t("Year Established")}</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">15+</div>
+              <div className="stat-label">{t("Years Combined Experience")}</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">10k+</div>
+              <div className="stat-label">{t("Happy Patients")}</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">50+</div>
+              <div className="stat-label">{t("Awards & Recognitions")}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Timeline Section */}
+      <section className="timeline-section">
+        <div className="container">
+          <div className="section-header">
+            <h2>{t("Our Timeline")}</h2>
+            <p>
+              {t(
+                "Milestones that shaped our dental clinic into what it is today",
+              )}
+            </p>
+          </div>
+
+          <div className="timeline-wrapper">
+            {timelineEvents.map((event, index) => (
+              <div
+                key={event.id}
+                className={`timeline-item ${index % 2 === 0 ? "left" : "right"}`}
+                onMouseEnter={() => setActiveEvent(event.id)}
+                onMouseLeave={() => setActiveEvent(null)}
+              >
+                <div className="timeline-dot">
+                  <i
+                    className={event.icon}
+                    style={{
+                      backgroundColor: getIconBackground(event.category),
+                    }}
+                  ></i>
                 </div>
-                <div className="col-3 col-sm-1 order-2 timeline-icons text-md-center">
-                  <i className="bi-patch-check-fill timeline-icon" />
-                </div>
-                <div className="col-9 col-md-5 ps-md-3 ps-lg-0 order-1 order-md-3 py-4 timeline-date">
-                  <time>2021-07-31 Saturday</time>
+
+                <div
+                  className={`timeline-content ${activeEvent === event.id ? "active" : ""}`}
+                >
+                  <div className="timeline-date">
+                    <i className="fas fa-calendar-alt"></i>
+                    <span>{formatDate(event.date)}</span>
+                  </div>
+                  <h3>{event.title}</h3>
+                  <p className="timeline-description">{event.description}</p>
+
+                  <div className="achievements-list">
+                    <h4>
+                      <i className="fas fa-trophy"></i> {t("Key Achievements")}
+                    </h4>
+                    <ul>
+                      {event.achievements.map((achievement, idx) => (
+                        <li key={idx}>
+                          <i className="fas fa-check-circle"></i>
+                          {achievement}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
-              <div className="row g-0 justify-content-end justify-content-md-around align-items-start timeline-nodes my-lg-5 my-4">
-                <div className="col-9 col-md-5 ms-md-4 ms-lg-0 order-3 order-md-1 timeline-content bg-white shadow-lg">
-                  <h3 className=" text-light">Consulting your health</h3>
-                  <p>
-                    You are fully permitted to use this template for your
-                    commercial or personal website. You are not permitted to
-                    redistribute the template ZIP file for a download purpose on
-                    any other{" "}
-                    <a
-                      href="https://www.google.com/search?q=free+css"
-                      target="_blank"
-                    >
-                      Free CSS collection
-                    </a>{" "}
-                    website.
-                  </p>
-                </div>
-                <div className="col-3 col-sm-1 order-2 timeline-icons text-md-center">
-                  <i className="bi-book timeline-icon" />
-                </div>
-                <div className="col-9 col-md-5 pe-md-3 pe-lg-0 order-1 order-md-3 py-4 timeline-date">
-                  <time>2021-07-15 Thursday</time>
-                </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Future Vision Section */}
+      <section className="future-section">
+        <div className="container">
+          <div className="future-content">
+            <i className="fas fa-chart-line"></i>
+            <h2>{t("Looking Ahead")}</h2>
+            <p>
+              {t(
+                "We're committed to continuous improvement and innovation in dental care. Our future plans include:",
+              )}
+            </p>
+            <div className="future-grid">
+              <div className="future-card">
+                <i className="fas fa-robot"></i>
+                <h3>{t("AI-Powered Diagnostics")}</h3>
+                <p>
+                  {t(
+                    "Implementing artificial intelligence for early detection of dental issues",
+                  )}
+                </p>
               </div>
-              <div className="row g-0 justify-content-end justify-content-md-around align-items-start timeline-nodes">
-                <div className="col-9 col-md-5 me-md-4 me-lg-0 order-3 order-md-1 timeline-content bg-white shadow-lg">
-                  <h3 className=" text-light">Certified Nurses</h3>
-                  <p>
-                    Phasellus eleifend, urna interdum congue viverra, arcu neque
-                    ultrices ligula, id pulvinar nisi nibh et lacus. Vivamus
-                    gravida, ipsum non euismod tincidunt, sapien elit fermentum
-                    mi, quis iaculis enim ligula at arcu.
-                  </p>
-                </div>
-                <div className="col-3 col-sm-1 order-2 timeline-icons text-md-center">
-                  <i className="bi-file-medical timeline-icon" />
-                </div>
-                <div className="col-9 col-md-5 ps-md-3 ps-lg-0 order-1 order-md-3 py-4 timeline-date">
-                  <time>2021-06-28 Monday</time>
-                </div>
+              <div className="future-card">
+                <i className="fas fa-laptop-medical"></i>
+                <h3>{t("Tele-dentistry Services")}</h3>
+                <p>
+                  {t(
+                    "Virtual consultations and remote monitoring for patient convenience",
+                  )}
+                </p>
               </div>
-              <div className="row g-0 justify-content-end justify-content-md-around align-items-start timeline-nodes my-lg-5 my-4">
-                <div className="col-9 col-md-5 ms-md-4 ms-lg-0 order-3 order-md-1 timeline-content bg-white shadow-lg">
-                  <h3 className=" text-light">Covid-19 Hospitals</h3>
-                  <p className="mb-0 pb-0">
-                    Fusce vestibulum euismod nulla sed ultrices. Praesent rutrum
-                    nulla vel sapien euismod, quis tempus dui placerat.
-                  </p>
-                  <p>
-                    Integer posuere erat a ante venenatis dapibus posuere velit
-                    aliquet. Maecenas faucibus mollis interdum. Donec
-                    ullamcorper nulla non metus auctor fringilla
-                  </p>
-                </div>
-                <div className="col-3 col-sm-1 order-2 timeline-icons text-md-center">
-                  <i className="bi-globe timeline-icon" />
-                </div>
-                <div className="col-9 col-md-5 pe-md-3 pe-lg-0 order-1 order-md-3 py-4 timeline-date">
-                  <time>2021-05-30 Sunday</time>
-                </div>
-              </div>
-              <div className="row g-0 justify-content-end justify-content-md-around align-items-start timeline-nodes">
-                <div className="col-9 col-md-5 me-md-4 me-lg-0 order-3 order-md-1 timeline-content bg-white shadow-lg">
-                  <h3 className=" text-light">Freelance Nursing</h3>
-                  <p>
-                    If you need a working contact form that submits email to
-                    your inbox, please{" "}
-                    <a
-                      rel="nofollow"
-                      href="https://templatemo.com/contact"
-                      target="_parent"
-                    >
-                      visit our contact page
-                    </a>{" "}
-                    for more information.
-                  </p>
-                </div>
-                <div className="col-3 col-sm-1 order-2 timeline-icons text-md-center">
-                  <i className="bi-person timeline-icon" />
-                </div>
-                <div className="col-9 col-md-5 ps-md-3 ps-lg-0 order-1 order-md-3 py-4 timeline-date">
-                  <time>2021-05-18 Tuesday</time>
-                </div>
+              <div className="future-card">
+                <i className="fas fa-graduation-cap"></i>
+                <h3>{t("Dental Education Center")}</h3>
+                <p>
+                  {t(
+                    "Community outreach and educational programs for oral health awareness",
+                  )}
+                </p>
               </div>
             </div>
           </div>

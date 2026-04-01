@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
+import { useTranslation } from "react-i18next";
 import "./PurchaseOrderCreate.css";
 
 const PurchaseOrderCreate = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const [suppliers, setSuppliers] = useState([]);
@@ -26,6 +28,16 @@ const PurchaseOrderCreate = () => {
     fetchInitialData();
   }, []);
 
+  const formatCurrency = (value) => {
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return new Intl.NumberFormat(lang, {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+  };
+
   const fetchInitialData = async () => {
     try {
       const [supRes, prodRes] = await Promise.all([
@@ -37,7 +49,7 @@ const PurchaseOrderCreate = () => {
       setProducts(prodRes.data.data ?? prodRes.data);
     } catch (e) {
       console.error(e);
-      notifyError("Failed to load suppliers or products");
+      notifyError(t("Failed to load suppliers or products"));
     }
   };
 
@@ -69,7 +81,7 @@ const PurchaseOrderCreate = () => {
     e.preventDefault();
 
     if (!supplierId) {
-      notifyError("Please select supplier");
+      notifyError(t("Please select supplier"));
       return;
     }
 
@@ -78,7 +90,7 @@ const PurchaseOrderCreate = () => {
     );
 
     if (cleanItems.length === 0) {
-      notifyError("Add at least one item with valid quantity and cost");
+      notifyError(t("Add at least one item with valid quantity and cost"));
       return;
     }
 
@@ -94,12 +106,12 @@ const PurchaseOrderCreate = () => {
         })),
       });
 
-      notifySuccess("Purchase order created");
+      notifySuccess(t("Purchase order created"));
       navigate("/admin/erp/purchase-orders");
     } catch (e) {
       console.error(e);
       notifyError(
-        e.response?.data?.message || "Failed to create purchase order",
+        e.response?.data?.message || t("Failed to create purchase order"),
       );
     } finally {
       setLoading(false);
@@ -112,7 +124,7 @@ const PurchaseOrderCreate = () => {
         <button className="btn-back" onClick={() => navigate(-1)}>
           <i className="fas fa-arrow-left"></i>
         </button>
-        <h3>Create Purchase Order</h3>
+        <h3>{t("Create Purchase Order")}</h3>
         <button className="btn-submit-mobile" onClick={handleSubmit}>
           <i className="fas fa-check"></i>
         </button>
@@ -122,17 +134,18 @@ const PurchaseOrderCreate = () => {
         {/* Supplier Section */}
         <div className="form-section">
           <h5>
-            <i className="fas fa-truck me-2"></i>Supplier Information
+            <i className="fas fa-truck me-2"></i>
+            {t("Supplier Information")}
           </h5>
           <div className="form-group">
-            <label>Select Supplier</label>
+            <label>{t("Select Supplier")}</label>
             <select
               className="form-select"
               value={supplierId}
               onChange={(e) => setSupplierId(e.target.value)}
               required
             >
-              <option value="">Choose supplier...</option>
+              <option value="">{t("Choose supplier...")}</option>
               {suppliers.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}
@@ -146,17 +159,20 @@ const PurchaseOrderCreate = () => {
         <div className="form-section">
           <div className="section-header">
             <h5>
-              <i className="fas fa-boxes me-2"></i>Order Items
+              <i className="fas fa-boxes me-2"></i>
+              {t("Order Items")}
             </h5>
             <button type="button" className="btn-add-item" onClick={addRow}>
-              <i className="fas fa-plus"></i> Add
+              <i className="fas fa-plus"></i> {t("Add")}
             </button>
           </div>
 
           {items.map((row, i) => (
             <div key={i} className="item-card">
               <div className="item-header">
-                <span className="item-number">Item #{i + 1}</span>
+                <span className="item-number">
+                  {t("Item")} #{i + 1}
+                </span>
                 {items.length > 1 && (
                   <button
                     type="button"
@@ -170,7 +186,7 @@ const PurchaseOrderCreate = () => {
 
               <div className="item-form">
                 <div className="form-group">
-                  <label>Product</label>
+                  <label>{t("Product")}</label>
                   <select
                     className="form-select"
                     value={row.product_id}
@@ -179,7 +195,7 @@ const PurchaseOrderCreate = () => {
                     }
                     required
                   >
-                    <option value="">Select product...</option>
+                    <option value="">{t("Select product...")}</option>
                     {products.map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.title_en ?? p.name}
@@ -191,7 +207,7 @@ const PurchaseOrderCreate = () => {
                 <div className="row g-2">
                   <div className="col-6">
                     <div className="form-group">
-                      <label>Quantity</label>
+                      <label>{t("Quantity")}</label>
                       <div className="quantity-control">
                         <button
                           type="button"
@@ -235,7 +251,7 @@ const PurchaseOrderCreate = () => {
 
                   <div className="col-6">
                     <div className="form-group">
-                      <label>Unit Cost ($)</label>
+                      <label>{t("Unit Cost")}</label>
                       <input
                         type="number"
                         className="form-control"
@@ -253,8 +269,10 @@ const PurchaseOrderCreate = () => {
                 </div>
 
                 <div className="item-total">
-                  <span>Line Total:</span>
-                  <span className="total-amount">${calcLineTotal(row)}</span>
+                  <span>{t("Line Total")}:</span>
+                  <span className="total-amount">
+                    {formatCurrency(calcLineTotal(row))}
+                  </span>
                 </div>
               </div>
             </div>
@@ -264,25 +282,26 @@ const PurchaseOrderCreate = () => {
         {/* Summary Section */}
         <div className="summary-section">
           <h5>
-            <i className="fas fa-calculator me-2"></i>Order Summary
+            <i className="fas fa-calculator me-2"></i>
+            {t("Order Summary")}
           </h5>
           <div className="summary-details">
             <div className="summary-row">
-              <span>Supplier:</span>
+              <span>{t("Supplier")}:</span>
               <span className="summary-value">
                 {supplierId
                   ? suppliers.find((s) => s.id == supplierId)?.name ||
-                    "Not selected"
-                  : "Not selected"}
+                    t("Not selected")
+                  : t("Not selected")}
               </span>
             </div>
             <div className="summary-row">
-              <span>Total Items:</span>
+              <span>{t("Total Items")}:</span>
               <span className="summary-value">{items.length}</span>
             </div>
             <div className="summary-row total-row">
-              <span>Grand Total:</span>
-              <span className="grand-total">${grandTotal.toFixed(2)}</span>
+              <span>{t("Grand Total")}:</span>
+              <span className="grand-total">{formatCurrency(grandTotal)}</span>
             </div>
           </div>
         </div>
@@ -294,10 +313,11 @@ const PurchaseOrderCreate = () => {
     <div className="purchase-order-desktop">
       <div className="page-header">
         <h2>
-          <i className="fas fa-clipboard-list me-2"></i>Create Purchase Order
+          <i className="fas fa-clipboard-list me-2"></i>
+          {t("Create Purchase Order")}
         </h2>
         <p className="text-muted">
-          Fill in the details to create a new purchase order
+          {t("Fill in the details to create a new purchase order")}
         </p>
       </div>
 
@@ -306,20 +326,23 @@ const PurchaseOrderCreate = () => {
         <div className="card mb-4">
           <div className="card-header bg-white">
             <h5 className="mb-0">
-              <i className="fas fa-truck me-2"></i>Supplier Information
+              <i className="fas fa-truck me-2"></i>
+              {t("Supplier Information")}
             </h5>
           </div>
           <div className="card-body">
             <div className="row">
               <div className="col-md-6">
-                <label className="form-label fw-medium">Select Supplier</label>
+                <label className="form-label fw-medium">
+                  {t("Select Supplier")}
+                </label>
                 <select
                   className="form-select form-select-lg"
                   value={supplierId}
                   onChange={(e) => setSupplierId(e.target.value)}
                   required
                 >
-                  <option value="">Choose a supplier...</option>
+                  <option value="">{t("Choose a supplier...")}</option>
                   {suppliers.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name}
@@ -331,7 +354,7 @@ const PurchaseOrderCreate = () => {
                 <div className="col-md-6 d-flex align-items-end">
                   <div className="alert alert-success py-2 px-3 mb-0 w-100">
                     <i className="fas fa-check-circle me-2"></i>
-                    Supplier selected:{" "}
+                    {t("Supplier selected")}:{" "}
                     {suppliers.find((s) => s.id == supplierId)?.name}
                   </div>
                 </div>
@@ -344,14 +367,16 @@ const PurchaseOrderCreate = () => {
         <div className="card mb-4">
           <div className="card-header bg-white d-flex justify-content-between align-items-center">
             <h5 className="mb-0">
-              <i className="fas fa-boxes me-2"></i>Order Items
+              <i className="fas fa-boxes me-2"></i>
+              {t("Order Items")}
             </h5>
             <button
               type="button"
               className="btn btn-primary btn-sm"
               onClick={addRow}
             >
-              <i className="fas fa-plus me-1"></i>Add Item
+              <i className="fas fa-plus me-1"></i>
+              {t("Add Item")}
             </button>
           </div>
           <div className="card-body p-0">
@@ -362,10 +387,10 @@ const PurchaseOrderCreate = () => {
                     <th className="text-center" style={{ width: 50 }}>
                       #
                     </th>
-                    <th>Product</th>
-                    <th style={{ width: 120 }}>Quantity</th>
-                    <th style={{ width: 150 }}>Unit Cost ($)</th>
-                    <th style={{ width: 120 }}>Line Total</th>
+                    <th>{t("Product")}</th>
+                    <th style={{ width: 120 }}>{t("Quantity")}</th>
+                    <th style={{ width: 150 }}>{t("Unit Cost")}</th>
+                    <th style={{ width: 120 }}>{t("Line Total")}</th>
                     <th style={{ width: 60 }} className="text-center"></th>
                   </tr>
                 </thead>
@@ -382,7 +407,7 @@ const PurchaseOrderCreate = () => {
                           }
                           required
                         >
-                          <option value="">Select product...</option>
+                          <option value="">{t("Select product...")}</option>
                           {products.map((p) => (
                             <option key={p.id} value={p.id}>
                               {p.title_en ?? p.name}
@@ -416,14 +441,16 @@ const PurchaseOrderCreate = () => {
                           required
                         />
                       </td>
-                      <td className="fw-semibold">${calcLineTotal(row)}</td>
+                      <td className="fw-semibold">
+                        {formatCurrency(calcLineTotal(row))}
+                      </td>
                       <td className="text-center">
                         {items.length > 1 && (
                           <button
                             type="button"
                             className="btn btn-outline-danger btn-sm"
                             onClick={() => removeRow(i)}
-                            title="Remove item"
+                            title={t("Remove item")}
                           >
                             <i className="fas fa-trash"></i>
                           </button>
@@ -438,11 +465,11 @@ const PurchaseOrderCreate = () => {
         </div>
 
         {/* Summary and Actions */}
-        <div className="d-flex justify-content-between align-items-center">
+        <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
           <div className="total-box bg-light p-3 rounded">
             <span className="h5 mb-0">
-              Grand Total:{" "}
-              <span className="text-primary">${grandTotal.toFixed(2)}</span>
+              {t("Grand Total")}:{" "}
+              <span className="text-primary">{formatCurrency(grandTotal)}</span>
             </span>
           </div>
           <div className="action-buttons">
@@ -451,7 +478,8 @@ const PurchaseOrderCreate = () => {
               className="btn btn-outline-secondary me-2"
               onClick={() => navigate(-1)}
             >
-              Cancel
+              <i className="fas fa-times me-2"></i>
+              {t("Cancel")}
             </button>
             <button
               type="submit"
@@ -461,12 +489,12 @@ const PurchaseOrderCreate = () => {
               {loading ? (
                 <>
                   <span className="spinner-border spinner-border-sm me-2"></span>
-                  Creating...
+                  {t("Creating...")}
                 </>
               ) : (
                 <>
                   <i className="fas fa-check me-2"></i>
-                  Create Purchase Order
+                  {t("Create Purchase Order")}
                 </>
               )}
             </button>

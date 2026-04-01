@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../services/axios";
 import { notifyError } from "../../../utils/notify";
+import { useTranslation } from "react-i18next";
 import "./PurchaseOrderReturnsHistory.css";
 
 export default function PurchaseOrderReturnsHistory() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [rows, setRows] = useState([]);
@@ -24,7 +26,7 @@ export default function PurchaseOrderReturnsHistory() {
       setRows(res.data.returns || []);
     } catch (error) {
       console.error(error);
-      notifyError("Failed to load returns history");
+      notifyError(t("Failed to load returns history"));
     } finally {
       setLoading(false);
     }
@@ -35,16 +37,21 @@ export default function PurchaseOrderReturnsHistory() {
   }, [id]);
 
   const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("en-US", {
+    if (!dateString) return t("N/A");
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return new Intl.DateTimeFormat(lang, {
       year: "numeric",
       month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    }).format(date);
+    }).format(new Date(dateString));
   };
+
+  const totalItemsReturned = rows.reduce(
+    (sum, r) => sum + (r.quantity || 0),
+    0,
+  );
 
   if (loading) {
     return (
@@ -53,7 +60,7 @@ export default function PurchaseOrderReturnsHistory() {
         style={{ minHeight: "400px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
@@ -65,20 +72,44 @@ export default function PurchaseOrderReturnsHistory() {
         <button className="btn-back" onClick={() => navigate(-1)}>
           <i className="fas fa-arrow-left"></i>
         </button>
-        <h3>Returns Log</h3>
-        <div className="order-badge">PO #{id}</div>
+        <h3>{t("Returns Log")}</h3>
+        <div className="order-badge">
+          {t("PO")} #{id}
+        </div>
+      </div>
+
+      {/* Stats Summary for Mobile */}
+      <div className="stats-summary-mobile">
+        <div className="stat-card-mobile">
+          <div className="stat-icon bg-primary">
+            <i className="fas fa-undo-alt"></i>
+          </div>
+          <div>
+            <div className="stat-label">{t("Total Returns")}</div>
+            <div className="stat-value">{rows.length}</div>
+          </div>
+        </div>
+        <div className="stat-card-mobile">
+          <div className="stat-icon bg-success">
+            <i className="fas fa-cubes"></i>
+          </div>
+          <div>
+            <div className="stat-label">{t("Items Returned")}</div>
+            <div className="stat-value">{totalItemsReturned}</div>
+          </div>
+        </div>
       </div>
 
       {rows.length === 0 ? (
         <div className="no-data">
           <i className="fas fa-history"></i>
-          <h4>No Returns Found</h4>
+          <h4>{t("No Returns Found")}</h4>
           <p className="text-muted">
-            This purchase order has no return records
+            {t("This purchase order has no return records")}
           </p>
           <button className="btn-back-home" onClick={() => navigate(-1)}>
             <i className="fas fa-arrow-left me-2"></i>
-            Go Back
+            {t("Go Back")}
           </button>
         </div>
       ) : (
@@ -101,7 +132,7 @@ export default function PurchaseOrderReturnsHistory() {
                   <span>{formatDate(r.created_at)}</span>
                 </div>
                 <div className="return-id text-muted small">
-                  Return ID: #{r.id}
+                  {t("Return ID")}: #{r.id}
                 </div>
               </div>
             </div>
@@ -115,13 +146,15 @@ export default function PurchaseOrderReturnsHistory() {
     <div className="history-desktop">
       <div className="page-header">
         <div>
-          <h2>Purchase Order Returns Log</h2>
-          <p className="text-muted">Return history for purchase order #{id}</p>
+          <h2>{t("Purchase Order Returns Log")}</h2>
+          <p className="text-muted">
+            {t("Return history for purchase order")} #{id}
+          </p>
         </div>
         <div className="header-actions">
           <button className="btn-back" onClick={() => navigate(-1)}>
             <i className="fas fa-arrow-left me-2"></i>
-            {/* Back to Order */}
+            {t("Back to Order")}
           </button>
         </div>
       </div>
@@ -132,7 +165,7 @@ export default function PurchaseOrderReturnsHistory() {
             <i className="fas fa-undo-alt"></i>
           </div>
           <div>
-            <div className="stat-label">Total Returns</div>
+            <div className="stat-label">{t("Total Returns")}</div>
             <div className="stat-value">{rows.length}</div>
           </div>
         </div>
@@ -141,10 +174,8 @@ export default function PurchaseOrderReturnsHistory() {
             <i className="fas fa-cubes"></i>
           </div>
           <div>
-            <div className="stat-label">Total Items Returned</div>
-            <div className="stat-value">
-              {rows.reduce((sum, r) => sum + (r.quantity || 0), 0)}
-            </div>
+            <div className="stat-label">{t("Total Items Returned")}</div>
+            <div className="stat-value">{totalItemsReturned}</div>
           </div>
         </div>
       </div>
@@ -154,10 +185,10 @@ export default function PurchaseOrderReturnsHistory() {
           <thead>
             <tr>
               <th style={{ width: 60 }}>#</th>
-              <th>Product</th>
-              <th style={{ width: 150 }}>Returned Quantity</th>
-              <th style={{ width: 200 }}>Date & Time</th>
-              <th style={{ width: 100 }}>Return ID</th>
+              <th>{t("Product")}</th>
+              <th style={{ width: 150 }}>{t("Returned Quantity")}</th>
+              <th style={{ width: 200 }}>{t("Date & Time")}</th>
+              <th style={{ width: 100 }}>{t("Return ID")}</th>
             </tr>
           </thead>
           <tbody>
@@ -165,7 +196,7 @@ export default function PurchaseOrderReturnsHistory() {
               <tr>
                 <td colSpan="5" className="no-data">
                   <i className="fas fa-history fa-3x text-muted mb-3"></i>
-                  <p className="text-muted">No return records found</p>
+                  <p className="text-muted">{t("No return records found")}</p>
                 </td>
               </tr>
             ) : (
@@ -203,7 +234,8 @@ export default function PurchaseOrderReturnsHistory() {
       {rows.length > 0 && (
         <div className="table-footer">
           <span className="text-muted">
-            Showing {rows.length} return record{rows.length !== 1 ? "s" : ""}
+            {t("Showing")} {rows.length} {t("return record")}
+            {rows.length !== 1 ? "s" : ""}
           </span>
         </div>
       )}

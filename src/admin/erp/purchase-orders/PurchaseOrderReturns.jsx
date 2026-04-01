@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
+import { useTranslation } from "react-i18next";
 import "./PurchaseOrderReturns.css";
 
 export default function PurchaseOrderReturns() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
@@ -29,7 +31,7 @@ export default function PurchaseOrderReturns() {
       setItems(rows);
     } catch (error) {
       console.error(error);
-      notifyError("Failed to load returnable items");
+      notifyError(t("Failed to load returnable items"));
     } finally {
       setLoading(false);
     }
@@ -45,11 +47,11 @@ export default function PurchaseOrderReturns() {
     const qty = Number(row.return_qty);
 
     if (!qty || qty <= 0) {
-      notifyError("Enter a valid quantity");
+      notifyError(t("Enter a valid quantity"));
       return;
     }
     if (qty > row.available_to_return) {
-      notifyError("Quantity exceeds the available return quantity");
+      notifyError(t("Quantity exceeds the available return quantity"));
       return;
     }
 
@@ -60,11 +62,11 @@ export default function PurchaseOrderReturns() {
       });
 
       await loadItems();
-      notifySuccess("Return recorded successfully");
+      notifySuccess(t("Return recorded successfully"));
       setSelectedItem(null);
     } catch (error) {
       console.error(error);
-      notifyError(error.response?.data?.msg || "Failed to process return");
+      notifyError(error.response?.data?.msg || t("Failed to process return"));
     }
   };
 
@@ -97,7 +99,7 @@ export default function PurchaseOrderReturns() {
         style={{ minHeight: "400px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
@@ -109,16 +111,16 @@ export default function PurchaseOrderReturns() {
         <button className="btn-back" onClick={() => navigate(-1)}>
           <i className="fas fa-arrow-left"></i>
         </button>
-        <h3>Purchase Order Returns</h3>
+        <h3>{t("Purchase Order Returns")}</h3>
       </div>
 
       {items.length === 0 ? (
         <div className="no-items">
           <i className="fas fa-box-open"></i>
-          <p>No items available for return</p>
+          <p>{t("No items available for return")}</p>
           <button className="btn-back-home" onClick={() => navigate(-1)}>
             <i className="fas fa-arrow-left me-2"></i>
-            Go Back
+            {t("Go Back")}
           </button>
         </div>
       ) : (
@@ -129,18 +131,20 @@ export default function PurchaseOrderReturns() {
                 <h4>{item.product_name}</h4>
                 <div className="item-stats">
                   <div className="stat-badge received">
-                    <span className="stat-label">Received:</span>
+                    <span className="stat-label">{t("Received")}:</span>
                     <span className="stat-value">{item.received_quantity}</span>
                   </div>
                   <div className="stat-badge returned">
-                    <span className="stat-label">Returned:</span>
+                    <span className="stat-label">{t("Returned")}:</span>
                     <span className="stat-value">{item.returned_quantity}</span>
                   </div>
                 </div>
               </div>
 
               <div className="available-section">
-                <div className="available-label">Available for Return</div>
+                <div className="available-label">
+                  {t("Available for Return")}
+                </div>
                 <div className="available-value">
                   {item.available_to_return}
                 </div>
@@ -153,7 +157,7 @@ export default function PurchaseOrderReturns() {
                     className="return-input"
                     min="0"
                     max={item.available_to_return}
-                    placeholder="Qty"
+                    placeholder={t("Qty")}
                     value={item.return_qty}
                     onChange={(e) =>
                       handleQuantityChange(item.product_id, e.target.value)
@@ -165,13 +169,13 @@ export default function PurchaseOrderReturns() {
                     disabled={!item.return_qty || Number(item.return_qty) <= 0}
                   >
                     <i className="fas fa-undo-alt me-2"></i>
-                    Return Item
+                    {t("Return Item")}
                   </button>
                 </div>
               ) : (
                 <div className="no-return">
                   <i className="fas fa-ban me-2"></i>
-                  No quantity available for return
+                  {t("No quantity available for return")}
                 </div>
               )}
             </div>
@@ -184,28 +188,30 @@ export default function PurchaseOrderReturns() {
         <div className="modal-overlay" onClick={closeReturnModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h5>Confirm Return</h5>
+              <h5>{t("Confirm Return")}</h5>
               <button className="btn-close" onClick={closeReturnModal}>
                 <i className="fas fa-times"></i>
               </button>
             </div>
             <div className="modal-body">
               <p>
-                <strong>Product:</strong> {selectedItem.product_name}
+                <strong>{t("Product")}:</strong> {selectedItem.product_name}
               </p>
               <p>
-                <strong>Return Quantity:</strong> {selectedItem.return_qty}
+                <strong>{t("Return Quantity")}:</strong>{" "}
+                {selectedItem.return_qty}
               </p>
               <p>
-                <strong>Available:</strong> {selectedItem.available_to_return}
+                <strong>{t("Available")}:</strong>{" "}
+                {selectedItem.available_to_return}
               </p>
             </div>
             <div className="modal-footer">
               <button className="btn-cancel" onClick={closeReturnModal}>
-                Cancel
+                {t("Cancel")}
               </button>
               <button className="btn-confirm" onClick={processReturnFromModal}>
-                Confirm Return
+                {t("Confirm Return")}
               </button>
             </div>
           </div>
@@ -218,12 +224,14 @@ export default function PurchaseOrderReturns() {
     <div className="returns-desktop">
       <div className="page-header">
         <div>
-          <h2>Purchase Order Returns</h2>
-          <p className="text-muted">Return items from purchase order #{id}</p>
+          <h2>{t("Purchase Order Returns")}</h2>
+          <p className="text-muted">
+            {t("Return items from purchase order")} #{id}
+          </p>
         </div>
         <button className="btn-back" onClick={() => navigate(-1)}>
           <i className="fas fa-arrow-left me-2"></i>
-          {/* Back to Order */}
+          {t("Back to Order")}
         </button>
       </div>
 
@@ -231,12 +239,12 @@ export default function PurchaseOrderReturns() {
         <table className="returns-table">
           <thead>
             <tr>
-              <th>Product</th>
-              <th>Received</th>
-              <th>Returned</th>
-              <th>Available for Return</th>
-              <th>Return Quantity</th>
-              <th>Action</th>
+              <th>{t("Product")}</th>
+              <th>{t("Received")}</th>
+              <th>{t("Returned")}</th>
+              <th>{t("Available for Return")}</th>
+              <th>{t("Return Quantity")}</th>
+              <th>{t("Action")}</th>
             </tr>
           </thead>
           <tbody>
@@ -244,7 +252,9 @@ export default function PurchaseOrderReturns() {
               <tr>
                 <td colSpan="6" className="no-data">
                   <i className="fas fa-box-open fa-3x text-muted mb-3"></i>
-                  <p className="text-muted">No items available for return</p>
+                  <p className="text-muted">
+                    {t("No items available for return")}
+                  </p>
                 </td>
               </tr>
             ) : (
@@ -270,7 +280,7 @@ export default function PurchaseOrderReturns() {
                       className={`quantity-input ${item.return_qty && Number(item.return_qty) > item.available_to_return ? "error" : ""}`}
                       min="0"
                       max={item.available_to_return}
-                      placeholder="Qty"
+                      placeholder={t("Qty")}
                       value={item.return_qty}
                       onChange={(e) =>
                         handleQuantityChange(item.product_id, e.target.value)
@@ -280,7 +290,7 @@ export default function PurchaseOrderReturns() {
                     {item.return_qty &&
                       Number(item.return_qty) > item.available_to_return && (
                         <div className="error-message">
-                          Exceeds available quantity
+                          {t("Exceeds available quantity")}
                         </div>
                       )}
                   </td>
@@ -295,7 +305,7 @@ export default function PurchaseOrderReturns() {
                       }
                     >
                       <i className="fas fa-undo-alt me-2"></i>
-                      Return
+                      {t("Return")}
                     </button>
                   </td>
                 </tr>

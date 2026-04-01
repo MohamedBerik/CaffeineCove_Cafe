@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../services/axios";
 import { notifyError } from "../../../utils/notify";
+import { useTranslation } from "react-i18next";
 import "./PurchaseOrdersList.css";
 
 const PurchaseOrdersList = () => {
+  const { t, i18n } = useTranslation();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -18,6 +20,16 @@ const PurchaseOrdersList = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const formatCurrency = (value) => {
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return new Intl.NumberFormat(lang, {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+  };
+
   const fetchPOs = () => {
     setLoading(true);
     api
@@ -25,7 +37,7 @@ const PurchaseOrdersList = () => {
       .then((res) => setOrders(res.data))
       .catch((err) => {
         console.error(err);
-        notifyError("Failed to fetch purchase orders");
+        notifyError(t("Failed to fetch purchase orders"));
       })
       .finally(() => setLoading(false));
   };
@@ -34,26 +46,33 @@ const PurchaseOrdersList = () => {
     fetchPOs();
   }, []);
 
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-    }).format(value);
-  };
-
   const getStatusBadgeClass = (status) => {
     switch (status?.toLowerCase()) {
       case "pending":
-        return "bg-warning";
+        return "status-pending";
       case "confirmed":
-        return "bg-success";
+        return "status-confirmed";
       case "cancelled":
-        return "bg-danger";
+        return "status-cancelled";
       case "delivered":
-        return "bg-info";
+        return "status-delivered";
       default:
-        return "bg-secondary";
+        return "status-default";
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    switch (status?.toLowerCase()) {
+      case "pending":
+        return t("Pending");
+      case "confirmed":
+        return t("Confirmed");
+      case "cancelled":
+        return t("Cancelled");
+      case "delivered":
+        return t("Delivered");
+      default:
+        return status || "-";
     }
   };
 
@@ -77,7 +96,7 @@ const PurchaseOrdersList = () => {
         style={{ minHeight: "400px" }}
       >
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">{t("Loading...")}</span>
         </div>
       </div>
     );
@@ -86,11 +105,11 @@ const PurchaseOrdersList = () => {
   const renderMobileView = () => (
     <div className="purchase-orders-mobile">
       <div className="mobile-header">
-        <h3>Purchase Orders</h3>
+        <h3>{t("Purchase Orders")}</h3>
         <button
           className="btn-add"
           onClick={() => navigate("/admin/erp/purchase-orders/create")}
-          title="Create new order"
+          title={t("Create new order")}
         >
           <i className="fas fa-plus"></i>
         </button>
@@ -101,7 +120,7 @@ const PurchaseOrdersList = () => {
           <i className="fas fa-search"></i>
           <input
             type="text"
-            placeholder="Search orders..."
+            placeholder={t("Search orders...")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -121,7 +140,9 @@ const PurchaseOrdersList = () => {
                 className={`filter-btn ${filter === status ? "active" : ""}`}
                 onClick={() => setFilter(status)}
               >
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+                {status === "all"
+                  ? t("All")
+                  : t(status.charAt(0).toUpperCase() + status.slice(1))}
               </button>
             ),
           )}
@@ -131,13 +152,13 @@ const PurchaseOrdersList = () => {
       {filteredOrders.length === 0 ? (
         <div className="no-orders">
           <i className="fas fa-clipboard-list"></i>
-          <p>No purchase orders found</p>
+          <p>{t("No purchase orders found")}</p>
           <button
             className="btn-create"
             onClick={() => navigate("/admin/erp/purchase-orders/create")}
           >
             <i className="fas fa-plus me-2"></i>
-            Create New Order
+            {t("Create New Order")}
           </button>
         </div>
       ) : (
@@ -150,11 +171,13 @@ const PurchaseOrdersList = () => {
             >
               <div className="order-header">
                 <div>
-                  <span className="order-id">PO #{po.id}</span>
+                  <span className="order-id">
+                    {t("PO")} #{po.id}
+                  </span>
                   <span
                     className={`status-badge ${getStatusBadgeClass(po.status)}`}
                   >
-                    {po.status}
+                    {getStatusLabel(po.status)}
                   </span>
                 </div>
                 <i className="fas fa-chevron-right text-muted"></i>
@@ -162,24 +185,24 @@ const PurchaseOrdersList = () => {
 
               <div className="order-supplier">
                 <i className="fas fa-truck me-2 text-muted"></i>
-                {po.supplier?.name || "N/A"}
+                {po.supplier?.name || t("N/A")}
               </div>
 
               <div className="order-details">
                 <div className="detail-row">
-                  <span>Total:</span>
+                  <span>{t("Total")}:</span>
                   <span className="amount total">
                     {formatCurrency(po.total)}
                   </span>
                 </div>
                 <div className="detail-row">
-                  <span>Paid:</span>
+                  <span>{t("Paid")}:</span>
                   <span className="amount paid">
                     {formatCurrency(po.total_paid)}
                   </span>
                 </div>
                 <div className="detail-row">
-                  <span>Remaining:</span>
+                  <span>{t("Remaining")}:</span>
                   <span className="amount remaining">
                     {formatCurrency(po.remaining)}
                   </span>
@@ -196,15 +219,17 @@ const PurchaseOrdersList = () => {
     <div className="purchase-orders-desktop">
       <div className="page-header">
         <div>
-          <h2>Purchase Orders</h2>
-          <p className="text-muted">Manage and track all purchase orders</p>
+          <h2>{t("Purchase Orders")}</h2>
+          <p className="text-muted">
+            {t("Manage and track all purchase orders")}
+          </p>
         </div>
         <button
           className="btn-create"
           onClick={() => navigate("/admin/erp/purchase-orders/create")}
         >
           <i className="fas fa-plus me-2"></i>
-          New Purchase Order
+          {t("New Purchase Order")}
         </button>
       </div>
 
@@ -213,7 +238,7 @@ const PurchaseOrdersList = () => {
           <i className="fas fa-search"></i>
           <input
             type="text"
-            placeholder="Search by ID, supplier or status..."
+            placeholder={t("Search by ID, supplier or status...")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -233,7 +258,9 @@ const PurchaseOrdersList = () => {
                 className={`filter-btn ${filter === status ? "active" : ""}`}
                 onClick={() => setFilter(status)}
               >
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+                {status === "all"
+                  ? t("All")
+                  : t(status.charAt(0).toUpperCase() + status.slice(1))}
               </button>
             ),
           )}
@@ -244,13 +271,13 @@ const PurchaseOrdersList = () => {
         <table className="orders-table">
           <thead>
             <tr>
-              <th>PO #</th>
-              <th>Supplier</th>
-              <th>Total</th>
-              <th>Paid</th>
-              <th>Remaining</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{t("PO #")}</th>
+              <th>{t("Supplier")}</th>
+              <th>{t("Total")}</th>
+              <th>{t("Paid")}</th>
+              <th>{t("Remaining")}</th>
+              <th>{t("Status")}</th>
+              <th>{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -258,7 +285,7 @@ const PurchaseOrdersList = () => {
               <tr>
                 <td colSpan="7" className="text-center py-5">
                   <i className="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
-                  <p className="text-muted">No purchase orders found</p>
+                  <p className="text-muted">{t("No purchase orders found")}</p>
                 </td>
               </tr>
             ) : (
@@ -268,7 +295,7 @@ const PurchaseOrdersList = () => {
                   <td>
                     <div className="supplier-info">
                       <i className="fas fa-truck me-2 text-muted"></i>
-                      {po.supplier?.name || "N/A"}
+                      {po.supplier?.name || t("N/A")}
                     </div>
                   </td>
                   <td className="amount total">{formatCurrency(po.total)}</td>
@@ -282,7 +309,7 @@ const PurchaseOrdersList = () => {
                     <span
                       className={`status-badge ${getStatusBadgeClass(po.status)}`}
                     >
-                      {po.status}
+                      {getStatusLabel(po.status)}
                     </span>
                   </td>
                   <td>
@@ -292,7 +319,7 @@ const PurchaseOrdersList = () => {
                         onClick={() =>
                           navigate(`/admin/erp/purchase-orders/${po.id}`)
                         }
-                        title="View details"
+                        title={t("View details")}
                       >
                         <i className="fas fa-eye"></i>
                       </button>
@@ -301,7 +328,7 @@ const PurchaseOrdersList = () => {
                         onClick={() =>
                           navigate(`/admin/erp/purchase-orders/${po.id}/edit`)
                         }
-                        title="Edit order"
+                        title={t("Edit order")}
                       >
                         <i className="fas fa-edit"></i>
                       </button>
@@ -316,7 +343,8 @@ const PurchaseOrdersList = () => {
 
       <div className="table-footer">
         <span className="text-muted">
-          Showing {filteredOrders.length} of {orders.length} orders
+          {t("Showing")} {filteredOrders.length} {t("of")} {orders.length}{" "}
+          {t("orders")}
         </span>
       </div>
     </div>

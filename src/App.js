@@ -16,8 +16,7 @@ function App() {
 
   const slides = [
     {
-      image:
-        "images/slider/portrait-successful-mid-adult-doctor-with-crossed-arms.jpg",
+      image: "images/slider/wp9526009.jpg",
       alt: t("Dentist portrait"),
       title: t("Expert Dental Care"),
       description: t("Professional dental services for your perfect smile"),

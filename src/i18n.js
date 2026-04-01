@@ -103,6 +103,7 @@ const resources = {
         "There are {{count}} failed reminders that need review",
       "There are {{count}} reminders stuck for more than 10 minutes":
         "There are {{count}} reminders stuck for more than 10 minutes",
+
       // Additional
       "Doctor Name": "Doctor Name",
       "Appointment Date": "Appointment Date",

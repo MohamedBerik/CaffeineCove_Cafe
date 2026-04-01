@@ -22,14 +22,14 @@ function App() {
       description: t("Professional dental services for your perfect smile"),
     },
     {
-      image:
-        "images/slider/young-asian-female-dentist-white-coat-posing-clinic-equipment.jpg",
+      image: "images/slider/istockphoto-1277540209-612x612.jpg",
       alt: t("Female dentist"),
       title: t("Modern Dental Clinic"),
       description: t("State-of-the-art equipment and comfortable environment"),
     },
     {
-      image: "images/slider/doctor-s-hand-holding-stethoscope-closeup.jpg",
+      image:
+        "images/slider/research-competition-for-foundation-dentists-the-dentist.jpg",
       alt: t("Dental examination"),
       title: t("Comprehensive Check-ups"),
       description: t("Regular dental examinations for optimal oral health"),

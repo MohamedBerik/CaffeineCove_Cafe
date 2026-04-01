@@ -1,66 +1,152 @@
 import React from "react";
-import { Link } from "react-router-dom"; // ⬅️ صحح هذا السطر
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import "./Footer.css";
 
 function Footer() {
+  const { t, i18n } = useTranslation();
+  const currentYear = new Date().getFullYear();
+
   return (
-    <div>
-      <footer className="site-footer section-padding" id="contact">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-5 me-auto col-12">
-              <h5 className="mb-lg-4 mb-3">Opening Hours</h5>
-              <ul className="list-group list-group-flush">
-                <li className="list-group-item d-flex">Sunday : Closed</li>
-                <li className="list-group-item d-flex">
-                  Monday, Tuesday - Firday
-                  <span>8:00 AM - 3:30 PM</span>
-                </li>
-                <li className="list-group-item d-flex">
-                  Saturday
-                  <span>10:30 AM - 5:30 PM</span>
-                </li>
-              </ul>
-            </div>
-            <div className="col-lg-2 col-md-6 col-12 my-4 my-lg-0">
-              <h5 className="mb-lg-4 mb-3">Our Clinic</h5>
-              <p>
-                <a href="mailto:hello@company.co">hello@company.co</a>
+    <footer className="site-footer" id="contact">
+      <div className="container">
+        <div className="footer-grid">
+          {/* Opening Hours Section */}
+          <div className="footer-section">
+            <h5 className="footer-title">
+              <i className="fas fa-clock"></i>
+              {t("Opening Hours")}
+            </h5>
+            <ul className="hours-list">
+              <li>
+                <span className="day">{t("Sunday")}</span>
+                <span className="hours">{t("Closed")}</span>
+              </li>
+              <li>
+                <span className="day">{t("Monday - Friday")}</span>
+                <span className="hours">8:00 AM - 3:30 PM</span>
+              </li>
+              <li>
+                <span className="day">{t("Saturday")}</span>
+                <span className="hours">10:30 AM - 5:30 PM</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Clinic Info Section */}
+          <div className="footer-section">
+            <h5 className="footer-title">
+              <i className="fas fa-tooth"></i>
+              {t("Our Clinic")}
+            </h5>
+            <div className="clinic-info">
+              <p className="clinic-address">
+                <i className="fas fa-map-marker-alt"></i>
+                <span>{t("123 Dental Street, San Diego, CA 92123")}</span>
               </p>
-              <p></p>
-              <p>123 Digital Art Street, San Diego, CA 92123</p>
-            </div>
-            <div className="col-lg-3 col-md-6 col-12 ms-auto">
-              <h5 className="mb-lg-4 mb-3">Socials</h5>
-              <ul className="social-icon">
-                <li>
-                  <a href="#" className="social-icon-link bi-facebook" />
-                </li>
-                <li>
-                  <a href="#" className="social-icon-link bi-twitter" />
-                </li>
-                <li>
-                  <a href="#" className="social-icon-link bi-instagram" />
-                </li>
-                <li>
-                  <a href="#" className="social-icon-link bi-youtube" />
-                </li>
-              </ul>
-            </div>
-            <div className="col-lg-3 col-12 ms-auto mt-4 mt-lg-0">
-              <p className="copyright-text">
-                Copyright © Medic Care 2021
-                <br />
-                <br />
-                Design:{" "}
-                <a href="https://templatemo.com" target="_parent">
-                  TemplateMo
-                </a>
+              <p className="clinic-email">
+                <i className="fas fa-envelope"></i>
+                <a href="mailto:hello@dentalcare.com">hello@dentalcare.com</a>
+              </p>
+              <p className="clinic-phone">
+                <i className="fas fa-phone-alt"></i>
+                <a href="tel:+010-020-0340">010-020-0340</a>
               </p>
             </div>
           </div>
+
+          {/* Social Media Section */}
+          <div className="footer-section">
+            <h5 className="footer-title">
+              <i className="fas fa-share-alt"></i>
+              {t("Follow Us")}
+            </h5>
+            <div className="social-links">
+              <a
+                href="#"
+                className="social-link facebook"
+                aria-label={t("Facebook")}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i className="fab fa-facebook-f"></i>
+              </a>
+              <a
+                href="#"
+                className="social-link twitter"
+                aria-label={t("Twitter")}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i className="fab fa-twitter"></i>
+              </a>
+              <a
+                href="#"
+                className="social-link instagram"
+                aria-label={t("Instagram")}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i className="fab fa-instagram"></i>
+              </a>
+              <a
+                href="#"
+                className="social-link youtube"
+                aria-label={t("YouTube")}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i className="fab fa-youtube"></i>
+              </a>
+            </div>
+          </div>
+
+          {/* Quick Links Section */}
+          <div className="footer-section">
+            <h5 className="footer-title">
+              <i className="fas fa-link"></i>
+              {t("Quick Links")}
+            </h5>
+            <ul className="quick-links">
+              <li>
+                <Link to="/about">{t("About Us")}</Link>
+              </li>
+              <li>
+                <Link to="/booking">{t("Book Appointment")}</Link>
+              </li>
+              <li>
+                <Link to="/testimonials">{t("Testimonials")}</Link>
+              </li>
+              <li>
+                <Link to="/contact">{t("Contact Us")}</Link>
+              </li>
+            </ul>
+          </div>
         </div>
-      </footer>
-    </div>
+
+        {/* Copyright Section */}
+        <div className="footer-bottom">
+          <div className="copyright">
+            <p>
+              &copy; {currentYear} {t("Dental Care Clinic")}.{" "}
+              {t("All rights reserved.")}
+            </p>
+          </div>
+          <div className="footer-credits">
+            <p>
+              {t("Design by")}{" "}
+              <a
+                href="https://templatemo.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                TemplateMo
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 }
 

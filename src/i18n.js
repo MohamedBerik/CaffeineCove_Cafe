@@ -1741,6 +1741,250 @@ const resources = {
       Confirmed: "Confirmed",
       Pending: "Pending",
       Cancelled: "Cancelled",
+
+      // أضف ضمن كائن en:
+      "Dentist portrait": "Dentist portrait",
+      "Female dentist": "Female dentist",
+      "Dental examination": "Dental examination",
+      "Expert Dental Care": "Expert Dental Care",
+      "Professional dental services for your perfect smile":
+        "Professional dental services for your perfect smile",
+      "Modern Dental Clinic": "Modern Dental Clinic",
+      "State-of-the-art equipment and comfortable environment":
+        "State-of-the-art equipment and comfortable environment",
+      "Comprehensive Check-ups": "Comprehensive Check-ups",
+      "Regular dental examinations for optimal oral health":
+        "Regular dental examinations for optimal oral health",
+      smiles: "smiles",
+      teeth: "teeth",
+      lives: "lives",
+      Better: "Better",
+      "Welcome to our dental clinic! We provide comprehensive dental care with state-of-the-art technology and a gentle, caring approach. Your smile is our priority.":
+        "Welcome to our dental clinic! We provide comprehensive dental care with state-of-the-art technology and a gentle, caring approach. Your smile is our priority.",
+      "Our Services": "Our Services",
+      "Book Appointment": "Book Appointment",
+      "Our Dental Services": "Our Dental Services",
+      "Comprehensive dental care for the whole family":
+        "Comprehensive dental care for the whole family",
+      "General Dentistry": "General Dentistry",
+      "Regular check-ups, cleanings, and preventive care":
+        "Regular check-ups, cleanings, and preventive care",
+      "Cosmetic Dentistry": "Cosmetic Dentistry",
+      "Teeth whitening, veneers, and smile makeovers":
+        "Teeth whitening, veneers, and smile makeovers",
+      "Pediatric Dentistry": "Pediatric Dentistry",
+      "Gentle dental care for children": "Gentle dental care for children",
+      "Root Canal Treatment": "Root Canal Treatment",
+      "Pain-free root canal procedures": "Pain-free root canal procedures",
+
+      // أضف ضمن كائن en:
+      Home: "Home",
+      About: "About",
+      Timeline: "Timeline",
+      Testimonials: "Testimonials",
+      Booking: "Booking",
+      Contact: "Contact",
+      Login: "Login",
+      Register: "Register",
+      Logout: "Logout",
+      Profile: "Profile",
+      "My Appointments": "My Appointments",
+      Account: "Account",
+      "Dental Care": "Dental Care",
+      "Smile Specialist": "Smile Specialist",
+      "Toggle navigation": "Toggle navigation",
+      العربية: "العربية",
+      English: "English",
+
+      // أضف ضمن كائن en:
+      "Opening Hours": "Opening Hours",
+      Sunday: "Sunday",
+      Closed: "Closed",
+      "Monday - Friday": "Monday - Friday",
+      Saturday: "Saturday",
+      "Our Clinic": "Our Clinic",
+      "123 Dental Street, San Diego, CA 92123":
+        "123 Dental Street, San Diego, CA 92123",
+      "Follow Us": "Follow Us",
+      Facebook: "Facebook",
+      Twitter: "Twitter",
+      Instagram: "Instagram",
+      YouTube: "YouTube",
+      "Quick Links": "Quick Links",
+      "About Us": "About Us",
+      "Book Appointment": "Book Appointment",
+      Testimonials: "Testimonials",
+      "Contact Us": "Contact Us",
+      "Dental Care Clinic": "Dental Care Clinic",
+      "All rights reserved.": "All rights reserved.",
+      "Design by": "Design by",
+
+      // أضف ضمن كائن en:
+      "About Our Dental Clinic": "About Our Dental Clinic",
+      "Your trusted partner in dental health and beautiful smiles":
+        "Your trusted partner in dental health and beautiful smiles",
+      "Our Mission": "Our Mission",
+      "To provide exceptional dental care in a comfortable, caring environment while empowering patients with knowledge about their oral health.":
+        "To provide exceptional dental care in a comfortable, caring environment while empowering patients with knowledge about their oral health.",
+      "Our Vision": "Our Vision",
+      "To be the leading dental clinic recognized for excellence in patient care, innovation, and creating confident smiles.":
+        "To be the leading dental clinic recognized for excellence in patient care, innovation, and creating confident smiles.",
+      "Our Values": "Our Values",
+      "Integrity, compassion, excellence, and innovation guide everything we do.":
+        "Integrity, compassion, excellence, and innovation guide everything we do.",
+      "Meet Our Expert Dentists": "Meet Our Expert Dentists",
+      "Our team of experienced professionals is dedicated to your smile":
+        "Our team of experienced professionals is dedicated to your smile",
+      Years: "Years",
+      "Book Appointment": "Book Appointment",
+      "Our Core Values": "Our Core Values",
+      "The principles that guide our practice every day":
+        "The principles that guide our practice every day",
+      "Compassionate Care": "Compassionate Care",
+      "We treat every patient with kindness, empathy, and understanding.":
+        "We treat every patient with kindness, empathy, and understanding.",
+      Excellence: "Excellence",
+      "We strive for the highest quality in everything we do.":
+        "We strive for the highest quality in everything we do.",
+      "Patient-Centered": "Patient-Centered",
+      "Your comfort and satisfaction are our top priorities.":
+        "Your comfort and satisfaction are our top priorities.",
+      Innovation: "Innovation",
+      "We embrace the latest technology and techniques in dentistry.":
+        "We embrace the latest technology and techniques in dentistry.",
+      "Years of Experience": "Years of Experience",
+      "Happy Patients": "Happy Patients",
+      "Dental Procedures": "Dental Procedures",
+      "Emergency Care": "Emergency Care",
+      "Over 15 Years of Excellence in Dental Care":
+        "Over 15 Years of Excellence in Dental Care",
+      "Since 2008, we've been committed to providing the highest quality dental care to our community. Our continuous investment in education, technology, and patient comfort ensures you receive the best possible treatment.":
+        "Since 2008, we've been committed to providing the highest quality dental care to our community. Our continuous investment in education, technology, and patient comfort ensures you receive the best possible treatment.",
+      "Schedule Your Visit": "Schedule Your Visit",
+      "Ready for a Healthier Smile?": "Ready for a Healthier Smile?",
+      "Book your appointment today and let us help you achieve the smile you've always wanted.":
+        "Book your appointment today and let us help you achieve the smile you've always wanted.",
+      "Contact Us": "Contact Us",
+      "Dr. Sarah Johnson": "Dr. Sarah Johnson",
+      "General & Cosmetic Dentistry": "General & Cosmetic Dentistry",
+      "Dr. Sarah is dedicated to providing gentle, comprehensive dental care with a focus on preventive treatments and patient education.":
+        "Dr. Sarah is dedicated to providing gentle, comprehensive dental care with a focus on preventive treatments and patient education.",
+      "Dr. Michael Chen": "Dr. Michael Chen",
+      "Orthodontics & Pediatric Dentistry":
+        "Orthodontics & Pediatric Dentistry",
+      "Dr. Michael specializes in orthodontic treatments and children's dentistry, creating beautiful smiles for the whole family.":
+        "Dr. Michael specializes in orthodontic treatments and children's dentistry, creating beautiful smiles for the whole family.",
+      "Dr. Emily Rodriguez": "Dr. Emily Rodriguez",
+      "Oral Surgery & Implantology": "Oral Surgery & Implantology",
+      "Dr. Emily is an expert in dental implants and surgical procedures, ensuring comfortable and successful treatments.":
+        "Dr. Emily is an expert in dental implants and surgical procedures, ensuring comfortable and successful treatments.",
+
+      // أضف ضمن كائن en:
+      "Book Your Dental Appointment": "Book Your Dental Appointment",
+      "Schedule your visit with our expert dentists. We're here to help you achieve a healthy, beautiful smile.":
+        "Schedule your visit with our expert dentists. We're here to help you achieve a healthy, beautiful smile.",
+      "Appointment Request": "Appointment Request",
+      "Fill out the form below and we'll confirm your appointment shortly.":
+        "Fill out the form below and we'll confirm your appointment shortly.",
+      "Appointment Request Sent!": "Appointment Request Sent!",
+      "Thank you for choosing our dental clinic. We'll contact you shortly to confirm your appointment.":
+        "Thank you for choosing our dental clinic. We'll contact you shortly to confirm your appointment.",
+      "Back to Home": "Back to Home",
+      "Full Name": "Full Name",
+      "Enter your full name": "Enter your full name",
+      "Email Address": "Email Address",
+      "your@email.com": "your@email.com",
+      "Phone Number": "Phone Number",
+      "+1 234 567 8900": "+1 234 567 8900",
+      "Service Required": "Service Required",
+      "Select a service": "Select a service",
+      "General Dentistry (Check-up, Cleaning)":
+        "General Dentistry (Check-up, Cleaning)",
+      "Cosmetic Dentistry (Whitening, Veneers)":
+        "Cosmetic Dentistry (Whitening, Veneers)",
+      "Orthodontic Treatment (Braces, Aligners)":
+        "Orthodontic Treatment (Braces, Aligners)",
+      "Root Canal Treatment": "Root Canal Treatment",
+      "Dental Implants": "Dental Implants",
+      "Pediatric Dentistry": "Pediatric Dentistry",
+      "Emergency Dental Care": "Emergency Dental Care",
+      "Preferred Doctor": "Preferred Doctor",
+      "Dr. Sarah Johnson - General & Cosmetic":
+        "Dr. Sarah Johnson - General & Cosmetic",
+      "Dr. Michael Chen - Orthodontics": "Dr. Michael Chen - Orthodontics",
+      "Dr. Emily Rodriguez - Oral Surgery":
+        "Dr. Emily Rodriguez - Oral Surgery",
+      "Any Available Doctor": "Any Available Doctor",
+      "Preferred Date": "Preferred Date",
+      "Preferred Time": "Preferred Time",
+      "Select a time slot": "Select a time slot",
+      "Additional Notes": "Additional Notes",
+      "Any special requests or concerns?": "Any special requests or concerns?",
+      "Scheduling...": "Scheduling...",
+      "Book Appointment": "Book Appointment",
+      Reset: "Reset",
+      "Before Your Visit": "Before Your Visit",
+      "Bring your insurance card and ID": "Bring your insurance card and ID",
+      "Arrive 15 minutes before your appointment":
+        "Arrive 15 minutes before your appointment",
+      "Complete any required forms": "Complete any required forms",
+      "List any medications you're taking":
+        "List any medications you're taking",
+      "Working Hours": "Working Hours",
+      "Monday - Friday": "Monday - Friday",
+      Saturday: "Saturday",
+      Sunday: "Sunday",
+      Closed: "Closed",
+      Emergency: "Emergency",
+      "Contact Us": "Contact Us",
+      "123 Dental Street, San Diego, CA 92123":
+        "123 Dental Street, San Diego, CA 92123",
+
+      // أضف ضمن كائن en:
+      "What Our Patients Say": "What Our Patients Say",
+      "Real stories from real patients about their experience at our dental clinic":
+        "Real stories from real patients about their experience at our dental clinic",
+      "Happy Patients": "Happy Patients",
+      "Average Rating": "Average Rating",
+      "Would Recommend": "Would Recommend",
+      "Smiles Created": "Smiles Created",
+      "Patient Testimonials": "Patient Testimonials",
+      "Don't just take our word for it - hear from our amazing patients":
+        "Don't just take our word for it - hear from our amazing patients",
+      "Regular Patient": "Regular Patient",
+      "Recovered Patient": "Recovered Patient",
+      "New Patient": "New Patient",
+      "Happy Patient": "Happy Patient",
+      "Orthodontic Patient": "Orthodontic Patient",
+      "Pediatric Patient's Mom": "Pediatric Patient's Mom",
+      "Best Dental Care Experience": "Best Dental Care Experience",
+      "I've been coming to this clinic for over 3 years and I couldn't be happier. The staff is incredibly friendly, and Dr. Sarah made my root canal procedure completely painless. Highly recommended!":
+        "I've been coming to this clinic for over 3 years and I couldn't be happier. The staff is incredibly friendly, and Dr. Sarah made my root canal procedure completely painless. Highly recommended!",
+      "Root Canal Treatment": "Root Canal Treatment",
+      "Amazing Smile Transformation": "Amazing Smile Transformation",
+      "After years of being embarrassed about my teeth, I finally decided to get veneers. Dr. Chen did an incredible job! My smile looks completely natural and I feel confident again. Thank you!":
+        "After years of being embarrassed about my teeth, I finally decided to get veneers. Dr. Chen did an incredible job! My smile looks completely natural and I feel confident again. Thank you!",
+      "Cosmetic Veneers": "Cosmetic Veneers",
+      "Welcoming and Professional": "Welcoming and Professional",
+      "As a new patient, I was nervous about my first visit. The team made me feel welcome from the moment I walked in. The facility is spotless, and Dr. Rodriguez explained everything clearly. I'm so glad I chose this clinic!":
+        "As a new patient, I was nervous about my first visit. The team made me feel welcome from the moment I walked in. The facility is spotless, and Dr. Rodriguez explained everything clearly. I'm so glad I chose this clinic!",
+      "Dental Cleaning & Check-up": "Dental Cleaning & Check-up",
+      "Excellent Emergency Care": "Excellent Emergency Care",
+      "I had a dental emergency on a Sunday and they saw me within an hour. The care was exceptional and the pain relief was immediate. Truly grateful for their emergency service!":
+        "I had a dental emergency on a Sunday and they saw me within an hour. The care was exceptional and the pain relief was immediate. Truly grateful for their emergency service!",
+      "Emergency Dental Care": "Emergency Dental Care",
+      "Perfect Braces Results": "Perfect Braces Results",
+      "My daughter just finished her braces treatment with Dr. Chen, and the results are amazing! The team was always patient and supportive throughout the entire process. We couldn't be happier with her smile!":
+        "My daughter just finished her braces treatment with Dr. Chen, and the results are amazing! The team was always patient and supportive throughout the entire process. We couldn't be happier with her smile!",
+      "Orthodontic Treatment": "Orthodontic Treatment",
+      "Great with Kids!": "Great with Kids!",
+      "My 5-year-old was terrified of the dentist, but Dr. Sarah made the experience fun and stress-free. Now my daughter actually looks forward to her dental visits! Thank you for being so patient with children.":
+        "My 5-year-old was terrified of the dentist, but Dr. Sarah made the experience fun and stress-free. Now my daughter actually looks forward to her dental visits! Thank you for being so patient with children.",
+      "Pediatric Dentistry": "Pediatric Dentistry",
+      "Share Your Experience": "Share Your Experience",
+      "Had a great experience with us? We'd love to hear about it!":
+        "Had a great experience with us? We'd love to hear about it!",
+      "Write a Review": "Write a Review",
     },
   },
   ar: {
@@ -3476,6 +3720,244 @@ const resources = {
       Confirmed: "مؤكد",
       Pending: "قيد الانتظار",
       Cancelled: "ملغي",
+
+      // وفي كائن ar:
+      "Dentist portrait": "صورة طبيب أسنان",
+      "Female dentist": "طبيبة أسنان",
+      "Dental examination": "فحص أسنان",
+      "Expert Dental Care": "رعاية أسنان متخصصة",
+      "Professional dental services for your perfect smile":
+        "خدمات أسنان احترافية لابتسامتك المثالية",
+      "Modern Dental Clinic": "عيادة أسنان حديثة",
+      "State-of-the-art equipment and comfortable environment":
+        "أحدث المعدات وبيئة مريحة",
+      "Comprehensive Check-ups": "فحوصات شاملة",
+      "Regular dental examinations for optimal oral health":
+        "فحوصات أسنان منتظمة لصحة فم مثالية",
+      smiles: "الابتسامات",
+      teeth: "الأسنان",
+      lives: "الحياة",
+      Better: "أفضل",
+      "Welcome to our dental clinic! We provide comprehensive dental care with state-of-the-art technology and a gentle, caring approach. Your smile is our priority.":
+        "مرحباً بكم في عيادة الأسنان! نقدم رعاية أسنان شاملة بأحدث التقنيات ونهج لطيف ورعاية. ابتسامتكم هي أولويتنا.",
+      "Our Services": "خدماتنا",
+      "Book Appointment": "احجز موعداً",
+      "Our Dental Services": "خدمات الأسنان",
+      "Comprehensive dental care for the whole family":
+        "رعاية أسنان شاملة لجميع أفراد العائلة",
+      "General Dentistry": "طب الأسنان العام",
+      "Regular check-ups, cleanings, and preventive care":
+        "فحوصات منتظمة، تنظيف، ورعاية وقائية",
+      "Cosmetic Dentistry": "طب الأسنان التجميلي",
+      "Teeth whitening, veneers, and smile makeovers":
+        "تبييض الأسنان، القشور الخزفية، وتجميل الابتسامة",
+      "Pediatric Dentistry": "طب أسنان الأطفال",
+      "Gentle dental care for children": "رعاية أسنان لطيفة للأطفال",
+      "Root Canal Treatment": "علاج العصب",
+      "Pain-free root canal procedures": "إجراءات علاج عصب بدون ألم",
+
+      // وفي كائن ar:
+      Home: "الرئيسية",
+      About: "عن العيادة",
+      Timeline: "الجدول الزمني",
+      Testimonials: "آراء المرضى",
+      Booking: "حجز موعد",
+      Contact: "اتصل بنا",
+      Login: "تسجيل الدخول",
+      Register: "إنشاء حساب",
+      Logout: "تسجيل خروج",
+      Profile: "الملف الشخصي",
+      "My Appointments": "مواعيدي",
+      Account: "الحساب",
+      "Dental Care": "رعاية الأسنان",
+      "Smile Specialist": "أخصائي الابتسامة",
+      "Toggle navigation": "تبديل القائمة",
+      العربية: "العربية",
+      English: "English",
+
+      // وفي كائن ar:
+      "Opening Hours": "ساعات العمل",
+      Sunday: "الأحد",
+      Closed: "مغلق",
+      "Monday - Friday": "الاثنين - الجمعة",
+      Saturday: "السبت",
+      "Our Clinic": "عيادتنا",
+      "123 Dental Street, San Diego, CA 92123":
+        "123 شارع الأسنان، سان دييغو، كاليفورنيا 92123",
+      "Follow Us": "تابعونا",
+      Facebook: "فيسبوك",
+      Twitter: "تويتر",
+      Instagram: "إنستغرام",
+      YouTube: "يوتيوب",
+      "Quick Links": "روابط سريعة",
+      "About Us": "من نحن",
+      "Book Appointment": "احجز موعداً",
+      Testimonials: "آراء المرضى",
+      "Contact Us": "اتصل بنا",
+      "Dental Care Clinic": "عيادة رعاية الأسنان",
+      "All rights reserved.": "جميع الحقوق محفوظة.",
+      "Design by": "تصميم بواسطة",
+
+      // وفي كائن ar:
+      "About Our Dental Clinic": "عن عيادة الأسنان",
+      "Your trusted partner in dental health and beautiful smiles":
+        "شريكك الموثوق في صحة الأسنان والابتسامة الجميلة",
+      "Our Mission": "مهمتنا",
+      "To provide exceptional dental care in a comfortable, caring environment while empowering patients with knowledge about their oral health.":
+        "تقديم رعاية أسنان استثنائية في بيئة مريحة ورعاية مع تمكين المرضى بالمعرفة حول صحتهم الفموية.",
+      "Our Vision": "رؤيتنا",
+      "To be the leading dental clinic recognized for excellence in patient care, innovation, and creating confident smiles.":
+        "أن نكون العيادة الرائدة المعترف بها للتميز في رعاية المرضى والابتكار وخلق ابتسامات واثقة.",
+      "Our Values": "قيمنا",
+      "Integrity, compassion, excellence, and innovation guide everything we do.":
+        "النزاهة والرحمة والتميز والابتكار توجه كل ما نقوم به.",
+      "Meet Our Expert Dentists": "تعرف على أطباء الأسنان الخبراء",
+      "Our team of experienced professionals is dedicated to your smile":
+        "فريقنا من المهنيين ذوي الخبرة مكرس لابتسامتك",
+      Years: "سنوات",
+      "Book Appointment": "احجز موعداً",
+      "Our Core Values": "قيمنا الأساسية",
+      "The principles that guide our practice every day":
+        "المبادئ التي توجه ممارستنا كل يوم",
+      "Compassionate Care": "رعاية متعاطفة",
+      "We treat every patient with kindness, empathy, and understanding.":
+        "نعامل كل مريض بلطف وتعاطف وتفهم.",
+      Excellence: "التميز",
+      "We strive for the highest quality in everything we do.":
+        "نسعى لأعلى جودة في كل ما نقوم به.",
+      "Patient-Centered": "محورها المريض",
+      "Your comfort and satisfaction are our top priorities.":
+        "راحتك ورضاك هما أولوياتنا القصوى.",
+      Innovation: "الابتكار",
+      "We embrace the latest technology and techniques in dentistry.":
+        "نتبنى أحدث التقنيات والأساليب في طب الأسنان.",
+      "Years of Experience": "سنوات من الخبرة",
+      "Happy Patients": "مرضى سعداء",
+      "Dental Procedures": "إجراءات الأسنان",
+      "Emergency Care": "رعاية طارئة",
+      "Over 15 Years of Excellence in Dental Care":
+        "أكثر من 15 عاماً من التميز في رعاية الأسنان",
+      "Since 2008, we've been committed to providing the highest quality dental care to our community. Our continuous investment in education, technology, and patient comfort ensures you receive the best possible treatment.":
+        "منذ عام 2008، نحن ملتزمون بتقديم أعلى مستويات الرعاية السنية لمجتمعنا. استثمارنا المستمر في التعليم والتكنولوجيا وراحة المرضى يضمن لك الحصول على أفضل علاج ممكن.",
+      "Schedule Your Visit": "حدد موعد زيارتك",
+      "Ready for a Healthier Smile?": "هل أنت مستعد لابتسامة أكثر صحة؟",
+      "Book your appointment today and let us help you achieve the smile you've always wanted.":
+        "احجز موعدك اليوم ودعنا نساعدك في تحقيق الابتسامة التي طالما أردتها.",
+      "Contact Us": "اتصل بنا",
+      "Dr. Sarah Johnson": "د. سارة جونسون",
+      "General & Cosmetic Dentistry": "طب الأسنان العام والتجميلي",
+      "Dr. Sarah is dedicated to providing gentle, comprehensive dental care with a focus on preventive treatments and patient education.":
+        "الدكتورة سارة مكرسة لتقديم رعاية أسنان لطيفة وشاملة مع التركيز على العلاجات الوقائية وتثقيف المرضى.",
+      "Dr. Michael Chen": "د. مايكل تشين",
+      "Orthodontics & Pediatric Dentistry": "تقويم الأسنان وطب أسنان الأطفال",
+      "Dr. Michael specializes in orthodontic treatments and children's dentistry, creating beautiful smiles for the whole family.":
+        "الدكتور مايكل متخصص في علاجات تقويم الأسنان وطب أسنان الأطفال، مما يخلق ابتسامات جميلة لجميع أفراد الأسرة.",
+      "Dr. Emily Rodriguez": "د. إيميلي رودريغيز",
+      "Oral Surgery & Implantology": "جراحة الفم وزراعة الأسنان",
+      "Dr. Emily is an expert in dental implants and surgical procedures, ensuring comfortable and successful treatments.":
+        "الدكتورة إيميلي خبيرة في زراعة الأسنان والإجراءات الجراحية، مما يضمن علاجات مريحة وناجحة.",
+
+      // وفي كائن ar:
+      "Book Your Dental Appointment": "احجز موعدك لطب الأسنان",
+      "Schedule your visit with our expert dentists. We're here to help you achieve a healthy, beautiful smile.":
+        "حدد موعد زيارتك مع أطباء الأسنان الخبراء. نحن هنا لمساعدتك في تحقيق ابتسامة صحية وجميلة.",
+      "Appointment Request": "طلب موعد",
+      "Fill out the form below and we'll confirm your appointment shortly.":
+        "املأ النموذج أدناه وسنقوم بتأكيد موعدك قريباً.",
+      "Appointment Request Sent!": "تم إرسال طلب الموعد!",
+      "Thank you for choosing our dental clinic. We'll contact you shortly to confirm your appointment.":
+        "شكراً لاختيارك عيادتنا للأسنان. سوف نتصل بك قريباً لتأكيد موعدك.",
+      "Back to Home": "العودة إلى الرئيسية",
+      "Full Name": "الاسم الكامل",
+      "Enter your full name": "أدخل اسمك الكامل",
+      "Email Address": "البريد الإلكتروني",
+      "your@email.com": "بريدك@example.com",
+      "Phone Number": "رقم الهاتف",
+      "+1 234 567 8900": "+1 234 567 8900",
+      "Service Required": "الخدمة المطلوبة",
+      "Select a service": "اختر خدمة",
+      "General Dentistry (Check-up, Cleaning)": "طب الأسنان العام (فحص، تنظيف)",
+      "Cosmetic Dentistry (Whitening, Veneers)":
+        "طب الأسنان التجميلي (تبييض، قشور)",
+      "Orthodontic Treatment (Braces, Aligners)":
+        "علاج تقويم الأسنان (تقويم، شفاف)",
+      "Root Canal Treatment": "علاج العصب",
+      "Dental Implants": "زراعة الأسنان",
+      "Pediatric Dentistry": "طب أسنان الأطفال",
+      "Emergency Dental Care": "رعاية أسنان طارئة",
+      "Preferred Doctor": "الطبيب المفضل",
+      "Dr. Sarah Johnson - General & Cosmetic": "د. سارة جونسون - عام وتجميلي",
+      "Dr. Michael Chen - Orthodontics": "د. مايكل تشين - تقويم أسنان",
+      "Dr. Emily Rodriguez - Oral Surgery": "د. إيميلي رودريغيز - جراحة الفم",
+      "Any Available Doctor": "أي طبيب متاح",
+      "Preferred Date": "التاريخ المفضل",
+      "Preferred Time": "الوقت المفضل",
+      "Select a time slot": "اختر وقتاً",
+      "Additional Notes": "ملاحظات إضافية",
+      "Any special requests or concerns?": "أي طلبات خاصة أو مخاوف؟",
+      "Scheduling...": "جاري الحجز...",
+      "Book Appointment": "احجز موعداً",
+      Reset: "إعادة تعيين",
+      "Before Your Visit": "قبل زيارتك",
+      "Bring your insurance card and ID": "أحضر بطاقة التأمين والهوية",
+      "Arrive 15 minutes before your appointment": "احضر قبل موعدك بـ 15 دقيقة",
+      "Complete any required forms": "أكمل أي نماذج مطلوبة",
+      "List any medications you're taking": "أدرج أي أدوية تتناولها",
+      "Working Hours": "ساعات العمل",
+      "Monday - Friday": "الاثنين - الجمعة",
+      Saturday: "السبت",
+      Sunday: "الأحد",
+      Closed: "مغلق",
+      Emergency: "طوارئ",
+      "Contact Us": "اتصل بنا",
+      "123 Dental Street, San Diego, CA 92123":
+        "123 شارع الأسنان، سان دييغو، كاليفورنيا 92123",
+
+      // وفي كائن ar:
+      "What Our Patients Say": "ماذا يقول مرضانا",
+      "Real stories from real patients about their experience at our dental clinic":
+        "قصص حقيقية من مرضى حقيقيين عن تجربتهم في عيادتنا للأسنان",
+      "Happy Patients": "مرضى سعداء",
+      "Average Rating": "متوسط التقييم",
+      "Would Recommend": "يوصون بنا",
+      "Smiles Created": "ابتسامة تم إنشاؤها",
+      "Patient Testimonials": "آراء المرضى",
+      "Don't just take our word for it - hear from our amazing patients":
+        "لا تأخذ كلامنا فقط - اسمع من مرضانا الرائعين",
+      "Regular Patient": "مريض منتظم",
+      "Recovered Patient": "مريض متعافي",
+      "New Patient": "مريض جديد",
+      "Happy Patient": "مريض سعيد",
+      "Orthodontic Patient": "مريض تقويم",
+      "Pediatric Patient's Mom": "أم مريض أطفال",
+      "Best Dental Care Experience": "أفضل تجربة رعاية أسنان",
+      "I've been coming to this clinic for over 3 years and I couldn't be happier. The staff is incredibly friendly, and Dr. Sarah made my root canal procedure completely painless. Highly recommended!":
+        "أتردد على هذه العيادة منذ أكثر من 3 سنوات وأنا سعيد جداً. الموظفون ودودون للغاية، والدكتورة سارة جعلت عملية علاج العصب غير مؤلمة تماماً. أنصح بها بشدة!",
+      "Root Canal Treatment": "علاج العصب",
+      "Amazing Smile Transformation": "تحول مذهل في الابتسامة",
+      "After years of being embarrassed about my teeth, I finally decided to get veneers. Dr. Chen did an incredible job! My smile looks completely natural and I feel confident again. Thank you!":
+        "بعد سنوات من الإحراج بسبب أسناني، قررت أخيراً الحصول على القشور الخزفية. الدكتور مايكل قام بعمل رائع! ابتسامتي تبدو طبيعية تماماً وأشعر بالثقة مرة أخرى. شكراً لكم!",
+      "Cosmetic Veneers": "قشور خزفية تجميلية",
+      "Welcoming and Professional": "ترحيب واحترافية",
+      "As a new patient, I was nervous about my first visit. The team made me feel welcome from the moment I walked in. The facility is spotless, and Dr. Rodriguez explained everything clearly. I'm so glad I chose this clinic!":
+        "كمريض جديد، كنت متوتراً بشأن زيارتي الأولى. جعلني الفريق أشعر بالترحيب منذ لحظة دخولي. المنشأة نظيفة للغاية، والدكتورة إيميلي شرحت كل شيء بوضوح. أنا سعيد جداً باختياري لهذه العيادة!",
+      "Dental Cleaning & Check-up": "تنظيف وفحص أسنان",
+      "Excellent Emergency Care": "رعاية طارئة ممتازة",
+      "I had a dental emergency on a Sunday and they saw me within an hour. The care was exceptional and the pain relief was immediate. Truly grateful for their emergency service!":
+        "كانت لدي حالة طوارئ أسنان يوم الأحد واستقبلوني في غضون ساعة. كانت الرعاية استثنائية وتخفيف الألم فورياً. ممتن حقاً لخدمة الطوارئ!",
+      "Emergency Dental Care": "رعاية أسنان طارئة",
+      "Perfect Braces Results": "نتائج تقويم مثالية",
+      "My daughter just finished her braces treatment with Dr. Chen, and the results are amazing! The team was always patient and supportive throughout the entire process. We couldn't be happier with her smile!":
+        "ابنتي أنهت للتو علاج التقويم مع الدكتور مايكل، والنتائج مذهلة! كان الفريق صبوراً وداعماً طوال العملية. لا يمكننا أن نكون أكثر سعادة بابتسامتها!",
+      "Orthodontic Treatment": "علاج تقويم الأسنان",
+      "Great with Kids!": "رائع مع الأطفال!",
+      "My 5-year-old was terrified of the dentist, but Dr. Sarah made the experience fun and stress-free. Now my daughter actually looks forward to her dental visits! Thank you for being so patient with children.":
+        "كانت ابنتي البالغة من العمر 5 سنوات خائفة من طبيب الأسنان، لكن الدكتورة سارة جعلت التجربة ممتعة وخالية من التوتر. الآن ابنتي تتطلع حقاً لزيارات الأسنان! شكراً لصبركم مع الأطفال.",
+      "Pediatric Dentistry": "طب أسنان الأطفال",
+      "Share Your Experience": "شارك تجربتك",
+      "Had a great experience with us? We'd love to hear about it!":
+        "هل كانت لديك تجربة رائعة معنا؟ نحن نحب أن نسمع عنها!",
+      "Write a Review": "اكتب تقييماً",
     },
   },
 };

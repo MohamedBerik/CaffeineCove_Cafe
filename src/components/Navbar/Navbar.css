@@ -1,23 +1,33 @@
-/* Navbar Styles - Dental Clinic Theme */
-.header {
+/* Frontend Navbar Styles - Dental Clinic Theme */
+.frontend-header {
   position: relative;
+  z-index: 1030;
 }
 
-.navbar {
+.frontend-navbar {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   padding: 0.75rem 0;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
 }
 
-.navbar.scrolled {
-  padding: 0.5rem 0;
-  background: white;
-  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+.frontend-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 /* Brand Logo */
-.navbar-brand {
+.frontend-brand {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -25,11 +35,12 @@
   transition: transform 0.3s ease;
 }
 
-.navbar-brand:hover {
+.frontend-brand:hover {
   transform: translateY(-2px);
+  text-decoration: none;
 }
 
-.navbar-brand i {
+.frontend-brand i {
   font-size: 2rem;
   color: #1a237e;
   background: linear-gradient(135deg, #1a237e, #283593);
@@ -38,20 +49,20 @@
   background-clip: text;
 }
 
-.brand-text {
+.frontend-brand-text {
   display: flex;
   flex-direction: column;
   line-height: 1.2;
 }
 
-.brand-title {
+.frontend-brand-title {
   font-size: 1.25rem;
   font-weight: 700;
   color: #1a237e;
   letter-spacing: 0.5px;
 }
 
-.brand-subtitle {
+.frontend-brand-subtitle {
   font-size: 0.7rem;
   font-weight: 500;
   color: #64b5f6;
@@ -60,56 +71,77 @@
 }
 
 /* Navbar Toggler */
-.navbar-toggler {
+.frontend-toggler {
   border: none;
   padding: 0.5rem;
   border-radius: 8px;
   background: #f8f9fa;
   transition: all 0.3s ease;
+  cursor: pointer;
+  display: none;
 }
 
-.navbar-toggler:focus {
+.frontend-toggler:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(26, 35, 126, 0.2);
 }
 
-.navbar-toggler-icon {
+.frontend-toggler-icon {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(26, 35, 126, 0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
-/* Navigation Links */
-.navbar-nav {
+/* Navigation Menu */
+.frontend-collapse {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  justify-content: flex-end;
+}
+
+.frontend-nav {
+  display: flex;
   gap: 0.25rem;
   align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-.nav-item {
+.frontend-nav-item {
   position: relative;
 }
 
-.nav-link {
+.frontend-nav-link {
   font-weight: 500;
   color: #2c3e50;
   padding: 0.625rem 1rem;
   transition: all 0.3s ease;
   border-radius: 8px;
   font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-block;
 }
 
-.nav-link:hover {
+.frontend-nav-link:hover {
   color: #1a237e;
   background: rgba(26, 35, 126, 0.05);
   transform: translateY(-1px);
+  text-decoration: none;
 }
 
-.nav-link.active {
+.frontend-nav-link.active {
   color: #1a237e;
   background: rgba(26, 35, 126, 0.1);
   font-weight: 600;
 }
 
 /* Navbar Actions */
-.navbar-actions {
+.frontend-actions {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -117,7 +149,7 @@
 }
 
 /* Language Switcher */
-.lang-switch-btn {
+.frontend-lang-switch {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -132,24 +164,24 @@
   transition: all 0.3s ease;
 }
 
-.lang-switch-btn:hover {
+.frontend-lang-switch:hover {
   background: #f8f9fa;
   border-color: #1a237e;
   transform: translateY(-1px);
 }
 
-.lang-switch-btn i {
+.frontend-lang-switch i {
   font-size: 0.9rem;
 }
 
 /* Auth Buttons */
-.auth-buttons {
+.frontend-auth-buttons {
   display: flex;
   gap: 0.75rem;
   align-items: center;
 }
 
-.auth-buttons .btn {
+.frontend-btn {
   padding: 0.5rem 1rem;
   border-radius: 30px;
   font-size: 0.85rem;
@@ -158,39 +190,43 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-.btn-outline-primary {
+.frontend-btn-outline {
   background: transparent;
   border: 1px solid #1a237e;
   color: #1a237e;
 }
 
-.btn-outline-primary:hover {
+.frontend-btn-outline:hover {
   background: #1a237e;
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(26, 35, 126, 0.3);
+  text-decoration: none;
 }
 
-.btn-primary {
+.frontend-btn-primary {
   background: linear-gradient(135deg, #1a237e, #283593);
   border: none;
   color: white;
 }
 
-.btn-primary:hover {
+.frontend-btn-primary:hover {
   background: linear-gradient(135deg, #283593, #1a237e);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(26, 35, 126, 0.4);
+  text-decoration: none;
 }
 
 /* User Menu */
-.user-menu {
+.frontend-user-menu {
   position: relative;
 }
 
-.user-menu-btn {
+.frontend-user-btn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -205,24 +241,24 @@
   color: #2c3e50;
 }
 
-.user-menu-btn:hover {
+.frontend-user-btn:hover {
   background: #f8f9fa;
   border-color: #1a237e;
 }
 
-.user-menu-btn i:first-child {
+.frontend-user-btn i:first-child {
   font-size: 1.1rem;
   color: #1a237e;
 }
 
-.user-name {
+.frontend-user-name {
   max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.user-dropdown {
+.frontend-user-dropdown {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
@@ -232,10 +268,10 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   z-index: 1000;
-  animation: dropdownFadeIn 0.3s ease;
+  animation: frontendDropdownFadeIn 0.3s ease;
 }
 
-@keyframes dropdownFadeIn {
+@keyframes frontendDropdownFadeIn {
   from {
     opacity: 0;
     transform: translateY(-10px);
@@ -246,7 +282,7 @@
   }
 }
 
-.dropdown-item {
+.frontend-dropdown-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -262,53 +298,50 @@
   font-size: 0.875rem;
 }
 
-.dropdown-item:hover {
+.frontend-dropdown-item:hover {
   background: #f8f9fa;
   color: #1a237e;
+  text-decoration: none;
 }
 
-.dropdown-item i {
+.frontend-dropdown-item i {
   width: 20px;
   color: #6c757d;
 }
 
-.dropdown-item:hover i {
+.frontend-dropdown-item:hover i {
   color: #1a237e;
 }
 
-.dropdown-divider {
+.frontend-dropdown-divider {
   margin: 0.5rem 0;
   border-top: 1px solid #e9ecef;
 }
 
-.dropdown-item.logout {
+.frontend-dropdown-item.frontend-logout {
   color: #dc3545;
 }
 
-.dropdown-item.logout:hover {
+.frontend-dropdown-item.frontend-logout:hover {
   background: #ffebee;
   color: #c62828;
 }
 
-.dropdown-item.logout:hover i {
+.frontend-dropdown-item.frontend-logout:hover i {
   color: #c62828;
 }
 
 /* Responsive Design */
 @media (max-width: 992px) {
-  .navbar {
-    padding: 0.5rem 0;
+  .frontend-container {
+    width: 100%;
   }
 
-  .navbar-brand {
-    margin-right: auto;
+  .frontend-toggler {
+    display: block;
   }
 
-  .navbar-toggler {
-    margin-left: auto;
-  }
-
-  .navbar-collapse {
+  .frontend-collapse {
     position: fixed;
     top: 0;
     left: 0;
@@ -320,56 +353,61 @@
     transform: translateX(-100%);
     transition: transform 0.3s ease;
     overflow-y: auto;
+    flex-direction: column;
+    justify-content: flex-start;
   }
 
-  .navbar-collapse.show {
+  .frontend-collapse.show {
     transform: translateX(0);
   }
 
-  .navbar-nav {
+  .frontend-nav {
     flex-direction: column;
     align-items: stretch;
     gap: 0.5rem;
     margin-bottom: 2rem;
+    width: 100%;
   }
 
-  .nav-link {
+  .frontend-nav-link {
     padding: 0.875rem 1rem;
     font-size: 1rem;
     text-align: center;
+    display: block;
   }
 
-  .navbar-actions {
+  .frontend-actions {
     flex-direction: column;
     margin-left: 0;
     gap: 1rem;
+    width: 100%;
   }
 
-  .auth-buttons {
+  .frontend-auth-buttons {
     flex-direction: column;
     width: 100%;
   }
 
-  .auth-buttons .btn {
+  .frontend-btn {
     width: 100%;
     justify-content: center;
   }
 
-  .lang-switch-btn {
+  .frontend-lang-switch {
     width: 100%;
     justify-content: center;
   }
 
-  .user-menu {
+  .frontend-user-menu {
     width: 100%;
   }
 
-  .user-menu-btn {
+  .frontend-user-btn {
     width: 100%;
     justify-content: center;
   }
 
-  .user-dropdown {
+  .frontend-user-dropdown {
     position: static;
     margin-top: 0.5rem;
     box-shadow: none;
@@ -377,7 +415,7 @@
   }
 
   /* Close button for mobile menu */
-  .navbar-collapse::before {
+  .frontend-collapse::before {
     content: "✕";
     position: absolute;
     top: 1rem;
@@ -395,77 +433,68 @@
     transition: all 0.3s ease;
   }
 
-  .navbar-collapse.show::before {
+  .frontend-collapse.show::before {
     display: flex;
   }
 
-  .navbar-collapse::before:hover {
+  .frontend-collapse::before:hover {
     background: #e9ecef;
     color: #1a237e;
   }
 }
 
 @media (max-width: 576px) {
-  .navbar-brand i {
+  .frontend-brand i {
     font-size: 1.5rem;
   }
 
-  .brand-title {
+  .frontend-brand-title {
     font-size: 1rem;
   }
 
-  .brand-subtitle {
+  .frontend-brand-subtitle {
     font-size: 0.6rem;
   }
 
-  .user-menu-btn .user-name {
+  .frontend-user-name {
     display: none;
   }
 }
 
 /* RTL Support */
-[dir="rtl"] .navbar-brand {
+[dir="rtl"] .frontend-brand {
   flex-direction: row-reverse;
 }
 
-[dir="rtl"] .navbar-nav {
+[dir="rtl"] .frontend-nav {
   padding-right: 0;
 }
 
-[dir="rtl"] .navbar-collapse::before {
+[dir="rtl"] .frontend-collapse::before {
   right: auto;
   left: 1.5rem;
 }
 
-[dir="rtl"] .user-dropdown {
+[dir="rtl"] .frontend-user-dropdown {
   right: auto;
   left: 0;
 }
 
-[dir="rtl"] .dropdown-item {
+[dir="rtl"] .frontend-dropdown-item {
   flex-direction: row-reverse;
 }
 
 @media (max-width: 992px) {
-  [dir="rtl"] .navbar-collapse {
+  [dir="rtl"] .frontend-collapse {
     transform: translateX(100%);
   }
 
-  [dir="rtl"] .navbar-collapse.show {
+  [dir="rtl"] .frontend-collapse.show {
     transform: translateX(0);
   }
 
-  [dir="rtl"] .navbar-collapse::before {
+  [dir="rtl"] .frontend-collapse::before {
     left: 1.5rem;
     right: auto;
   }
-}
-
-/* Scroll Effect */
-.navbar.scrolled .nav-link {
-  color: #495057;
-}
-
-.navbar.scrolled .nav-link:hover {
-  color: #1a237e;
 }

@@ -52,26 +52,26 @@ function Navbar() {
   ];
 
   return (
-    <header className="header">
-      <nav className="navbar navbar-expand-lg fixed-top">
-        <div className="container">
+    <header className="frontend-header">
+      <nav className={`frontend-navbar ${menuOpen ? "mobile-open" : ""}`}>
+        <div className="frontend-container">
           {/* Logo - Desktop */}
-          <a className="navbar-brand d-none d-lg-block" href="/">
+          <a className="frontend-brand d-none d-lg-block" href="/">
             <i className="fas fa-tooth"></i>
-            <div className="brand-text">
-              <span className="brand-title">{t("Dental Care")}</span>
-              <strong className="brand-subtitle">
+            <div className="frontend-brand-text">
+              <span className="frontend-brand-title">{t("Dental Care")}</span>
+              <strong className="frontend-brand-subtitle">
                 {t("Smile Specialist")}
               </strong>
             </div>
           </a>
 
           {/* Logo - Mobile */}
-          <a className="navbar-brand d-lg-none" href="/">
+          <a className="frontend-brand d-lg-none" href="/">
             <i className="fas fa-tooth"></i>
-            <div className="brand-text">
-              <span className="brand-title">{t("Dental Care")}</span>
-              <strong className="brand-subtitle">
+            <div className="frontend-brand-text">
+              <span className="frontend-brand-title">{t("Dental Care")}</span>
+              <strong className="frontend-brand-subtitle">
                 {t("Smile Specialist")}
               </strong>
             </div>
@@ -79,24 +79,25 @@ function Navbar() {
 
           {/* Mobile Menu Button */}
           <button
-            className={`navbar-toggler ${menuOpen ? "collapsed" : ""}`}
+            className={`frontend-toggler ${menuOpen ? "collapsed" : ""}`}
             type="button"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-expanded={menuOpen}
             aria-label={t("Toggle navigation")}
           >
-            <span className="navbar-toggler-icon"></span>
+            <span className="frontend-toggler-icon"></span>
           </button>
 
           {/* Navigation Menu */}
-          <div
-            className={`collapse navbar-collapse ${menuOpen ? "show" : ""}`}
-            id="navbarNav"
-          >
-            <ul className="navbar-nav mx-auto">
+          <div className={`frontend-collapse ${menuOpen ? "show" : ""}`}>
+            <ul className="frontend-nav">
               {navItems.map((item, index) => (
-                <li className="nav-item" key={index}>
-                  <a className="nav-link" href={item.path} onClick={closeMenu}>
+                <li className="frontend-nav-item" key={index}>
+                  <a
+                    className="frontend-nav-link"
+                    href={item.path}
+                    onClick={closeMenu}
+                  >
                     {item.label}
                   </a>
                 </li>
@@ -104,10 +105,10 @@ function Navbar() {
             </ul>
 
             {/* Right Side Actions */}
-            <div className="navbar-actions">
+            <div className="frontend-actions">
               {/* Language Switcher */}
               <button
-                className="lang-switch-btn"
+                className="frontend-lang-switch"
                 onClick={toggleLanguage}
                 title={i18n.language === "en" ? t("العربية") : t("English")}
               >
@@ -119,10 +120,10 @@ function Navbar() {
 
               {/* Auth Buttons */}
               {!user ? (
-                <div className="auth-buttons">
+                <div className="frontend-auth-buttons">
                   <NavLink
                     to="/login"
-                    className="btn btn-outline-primary"
+                    className="frontend-btn frontend-btn-outline"
                     onClick={closeMenu}
                   >
                     <i className="fas fa-sign-in-alt"></i>
@@ -130,7 +131,7 @@ function Navbar() {
                   </NavLink>
                   <NavLink
                     to="/register"
-                    className="btn btn-primary"
+                    className="frontend-btn frontend-btn-primary"
                     onClick={closeMenu}
                   >
                     <i className="fas fa-user-plus"></i>
@@ -138,13 +139,13 @@ function Navbar() {
                   </NavLink>
                 </div>
               ) : (
-                <div className="user-menu">
+                <div className="frontend-user-menu">
                   <button
-                    className="user-menu-btn"
+                    className="frontend-user-btn"
                     onClick={() => setDropdownOpen(!dropdownOpen)}
                   >
                     <i className="fas fa-user-circle"></i>
-                    <span className="user-name">
+                    <span className="frontend-user-name">
                       {user.name || t("Account")}
                     </span>
                     <i
@@ -152,10 +153,10 @@ function Navbar() {
                     ></i>
                   </button>
                   {dropdownOpen && (
-                    <div className="user-dropdown">
+                    <div className="frontend-user-dropdown">
                       <NavLink
                         to="/profile"
-                        className="dropdown-item"
+                        className="frontend-dropdown-item"
                         onClick={closeMenu}
                       >
                         <i className="fas fa-user"></i>
@@ -163,16 +164,16 @@ function Navbar() {
                       </NavLink>
                       <NavLink
                         to="/appointments"
-                        className="dropdown-item"
+                        className="frontend-dropdown-item"
                         onClick={closeMenu}
                       >
                         <i className="fas fa-calendar-alt"></i>
                         <span>{t("My Appointments")}</span>
                       </NavLink>
-                      <hr className="dropdown-divider" />
+                      <hr className="frontend-dropdown-divider" />
                       <button
                         onClick={handleLogout}
-                        className="dropdown-item logout"
+                        className="frontend-dropdown-item frontend-logout"
                       >
                         <i className="fas fa-sign-out-alt"></i>
                         <span>{t("Logout")}</span>

@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "./OrdersList.css";
 
 const OrdersList = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,6 +19,30 @@ const OrdersList = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const formatCurrency = (value) => {
+    const lang = i18n.language === 'ar' ? 'ar-EG' : 'en-US';
+    return new Intl.NumberFormat(lang, {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+  };
+
+  const formatDate = (value) => {
+    if (!value) return "-";
+    try {
+      const lang = i18n.language === 'ar' ? 'ar-EG' : 'en-US';
+      return new Date(value).toLocaleDateString(lang, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    } catch {
+      return value;
+    }
+  };
+
   const fetchOrders = () => {
     setLoading(true);
     api
@@ -24,7 +50,7 @@ const OrdersList = () => {
       .then((res) => setOrders(res.data))
       .catch((err) => {
         console.error(err);
-        notifyError("Failed to fetch orders");
+        notifyError(t("Failed to fetch orders"));
       })
       .finally(() => setLoading(false));
   };
@@ -34,24 +60,52 @@ const OrdersList = () => {
   }, []);
 
   const handleConfirm = async (id) => {
+    if (!window.confirm(t("Confirm this order?"))) return;
     try {
       const res = await api.post(`/erp/orders/${id}/confirm`);
       notifySuccess(res.data.msg);
       fetchOrders();
     } catch (err) {
       console.error(err);
-      notifyError(err.response?.data?.msg || "Confirm failed");
+      notifyError(err.response?.data?.msg || t("Confirm failed"));
     }
   };
 
   const handleCancel = async (id) => {
+    if (!window.confirm(t("Cancel this order?"))) return;
     try {
       const res = await api.post(`/erp/orders/${id}/cancel`);
       notifySuccess(res.data.msg);
       fetchOrders();
     } catch (err) {
       console.error(err);
-      notifyError(err.response?.data?.msg || "Cancel failed");
+      notifyError(err.response?.data?.msg || t("Cancel failed"));
+    }
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status?.toLowerCase()) {
+      case "pending":
+        return "status-pending";
+      case "confirmed":
+        return "status-confirmed";
+      case "cancelled":
+        return "status-cancelled";
+      default:
+        return "status-default";
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    switch (status?.toLowerCase()) {
+      case "pending":
+        return t("Pending");
+      case "confirmed":
+        return t("Confirmed");
+      case "cancelled":
+        return t("Cancelled");
+      default:
+        return status || "-";
     }
   };
 
@@ -67,12 +121,23 @@ const OrdersList = () => {
     return (
       <div className="orders-loading">
         <div className="loading-spinner"></div>
-        <p>Loading orders...</p>
+        <p>{t("Loading orders...")}</p>
       </div>
     );
 
   const renderMobileView = () => (
     <div className="orders-mobile">
+      <div className="mobile-header">
+        <h3>{t("Orders")}</h3>
+        <button
+          className="btn-new-order"
+          onClick={() => navigate("/admin/erp/orders/create")}
+          title={t("New Order")}
+        >
+          <i className="fas fa-plus"></i>
+        </button>
+      </div>
+
       <div className="filters-row">
         {["all", "pending", "confirmed", "cancelled"].map((status) => (
           <button
@@ -80,7 +145,7 @@ const OrdersList = () => {
             className={`filter-btn ${filter === status ? "active" : ""}`}
             onClick={() => setFilter(status)}
           >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+            {status === "all" ? t("All") : t(status.charAt(0).toUpperCase() + status.slice(1))}
           </button>
         ))}
       </div>
@@ -88,7 +153,18 @@ const OrdersList = () => {
       {filteredOrders.length === 0 ? (
         <div className="no-orders">
           <i className="fas fa-box-open"></i>
-          <p>No {filter === "all" ? "" : filter} orders found</p>
+          <p>
+            {filter === "all"
+              ? t("No orders found")
+              : t("No {status} orders found", { status: t(filter.charAt(0).toUpperCase() + filter.slice(1)) })}
+          </p>
+          <button
+            className="btn-create"
+            onClick={() => navigate("/admin/erp/orders/create")}
+          >
+            <i className="fas fa-plus me-2"></i>
+            {t("Create New Order")}
+          </button>
         </div>
       ) : (
         <div className="orders-grid">
@@ -96,57 +172,55 @@ const OrdersList = () => {
             <div key={order.id} className="order-card">
               <div className="order-header">
                 <div>
-                  <h4 className="order-id">Order #{order.id}</h4>
+                  <h4 className="order-id">{t("Order")} #{order.id}</h4>
                   <p className="order-customer">
-                    {order.customer?.name || "No Customer"}
+                    {order.customer?.name || t("No Customer")}
                   </p>
                 </div>
-                <span className={`status-badge status-${order.status}`}>
-                  {order.status}
+                <span className={`status-badge ${getStatusBadgeClass(order.status)}`}>
+                  {getStatusLabel(order.status)}
                 </span>
               </div>
 
               <div className="order-details">
                 <div className="detail-row">
-                  <span>Total:</span>
+                  <span>{t("Total")}:</span>
                   <span className="order-total">
-                    ${parseFloat(order.total).toFixed(2)}
+                    {formatCurrency(order.total)}
                   </span>
                 </div>
                 <div className="detail-row">
-                  <span>Date:</span>
-                  <span>{order.created_at?.split("T")[0] || "N/A"}</span>
+                  <span>{t("Date")}:</span>
+                  <span>{formatDate(order.created_at)}</span>
                 </div>
               </div>
 
               <div className="order-actions">
                 <button
-                  className={`btn-action ${order.status === "confirmed" || order.status === "cancelled" ? "disabled" : "confirm"}`}
+                  className={`btn-action ${order.status !== "pending" ? "disabled" : "confirm"}`}
                   onClick={() => handleConfirm(order.id)}
-                  disabled={
-                    order.status === "confirmed" || order.status === "cancelled"
-                  }
-                  title="Confirm order"
+                  disabled={order.status !== "pending"}
+                  title={t("Confirm order")}
                 >
                   <i className="fas fa-check-circle"></i>
-                  Confirm
+                  {t("Confirm")}
                 </button>
                 <button
                   className={`btn-action ${order.status === "cancelled" ? "disabled" : "cancel"}`}
                   onClick={() => handleCancel(order.id)}
                   disabled={order.status === "cancelled"}
-                  title="Cancel order"
+                  title={t("Cancel order")}
                 >
                   <i className="fas fa-times-circle"></i>
-                  Cancel
+                  {t("Cancel")}
                 </button>
                 <button
                   className="btn-action details"
                   onClick={() => navigate(`/admin/erp/orders/${order.id}`)}
-                  title="View details"
+                  title={t("View details")}
                 >
                   <i className="fas fa-eye"></i>
-                  Details
+                  {t("Details")}
                 </button>
               </div>
             </div>
@@ -159,7 +233,10 @@ const OrdersList = () => {
   const renderDesktopView = () => (
     <div className="orders-desktop">
       <div className="orders-header">
-        <h2>Orders Management</h2>
+        <div>
+          <h2>{t("Orders Management")}</h2>
+          <p className="header-subtitle">{t("Manage and track all customer orders")}</p>
+        </div>
         <div className="header-actions">
           <div className="filters">
             {["all", "pending", "confirmed", "cancelled"].map((status) => (
@@ -168,7 +245,7 @@ const OrdersList = () => {
                 className={`filter-btn ${filter === status ? "active" : ""}`}
                 onClick={() => setFilter(status)}
               >
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+                {status === "all" ? t("All") : t(status.charAt(0).toUpperCase() + status.slice(1))}
               </button>
             ))}
           </div>
@@ -176,7 +253,8 @@ const OrdersList = () => {
             className="btn-new-order"
             onClick={() => navigate("/admin/erp/orders/create")}
           >
-            <i className="fas fa-plus"></i> New Order
+            <i className="fas fa-plus me-2"></i>
+            {t("New Order")}
           </button>
         </div>
       </div>
@@ -185,20 +263,30 @@ const OrdersList = () => {
         <table className="orders-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Customer</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+              <th>{t("ID")}</th>
+              <th>{t("Customer")}</th>
+              <th>{t("Total")}</th>
+              <th>{t("Status")}</th>
+              <th>{t("Date")}</th>
+              <th>{t("Actions")}</th>
+             </thead>
           <tbody>
             {filteredOrders.length === 0 ? (
               <tr>
                 <td colSpan="6" className="no-data">
                   <i className="fas fa-box-open"></i>
-                  <p>No {filter === "all" ? "" : filter} orders found</p>
+                  <p>
+                    {filter === "all"
+                      ? t("No orders found")
+                      : t("No {status} orders found", { status: t(filter.charAt(0).toUpperCase() + filter.slice(1)) })}
+                  </p>
+                  <button
+                    className="btn-create"
+                    onClick={() => navigate("/admin/erp/orders/create")}
+                  >
+                    <i className="fas fa-plus me-2"></i>
+                    {t("Create New Order")}
+                  </button>
                 </td>
               </tr>
             ) : (
@@ -208,30 +296,28 @@ const OrdersList = () => {
                     <button
                       className="btn-order-id"
                       onClick={() => navigate(`/admin/erp/orders/${order.id}`)}
+                      title={t("View order #{id}", { id: order.id })}
                     >
                       #{order.id}
                     </button>
                   </td>
                   <td>{order.customer?.name || "-"}</td>
                   <td className="total-cell">
-                    ${parseFloat(order.total).toFixed(2)}
+                    {formatCurrency(order.total)}
                   </td>
                   <td>
-                    <span className={`status-badge status-${order.status}`}>
-                      {order.status}
+                    <span className={`status-badge ${getStatusBadgeClass(order.status)}`}>
+                      {getStatusLabel(order.status)}
                     </span>
                   </td>
-                  <td>{order.created_at?.split("T")[0] || "N/A"}</td>
+                  <td>{formatDate(order.created_at)}</td>
                   <td>
                     <div className="action-buttons">
                       <button
                         className="btn-action-icon btn-success"
                         onClick={() => handleConfirm(order.id)}
-                        disabled={
-                          order.status === "confirmed" ||
-                          order.status === "cancelled"
-                        }
-                        title="Confirm order"
+                        disabled={order.status !== "pending"}
+                        title={t("Confirm order")}
                       >
                         <i className="fas fa-check"></i>
                       </button>
@@ -239,27 +325,16 @@ const OrdersList = () => {
                         className="btn-action-icon btn-danger"
                         onClick={() => handleCancel(order.id)}
                         disabled={order.status === "cancelled"}
-                        title="Cancel order"
+                        title={t("Cancel order")}
                       >
                         <i className="fas fa-times"></i>
                       </button>
                       <button
                         className="btn-action-icon btn-primary"
-                        onClick={() =>
-                          navigate(`/admin/erp/orders/${order.id}`)
-                        }
-                        title="View details"
+                        onClick={() => navigate(`/admin/erp/orders/${order.id}`)}
+                        title={t("View details")}
                       >
                         <i className="fas fa-eye"></i>
-                      </button>
-                      <button
-                        className="btn-action-icon btn-secondary"
-                        onClick={() =>
-                          navigate(`/admin/erp/orders/${order.id}/edit`)
-                        }
-                        title="Edit order"
-                      >
-                        <i className="fas fa-edit"></i>
                       </button>
                     </div>
                   </td>
@@ -269,10 +344,18 @@ const OrdersList = () => {
           </tbody>
         </table>
       </div>
+
+      {filteredOrders.length > 0 && (
+        <div className="table-footer">
+          <span className="text-muted">
+            {t("Showing")} {filteredOrders.length} {t("of")} {orders.length} {t("orders")}
+          </span>
+        </div>
+      )}
     </div>
   );
 
   return isMobile ? renderMobileView() : renderDesktopView();
 };
 
-export default OrdersList;
+export default OrdersList; 

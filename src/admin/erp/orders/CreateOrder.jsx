@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
+import { useTranslation } from "react-i18next";
 import "./CreateOrder.css";
 
 const CreateOrder = () => {
+  const { t, i18n } = useTranslation();
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
   const [items, setItems] = useState([{ product_id: "", quantity: 1 }]);
@@ -17,6 +19,16 @@ const CreateOrder = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const formatCurrency = (value) => {
+    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return new Intl.NumberFormat(lang, {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+  };
 
   useEffect(() => {
     api.get("/admin/customers").then((res) => setCustomers(res.data.data));
@@ -35,27 +47,27 @@ const CreateOrder = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form
     if (!customer_id) {
-      notifyError("Please select a customer");
+      notifyError(t("Please select a customer"));
       return;
     }
 
     const hasEmptyProduct = items.some((item) => !item.product_id);
     if (hasEmptyProduct) {
-      notifyError("Please select a product for all items");
+      notifyError(t("Please select a product for all items"));
       return;
     }
 
     setSubmitting(true);
     try {
       await api.post("/erp/orders", { customer_id, items });
-      notifySuccess("Order created successfully");
+      notifySuccess(t("Order created successfully"));
       setCustomerId("");
       setItems([{ product_id: "", quantity: 1 }]);
+      setSearchProduct("");
     } catch (err) {
       console.error(err);
-      notifyError(err.response?.data?.msg || "Failed to create order");
+      notifyError(err.response?.data?.msg || t("Failed to create order"));
     } finally {
       setSubmitting(false);
     }
@@ -88,26 +100,28 @@ const CreateOrder = () => {
   const renderMobileView = () => (
     <div className="create-order-mobile">
       <div className="mobile-header">
-        <h2>Create New Order</h2>
+        <h2>{t("Create New Order")}</h2>
         <div className="order-total-mobile">
-          <span>Total:</span>
-          <span className="total-amount">${calculateTotal()}</span>
+          <span>{t("Total")}:</span>
+          <span className="total-amount">
+            {formatCurrency(calculateTotal())}
+          </span>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="mobile-form">
         {/* Customer Section */}
         <div className="form-section">
-          <h3>Customer Information</h3>
+          <h3>{t("Customer Information")}</h3>
           <div className="form-group">
-            <label>Select Customer</label>
+            <label>{t("Select Customer")}</label>
             <select
               className="form-select"
               value={customer_id}
               onChange={(e) => setCustomerId(e.target.value)}
               required
             >
-              <option value="">Choose a customer</option>
+              <option value="">{t("Choose a customer")}</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -120,9 +134,9 @@ const CreateOrder = () => {
         {/* Products Section */}
         <div className="form-section">
           <div className="section-header">
-            <h3>Order Items</h3>
+            <h3>{t("Order Items")}</h3>
             <button type="button" className="btn-add-item" onClick={addItem}>
-              <i className="fas fa-plus"></i> Add Item
+              <i className="fas fa-plus"></i> {t("Add Item")}
             </button>
           </div>
 
@@ -131,7 +145,7 @@ const CreateOrder = () => {
             <i className="fas fa-search"></i>
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder={t("Search products...")}
               value={searchProduct}
               onChange={(e) => setSearchProduct(e.target.value)}
               className="search-input"
@@ -141,13 +155,15 @@ const CreateOrder = () => {
           {items.map((item, idx) => (
             <div key={idx} className="item-card">
               <div className="item-header">
-                <span className="item-number">Item #{idx + 1}</span>
+                <span className="item-number">
+                  {t("Item")} #{idx + 1}
+                </span>
                 {items.length > 1 && (
                   <button
                     type="button"
                     className="btn-remove-item"
                     onClick={() => removeItem(idx)}
-                    title="Remove item"
+                    title={t("Remove item")}
                   >
                     <i className="fas fa-trash"></i>
                   </button>
@@ -156,7 +172,7 @@ const CreateOrder = () => {
 
               <div className="item-form">
                 <div className="form-group">
-                  <label>Product</label>
+                  <label>{t("Product")}</label>
                   <select
                     className="form-select"
                     value={item.product_id}
@@ -165,17 +181,17 @@ const CreateOrder = () => {
                     }
                     required
                   >
-                    <option value="">Select product</option>
+                    <option value="">{t("Select product")}</option>
                     {filteredProducts.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.title_en} - ${parseFloat(p.unit_price).toFixed(2)}
+                        {p.title_en} - {formatCurrency(p.unit_price)}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div className="quantity-group">
-                  <label>Quantity</label>
+                  <label>{t("Quantity")}</label>
                   <div className="quantity-control">
                     <button
                       type="button"
@@ -218,13 +234,12 @@ const CreateOrder = () => {
 
                 {item.product_id && (
                   <div className="item-subtotal">
-                    <span>Subtotal:</span>
+                    <span>{t("Subtotal")}:</span>
                     <span className="subtotal-amount">
-                      $
-                      {(
+                      {formatCurrency(
                         parseFloat(getProductPrice(item.product_id)) *
-                        parseInt(item.quantity || 1)
-                      ).toFixed(2)}
+                          parseInt(item.quantity || 1),
+                      )}
                     </span>
                   </div>
                 )}
@@ -235,23 +250,25 @@ const CreateOrder = () => {
 
         {/* Summary Section */}
         <div className="summary-section">
-          <h3>Order Summary</h3>
+          <h3>{t("Order Summary")}</h3>
           <div className="summary-details">
             <div className="summary-row">
-              <span>Number of items:</span>
+              <span>{t("Number of items")}:</span>
               <span>{items.length}</span>
             </div>
             <div className="summary-row">
-              <span>Customer:</span>
+              <span>{t("Customer")}:</span>
               <span>
                 {customer_id
-                  ? customers.find((c) => c.id == customer_id)?.name || "N/A"
-                  : "Not selected"}
+                  ? customers.find((c) => c.id == customer_id)?.name || t("N/A")
+                  : t("Not selected")}
               </span>
             </div>
             <div className="summary-row total-row">
-              <span>Total Amount:</span>
-              <span className="final-total">${calculateTotal()}</span>
+              <span>{t("Total Amount")}:</span>
+              <span className="final-total">
+                {formatCurrency(calculateTotal())}
+              </span>
             </div>
           </div>
         </div>
@@ -262,12 +279,12 @@ const CreateOrder = () => {
             {submitting ? (
               <>
                 <i className="fas fa-spinner fa-spin"></i>
-                Creating Order...
+                {t("Creating Order...")}
               </>
             ) : (
               <>
                 <i className="fas fa-check-circle"></i>
-                Create Order
+                {t("Create Order")}
               </>
             )}
           </button>
@@ -280,24 +297,26 @@ const CreateOrder = () => {
     <div className="create-order-desktop">
       <div className="order-header">
         <div>
-          <h1>Create New Order</h1>
+          <h1>{t("Create New Order")}</h1>
           <p className="header-subtitle">
-            Fill in the details to create a new order
+            {t("Fill in the details to create a new order")}
           </p>
         </div>
         <div className="order-summary-card">
           <div className="summary-header">
             <i className="fas fa-receipt"></i>
-            <span>Order Summary</span>
+            <span>{t("Order Summary")}</span>
           </div>
           <div className="summary-content">
             <div className="summary-item">
-              <span>Items:</span>
+              <span>{t("Items")}:</span>
               <span>{items.length}</span>
             </div>
             <div className="summary-item">
-              <span>Total:</span>
-              <span className="total-display">${calculateTotal()}</span>
+              <span>{t("Total")}:</span>
+              <span className="total-display">
+                {formatCurrency(calculateTotal())}
+              </span>
             </div>
           </div>
         </div>
@@ -308,17 +327,17 @@ const CreateOrder = () => {
           {/* Customer Selection */}
           <div className="customer-section">
             <h3>
-              <i className="fas fa-user"></i> Customer Details
+              <i className="fas fa-user"></i> {t("Customer Details")}
             </h3>
             <div className="form-group">
-              <label>Select Customer</label>
+              <label>{t("Select Customer")}</label>
               <select
                 className="form-select"
                 value={customer_id}
                 onChange={(e) => setCustomerId(e.target.value)}
                 required
               >
-                <option value="">Select a customer...</option>
+                <option value="">{t("Select a customer...")}</option>
                 {customers.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -328,7 +347,7 @@ const CreateOrder = () => {
               {customer_id && (
                 <div className="customer-info">
                   <i className="fas fa-check-circle"></i>
-                  <span>Customer selected</span>
+                  <span>{t("Customer selected")}</span>
                 </div>
               )}
             </div>
@@ -337,13 +356,13 @@ const CreateOrder = () => {
           {/* Product Search */}
           <div className="search-section">
             <h3>
-              <i className="fas fa-search"></i> Find Products
+              <i className="fas fa-search"></i> {t("Find Products")}
             </h3>
             <div className="search-container">
               <i className="fas fa-search search-icon"></i>
               <input
                 type="text"
-                placeholder="Search products by name or ID..."
+                placeholder={t("Search products by name or ID...")}
                 value={searchProduct}
                 onChange={(e) => setSearchProduct(e.target.value)}
                 className="search-input"
@@ -356,20 +375,20 @@ const CreateOrder = () => {
         <div className="items-section">
           <div className="section-header">
             <h3>
-              <i className="fas fa-box"></i> Order Items
+              <i className="fas fa-box"></i> {t("Order Items")}
             </h3>
             <button type="button" className="btn-add-item" onClick={addItem}>
-              <i className="fas fa-plus"></i> Add New Item
+              <i className="fas fa-plus"></i> {t("Add New Item")}
             </button>
           </div>
 
           <div className="items-table">
             <div className="table-header">
-              <div className="header-col product-col">Product</div>
-              <div className="header-col price-col">Unit Price</div>
-              <div className="header-col quantity-col">Quantity</div>
-              <div className="header-col subtotal-col">Subtotal</div>
-              <div className="header-col actions-col">Actions</div>
+              <div className="header-col product-col">{t("Product")}</div>
+              <div className="header-col price-col">{t("Unit Price")}</div>
+              <div className="header-col quantity-col">{t("Quantity")}</div>
+              <div className="header-col subtotal-col">{t("Subtotal")}</div>
+              <div className="header-col actions-col">{t("Actions")}</div>
             </div>
 
             <div className="table-body">
@@ -384,7 +403,7 @@ const CreateOrder = () => {
                       }
                       required
                     >
-                      <option value="">Select product...</option>
+                      <option value="">{t("Select product...")}</option>
                       {filteredProducts.map((p) => (
                         <option key={p.id} value={p.id}>
                           {p.title_en}
@@ -395,7 +414,7 @@ const CreateOrder = () => {
                   <div className="row-col price-col">
                     {item.product_id ? (
                       <span className="price-display">
-                        ${getProductPrice(item.product_id)}
+                        {formatCurrency(getProductPrice(item.product_id))}
                       </span>
                     ) : (
                       <span className="price-placeholder">-</span>
@@ -444,11 +463,10 @@ const CreateOrder = () => {
                   <div className="row-col subtotal-col">
                     {item.product_id ? (
                       <span className="subtotal-display">
-                        $
-                        {(
+                        {formatCurrency(
                           parseFloat(getProductPrice(item.product_id)) *
-                          parseInt(item.quantity || 1)
-                        ).toFixed(2)}
+                            parseInt(item.quantity || 1),
+                        )}
                       </span>
                     ) : (
                       <span className="subtotal-placeholder">-</span>
@@ -460,7 +478,7 @@ const CreateOrder = () => {
                         type="button"
                         className="btn-remove"
                         onClick={() => removeItem(idx)}
-                        title="Remove item"
+                        title={t("Remove item")}
                       >
                         <i className="fas fa-trash"></i>
                       </button>
@@ -477,21 +495,24 @@ const CreateOrder = () => {
           <button
             type="button"
             className="btn-secondary"
-            onClick={() => setItems([{ product_id: "", quantity: 1 }])}
+            onClick={() => {
+              setItems([{ product_id: "", quantity: 1 }]);
+              setSearchProduct("");
+            }}
           >
             <i className="fas fa-redo"></i>
-            Reset Form
+            {t("Reset Form")}
           </button>
           <button type="submit" className="btn-primary" disabled={submitting}>
             {submitting ? (
               <>
                 <i className="fas fa-spinner fa-spin"></i>
-                Processing...
+                {t("Processing...")}
               </>
             ) : (
               <>
                 <i className="fas fa-check"></i>
-                Create Order
+                {t("Create Order")}
               </>
             )}
           </button>

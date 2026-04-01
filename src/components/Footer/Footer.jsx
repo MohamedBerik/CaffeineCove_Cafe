@@ -135,11 +135,7 @@ function Footer() {
           <div className="footer-credits">
             <p>
               {t("Design by")}{" "}
-              <a
-                href="https://templatemo.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="#" target="_blank" rel="noopener noreferrer">
                 TemplateMo
               </a>
             </p>

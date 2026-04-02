@@ -31,7 +31,7 @@ export default function RevenueReportPage() {
     try {
       return new Intl.NumberFormat(lang, {
         style: "currency",
-        currency: "USD",
+        currency: "EGP",
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }).format(Number(value || 0));
@@ -64,48 +64,32 @@ export default function RevenueReportPage() {
   };
 
   const loadRevenueReport = async () => {
-    console.log("========== loadRevenueReport START ==========");
-    console.log("1. بدء التحميل، التاريخ:", new Date().toISOString());
-
     try {
       setLoading(true);
       setError("");
 
-      console.log("2. جاري إرسال طلب GET إلى /erp/invoices...");
-
-      const res = await axios.get("/erp/invoices");
-
-      console.log("3. تم استلام الرد من السيرفر");
-      console.log("3.1 Status:", res.status);
-      console.log("3.2 Data type:", typeof res.data);
-      console.log("3.3 Data keys:", Object.keys(res.data || {}));
+      const res = await axios.get("/erp/invoices", {
+        timeout: 30000,
+      });
 
       const payload = res.data || {};
-      console.log("4. payload:", payload);
 
-      // محاولة استخراج الفواتير من مصادر مختلفة
+      // استخراج الفواتير من مصادر مختلفة
       let invoiceRows = [];
 
       if (Array.isArray(payload.data)) {
-        console.log("5.1 payload.data is array");
         invoiceRows = payload.data;
       } else if (payload.data?.data && Array.isArray(payload.data.data)) {
-        console.log("5.2 payload.data.data is array");
         invoiceRows = payload.data.data;
       } else if (Array.isArray(payload.invoices)) {
-        console.log("5.3 payload.invoices is array");
         invoiceRows = payload.invoices;
       } else if (Array.isArray(payload)) {
-        console.log("5.4 payload is array");
         invoiceRows = payload;
       } else {
-        console.log("5.5 No valid invoice array found, using empty array");
         invoiceRows = [];
       }
 
-      console.log("6. عدد الفواتير قبل التصفية:", invoiceRows.length);
-
-      // تطبيق الفلاتر
+      // تطبيق الفلاتر حسب التاريخ
       const filtered = invoiceRows.filter((item) => {
         const rawDate = item.issued_at || item.created_at;
         const dateOnly = rawDate ? String(rawDate).slice(0, 10) : "";
@@ -123,12 +107,8 @@ export default function RevenueReportPage() {
         return fromValid && toValid;
       });
 
-      console.log("7. عدد الفواتير بعد التصفية:", filtered.length);
-
       // تطبيع البيانات
-      const normalized = filtered.map((item, index) => {
-        console.log(`7.${index + 1} معالجة الفاتورة:`, item.id || item.number);
-
+      const normalized = filtered.map((item) => {
         const total = Number(item.total || 0);
         const grossPaid = Number(
           item.total_paid ?? item.gross_paid ?? item.net_paid ?? 0,
@@ -157,8 +137,6 @@ export default function RevenueReportPage() {
         };
       });
 
-      console.log("8. تم تطبيع البيانات، العدد:", normalized.length);
-
       // حساب الإجماليات
       const totalInvoiced = normalized.reduce(
         (sum, item) => sum + item.total,
@@ -175,14 +153,6 @@ export default function RevenueReportPage() {
         0,
       );
 
-      console.log("9. الإجماليات:", {
-        totalInvoiced,
-        grossPaid,
-        refunded,
-        netPaid,
-        remaining,
-      });
-
       // تحديث الحالة
       setRows(normalized);
       setSummary({
@@ -192,33 +162,18 @@ export default function RevenueReportPage() {
         net_paid: netPaid,
         remaining: remaining,
       });
-
-      console.log("10. تم تحديث الحالة بنجاح");
     } catch (err) {
-      console.error("========== ERROR in loadRevenueReport ==========");
-      console.error("Error name:", err.name);
-      console.error("Error message:", err.message);
-      console.error("Error stack:", err.stack);
-
-      if (err.response) {
-        console.error("Response status:", err.response.status);
-        console.error("Response data:", err.response.data);
-        console.error("Response headers:", err.response.headers);
-      } else if (err.request) {
-        console.error("Request was made but no response received");
-        console.error("Request:", err.request);
-      } else {
-        console.error("Error setting up request:", err.message);
-      }
+      console.error("Revenue Report Error:", err);
 
       let errorMessage = t("Failed to load revenue report.");
+
       if (err.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err.response?.data?.msg) {
         errorMessage = err.response.data.msg;
       } else if (err.message === "Network Error") {
         errorMessage = t("Network error. Please check your connection.");
-      } else if (err.name === "AbortError") {
+      } else if (err.code === "ECONNABORTED" || err.name === "AbortError") {
         errorMessage = t("Request timeout. Please try again.");
       }
 
@@ -234,9 +189,7 @@ export default function RevenueReportPage() {
         remaining: 0,
       });
     } finally {
-      console.log("11. finally: إيقاف التحميل");
       setLoading(false);
-      console.log("========== loadRevenueReport END ==========");
     }
   };
 

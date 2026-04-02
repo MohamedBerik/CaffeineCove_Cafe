@@ -18,18 +18,16 @@ const ERPDashboard = () => {
     <>
       <AdminNavbar />
 
-      {/* Mobile Menu Button */}
-      <button className="mobile-sidebar-toggle" onClick={toggleSidebar}>
+      {/* Mobile Menu Button - يظهر فقط على الشاشات الصغيرة */}
+      <button
+        className="mobile-sidebar-toggle"
+        onClick={toggleSidebar}
+        aria-label="Toggle sidebar"
+      >
         <i className="fas fa-bars"></i>
       </button>
 
-      {/* Sidebar Overlay */}
-      <div
-        className={`sidebar-overlay ${sidebarOpen ? "open" : ""}`}
-        onClick={closeSidebar}
-      ></div>
-
-      {/* Sidebar Drawer */}
+      {/* Sidebar Drawer - نفس فكرة Navbar.js */}
       <div className={`sidebar-drawer ${sidebarOpen ? "open" : ""}`}>
         <div className="sidebar-drawer-header">
           <i className="fas fa-chart-line"></i>
@@ -41,9 +39,16 @@ const ERPDashboard = () => {
         <ErpNav />
       </div>
 
+      {/* Overlay */}
+      <div
+        className={`sidebar-overlay ${sidebarOpen ? "show" : ""}`}
+        onClick={closeSidebar}
+      ></div>
+
+      {/* Main Content */}
       <div className="container-fluid" style={{ paddingTop: 86 }}>
         <div className="row g-3">
-          {/* Sidebar - Desktop */}
+          {/* Sidebar - Desktop (يظهر فقط على الشاشات الكبيرة) */}
           <div className="col-12 col-xl-3 d-none d-xl-block">
             <div style={{ position: "sticky", top: 86 }}>
               <ErpNav />

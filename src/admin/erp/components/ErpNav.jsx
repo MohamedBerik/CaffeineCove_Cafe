@@ -1,6 +1,8 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { useTranslation } from "react-i18next";
+import { useState, useEffect } from "react";
+import "./ErpNav.css";
 
 const navItems = [
   {
@@ -87,26 +89,23 @@ const navItems = [
 export default function ErpNav() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const hasPermission = (permission) => {
-    // Super admin يشوف الكل
     if (user?.is_super_admin) return true;
-
     const permissions = user?.permissions;
-
-    // لو مفيش permissions في الـ user حاليًا، ما نكسرش الواجهة
     if (!permissions) return true;
-
-    // Array format
-    if (Array.isArray(permissions)) {
-      return permissions.includes(permission);
-    }
-
-    // Object format
-    if (typeof permissions === "object") {
+    if (Array.isArray(permissions)) return permissions.includes(permission);
+    if (typeof permissions === "object")
       return Boolean(permissions[permission]);
-    }
-
     return true;
   };
 
@@ -114,6 +113,55 @@ export default function ErpNav() {
     hasPermission(item.permission),
   );
 
+  // للشاشات الصغيرة: عرض أيقونة القائمة فقط
+  if (isMobile) {
+    return (
+      <>
+        {/* Mobile Menu Button */}
+        <button
+          className="mobile-nav-toggle"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle navigation menu"
+        >
+          <i className={`fas ${mobileMenuOpen ? "fa-times" : "fa-bars"}`}></i>
+        </button>
+
+        {/* Mobile Navigation Drawer */}
+        <div className={`mobile-nav-drawer ${mobileMenuOpen ? "open" : ""}`}>
+          <div className="mobile-nav-header">
+            <i className="fas fa-compass"></i>
+            <span>{t("ERP Navigation")}</span>
+          </div>
+          <div className="mobile-nav-menu">
+            {visibleItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) =>
+                  `mobile-nav-link ${isActive ? "active" : ""}`
+                }
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <i className={item.icon}></i>
+                <span>{t(item.labelKey)}</span>
+              </NavLink>
+            ))}
+          </div>
+        </div>
+
+        {/* Overlay */}
+        {mobileMenuOpen && (
+          <div
+            className="mobile-nav-overlay"
+            onClick={() => setMobileMenuOpen(false)}
+          ></div>
+        )}
+      </>
+    );
+  }
+
+  // للشاشات الكبيرة: عرض القائمة الجانبية العادية
   return (
     <div className="erp-nav-card">
       <div className="erp-nav-header">

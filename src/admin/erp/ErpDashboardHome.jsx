@@ -195,10 +195,10 @@ export default function ErpDashboardHome() {
             <span className="stat-value">{formatCurrency(totalRevenue)}</span>
             <span className="stat-label">{t("Total Revenue")}</span>
           </div>
-          <div className="stat-trend up">
-            {/* <i className="fas fa-arrow-up"></i> */}
-            {/* <span>+12%</span> */}
-          </div>
+          {/* <div className="stat-trend up">
+            <i className="fas fa-arrow-up"></i>
+            <span>+12%</span>
+          </div> */}
         </div>
         <div className="quick-stat-card">
           <div className="stat-icon warning">
@@ -208,10 +208,10 @@ export default function ErpDashboardHome() {
             <span className="stat-value">{reminderStats.pending ?? 0}</span>
             <span className="stat-label">{t("Pending Reminders")}</span>
           </div>
-          <div className="stat-trend down">
-            {/* <i className="fas fa-arrow-down"></i> */}
-            {/* <span>-5%</span> */}
-          </div>
+          {/* <div className="stat-trend down">
+            <i className="fas fa-arrow-down"></i>
+            <span>-5%</span>
+          </div> */}
         </div>
         <div className="quick-stat-card">
           <div className="stat-icon info">
@@ -221,10 +221,10 @@ export default function ErpDashboardHome() {
             <span className="stat-value">{kpis.total_patients ?? 0}</span>
             <span className="stat-label">{t("Total Patients")}</span>
           </div>
-          <div className="stat-trend up">
-            {/* <i className="fas fa-arrow-up"></i> */}
-            {/* <span>+8%</span> */}
-          </div>
+          {/* <div className="stat-trend up">
+            <i className="fas fa-arrow-up"></i>
+            <span>+8%</span>
+          </div> */}
         </div>
       </div>
 

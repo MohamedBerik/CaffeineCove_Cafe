@@ -546,7 +546,10 @@ export default function ErpDashboardHome() {
                         <td data-label={t("Doctor")}>
                           {item.doctor_name || "-"}
                         </td>
-                        <td data-label={t("Date")}>{item.appointment_date}</td>
+                        <td data-label={t("Date")}>
+                          {formatDate(item.appointment_date)}{" "}
+                          {formatTime(item.appointment_time)}
+                        </td>
                         <td
                           data-label={t("Retries")}
                           className="text-danger fw-bold"

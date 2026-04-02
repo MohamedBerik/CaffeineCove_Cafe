@@ -80,6 +80,17 @@ export default function ErpDashboardHome() {
     }
   };
 
+  // دالة لتنسيق الوقت فقط
+  const formatTime = (value) => {
+    if (!value) return "-";
+    try {
+      // إذا كان الوقت كامل (مثلاً 13:00:00)
+      return String(value).slice(0, 5);
+    } catch {
+      return value;
+    }
+  };
+
   if (loading) {
     return (
       <div className="dashboard-loading">
@@ -375,8 +386,8 @@ export default function ErpDashboardHome() {
                           {item.doctor?.name || item.doctor_name || "-"}
                         </td>
                         <td data-label={t("Date")}>
-                          {item.appointment_date}{" "}
-                          {String(item.appointment_time || "").slice(0, 5)}
+                          {formatDate(item.appointment_date)}{" "}
+                          {formatTime(item.appointment_time)}
                         </td>
                         <td data-label={t("Status")}>
                           <StatusBadge status={item.status} />

@@ -375,8 +375,10 @@ export default function ErpDashboardHome() {
                           {item.doctor?.name || item.doctor_name || "-"}
                         </td>
                         <td data-label={t("Date")}>
-                          {formatDate(item.appointment_date)}{" "}
-                          {formatTime(item.appointment_time)}
+                          {formatAppointmentDate(
+                            item.appointment_date,
+                            item.appointment_time,
+                          )}
                         </td>
                         <td data-label={t("Status")}>
                           <StatusBadge status={item.status} />

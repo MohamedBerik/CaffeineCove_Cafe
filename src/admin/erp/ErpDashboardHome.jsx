@@ -375,7 +375,7 @@ export default function ErpDashboardHome() {
                           {item.doctor?.name || item.doctor_name || "-"}
                         </td>
                         <td data-label={t("Date")}>
-                          {formatAppointmentDate(
+                          {formatDateTime(
                             item.appointment_date,
                             item.appointment_time,
                           )}

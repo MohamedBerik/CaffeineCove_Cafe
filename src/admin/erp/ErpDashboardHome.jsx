@@ -241,7 +241,7 @@ export default function ErpDashboardHome() {
           icon="fas fa-calendar-day"
           color="primary"
           link="/admin/erp/appointments/calendar"
-          trend="+12%"
+          // trend="+12%"
         />
         <KpiCard
           title={t("Scheduled Today")}

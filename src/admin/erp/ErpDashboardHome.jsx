@@ -197,7 +197,7 @@ export default function ErpDashboardHome() {
           </div>
           <div className="stat-trend up">
             <i className="fas fa-arrow-up"></i>
-            <span>+12%</span>
+            {/* <span>+12%</span> */}
           </div>
         </div>
         <div className="quick-stat-card">
@@ -210,7 +210,7 @@ export default function ErpDashboardHome() {
           </div>
           <div className="stat-trend down">
             <i className="fas fa-arrow-down"></i>
-            <span>-5%</span>
+            {/* <span>-5%</span> */}
           </div>
         </div>
         <div className="quick-stat-card">
@@ -223,7 +223,7 @@ export default function ErpDashboardHome() {
           </div>
           <div className="stat-trend up">
             <i className="fas fa-arrow-up"></i>
-            <span>+8%</span>
+            {/* <span>+8%</span> */}
           </div>
         </div>
       </div>
@@ -248,21 +248,21 @@ export default function ErpDashboardHome() {
           value={kpis.scheduled_today_count ?? 0}
           icon="fas fa-clock"
           color="info"
-          trend="+5%"
+          // trend="+5%"
         />
         <KpiCard
           title={t("Completed Today")}
           value={kpis.completed_today_count ?? 0}
           icon="fas fa-check-circle"
           color="success"
-          trend="+8%"
+          // trend="+8%"
         />
         <KpiCard
           title={t("Cancelled / No Show")}
           value={`${kpis.cancelled_today_count ?? 0} / ${kpis.no_show_today_count ?? 0}`}
           icon="fas fa-times-circle"
           color="danger"
-          trend="-3%"
+          // trend="-3%"
         />
         <KpiCard
           title={t("Unpaid Invoices")}

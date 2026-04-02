@@ -36,7 +36,6 @@ const resources = {
       "Clinic operations, billing, and payment overview":
         "Clinic operations, billing, and payment overview",
       Refresh: "Refresh",
-
       // ErpDashboardHome - KPIs
       "Appointments Today": "Appointments Today",
       "Scheduled Today": "Scheduled Today",
@@ -48,7 +47,6 @@ const resources = {
       "Month Revenue": "Month Revenue",
       "Customer Credit Balance": "Customer Credit Balance",
       "Paid Invoices": "Paid Invoices",
-
       // ErpDashboardHome - Tables
       "Recent Appointments": "Recent Appointments",
       "Recent Invoices": "Recent Invoices",
@@ -68,7 +66,6 @@ const resources = {
       "No recent appointments.": "No recent appointments.",
       "No recent invoices.": "No recent invoices.",
       "No recent payments.": "No recent payments.",
-
       // ErpDashboardHome - Status Badges
       Paid: "Paid",
       Completed: "Completed",
@@ -79,7 +76,6 @@ const resources = {
       Scheduled: "Scheduled",
       "In Progress": "In Progress",
       Pending: "Pending",
-
       // Reminders KPIs
       "Reminders Pending": "Reminders Pending",
       "Reminders Failed": "Reminders Failed",
@@ -88,14 +84,12 @@ const resources = {
       "Reminders Skipped": "Reminders Skipped",
       "Reminders Stuck": "Reminders Stuck",
       "Reminders Success Rate": "Reminders Success Rate",
-
       // Failed Reminders Table
       "Failed Reminders": "Failed Reminders",
       Appointment: "Appointment",
       Retries: "Retries",
       "Last Attempt": "Last Attempt",
       "No failed reminders.": "No failed reminders.",
-
       // Alerts Section - English
       "High failed reminders": "High failed reminders",
       "Reminders stuck in processing": "Reminders stuck in processing",
@@ -103,11 +97,35 @@ const resources = {
         "There are {{count}} failed reminders that need review",
       "There are {{count}} reminders stuck for more than 10 minutes":
         "There are {{count}} reminders stuck for more than 10 minutes",
-
       // Additional
       "Doctor Name": "Doctor Name",
       "Appointment Date": "Appointment Date",
       "Reminder Stage": "Reminder Stage",
+
+      // أضف ضمن كائن en:
+      "Good Morning": "Good Morning",
+      "Good Afternoon": "Good Afternoon",
+      "Good Evening": "Good Evening",
+      "Welcome to ERP Dashboard": "Welcome to ERP Dashboard",
+      "Here's what's happening with your clinic today":
+        "Here's what's happening with your clinic today",
+      "Loading dashboard...": "Loading dashboard...",
+      "Something went wrong": "Something went wrong",
+      "Try Again": "Try Again",
+      "No Data Available": "No Data Available",
+      "Total Revenue": "Total Revenue",
+      "Total Patients": "Total Patients",
+      "Pending Reminders": "Pending Reminders",
+      "Key Performance Indicators": "Key Performance Indicators",
+      "Monitor your clinic's performance at a glance":
+        "Monitor your clinic's performance at a glance",
+      "Recent Activity": "Recent Activity",
+      "Latest updates from your clinic": "Latest updates from your clinic",
+      "Failed Reminders": "Failed Reminders",
+      "No failed reminders.": "No failed reminders.",
+      Retries: "Retries",
+      "Last Attempt": "Last Attempt",
+
       // Common
       "Loading...": "Loading...",
 
@@ -2129,7 +2147,6 @@ const resources = {
       "Purchase Orders": "أوامر الشراء",
       Reports: "التقارير",
       "Clinic Settings": "إعدادات العيادة",
-
       // ErpDashboardHome - Header & Messages
       "Failed to load ERP dashboard.": "فشل تحميل لوحة التحكم",
       Retry: "إعادة المحاولة",
@@ -2138,7 +2155,6 @@ const resources = {
       "Clinic operations, billing, and payment overview":
         "نظرة عامة على عمليات العيادة والفواتير والمدفوعات",
       Refresh: "تحديث",
-
       // ErpDashboardHome - KPIs
       "Appointments Today": "مواعيد اليوم",
       "Scheduled Today": "المجدولة اليوم",
@@ -2150,7 +2166,6 @@ const resources = {
       "Month Revenue": "إيرادات الشهر",
       "Customer Credit Balance": "رصيد العملاء الدائن",
       "Paid Invoices": "فواتير مدفوعة",
-
       // ErpDashboardHome - Tables
       "Recent Appointments": "المواعيد الأخيرة",
       "Recent Invoices": "الفواتير الأخيرة",
@@ -2170,7 +2185,6 @@ const resources = {
       "No recent appointments.": "لا توجد مواعيد حديثة",
       "No recent invoices.": "لا توجد فواتير حديثة",
       "No recent payments.": "لا توجد مدفوعات حديثة",
-
       // ErpDashboardHome - Status Badges
       Paid: "مدفوع",
       Completed: "مكتمل",
@@ -2181,7 +2195,6 @@ const resources = {
       Scheduled: "مجدول",
       "In Progress": "قيد التنفيذ",
       Pending: "قيد الانتظار",
-
       // ErpDashboardHome - Reminders KPIs
       "Reminders Pending": "تذكيرات قيد الانتظار",
       "Reminders Failed": "تذكيرات فاشلة",
@@ -2190,19 +2203,16 @@ const resources = {
       "Reminders Skipped": "تذكيرات تم تخطيها",
       "Reminders Stuck": "تذكيرات عالقة",
       "Reminders Success Rate": "نسبة نجاح التذكيرات",
-
       // ErpDashboardHome - Failed Reminders Table
       "Failed Reminders": "التذكيرات الفاشلة",
       Appointment: "الموعد",
       Retries: "محاولات إعادة",
       "Last Attempt": "آخر محاولة",
       "No failed reminders.": "لا توجد تذكيرات فاشلة",
-
       // ErpDashboardHome - Additional Table Headers
       "Doctor Name": "اسم الطبيب",
       "Appointment Date": "تاريخ الموعد",
       "Reminder Stage": "مرحلة التذكير",
-
       // Alerts Section
       "High failed reminders": "تذكيرات فاشلة كثيرة",
       "Reminders stuck in processing": "تذكيرات عالقة قيد المعالجة",
@@ -2212,6 +2222,30 @@ const resources = {
         "هناك {{count}} تذكيرات عالقة منذ أكثر من 10 دقائق",
       // Common
       "Loading...": "جاري التحميل...",
+
+      // وفي كائن ar:
+      "Good Morning": "صباح الخير",
+      "Good Afternoon": "مساء الخير",
+      "Good Evening": "مساء الخير",
+      "Welcome to ERP Dashboard": "مرحباً بك في لوحة تحكم النظام",
+      "Here's what's happening with your clinic today":
+        "إليك ما يحدث في عيادتك اليوم",
+      "Loading dashboard...": "جاري تحميل لوحة التحكم...",
+      "Something went wrong": "حدث خطأ ما",
+      "Try Again": "حاول مرة أخرى",
+      "No Data Available": "لا توجد بيانات متاحة",
+      "Total Revenue": "إجمالي الإيرادات",
+      "Total Patients": "إجمالي المرضى",
+      "Pending Reminders": "تذكيرات معلقة",
+      "Key Performance Indicators": "مؤشرات الأداء الرئيسية",
+      "Monitor your clinic's performance at a glance":
+        "راقب أداء عيادتك بنظرة سريعة",
+      "Recent Activity": "النشاط الأخير",
+      "Latest updates from your clinic": "آخر التحديثات من عيادتك",
+      "Failed Reminders": "تذكيرات فاشلة",
+      "No failed reminders.": "لا توجد تذكيرات فاشلة",
+      Retries: "محاولات إعادة",
+      "Last Attempt": "آخر محاولة",
 
       // ====================  Start Visit  ====================
 

@@ -196,7 +196,7 @@ export default function ErpDashboardHome() {
             <span className="stat-label">{t("Total Revenue")}</span>
           </div>
           <div className="stat-trend up">
-            <i className="fas fa-arrow-up"></i>
+            {/* <i className="fas fa-arrow-up"></i> */}
             {/* <span>+12%</span> */}
           </div>
         </div>
@@ -209,7 +209,7 @@ export default function ErpDashboardHome() {
             <span className="stat-label">{t("Pending Reminders")}</span>
           </div>
           <div className="stat-trend down">
-            <i className="fas fa-arrow-down"></i>
+            {/* <i className="fas fa-arrow-down"></i> */}
             {/* <span>-5%</span> */}
           </div>
         </div>
@@ -222,7 +222,7 @@ export default function ErpDashboardHome() {
             <span className="stat-label">{t("Total Patients")}</span>
           </div>
           <div className="stat-trend up">
-            <i className="fas fa-arrow-up"></i>
+            {/* <i className="fas fa-arrow-up"></i> */}
             {/* <span>+8%</span> */}
           </div>
         </div>

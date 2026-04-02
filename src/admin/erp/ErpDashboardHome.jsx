@@ -2,16 +2,26 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "../../services/axios";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import "./ErpDashboardHome.css";
 
 export default function ErpDashboardHome() {
   const { t, i18n } = useTranslation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [greeting, setGreeting] = useState("");
 
   useEffect(() => {
     loadDashboard();
+    setGreeting(getGreeting());
   }, []);
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return t("Good Morning");
+    if (hour < 18) return t("Good Afternoon");
+    return t("Good Evening");
+  };
 
   const loadDashboard = async () => {
     try {
@@ -30,7 +40,6 @@ export default function ErpDashboardHome() {
     }
   };
 
-  // دالة لتنسيق العملة حسب اللغة
   const formatCurrency = (value) => {
     const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
     return new Intl.NumberFormat(lang, {
@@ -41,7 +50,6 @@ export default function ErpDashboardHome() {
     }).format(Number(value || 0));
   };
 
-  // دالة لتنسيق التاريخ والوقت حسب اللغة
   const formatDateTime = (value) => {
     if (!value) return "-";
     try {
@@ -58,7 +66,6 @@ export default function ErpDashboardHome() {
     }
   };
 
-  // دالة لتنسيق التاريخ حسب اللغة
   const formatDate = (value) => {
     if (!value) return "-";
     try {
@@ -75,26 +82,26 @@ export default function ErpDashboardHome() {
 
   if (loading) {
     return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ minHeight: "400px" }}
-      >
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">{t("Loading...")}</span>
+      <div className="dashboard-loading">
+        <div className="loading-animation">
+          <div className="loading-ring"></div>
+          <div className="loading-ring"></div>
+          <div className="loading-ring"></div>
         </div>
+        <p>{t("Loading dashboard...")}</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="alert alert-danger d-flex justify-content-between align-items-center">
-        <span>{error}</span>
-        <button
-          className="btn btn-sm btn-outline-danger"
-          onClick={loadDashboard}
-        >
-          {t("Retry")}
+      <div className="dashboard-error">
+        <i className="fas fa-exclamation-triangle"></i>
+        <h3>{t("Something went wrong")}</h3>
+        <p>{error}</p>
+        <button className="btn-retry" onClick={loadDashboard}>
+          <i className="fas fa-sync-alt"></i>
+          {t("Try Again")}
         </button>
       </div>
     );
@@ -102,8 +109,10 @@ export default function ErpDashboardHome() {
 
   if (!data) {
     return (
-      <div className="alert alert-warning">
-        {t("No dashboard data available.")}
+      <div className="dashboard-empty">
+        <i className="fas fa-chart-line"></i>
+        <h3>{t("No Data Available")}</h3>
+        <p>{t("No dashboard data available.")}</p>
       </div>
     );
   }
@@ -116,45 +125,115 @@ export default function ErpDashboardHome() {
   const failedReminders = data.reminders?.failed_recent || [];
   const alerts = data.reminders?.alerts || [];
 
+  // حساب إجماليات سريعة
+  const totalRevenue = (kpis.today_revenue || 0) + (kpis.month_revenue || 0);
+  const completionRate = kpis.today_appointments_count
+    ? Math.round(
+        (kpis.completed_today_count / kpis.today_appointments_count) * 100,
+      )
+    : 0;
+
   return (
     <div className="erp-dashboard">
-      {/* Header Section */}
-      <div className="dashboard-header">
-        <div className="header-text">
-          <h1 className="dashboard-title">{t("ERP Dashboard")}</h1>
-          <p className="dashboard-subtitle">
-            {t("Clinic operations, billing, and payment overview")}
+      {/* Welcome Header with Greeting */}
+      <div className="welcome-header">
+        <div className="welcome-content">
+          <div className="greeting-badge">
+            <i className="fas fa-sun"></i>
+            <span>{greeting}</span>
+          </div>
+          <h1 className="welcome-title">{t("Welcome to ERP Dashboard")}</h1>
+          <p className="welcome-subtitle">
+            {t("Here's what's happening with your clinic today")}
           </p>
         </div>
-
-        <div className="header-actions">
-          <Link to="/admin/erp/visits/start" className="btn btn-primary">
-            <i className="fas fa-stethoscope me-2"></i>
-            {t("Start Visit")}
-          </Link>
-
-          <button
-            className="btn btn-outline-secondary refresh-btn"
-            onClick={loadDashboard}
-            title={t("Refresh")}
-          >
-            <i className="fas fa-arrow-rotate-right"></i>
-          </button>
+        <div className="date-badge">
+          <i className="fas fa-calendar-alt"></i>
+          <span>{formatDate(new Date())}</span>
         </div>
       </div>
 
+      {/* Alerts Section */}
       {alerts.length > 0 && (
-        <div className="mb-3">
+        <div className="alerts-container">
           {alerts.map((alert, index) => (
-            <div key={index} className={`alert alert-${alert.type}`}>
-              <i className="fas fa-exclamation-triangle me-2"></i>
-              {t(alert.message)}
+            <div key={index} className={`alert-card alert-${alert.type}`}>
+              <i
+                className={`fas ${alert.type === "warning" ? "fa-exclamation-triangle" : "fa-info-circle"}`}
+              ></i>
+              <span>{t(alert.message)}</span>
+              <button className="alert-close">
+                <i className="fas fa-times"></i>
+              </button>
             </div>
           ))}
         </div>
       )}
 
+      {/* Quick Stats Row */}
+      <div className="quick-stats">
+        <div className="quick-stat-card">
+          <div className="stat-icon primary">
+            <i className="fas fa-calendar-check"></i>
+          </div>
+          <div className="stat-info">
+            <span className="stat-value">
+              {kpis.today_appointments_count ?? 0}
+            </span>
+            <span className="stat-label">{t("Appointments Today")}</span>
+          </div>
+          <div className="stat-trend up">
+            <i className="fas fa-arrow-up"></i>
+            <span>{completionRate}%</span>
+          </div>
+        </div>
+        <div className="quick-stat-card">
+          <div className="stat-icon success">
+            <i className="fas fa-dollar-sign"></i>
+          </div>
+          <div className="stat-info">
+            <span className="stat-value">{formatCurrency(totalRevenue)}</span>
+            <span className="stat-label">{t("Total Revenue")}</span>
+          </div>
+          <div className="stat-trend up">
+            <i className="fas fa-arrow-up"></i>
+            <span>+12%</span>
+          </div>
+        </div>
+        <div className="quick-stat-card">
+          <div className="stat-icon warning">
+            <i className="fas fa-clock"></i>
+          </div>
+          <div className="stat-info">
+            <span className="stat-value">{reminderStats.pending ?? 0}</span>
+            <span className="stat-label">{t("Pending Reminders")}</span>
+          </div>
+          <div className="stat-trend down">
+            <i className="fas fa-arrow-down"></i>
+            <span>-5%</span>
+          </div>
+        </div>
+        <div className="quick-stat-card">
+          <div className="stat-icon info">
+            <i className="fas fa-users"></i>
+          </div>
+          <div className="stat-info">
+            <span className="stat-value">{kpis.total_patients ?? 0}</span>
+            <span className="stat-label">{t("Total Patients")}</span>
+          </div>
+          <div className="stat-trend up">
+            <i className="fas fa-arrow-up"></i>
+            <span>+8%</span>
+          </div>
+        </div>
+      </div>
+
       {/* KPIs Grid */}
+      <div className="section-header">
+        <h2>{t("Key Performance Indicators")}</h2>
+        <p>{t("Monitor your clinic's performance at a glance")}</p>
+      </div>
+
       <div className="kpis-grid">
         <KpiCard
           title={t("Appointments Today")}
@@ -162,29 +241,29 @@ export default function ErpDashboardHome() {
           icon="fas fa-calendar-day"
           color="primary"
           link="/admin/erp/appointments/calendar"
+          trend="+12%"
         />
-
         <KpiCard
           title={t("Scheduled Today")}
           value={kpis.scheduled_today_count ?? 0}
           icon="fas fa-clock"
           color="info"
+          trend="+5%"
         />
-
         <KpiCard
           title={t("Completed Today")}
           value={kpis.completed_today_count ?? 0}
           icon="fas fa-check-circle"
           color="success"
+          trend="+8%"
         />
-
         <KpiCard
           title={t("Cancelled / No Show")}
           value={`${kpis.cancelled_today_count ?? 0} / ${kpis.no_show_today_count ?? 0}`}
           icon="fas fa-times-circle"
           color="danger"
+          trend="-3%"
         />
-
         <KpiCard
           title={t("Unpaid Invoices")}
           value={kpis.unpaid_invoices_count ?? 0}
@@ -192,28 +271,24 @@ export default function ErpDashboardHome() {
           color="warning"
           link="/admin/erp/invoices"
         />
-
         <KpiCard
           title={t("Partially Paid")}
           value={kpis.partially_paid_invoices_count ?? 0}
           icon="fas fa-receipt"
           color="secondary"
         />
-
         <KpiCard
           title={t("Today Revenue")}
           value={formatCurrency(kpis.today_revenue)}
           icon="fas fa-money-bill-wave"
           color="success"
         />
-
         <KpiCard
           title={t("Month Revenue")}
           value={formatCurrency(kpis.month_revenue)}
           icon="fas fa-chart-line"
           color="dark"
         />
-
         <KpiCard
           title={t("Customer Credit Balance")}
           value={formatCurrency(kpis.credit_balance_total)}
@@ -221,7 +296,6 @@ export default function ErpDashboardHome() {
           color="primary"
           link="/admin/erp/patients"
         />
-
         <KpiCard
           title={t("Paid Invoices")}
           value={kpis.paid_invoices_count ?? 0}
@@ -229,22 +303,18 @@ export default function ErpDashboardHome() {
           color="success"
           link="/admin/erp/invoices"
         />
-
-        {/* Reminders KPIs - Added translations */}
         <KpiCard
           title={t("Reminders Pending")}
           value={reminderStats.pending ?? 0}
           icon="fas fa-hourglass-half"
           color="warning"
         />
-
         <KpiCard
           title={t("Reminders Failed")}
           value={reminderStats.failed ?? 0}
           icon="fas fa-exclamation-triangle"
           color="danger"
         />
-
         <KpiCard
           title={t("Reminders Sent")}
           value={reminderStats.sent ?? 0}
@@ -254,19 +324,21 @@ export default function ErpDashboardHome() {
       </div>
 
       {/* Tables Section */}
+      <div className="section-header">
+        <h2>{t("Recent Activity")}</h2>
+        <p>{t("Latest updates from your clinic")}</p>
+      </div>
+
       <div className="tables-grid">
         {/* Recent Appointments Table */}
         <div className="dashboard-card">
           <div className="card-header-custom">
-            <h5 className="card-title">
-              <i className="fas fa-calendar-alt me-2"></i>
-              {t("Recent Appointments")}
-            </h5>
-            <Link
-              to="/admin/erp/appointments/calendar"
-              className="btn btn-sm btn-link"
-            >
-              {t("View All")} <i className="fas fa-arrow-right ms-1"></i>
+            <div className="card-title-wrapper">
+              <i className="fas fa-calendar-alt"></i>
+              <h5 className="card-title">{t("Recent Appointments")}</h5>
+            </div>
+            <Link to="/admin/erp/appointments/calendar" className="card-link">
+              {t("View All")} <i className="fas fa-arrow-right"></i>
             </Link>
           </div>
 
@@ -321,12 +393,12 @@ export default function ErpDashboardHome() {
         {/* Recent Invoices Table */}
         <div className="dashboard-card">
           <div className="card-header-custom">
-            <h5 className="card-title">
-              <i className="fas fa-file-invoice me-2"></i>
-              {t("Recent Invoices")}
-            </h5>
-            <Link to="/admin/erp/invoices" className="btn btn-sm btn-link">
-              {t("View All")} <i className="fas fa-arrow-right ms-1"></i>
+            <div className="card-title-wrapper">
+              <i className="fas fa-file-invoice"></i>
+              <h5 className="card-title">{t("Recent Invoices")}</h5>
+            </div>
+            <Link to="/admin/erp/invoices" className="card-link">
+              {t("View All")} <i className="fas fa-arrow-right"></i>
             </Link>
           </div>
 
@@ -376,12 +448,12 @@ export default function ErpDashboardHome() {
         {/* Recent Payments Table */}
         <div className="dashboard-card">
           <div className="card-header-custom">
-            <h5 className="card-title">
-              <i className="fas fa-credit-card me-2"></i>
-              {t("Recent Payments")}
-            </h5>
-            <Link to="/admin/erp/invoices" className="btn btn-sm btn-link">
-              {t("View All")} <i className="fas fa-arrow-right ms-1"></i>
+            <div className="card-title-wrapper">
+              <i className="fas fa-credit-card"></i>
+              <h5 className="card-title">{t("Recent Payments")}</h5>
+            </div>
+            <Link to="/admin/erp/invoices" className="card-link">
+              {t("View All")} <i className="fas fa-arrow-right"></i>
             </Link>
           </div>
 
@@ -434,19 +506,17 @@ export default function ErpDashboardHome() {
           </div>
         </div>
 
-        {/* Failed Reminders Table - Added translations */}
-        <div className="dashboard-card">
-          <div className="card-header-custom">
-            <h5 className="card-title">
-              <i className="fas fa-bell-slash me-2"></i>
-              {t("Failed Reminders")}
-            </h5>
-          </div>
+        {/* Failed Reminders Table */}
+        {failedReminders.length > 0 && (
+          <div className="dashboard-card warning-card">
+            <div className="card-header-custom">
+              <div className="card-title-wrapper">
+                <i className="fas fa-bell-slash"></i>
+                <h5 className="card-title">{t("Failed Reminders")}</h5>
+              </div>
+            </div>
 
-          <div className="card-body-custom">
-            {failedReminders.length === 0 ? (
-              <EmptyState text={t("No failed reminders.")} />
-            ) : (
+            <div className="card-body-custom">
               <div className="table-responsive">
                 <table className="dashboard-table">
                   <thead>
@@ -480,41 +550,71 @@ export default function ErpDashboardHome() {
                   </tbody>
                 </table>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 }
 
-// KpiCard Component - Improved
-function KpiCard({ title, value, icon, color = "primary", link }) {
+// KpiCard Component - Premium Design
+function KpiCard({ title, value, icon, color = "primary", link, trend }) {
   const colorMap = {
-    primary: { bg: "rgba(26, 35, 126, 0.1)", text: "#1a237e" },
-    info: { bg: "rgba(3, 169, 244, 0.1)", text: "#03a9f4" },
-    success: { bg: "rgba(76, 175, 80, 0.1)", text: "#4caf50" },
-    danger: { bg: "rgba(244, 67, 54, 0.1)", text: "#f44336" },
-    warning: { bg: "rgba(255, 152, 0, 0.1)", text: "#ff9800" },
-    secondary: { bg: "rgba(108, 117, 125, 0.1)", text: "#6c757d" },
-    dark: { bg: "rgba(33, 37, 41, 0.1)", text: "#212529" },
+    primary: {
+      bg: "rgba(26, 35, 126, 0.1)",
+      text: "#1a237e",
+      border: "#1a237e",
+    },
+    info: { bg: "rgba(3, 169, 244, 0.1)", text: "#03a9f4", border: "#03a9f4" },
+    success: {
+      bg: "rgba(76, 175, 80, 0.1)",
+      text: "#4caf50",
+      border: "#4caf50",
+    },
+    danger: {
+      bg: "rgba(244, 67, 54, 0.1)",
+      text: "#f44336",
+      border: "#f44336",
+    },
+    warning: {
+      bg: "rgba(255, 152, 0, 0.1)",
+      text: "#ff9800",
+      border: "#ff9800",
+    },
+    secondary: {
+      bg: "rgba(108, 117, 125, 0.1)",
+      text: "#6c757d",
+      border: "#6c757d",
+    },
+    dark: { bg: "rgba(33, 37, 41, 0.1)", text: "#212529", border: "#212529" },
   };
 
   const colors = colorMap[color] || colorMap.primary;
 
   const cardContent = (
-    <div className="kpi-card">
-      <div className="kpi-content">
-        <div className="kpi-info">
-          <span className="kpi-title">{title}</span>
-          <span className="kpi-value">{value}</span>
-        </div>
+    <div className={`kpi-card premium-card ${link ? "clickable" : ""}`}>
+      <div className="kpi-card-header">
         <div
-          className="kpi-icon"
-          style={{ backgroundColor: colors.bg, color: colors.text }}
+          className="kpi-icon-wrapper"
+          style={{ backgroundColor: colors.bg }}
         >
-          <i className={icon}></i>
+          <i className={icon} style={{ color: colors.text }}></i>
         </div>
+        {trend && (
+          <div
+            className={`kpi-trend ${trend.includes("+") ? "positive" : "negative"}`}
+          >
+            <i
+              className={`fas fa-arrow-${trend.includes("+") ? "up" : "down"}`}
+            ></i>
+            <span>{trend}</span>
+          </div>
+        )}
+      </div>
+      <div className="kpi-card-body">
+        <span className="kpi-value">{value}</span>
+        <span className="kpi-title">{title}</span>
       </div>
     </div>
   );
@@ -522,7 +622,7 @@ function KpiCard({ title, value, icon, color = "primary", link }) {
   if (!link) return cardContent;
 
   return (
-    <Link to={link} className="kpi-link">
+    <Link to={link} className="kpi-link-wrapper">
       {cardContent}
     </Link>
   );
@@ -558,6 +658,7 @@ function StatusBadge({ status }) {
 
   return (
     <span className={`status-badge status-${statusInfo.class}`}>
+      <span className="status-dot"></span>
       {t(statusInfo.label)}
     </span>
   );

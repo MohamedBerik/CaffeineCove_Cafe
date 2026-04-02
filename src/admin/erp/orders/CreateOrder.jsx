@@ -24,7 +24,7 @@ const CreateOrder = () => {
     const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
     return new Intl.NumberFormat(lang, {
       style: "currency",
-      currency: "USD",
+      currency: "EGP",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(Number(value || 0));

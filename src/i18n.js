@@ -102,6 +102,20 @@ const resources = {
       "Appointment Date": "Appointment Date",
       "Reminder Stage": "Reminder Stage",
 
+      // Activity Logs
+      "Activity Logs": "Activity Logs",
+      "No activity yet.": "No activity yet.",
+      "New appointment created": "New appointment created",
+      "Appointment updated": "Appointment updated",
+      "Appointment deleted": "Appointment deleted",
+      "New invoice created": "New invoice created",
+      "Invoice paid": "Invoice paid",
+      "New payment recorded": "New payment recorded",
+      "Customer updated": "Customer updated",
+
+      // Alert buttons
+      Dismiss: "Dismiss",
+      Acknowledge: "Acknowledge",
       // أضف ضمن كائن en:
       "Good Morning": "Good Morning",
       "Good Afternoon": "Good Afternoon",
@@ -2222,6 +2236,21 @@ const resources = {
         "هناك {{count}} تذكيرات عالقة منذ أكثر من 10 دقائق",
       // Common
       "Loading...": "جاري التحميل...",
+
+      // Activity Logs
+      "Activity Logs": "سجل النشاطات",
+      "No activity yet.": "لا توجد نشاطات بعد",
+      "New appointment created": "تم إنشاء موعد جديد",
+      "Appointment updated": "تم تحديث موعد",
+      "Appointment deleted": "تم حذف موعد",
+      "New invoice created": "تم إنشاء فاتورة جديدة",
+      "Invoice paid": "تم دفع الفاتورة",
+      "New payment recorded": "تم تسجيل دفعة جديدة",
+      "Customer updated": "تم تحديث بيانات مريض",
+
+      // Alert buttons
+      Dismiss: "تجاهل",
+      Acknowledge: "تأكيد",
 
       // وفي كائن ar:
       "Good Morning": "صباح الخير",

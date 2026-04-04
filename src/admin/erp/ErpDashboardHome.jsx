@@ -147,6 +147,10 @@ export default function ErpDashboardHome() {
       )
     : 0;
 
+  const acknowledge = async (id) => {
+    await axios.post(`/alerts/${id}/ack`);
+    loadDashboard(); // reload
+  };
   return (
     <div className="erp-dashboard">
       {/* Welcome Header with Greeting */}
@@ -188,6 +192,9 @@ export default function ErpDashboardHome() {
                 className="alert-close"
                 onClick={() => setHiddenAlerts([...hiddenAlerts, index])}
               >
+                <i className="fas fa-times"></i>
+              </button>
+              <button onClick={() => acknowledge(alert.id)}>
                 <i className="fas fa-times"></i>
               </button>
             </div>

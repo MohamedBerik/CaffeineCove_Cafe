@@ -691,6 +691,15 @@
   font-size: 0.875rem;
 }
 
+.priority-high {
+  color: red;
+}
+.priority-medium {
+  color: orange;
+}
+.priority-low {
+  color: gray;
+}
 /* ==================== Responsive Design ==================== */
 @media (max-width: 1200px) {
   .quick-stats {

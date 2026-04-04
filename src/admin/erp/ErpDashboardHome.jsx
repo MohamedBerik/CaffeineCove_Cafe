@@ -175,6 +175,9 @@ export default function ErpDashboardHome() {
               <i
                 className={`fas ${alert.type === "warning" ? "fa-exclamation-triangle" : "fa-info-circle"}`}
               ></i>
+              <span className={`alert-priority priority-${alert.priority}`}>
+                {alert.priority}
+              </span>
               <span>
                 {t(alert.message)}{" "}
                 {alert.meta?.count ? `(${alert.meta.count})` : ""}

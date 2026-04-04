@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "../../services/axios";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -87,23 +87,6 @@ export default function ErpDashboardHome() {
       return value;
     }
   };
-
-  const kpis = data.kpis || {};
-  const recentAppointments = data.recent_appointments || [];
-  const recentInvoices = data.recent_invoices || [];
-  const recentPayments = data.recent_payments || [];
-  const reminderStats = data.reminders?.stats || {};
-  const failedReminders = data.reminders?.failed_recent || [];
-  const alerts = data.reminders?.alerts || [];
-
-  const visibleAlerts = alerts.filter((a) => !hiddenAlerts.includes(a.id));
-  // حساب إجماليات سريعة
-  const totalRevenue = (kpis.today_revenue || 0) + (kpis.month_revenue || 0);
-  const completionRate = kpis.today_appointments_count
-    ? Math.round(
-        (kpis.completed_today_count / kpis.today_appointments_count) * 100,
-      )
-    : 0;
 
   const acknowledge = async (id) => {
     try {
@@ -198,6 +181,23 @@ export default function ErpDashboardHome() {
       </div>
     );
   }
+
+  const kpis = data.kpis || {};
+  const recentAppointments = data.recent_appointments || [];
+  const recentInvoices = data.recent_invoices || [];
+  const recentPayments = data.recent_payments || [];
+  const reminderStats = data.reminders?.stats || {};
+  const failedReminders = data.reminders?.failed_recent || [];
+  const alerts = data.reminders?.alerts || [];
+
+  const visibleAlerts = alerts.filter((a) => !hiddenAlerts.includes(a.id));
+  // حساب إجماليات سريعة
+  const totalRevenue = (kpis.today_revenue || 0) + (kpis.month_revenue || 0);
+  const completionRate = kpis.today_appointments_count
+    ? Math.round(
+        (kpis.completed_today_count / kpis.today_appointments_count) * 100,
+      )
+    : 0;
 
   return (
     <div className="erp-dashboard">

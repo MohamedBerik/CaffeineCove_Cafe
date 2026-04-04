@@ -137,8 +137,7 @@ export default function ErpDashboardHome() {
   const failedReminders = data.reminders?.failed_recent || [];
   const alerts = data.reminders?.alerts || [];
 
-  const visibleAlerts = alerts.filter((a, i) => !hiddenAlerts.includes(i));
-
+  const visibleAlerts = alerts.filter((a) => !hiddenAlerts.includes(a.id));
   // حساب إجماليات سريعة
   const totalRevenue = (kpis.today_revenue || 0) + (kpis.month_revenue || 0);
   const completionRate = kpis.today_appointments_count
@@ -149,7 +148,14 @@ export default function ErpDashboardHome() {
 
   const acknowledge = async (id) => {
     await axios.post(`/alerts/${id}/ack`);
-    loadDashboard(); // reload
+
+    setData((prev) => ({
+      ...prev,
+      reminders: {
+        ...prev.reminders,
+        alerts: prev.reminders.alerts.filter((a) => a.id !== id),
+      },
+    }));
   };
   return (
     <div className="erp-dashboard">
@@ -190,12 +196,15 @@ export default function ErpDashboardHome() {
               <small className="alert-time">{formatDateTime(alert.time)}</small>
               <button
                 className="alert-close"
-                onClick={() => setHiddenAlerts([...hiddenAlerts, index])}
+                onClick={() => setHiddenAlerts([...hiddenAlerts, alert.id])}
               >
                 <i className="fas fa-times"></i>
               </button>
-              <button onClick={() => acknowledge(alert.id)}>
-                <i className="fas fa-times"></i>
+              <button
+                className="alert-ack"
+                onClick={() => acknowledge(alert.id)}
+              >
+                <i className="fas fa-check"></i>
               </button>
             </div>
           ))}

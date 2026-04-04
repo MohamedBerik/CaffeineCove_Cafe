@@ -700,6 +700,20 @@
 .priority-low {
   color: gray;
 }
+
+.alert-ack {
+  background: #4caf50;
+  color: white;
+  border: none;
+  margin-left: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.alert-ack:hover {
+  background: #43a047;
+}
 /* ==================== Responsive Design ==================== */
 @media (max-width: 1200px) {
   .quick-stats {

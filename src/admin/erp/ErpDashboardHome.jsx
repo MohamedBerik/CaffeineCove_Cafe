@@ -88,43 +88,6 @@ export default function ErpDashboardHome() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="dashboard-loading">
-        <div className="loading-animation">
-          <div className="loading-ring"></div>
-          <div className="loading-ring"></div>
-          <div className="loading-ring"></div>
-        </div>
-        <p>{t("Loading dashboard...")}</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="dashboard-error">
-        <i className="fas fa-exclamation-triangle"></i>
-        <h3>{t("Something went wrong")}</h3>
-        <p>{error}</p>
-        <button className="btn-retry" onClick={loadDashboard}>
-          <i className="fas fa-sync-alt"></i>
-          {t("Try Again")}
-        </button>
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="dashboard-empty">
-        <i className="fas fa-chart-line"></i>
-        <h3>{t("No Data Available")}</h3>
-        <p>{t("No dashboard data available.")}</p>
-      </div>
-    );
-  }
-
   const kpis = data.kpis || {};
   const recentAppointments = data.recent_appointments || [];
   const recentInvoices = data.recent_invoices || [];
@@ -171,12 +134,6 @@ export default function ErpDashboardHome() {
     const type = log.subject_type;
     const action = log.action;
 
-    useEffect(() => {
-      loadDashboard();
-      loadActivityLogs();
-      setGreeting(getGreeting());
-    }, []);
-
     if (type === "Appointment") {
       if (action === "created") return t("New appointment created");
       if (action === "updated") return t("Appointment updated");
@@ -198,6 +155,49 @@ export default function ErpDashboardHome() {
 
     return `${type} ${action}`;
   };
+
+  useEffect(() => {
+    loadDashboard();
+    loadActivityLogs();
+    setGreeting(getGreeting());
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="dashboard-loading">
+        <div className="loading-animation">
+          <div className="loading-ring"></div>
+          <div className="loading-ring"></div>
+          <div className="loading-ring"></div>
+        </div>
+        <p>{t("Loading dashboard...")}</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-error">
+        <i className="fas fa-exclamation-triangle"></i>
+        <h3>{t("Something went wrong")}</h3>
+        <p>{error}</p>
+        <button className="btn-retry" onClick={loadDashboard}>
+          <i className="fas fa-sync-alt"></i>
+          {t("Try Again")}
+        </button>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="dashboard-empty">
+        <i className="fas fa-chart-line"></i>
+        <h3>{t("No Data Available")}</h3>
+        <p>{t("No dashboard data available.")}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="erp-dashboard">

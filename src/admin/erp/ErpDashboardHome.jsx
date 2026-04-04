@@ -171,6 +171,12 @@ export default function ErpDashboardHome() {
     const type = log.subject_type;
     const action = log.action;
 
+    useEffect(() => {
+      loadDashboard();
+      loadActivityLogs();
+      setGreeting(getGreeting());
+    }, []);
+
     if (type === "Appointment") {
       if (action === "created") return t("New appointment created");
       if (action === "updated") return t("Appointment updated");
@@ -192,12 +198,6 @@ export default function ErpDashboardHome() {
 
     return `${type} ${action}`;
   };
-
-  useEffect(() => {
-    loadDashboard();
-    loadActivityLogs();
-    setGreeting(getGreeting());
-  }, []);
 
   return (
     <div className="erp-dashboard">

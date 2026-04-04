@@ -167,12 +167,6 @@ export default function ErpDashboardHome() {
     }
   };
 
-  useEffect(() => {
-    loadDashboard();
-    loadActivityLogs();
-    setGreeting(getGreeting());
-  }, []);
-
   const formatLog = (log) => {
     const type = log.subject_type;
     const action = log.action;
@@ -198,6 +192,12 @@ export default function ErpDashboardHome() {
 
     return `${type} ${action}`;
   };
+
+  useEffect(() => {
+    loadDashboard();
+    loadActivityLogs();
+    setGreeting(getGreeting());
+  }, []);
 
   return (
     <div className="erp-dashboard">

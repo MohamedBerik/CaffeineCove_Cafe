@@ -15,6 +15,7 @@ export default function ErpDashboardHome() {
 
   useEffect(() => {
     loadDashboard();
+    loadActivityLogs();
     setGreeting(getGreeting());
   }, []);
 
@@ -166,17 +167,11 @@ export default function ErpDashboardHome() {
   const loadActivityLogs = async () => {
     try {
       const res = await axios.get("/activity-logs?limit=5");
-      setActivityLogs(res.data || []);
+      setActivityLogs(res.data?.data || []);
     } catch (e) {
       console.error(e);
     }
   };
-
-  useEffect(() => {
-    loadDashboard();
-    loadActivityLogs();
-    setGreeting(getGreeting());
-  }, []);
 
   const formatLog = (log) => {
     const type = log.subject_type;

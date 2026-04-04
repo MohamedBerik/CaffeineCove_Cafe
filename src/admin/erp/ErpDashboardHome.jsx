@@ -147,16 +147,21 @@ export default function ErpDashboardHome() {
     : 0;
 
   const acknowledge = async (id) => {
-    await axios.post(`/alerts/${id}/ack`);
+    try {
+      await axios.post(`/alerts/${id}/ack`);
 
-    setData((prev) => ({
-      ...prev,
-      reminders: {
-        ...prev.reminders,
-        alerts: prev.reminders.alerts.filter((a) => a.id !== id),
-      },
-    }));
+      setData((prev) => ({
+        ...prev,
+        reminders: {
+          ...prev.reminders,
+          alerts: prev.reminders.alerts.filter((a) => a.id !== id),
+        },
+      }));
+    } catch (e) {
+      console.error("Failed to acknowledge alert");
+    }
   };
+
   return (
     <div className="erp-dashboard">
       {/* Welcome Header with Greeting */}

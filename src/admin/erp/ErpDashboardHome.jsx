@@ -13,12 +13,6 @@ export default function ErpDashboardHome() {
   const [hiddenAlerts, setHiddenAlerts] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
 
-  useEffect(() => {
-    loadDashboard();
-    loadActivityLogs();
-    setGreeting(getGreeting());
-  }, []);
-
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return t("Good Morning");
@@ -172,6 +166,12 @@ export default function ErpDashboardHome() {
       console.error(e);
     }
   };
+
+  useEffect(() => {
+    loadDashboard();
+    loadActivityLogs();
+    setGreeting(getGreeting());
+  }, []);
 
   const formatLog = (log) => {
     const type = log.subject_type;

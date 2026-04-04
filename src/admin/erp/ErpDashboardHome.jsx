@@ -10,6 +10,7 @@ export default function ErpDashboardHome() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [greeting, setGreeting] = useState("");
+  const [hiddenAlerts, setHiddenAlerts] = useState([]);
 
   useEffect(() => {
     loadDashboard();
@@ -136,6 +137,8 @@ export default function ErpDashboardHome() {
   const failedReminders = data.reminders?.failed_recent || [];
   const alerts = data.reminders?.alerts || [];
 
+  const visibleAlerts = alerts.filter((a, i) => !hiddenAlerts.includes(i));
+
   // حساب إجماليات سريعة
   const totalRevenue = (kpis.today_revenue || 0) + (kpis.month_revenue || 0);
   const completionRate = kpis.today_appointments_count
@@ -167,13 +170,21 @@ export default function ErpDashboardHome() {
       {/* Alerts Section */}
       {alerts.length > 0 && (
         <div className="alerts-container">
-          {alerts.map((alert, index) => (
+          {visibleAlerts.map((alert, index) => (
             <div key={index} className={`alert-card alert-${alert.type}`}>
               <i
                 className={`fas ${alert.type === "warning" ? "fa-exclamation-triangle" : "fa-info-circle"}`}
               ></i>
-              <span>{t(alert.message)}</span>
-              <button className="alert-close">
+              <span>
+                {t(alert.message)}{" "}
+                {alert.meta?.count ? `(${alert.meta.count})` : ""}
+              </span>
+
+              <small className="alert-time">{formatDateTime(alert.time)}</small>
+              <button
+                className="alert-close"
+                onClick={() => setHiddenAlerts([...hiddenAlerts, index])}
+              >
                 <i className="fas fa-times"></i>
               </button>
             </div>

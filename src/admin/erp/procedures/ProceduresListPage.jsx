@@ -386,12 +386,12 @@ export default function ProceduresListPage() {
                                       : "fa-check-circle"
                                   } me-1`}
                                 ></i>
-                                <span>
+                                {/* <span>
                                   {Number(item.is_active) === 1 ||
                                   item.is_active === true
                                     ? t("Deactivate")
                                     : t("Activate")}
-                                </span>
+                                </span> */}
                               </>
                             )}
                           </button>

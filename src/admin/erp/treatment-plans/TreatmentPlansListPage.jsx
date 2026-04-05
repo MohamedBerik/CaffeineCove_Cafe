@@ -254,7 +254,7 @@ export default function TreatmentPlansListPage() {
                             title={t("View Plan")}
                           >
                             <i className="fas fa-eye"></i>
-                            <span>{t("View")}</span>
+                            {/* <span>{t("View")}</span> */}
                           </Link>
 
                           {plan.customer?.id && (
@@ -264,7 +264,7 @@ export default function TreatmentPlansListPage() {
                               title={t("View Patient")}
                             >
                               <i className="fas fa-user"></i>
-                              <span>{t("Patient")}</span>
+                              {/* <span>{t("Patient")}</span> */}
                             </Link>
                           )}
                         </div>

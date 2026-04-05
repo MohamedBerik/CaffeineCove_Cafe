@@ -271,7 +271,7 @@ export default function InvoicesList() {
                                 title={t("View Invoice")}
                               >
                                 <i className="fas fa-eye"></i>
-                                <span>{t("View")}</span>
+                                {/* <span>{t("View")}</span> */}
                               </Link>
                             )}
 
@@ -282,7 +282,7 @@ export default function InvoicesList() {
                                 title={t("View Patient")}
                               >
                                 <i className="fas fa-user"></i>
-                                <span>{t("Patient")}</span>
+                                {/* <span>{t("Patient")}</span> */}
                               </Link>
                             )}
 

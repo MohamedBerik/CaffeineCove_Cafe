@@ -238,7 +238,7 @@ export default function DoctorsListPage() {
                             title={t("Manage Availability")}
                           >
                             <i className="fas fa-calendar-alt"></i>
-                            <span>{t("Availability")}</span>
+                            {/* <span>{t("Availability")}</span> */}
                           </Link>
 
                           <Link
@@ -247,7 +247,7 @@ export default function DoctorsListPage() {
                             title={t("Edit Doctor")}
                           >
                             <i className="fas fa-edit"></i>
-                            <span>{t("Edit")}</span>
+                            {/* <span>{t("Edit")}</span> */}
                           </Link>
 
                           <Link
@@ -256,7 +256,7 @@ export default function DoctorsListPage() {
                             title={t("Book Appointment")}
                           >
                             <i className="fas fa-calendar-plus"></i>
-                            <span>{t("Book")}</span>
+                            {/* <span>{t("Book")}</span> */}
                           </Link>
                         </div>
                       </td>

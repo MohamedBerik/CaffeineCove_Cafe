@@ -351,7 +351,7 @@ export default function ProceduresListPage() {
                             title={t("Edit Procedure")}
                           >
                             <i className="fas fa-edit"></i>
-                            <span>{t("Edit")}</span>
+                            {/* <span>{t("Edit")}</span> */}
                           </Link>
 
                           <button

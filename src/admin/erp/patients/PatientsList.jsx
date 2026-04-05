@@ -236,7 +236,7 @@ export default function PatientsList() {
                             title={t("View Profile")}
                           >
                             <i className="fas fa-user"></i>
-                            <span>{t("Profile")}</span>
+                            {/* <span>{t("Profile")}</span> */}
                           </Link>
 
                           <Link
@@ -245,7 +245,7 @@ export default function PatientsList() {
                             title={t("Edit Patient")}
                           >
                             <i className="fas fa-edit"></i>
-                            <span>{t("Edit")}</span>
+                            {/* <span>{t("Edit")}</span> */}
                           </Link>
 
                           <Link
@@ -254,7 +254,7 @@ export default function PatientsList() {
                             title={t("View Timeline")}
                           >
                             <i className="fas fa-history"></i>
-                            <span>{t("Timeline")}</span>
+                            {/* <span>{t("Timeline")}</span> */}
                           </Link>
 
                           <Link
@@ -263,7 +263,7 @@ export default function PatientsList() {
                             title={t("View Statement")}
                           >
                             <i className="fas fa-file-invoice"></i>
-                            <span>{t("Statement")}</span>
+                            {/* <span>{t("Statement")}</span> */}
                           </Link>
                         </div>
                       </td>

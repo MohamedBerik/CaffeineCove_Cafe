@@ -12,6 +12,7 @@ export default function ErpDashboardHome() {
   const [greeting, setGreeting] = useState("");
   const [hiddenAlerts, setHiddenAlerts] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
+  const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
 
   const isFetching = useRef(false);
   const pollingTimeout = useRef(null);
@@ -54,22 +55,37 @@ export default function ErpDashboardHome() {
   };
 
   const acknowledge = async (id) => {
+    if (acknowledgingIds.has(id)) return;
+
+    setAcknowledgingIds((prev) => new Set(prev).add(id));
+
     try {
       await axios.post(`/alerts/${id}/ack`);
 
       setData((prev) => {
         if (!prev) return prev;
 
+        const alerts = prev.reminders?.alerts ?? [];
+
         return {
           ...prev,
           reminders: {
             ...(prev.reminders || {}),
-            alerts: (prev.reminders?.alerts || []).filter((a) => a.id !== id),
+            alerts: alerts.filter((a) => a.id !== id),
           },
         };
       });
+
+      // toast.success(t("Alert acknowledged"));
     } catch (e) {
-      console.error("Failed to acknowledge alert");
+      console.error("Failed to acknowledge alert", e);
+      // toast.error(t("Failed to acknowledge alert"));
+    } finally {
+      setAcknowledgingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   };
 
@@ -94,8 +110,10 @@ export default function ErpDashboardHome() {
       if (document.visibilityState === "visible") {
         const prevData = JSON.stringify(dataRef.current);
 
-        const newDashboardData = await loadDashboard(true);
-        await loadActivityLogs();
+        const newDashboardData = await Promise.allSettled([
+          loadDashboard(true),
+          loadActivityLogs(),
+        ]);
 
         const newData = JSON.stringify(newDashboardData);
 
@@ -304,15 +322,22 @@ export default function ErpDashboardHome() {
               <small className="alert-time">{formatDateTime(alert.time)}</small>
               <button
                 className="alert-close"
-                onClick={() => setHiddenAlerts((prev) => [...prev, alert.id])}
+                onClick={() =>
+                  setHiddenAlerts((prev) => [...new Set([...prev, alert.id])])
+                }
               >
                 <i className="fas fa-times"></i>
               </button>
               <button
                 className="alert-ack"
+                disabled={acknowledgingIds.has(alert.id)}
                 onClick={() => acknowledge(alert.id)}
               >
-                <i className="fas fa-check"></i>
+                {acknowledgingIds.has(alert.id) ? (
+                  <i className="fas fa-spinner fa-spin"></i>
+                ) : (
+                  <i className="fas fa-check"></i>
+                )}
               </button>
             </div>
           ))}

@@ -140,17 +140,17 @@ export default function ErpDashboardHome() {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (silent = true) => {
       if (isFetching.current) return;
 
       isFetching.current = true;
 
-      await Promise.all([loadDashboard(true), loadActivityLogs()]);
+      await Promise.all([loadDashboard(silent), loadActivityLogs()]);
 
       isFetching.current = false;
     };
 
-    fetchData();
+    fetchData(false);
     setGreeting(getGreeting());
 
     const interval = setInterval(() => {
@@ -255,7 +255,7 @@ export default function ErpDashboardHome() {
               <small className="alert-time">{formatDateTime(alert.time)}</small>
               <button
                 className="alert-close"
-                onClick={() => setHiddenAlerts([...hiddenAlerts, alert.id])}
+                onClick={() => setHiddenAlerts((prev) => [...prev, alert.id])}
               >
                 <i className="fas fa-times"></i>
               </button>

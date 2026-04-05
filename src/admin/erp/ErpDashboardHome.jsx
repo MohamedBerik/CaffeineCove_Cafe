@@ -12,7 +12,12 @@ export default function ErpDashboardHome() {
   const [greeting, setGreeting] = useState("");
   const [hiddenAlerts, setHiddenAlerts] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
+
   const isFetching = useRef(false);
+  const pollingTimeout = useRef(null);
+  const intervalTime = useRef(15000);
+  const dataRef = useRef(null);
+  const isMounted = useRef(true);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -24,21 +29,139 @@ export default function ErpDashboardHome() {
   const loadDashboard = async (silent = false) => {
     try {
       if (!silent) setLoading(true);
+
       const res = await axios.get("/erp/dashboard");
-      setData(res.data?.data ?? null);
+      const newData = res.data?.data ?? null;
+
+      if (isMounted.current) {
+        setData(newData);
+        dataRef.current = newData;
+      }
+
+      return newData;
     } catch (err) {
-      if (!silent) {
+      if (!silent && isMounted.current) {
         setError(
           err?.response?.data?.message ||
             err?.response?.data?.msg ||
             t("Failed to load ERP dashboard."),
         );
       }
+      return null;
     } finally {
-      if (!silent) setLoading(false);
+      if (!silent && isMounted.current) setLoading(false);
     }
   };
 
+  const acknowledge = async (id) => {
+    try {
+      await axios.post(`/alerts/${id}/ack`);
+
+      setData((prev) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          reminders: {
+            ...(prev.reminders || {}),
+            alerts: (prev.reminders?.alerts || []).filter((a) => a.id !== id),
+          },
+        };
+      });
+    } catch (e) {
+      console.error("Failed to acknowledge alert");
+    }
+  };
+
+  const loadActivityLogs = async () => {
+    try {
+      const res = await axios.get("/activity-logs?limit=5");
+      setActivityLogs(res.data?.data || []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const startPolling = () => {
+    const poll = async () => {
+      if (isFetching.current) {
+        pollingTimeout.current = setTimeout(poll, intervalTime.current);
+        return;
+      }
+
+      isFetching.current = true;
+
+      if (document.visibilityState === "visible") {
+        const prevData = JSON.stringify(dataRef.current);
+
+        const newDashboardData = await loadDashboard(true);
+        await loadActivityLogs();
+
+        const newData = JSON.stringify(newDashboardData);
+
+        if (prevData === newData) {
+          intervalTime.current = Math.min(intervalTime.current + 5000, 60000);
+        } else {
+          intervalTime.current = 15000;
+        }
+      }
+
+      isFetching.current = false;
+
+      pollingTimeout.current = setTimeout(poll, intervalTime.current);
+    };
+    poll();
+  };
+
+  const formatLog = (log) => {
+    const type = log.subject_type;
+    const action = log.action;
+
+    if (type === "Appointment") {
+      if (action === "created") return t("New appointment created");
+      if (action === "updated") return t("Appointment updated");
+      if (action === "deleted") return t("Appointment deleted");
+    }
+
+    if (type === "Invoice") {
+      if (action === "created") return t("New invoice created");
+      if (action === "paid") return t("Invoice paid");
+    }
+
+    if (type === "Payment") {
+      return t("New payment recorded");
+    }
+
+    if (type === "Customer") {
+      return t("Customer updated");
+    }
+
+    return `${type} ${action}`;
+  };
+
+  useEffect(() => {
+    loadDashboard();
+    loadActivityLogs();
+
+    setGreeting(getGreeting());
+
+    const greetingInterval = setInterval(() => {
+      setGreeting(getGreeting());
+    }, 60000);
+
+    startPolling();
+
+    return () => {
+      isMounted.current = false;
+      clearInterval(greetingInterval);
+
+      if (pollingTimeout.current) {
+        clearTimeout(pollingTimeout.current);
+      }
+    };
+  }, []);
+
+  // ========================= Helpers =========================
   const formatCurrency = (value) => {
     const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
     return new Intl.NumberFormat(lang, {
@@ -87,81 +210,7 @@ export default function ErpDashboardHome() {
       return value;
     }
   };
-
-  const acknowledge = async (id) => {
-    try {
-      await axios.post(`/alerts/${id}/ack`);
-
-      setData((prev) => ({
-        ...prev,
-        reminders: {
-          ...prev.reminders,
-          alerts: prev.reminders.alerts.filter((a) => a.id !== id),
-        },
-      }));
-    } catch (e) {
-      console.error("Failed to acknowledge alert");
-    }
-  };
-
-  const loadActivityLogs = async () => {
-    try {
-      const res = await axios.get("/activity-logs?limit=5");
-      setActivityLogs(res.data?.data || []);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const formatLog = (log) => {
-    const type = log.subject_type;
-    const action = log.action;
-
-    if (type === "Appointment") {
-      if (action === "created") return t("New appointment created");
-      if (action === "updated") return t("Appointment updated");
-      if (action === "deleted") return t("Appointment deleted");
-    }
-
-    if (type === "Invoice") {
-      if (action === "created") return t("New invoice created");
-      if (action === "paid") return t("Invoice paid");
-    }
-
-    if (type === "Payment") {
-      return t("New payment recorded");
-    }
-
-    if (type === "Customer") {
-      return t("Customer updated");
-    }
-
-    return `${type} ${action}`;
-  };
-
-  useEffect(() => {
-    const fetchData = async (silent = true) => {
-      if (isFetching.current) return;
-
-      isFetching.current = true;
-
-      await Promise.all([loadDashboard(silent), loadActivityLogs()]);
-
-      isFetching.current = false;
-    };
-
-    fetchData(false);
-    setGreeting(getGreeting());
-
-    const interval = setInterval(() => {
-      if (document.visibilityState === "visible") {
-        fetchData();
-      }
-    }, 15000);
-
-    return () => clearInterval(interval);
-  }, []);
-
+  // ========================= UI =========================
   if (loading) {
     return (
       <div className="dashboard-loading">

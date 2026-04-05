@@ -350,7 +350,7 @@ export default function DentalRecordsListPage() {
                                     title={t("View Patient")}
                                   >
                                     <i className="fas fa-user"></i>
-                                    <span>{t("Patient")}</span>
+                                    {/* <span>{t("Patient")}</span> */}
                                   </Link>
 
                                   <Link
@@ -359,7 +359,7 @@ export default function DentalRecordsListPage() {
                                     title={t("View Timeline")}
                                   >
                                     <i className="fas fa-history"></i>
-                                    <span>{t("Timeline")}</span>
+                                    {/* <span>{t("Timeline")}</span> */}
                                   </Link>
                                 </>
                               )}
@@ -370,7 +370,7 @@ export default function DentalRecordsListPage() {
                                 title={t("Convert to Treatment Plan")}
                               >
                                 <i className="fas fa-exchange-alt"></i>
-                                <span>{t("Convert")}</span>
+                                {/* <span>{t("Convert")}</span> */}
                               </button>
                             </div>
                           </td>

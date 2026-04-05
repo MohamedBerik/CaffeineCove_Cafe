@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "../../services/axios";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -12,6 +12,7 @@ export default function ErpDashboardHome() {
   const [greeting, setGreeting] = useState("");
   const [hiddenAlerts, setHiddenAlerts] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
+  const isFetching = useRef(false);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -20,20 +21,21 @@ export default function ErpDashboardHome() {
     return t("Good Evening");
   };
 
-  const loadDashboard = async () => {
+  const loadDashboard = async (silent = false) => {
     try {
-      setLoading(true);
-      setError("");
+      if (!silent) setLoading(true);
       const res = await axios.get("/erp/dashboard");
       setData(res.data?.data ?? null);
     } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-          err?.response?.data?.msg ||
-          t("Failed to load ERP dashboard."),
-      );
+      if (!silent) {
+        setError(
+          err?.response?.data?.message ||
+            err?.response?.data?.msg ||
+            t("Failed to load ERP dashboard."),
+        );
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -77,11 +79,9 @@ export default function ErpDashboardHome() {
     }
   };
 
-  // دالة لتنسيق الوقت فقط
   const formatTime = (value) => {
     if (!value) return "-";
     try {
-      // إذا كان الوقت كامل (مثلاً 13:00:00)
       return String(value).slice(0, 5);
     } catch {
       return value;
@@ -140,9 +140,26 @@ export default function ErpDashboardHome() {
   };
 
   useEffect(() => {
-    loadDashboard();
-    loadActivityLogs();
+    const fetchData = async () => {
+      if (isFetching.current) return;
+
+      isFetching.current = true;
+
+      await Promise.all([loadDashboard(true), loadActivityLogs()]);
+
+      isFetching.current = false;
+    };
+
+    fetchData();
     setGreeting(getGreeting());
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        fetchData();
+      }
+    }, 15000);
+
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {

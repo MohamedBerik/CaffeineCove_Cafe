@@ -4,8 +4,7 @@ import Pusher from "pusher-js";
 window.Pusher = Pusher;
 
 // ✅ تأكد من وجود الـ keys
-console.log("PUSHER KEY:", import.meta.env.VITE_PUSHER_KEY);
-console.log("PUSHER CLUSTER:", import.meta.env.VITE_PUSHER_CLUSTER);
+console.log(process.env.REACT_APP_PUSHER_KEY);
 
 const echo = new Echo({
   broadcaster: "pusher",

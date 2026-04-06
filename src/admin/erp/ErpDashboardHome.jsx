@@ -110,7 +110,7 @@ export default function ErpDashboardHome() {
     });
 
     try {
-      await axios.post(`/alerts/${id}/ack`);
+      await axios.post(`/erp/alerts/${id}/ack`);
 
       setData((prev) => {
         if (!prev) return prev;

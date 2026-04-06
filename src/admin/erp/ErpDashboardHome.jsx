@@ -43,54 +43,58 @@ export default function ErpDashboardHome() {
     return t("Good Evening");
   };
 
-  const loadDashboard = async (silent = false) => {
-    try {
-      if (!silent) setLoading(true);
+  const loadDashboard = useCallback(
+    async (silent = false) => {
+      try {
+        if (!silent) setLoading(true);
 
-      console.log("Fetching dashboard...");
-      const res = await axios.get("/erp/dashboard");
-      console.log("Response:", res);
-      let newData = res.data?.data ?? null;
+        const res = await axios.get("/erp/dashboard");
+        let newData = res.data?.data ?? null;
 
-      if (newData?.reminders?.alerts) {
-        const processedAlerts = newData.reminders.alerts
-          .filter(
-            (a, index, self) => index === self.findIndex((x) => x.id === a.id),
-          )
-          .sort(
-            (a, b) =>
-              (PRIORITY_MAP[b.priority] || 0) - (PRIORITY_MAP[a.priority] || 0),
-          )
-          .slice(0, 10);
+        if (newData?.reminders?.alerts) {
+          const processedAlerts = newData.reminders.alerts
+            .filter(
+              (a, index, self) =>
+                index === self.findIndex((x) => x.id === a.id),
+            )
+            .sort(
+              (a, b) =>
+                (PRIORITY_MAP[b.priority] || 0) -
+                (PRIORITY_MAP[a.priority] || 0),
+            )
+            .slice(0, 10);
 
-        newData = {
-          ...newData,
-          reminders: {
-            ...(newData.reminders || {}),
-            alerts: processedAlerts,
-          },
-        };
+          newData = {
+            ...newData,
+            reminders: {
+              ...(newData.reminders || {}),
+              alerts: processedAlerts,
+            },
+          };
+        }
+
+        if (isMounted.current) {
+          setData(newData);
+          dataRef.current = newData;
+          dataHashRef.current = getDataHash(newData);
+        }
+
+        return newData;
+      } catch (err) {
+        if (!silent && isMounted.current) {
+          setError(
+            err?.response?.data?.message ||
+              err?.response?.data?.msg ||
+              t("Failed to load ERP dashboard."),
+          );
+        }
+        return null;
+      } finally {
+        if (!silent && isMounted.current) setLoading(false);
       }
-      if (isMounted.current) {
-        setData(newData);
-        dataRef.current = newData;
-        dataHashRef.current = getDataHash(newData);
-      }
-
-      return newData;
-    } catch (err) {
-      if (!silent && isMounted.current) {
-        setError(
-          err?.response?.data?.message ||
-            err?.response?.data?.msg ||
-            t("Failed to load ERP dashboard."),
-        );
-      }
-      return null;
-    } finally {
-      if (!silent && isMounted.current) setLoading(false);
-    }
-  };
+    },
+    [t],
+  );
 
   const acknowledgingRef = useRef(new Set());
 
@@ -137,7 +141,7 @@ export default function ErpDashboardHome() {
     }
   };
 
-  const loadActivityLogs = async () => {
+  const loadActivityLogs = useCallback(async () => {
     if (!isMounted.current) return;
     try {
       const res = await axios.get("/erp/activity-logs?limit=5");
@@ -147,7 +151,7 @@ export default function ErpDashboardHome() {
     } catch (e) {
       console.error(e);
     }
-  };
+  }, []);
 
   const startPolling = useCallback(() => {
     const poll = async () => {
@@ -174,44 +178,44 @@ export default function ErpDashboardHome() {
       }
 
       isFetching.current = false;
-
       pollingTimeout.current = setTimeout(poll, intervalTime.current);
     };
+
     poll();
   }, [loadDashboard, loadActivityLogs]);
 
-  const handleNewAlert = useCallback((newAlert) => {
-    setData((prev) => {
-      if (!prev) return prev;
+  // const handleNewAlert = useCallback((newAlert) => {
+  //   setData((prev) => {
+  //     if (!prev) return prev;
 
-      const currentAlerts = prev.reminders?.alerts || [];
+  //     const currentAlerts = prev.reminders?.alerts || [];
 
-      let updatedAlerts = [
-        newAlert,
-        ...currentAlerts.filter((a) => a.id !== newAlert.id),
-      ];
+  //     let updatedAlerts = [
+  //       newAlert,
+  //       ...currentAlerts.filter((a) => a.id !== newAlert.id),
+  //     ];
 
-      updatedAlerts = updatedAlerts
-        .sort(
-          (a, b) =>
-            (PRIORITY_MAP[b.priority] || 0) - (PRIORITY_MAP[a.priority] || 0),
-        )
-        .slice(0, 10);
+  //     updatedAlerts = updatedAlerts
+  //       .sort(
+  //         (a, b) =>
+  //           (PRIORITY_MAP[b.priority] || 0) - (PRIORITY_MAP[a.priority] || 0),
+  //       )
+  //       .slice(0, 10);
 
-      const updated = {
-        ...prev,
-        reminders: {
-          ...(prev.reminders || {}),
-          alerts: updatedAlerts,
-        },
-      };
-      dataRef.current = updated;
-      dataHashRef.current = getDataHash(updated);
-      return updated;
-    });
-  }, []);
+  //     const updated = {
+  //       ...prev,
+  //       reminders: {
+  //         ...(prev.reminders || {}),
+  //         alerts: updatedAlerts,
+  //       },
+  //     };
+  //     dataRef.current = updated;
+  //     dataHashRef.current = getDataHash(updated);
+  //     return updated;
+  //   });
+  // }, []);
 
-  useAlertsSocket(handleNewAlert);
+  // useAlertsSocket(handleNewAlert);
 
   const formatLog = (log) => {
     const type = log.subject_type;
@@ -242,7 +246,6 @@ export default function ErpDashboardHome() {
   useEffect(() => {
     loadDashboard();
     loadActivityLogs();
-
     setGreeting(getGreeting());
 
     const greetingInterval = setInterval(() => {
@@ -259,7 +262,7 @@ export default function ErpDashboardHome() {
         clearTimeout(pollingTimeout.current);
       }
     };
-  }, [startPolling]);
+  }, []); // ❗ بدون dependencies
 
   // ========================= Helpers =========================
   const formatCurrency = (value) => {

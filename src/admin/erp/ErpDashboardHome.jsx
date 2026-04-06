@@ -143,7 +143,22 @@ export default function ErpDashboardHome() {
         setActivityLogs(res.data?.data || []);
       }
     } catch (e) {
-      console.error(e);
+      console.error("=== loadActivityLogs Error ===");
+      console.error("Status:", e?.response?.status);
+      console.error("Message:", e?.response?.data?.message);
+      console.error("Error object:", e);
+
+      // عرض رسالة للمستخدم (اختياري)
+      if (e?.response?.status === 403) {
+        console.warn("User doesn't have permission: finance.view");
+      } else if (e?.response?.status === 404) {
+        console.warn("API endpoint not found: /activity-logs");
+      } else if (e?.response?.status === 401) {
+        console.warn("User not authenticated");
+      }
+
+      // عدم عرض خطأ للمستخدم، فقط سجل
+      setActivityLogs([]);
     }
   };
 

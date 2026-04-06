@@ -9,6 +9,11 @@ export default function useAlertsSocket(onNewAlert) {
       onNewAlert(e.alert);
     });
 
+    channel.listen(".alert.created", (e) => {
+      console.log("🔥 ALERT RECEIVED:", e);
+      onNewAlert(e.alert);
+    });
+
     return () => {
       echo.leave("alerts");
     };

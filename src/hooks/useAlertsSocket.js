@@ -1,5 +1,3 @@
-// hooks/useAlertsSocket.js
-
 import { useEffect } from "react";
 import echo from "../services/echo";
 
@@ -14,5 +12,5 @@ export default function useAlertsSocket(onNewAlert) {
     return () => {
       echo.leave("alerts");
     };
-  }, []);
+  }, [onNewAlert]);
 }

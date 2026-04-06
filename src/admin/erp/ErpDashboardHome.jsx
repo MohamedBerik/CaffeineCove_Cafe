@@ -1,9 +1,23 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import axios from "../../services/axios";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "./ErpDashboardHome.css";
 import useAlertsSocket from "../../hooks/useAlertsSocket";
+
+// ثوابت خارج المكون
+const PRIORITY_MAP = { high: 3, medium: 2, low: 1 };
+
+// دالة مساعدة لحساب hash بسيط للـ data (بدل JSON.stringify)
+const getDataHash = (data) => {
+  if (!data) return "";
+  const alerts = data.reminders?.alerts || [];
+  const kpis = data.kpis || {};
+  return (
+    alerts.map((a) => `${a.id}-${a.priority}`).join("|") +
+    `-${kpis.today_appointments_count}-${kpis.today_revenue}`
+  );
+};
 
 export default function ErpDashboardHome() {
   const { t, i18n } = useTranslation();
@@ -11,7 +25,7 @@ export default function ErpDashboardHome() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [greeting, setGreeting] = useState("");
-  const [hiddenAlerts, setHiddenAlerts] = useState([]);
+  const [hiddenAlerts, setHiddenAlerts] = useState(new Set());
   const [activityLogs, setActivityLogs] = useState([]);
   const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
 
@@ -20,6 +34,7 @@ export default function ErpDashboardHome() {
   const intervalTime = useRef(15000);
   const dataRef = useRef(null);
   const isMounted = useRef(true);
+  const dataHashRef = useRef("");
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -36,19 +51,13 @@ export default function ErpDashboardHome() {
       let newData = res.data?.data ?? null;
 
       if (newData?.reminders?.alerts) {
-        const priorityMap = {
-          high: 3,
-          medium: 2,
-          low: 1,
-        };
-
         const processedAlerts = newData.reminders.alerts
           .filter(
             (a, index, self) => index === self.findIndex((x) => x.id === a.id),
           )
           .sort(
             (a, b) =>
-              (priorityMap[b.priority] || 0) - (priorityMap[a.priority] || 0),
+              (PRIORITY_MAP[b.priority] || 0) - (PRIORITY_MAP[a.priority] || 0),
           )
           .slice(0, 10);
 
@@ -63,6 +72,7 @@ export default function ErpDashboardHome() {
       if (isMounted.current) {
         setData(newData);
         dataRef.current = newData;
+        dataHashRef.current = getDataHash(newData);
       }
 
       return newData;
@@ -80,10 +90,18 @@ export default function ErpDashboardHome() {
     }
   };
 
-  const acknowledge = async (id) => {
-    if (acknowledgingIds.has(id)) return;
+  const acknowledgingRef = useRef(new Set());
 
-    setAcknowledgingIds((prev) => new Set(prev).add(id));
+  const acknowledge = async (id) => {
+    if (acknowledgingRef.current.has(id)) return;
+    acknowledgingRef.current.add(id);
+
+    // إضافة Set state للـ UI (إذا كنت محتاج تعطل الزر)
+    setAcknowledgingIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
 
     try {
       await axios.post(`/alerts/${id}/ack`);
@@ -92,14 +110,16 @@ export default function ErpDashboardHome() {
         if (!prev) return prev;
 
         const alerts = prev.reminders?.alerts ?? [];
-
-        return {
+        const updated = {
           ...prev,
           reminders: {
             ...(prev.reminders || {}),
             alerts: alerts.filter((a) => a.id !== id),
           },
         };
+        dataRef.current = updated; // ✅ تحديث ref
+        dataHashRef.current = getDataHash(updated);
+        return updated;
       });
 
       // toast.success(t("Alert acknowledged"));
@@ -116,15 +136,18 @@ export default function ErpDashboardHome() {
   };
 
   const loadActivityLogs = async () => {
+    if (!isMounted.current) return;
     try {
       const res = await axios.get("/activity-logs?limit=5");
-      setActivityLogs(res.data?.data || []);
+      if (isMounted.current) {
+        setActivityLogs(res.data?.data || []);
+      }
     } catch (e) {
       console.error(e);
     }
   };
 
-  const startPolling = () => {
+  const startPolling = useCallback(() => {
     const poll = async () => {
       if (isFetching.current) {
         pollingTimeout.current = setTimeout(poll, intervalTime.current);
@@ -134,14 +157,14 @@ export default function ErpDashboardHome() {
       isFetching.current = true;
 
       if (document.visibilityState === "visible") {
-        const prevData = JSON.stringify(dataRef.current);
+        const prevHash = dataHashRef.current;
 
         const newDashboardData = await loadDashboard(true);
         await loadActivityLogs();
 
-        const newData = JSON.stringify(newDashboardData);
+        const newHash = getDataHash(newDashboardData);
 
-        if (prevData === newData) {
+        if (prevHash === newHash) {
           intervalTime.current = Math.min(intervalTime.current + 5000, 60000);
         } else {
           intervalTime.current = 15000;
@@ -153,7 +176,40 @@ export default function ErpDashboardHome() {
       pollingTimeout.current = setTimeout(poll, intervalTime.current);
     };
     poll();
-  };
+  }, [loadDashboard, loadActivityLogs]);
+
+  const handleNewAlert = useCallback((newAlert) => {
+    setData((prev) => {
+      if (!prev) return prev;
+
+      const currentAlerts = prev.reminders?.alerts || [];
+
+      let updatedAlerts = [
+        newAlert,
+        ...currentAlerts.filter((a) => a.id !== newAlert.id),
+      ];
+
+      updatedAlerts = updatedAlerts
+        .sort(
+          (a, b) =>
+            (PRIORITY_MAP[b.priority] || 0) - (PRIORITY_MAP[a.priority] || 0),
+        )
+        .slice(0, 10);
+
+      const updated = {
+        ...prev,
+        reminders: {
+          ...(prev.reminders || {}),
+          alerts: updatedAlerts,
+        },
+      };
+      dataRef.current = updated;
+      dataHashRef.current = getDataHash(updated);
+      return updated;
+    });
+  }, []);
+
+  useAlertsSocket(handleNewAlert);
 
   const formatLog = (log) => {
     const type = log.subject_type;
@@ -201,47 +257,8 @@ export default function ErpDashboardHome() {
         clearTimeout(pollingTimeout.current);
       }
     };
-  }, []);
+  }, [startPolling]);
 
-  const unsubscribe = useAlertsSocket((newAlert) => {
-    useEffect(() => {
-      setData((prev) => {
-        if (!prev) return prev;
-
-        const currentAlerts = prev.reminders?.alerts || [];
-
-        let updatedAlerts = [
-          newAlert,
-          ...currentAlerts.filter((a) => a.id !== newAlert.id),
-        ];
-
-        const priorityMap = {
-          high: 3,
-          medium: 2,
-          low: 1,
-        };
-
-        updatedAlerts = updatedAlerts
-          .sort(
-            (a, b) =>
-              (priorityMap[b.priority] || 0) - (priorityMap[a.priority] || 0),
-          )
-          .slice(0, 10);
-
-        return {
-          ...prev,
-          reminders: {
-            ...(prev.reminders || {}),
-            alerts: updatedAlerts,
-          },
-        };
-      });
-    });
-
-    return () => {
-      unsubscribe?.();
-    };
-  }, []);
   // ========================= Helpers =========================
   const formatCurrency = (value) => {
     const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
@@ -337,7 +354,7 @@ export default function ErpDashboardHome() {
   const failedReminders = data.reminders?.failed_recent || [];
   const alerts = data.reminders?.alerts || [];
 
-  const visibleAlerts = alerts.filter((a) => !hiddenAlerts.includes(a.id));
+  const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
   // حساب إجماليات سريعة
   const totalRevenue = (kpis.today_revenue || 0) + (kpis.month_revenue || 0);
   const completionRate = kpis.today_appointments_count
@@ -369,8 +386,8 @@ export default function ErpDashboardHome() {
       {/* Alerts Section */}
       {alerts.length > 0 && (
         <div className="alerts-container">
-          {visibleAlerts.map((alert, index) => (
-            <div key={index} className={`alert-card alert-${alert.type}`}>
+          {visibleAlerts.map((alert) => (
+            <div key={alert.id} className={`alert-card alert-${alert.type}`}>
               <i
                 className={`fas ${alert.type === "warning" ? "fa-exclamation-triangle" : "fa-info-circle"}`}
               ></i>
@@ -386,7 +403,11 @@ export default function ErpDashboardHome() {
               <button
                 className="alert-close"
                 onClick={() =>
-                  setHiddenAlerts((prev) => [...new Set([...prev, alert.id])])
+                  setHiddenAlerts((prev) => {
+                    const next = new Set(prev);
+                    next.add(alert.id);
+                    return next;
+                  })
                 }
               >
                 <i className="fas fa-times"></i>

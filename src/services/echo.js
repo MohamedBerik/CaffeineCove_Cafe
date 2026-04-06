@@ -9,8 +9,8 @@ console.log("PUSHER CLUSTER:", import.meta.env.VITE_PUSHER_CLUSTER);
 
 const echo = new Echo({
   broadcaster: "pusher",
-  key: import.meta.env.VITE_PUSHER_KEY,
-  cluster: import.meta.env.VITE_PUSHER_CLUSTER,
+  key: process.env.REACT_APP_PUSHER_KEY,
+  cluster: process.env.REACT_APP_PUSHER_CLUSTER,
   forceTLS: true,
 });
 

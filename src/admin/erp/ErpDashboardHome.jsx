@@ -32,8 +32,28 @@ export default function ErpDashboardHome() {
       if (!silent) setLoading(true);
 
       const res = await axios.get("/erp/dashboard");
-      const newData = res.data?.data ?? null;
+      let newData = res.data?.data ?? null;
 
+      if (newData?.reminders?.alerts) {
+        const priorityMap = {
+          high: 3,
+          medium: 2,
+          low: 1,
+        };
+
+        newData.reminders.alerts = newData.reminders.alerts
+          // dedup (احتياطي)
+          .filter(
+            (a, index, self) => index === self.findIndex((x) => x.id === a.id),
+          )
+          // sort
+          .sort(
+            (a, b) =>
+              (priorityMap[b.priority] || 0) - (priorityMap[a.priority] || 0),
+          )
+          // limit
+          .slice(0, 10);
+      }
       if (isMounted.current) {
         setData(newData);
         dataRef.current = newData;
@@ -110,10 +130,8 @@ export default function ErpDashboardHome() {
       if (document.visibilityState === "visible") {
         const prevData = JSON.stringify(dataRef.current);
 
-        const newDashboardData = await Promise.allSettled([
-          loadDashboard(true),
-          loadActivityLogs(),
-        ]);
+        const newDashboardData = await loadDashboard(true);
+        await loadActivityLogs();
 
         const newData = JSON.stringify(newDashboardData);
 
@@ -183,11 +201,34 @@ export default function ErpDashboardHome() {
     setData((prev) => {
       if (!prev) return prev;
 
+      const currentAlerts = prev.reminders?.alerts || [];
+
+      // 1. ❗ dedup + add new alert
+      let updatedAlerts = [
+        newAlert,
+        ...currentAlerts.filter((a) => a.id !== newAlert.id),
+      ];
+
+      // 2. ❗ priority sorting (high → low)
+      const priorityMap = {
+        high: 3,
+        medium: 2,
+        low: 1,
+      };
+
+      updatedAlerts = updatedAlerts.sort(
+        (a, b) =>
+          (priorityMap[b.priority] || 0) - (priorityMap[a.priority] || 0),
+      );
+
+      // 3. ❗ limit alerts (max 10)
+      updatedAlerts = updatedAlerts.slice(0, 10);
+
       return {
         ...prev,
         reminders: {
           ...(prev.reminders || {}),
-          alerts: [newAlert, ...(prev.reminders?.alerts || [])],
+          alerts: updatedAlerts,
         },
       };
     });

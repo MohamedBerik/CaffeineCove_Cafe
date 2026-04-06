@@ -41,18 +41,23 @@ export default function ErpDashboardHome() {
           low: 1,
         };
 
-        newData.reminders.alerts = newData.reminders.alerts
-          // dedup (احتياطي)
+        const processedAlerts = newData.reminders.alerts
           .filter(
             (a, index, self) => index === self.findIndex((x) => x.id === a.id),
           )
-          // sort
           .sort(
             (a, b) =>
               (priorityMap[b.priority] || 0) - (priorityMap[a.priority] || 0),
           )
-          // limit
           .slice(0, 10);
+
+        newData = {
+          ...newData,
+          reminders: {
+            ...(newData.reminders || {}),
+            alerts: processedAlerts,
+          },
+        };
       }
       if (isMounted.current) {
         setData(newData);
@@ -197,42 +202,45 @@ export default function ErpDashboardHome() {
     };
   }, []);
 
-  useAlertsSocket((newAlert) => {
-    setData((prev) => {
-      if (!prev) return prev;
+  useEffect(() => {
+    const unsubscribe = useAlertsSocket((newAlert) => {
+      setData((prev) => {
+        if (!prev) return prev;
 
-      const currentAlerts = prev.reminders?.alerts || [];
+        const currentAlerts = prev.reminders?.alerts || [];
 
-      // 1. ❗ dedup + add new alert
-      let updatedAlerts = [
-        newAlert,
-        ...currentAlerts.filter((a) => a.id !== newAlert.id),
-      ];
+        let updatedAlerts = [
+          newAlert,
+          ...currentAlerts.filter((a) => a.id !== newAlert.id),
+        ];
 
-      // 2. ❗ priority sorting (high → low)
-      const priorityMap = {
-        high: 3,
-        medium: 2,
-        low: 1,
-      };
+        const priorityMap = {
+          high: 3,
+          medium: 2,
+          low: 1,
+        };
 
-      updatedAlerts = updatedAlerts.sort(
-        (a, b) =>
-          (priorityMap[b.priority] || 0) - (priorityMap[a.priority] || 0),
-      );
+        updatedAlerts = updatedAlerts
+          .sort(
+            (a, b) =>
+              (priorityMap[b.priority] || 0) - (priorityMap[a.priority] || 0),
+          )
+          .slice(0, 10);
 
-      // 3. ❗ limit alerts (max 10)
-      updatedAlerts = updatedAlerts.slice(0, 10);
-
-      return {
-        ...prev,
-        reminders: {
-          ...(prev.reminders || {}),
-          alerts: updatedAlerts,
-        },
-      };
+        return {
+          ...prev,
+          reminders: {
+            ...(prev.reminders || {}),
+            alerts: updatedAlerts,
+          },
+        };
+      });
     });
-  });
+
+    return () => {
+      unsubscribe?.();
+    };
+  }, []);
   // ========================= Helpers =========================
   const formatCurrency = (value) => {
     const lang = i18n.language === "ar" ? "ar-EG" : "en-US";

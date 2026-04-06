@@ -179,6 +179,19 @@ export default function ErpDashboardHome() {
     };
   }, []);
 
+  useAlertsSocket((newAlert) => {
+    setData((prev) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        reminders: {
+          ...(prev.reminders || {}),
+          alerts: [newAlert, ...(prev.reminders?.alerts || [])],
+        },
+      };
+    });
+  });
   // ========================= Helpers =========================
   const formatCurrency = (value) => {
     const lang = i18n.language === "ar" ? "ar-EG" : "en-US";

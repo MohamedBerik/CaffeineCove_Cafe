@@ -3,7 +3,7 @@ import axios from "../../services/axios";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "./ErpDashboardHome.css";
-// import useAlertsSocket from "../../hooks/useAlertsSocket";
+import useAlertsSocket from "../../hooks/useAlertsSocket";
 
 // ثوابت خارج المكون
 const PRIORITY_MAP = { high: 3, medium: 2, low: 1 };
@@ -35,7 +35,6 @@ export default function ErpDashboardHome() {
   const dataRef = useRef(null);
   const isMounted = useRef(true);
   const dataHashRef = useRef("");
-  const acknowledgingRef = useRef(new Set());
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -45,27 +44,13 @@ export default function ErpDashboardHome() {
   };
 
   const loadDashboard = async (silent = false) => {
-    console.log("=== loadDashboard ===", {
-      silent,
-      isMounted: isMounted.current,
-    });
-
     try {
       if (!silent) setLoading(true);
 
-      console.log("Fetching /erp/dashboard...");
       const res = await axios.get("/erp/dashboard");
-      console.log("Response status:", res.status);
-      console.log("Response data:", res.data);
-
       let newData = res.data?.data ?? null;
-      console.log("Extracted newData:", newData);
 
       if (newData?.reminders?.alerts) {
-        console.log(
-          "Processing alerts, count:",
-          newData.reminders.alerts.length,
-        );
         const processedAlerts = newData.reminders.alerts
           .filter(
             (a, index, self) => index === self.findIndex((x) => x.id === a.id),
@@ -83,43 +68,35 @@ export default function ErpDashboardHome() {
             alerts: processedAlerts,
           },
         };
-        console.log("Processed alerts count:", processedAlerts.length);
       }
-
       if (isMounted.current) {
-        console.log("Setting data...");
         setData(newData);
         dataRef.current = newData;
         dataHashRef.current = getDataHash(newData);
-        console.log("Data set successfully");
       }
 
       return newData;
     } catch (err) {
-      console.error("ERROR in loadDashboard:", err);
-      console.error("Error response:", err?.response);
-
       if (!silent && isMounted.current) {
-        const errorMsg =
+        setError(
           err?.response?.data?.message ||
-          err?.response?.data?.msg ||
-          t("Failed to load ERP dashboard.");
-        console.error("Setting error message:", errorMsg);
-        setError(errorMsg);
+            err?.response?.data?.msg ||
+            t("Failed to load ERP dashboard."),
+        );
       }
       return null;
     } finally {
-      if (!silent && isMounted.current) {
-        console.log("Setting loading to false");
-        setLoading(false);
-      }
+      if (!silent && isMounted.current) setLoading(false);
     }
   };
+
+  const acknowledgingRef = useRef(new Set());
 
   const acknowledge = async (id) => {
     if (acknowledgingRef.current.has(id)) return;
     acknowledgingRef.current.add(id);
 
+    // إضافة Set state للـ UI (إذا كنت محتاج تعطل الزر)
     setAcknowledgingIds((prev) => {
       const next = new Set(prev);
       next.add(id);
@@ -140,12 +117,15 @@ export default function ErpDashboardHome() {
             alerts: alerts.filter((a) => a.id !== id),
           },
         };
-        dataRef.current = updated;
+        dataRef.current = updated; // ✅ تحديث ref
         dataHashRef.current = getDataHash(updated);
         return updated;
       });
+
+      // toast.success(t("Alert acknowledged"));
     } catch (e) {
       console.error("Failed to acknowledge alert", e);
+      // toast.error(t("Failed to acknowledge alert"));
     } finally {
       setAcknowledgingIds((prev) => {
         const next = new Set(prev);
@@ -156,71 +136,49 @@ export default function ErpDashboardHome() {
   };
 
   const loadActivityLogs = async () => {
-    console.log("=== loadActivityLogs ===");
     if (!isMounted.current) return;
-
     try {
-      console.log("Fetching /erp/activity-logs?limit=5...");
       const res = await axios.get("/erp/activity-logs?limit=5");
-      console.log("Activity logs response:", res.status, res.data);
-
       if (isMounted.current) {
         setActivityLogs(res.data?.data || []);
-        console.log("Activity logs set, count:", res.data?.data?.length);
       }
     } catch (e) {
-      console.error("Error loading activity logs:", e);
-      setActivityLogs([]);
+      console.error(e);
     }
   };
 
   const startPolling = useCallback(() => {
-    console.log("startPolling called");
-
     const poll = async () => {
       if (isFetching.current) {
-        console.log("Poll: already fetching, waiting...");
         pollingTimeout.current = setTimeout(poll, intervalTime.current);
         return;
       }
 
       isFetching.current = true;
-      console.log("Poll: fetching data...");
 
       if (document.visibilityState === "visible") {
         const prevHash = dataHashRef.current;
-        console.log("Poll: prevHash:", prevHash);
 
         const newDashboardData = await loadDashboard(true);
         await loadActivityLogs();
 
         const newHash = getDataHash(newDashboardData);
-        console.log("Poll: newHash:", newHash);
 
         if (prevHash === newHash) {
           intervalTime.current = Math.min(intervalTime.current + 5000, 60000);
-          console.log(
-            "Poll: No changes, interval increased to:",
-            intervalTime.current,
-          );
         } else {
           intervalTime.current = 15000;
-          console.log(
-            "Poll: Changes detected, interval reset to:",
-            intervalTime.current,
-          );
         }
       }
 
       isFetching.current = false;
+
       pollingTimeout.current = setTimeout(poll, intervalTime.current);
     };
-
     poll();
   }, [loadDashboard, loadActivityLogs]);
 
   const handleNewAlert = useCallback((newAlert) => {
-    console.log("New alert received:", newAlert);
     setData((prev) => {
       if (!prev) return prev;
 
@@ -251,7 +209,7 @@ export default function ErpDashboardHome() {
     });
   }, []);
 
-  // useAlertsSocket(handleNewAlert); // معلق مؤقتاً
+  useAlertsSocket(handleNewAlert);
 
   const formatLog = (log) => {
     const type = log.subject_type;
@@ -280,34 +238,18 @@ export default function ErpDashboardHome() {
   };
 
   useEffect(() => {
-    console.log("=== useEffect INITIALIZATION ===");
+    loadDashboard();
+    loadActivityLogs();
 
-    const init = async () => {
-      console.log("Init: loading dashboard...");
-      await loadDashboard();
-      console.log("Init: dashboard loaded");
-
-      console.log("Init: loading activity logs...");
-      await loadActivityLogs();
-      console.log("Init: activity logs loaded");
-
-      console.log("Init: setting greeting...");
-      setGreeting(getGreeting());
-
-      console.log("Init: starting polling...");
-      startPolling();
-      console.log("Init: polling started");
-    };
-
-    init();
+    setGreeting(getGreeting());
 
     const greetingInterval = setInterval(() => {
-      console.log("Updating greeting...");
       setGreeting(getGreeting());
     }, 60000);
 
+    startPolling();
+
     return () => {
-      console.log("=== CLEANUP ===");
       isMounted.current = false;
       clearInterval(greetingInterval);
 
@@ -366,19 +308,8 @@ export default function ErpDashboardHome() {
       return value;
     }
   };
-
   // ========================= UI =========================
-  console.log(
-    "UI Render - loading:",
-    loading,
-    "error:",
-    error,
-    "hasData:",
-    !!data,
-  );
-
   if (loading) {
-    console.log("Showing loading screen");
     return (
       <div className="dashboard-loading">
         <div className="loading-animation">
@@ -392,13 +323,12 @@ export default function ErpDashboardHome() {
   }
 
   if (error) {
-    console.log("Showing error screen:", error);
     return (
       <div className="dashboard-error">
         <i className="fas fa-exclamation-triangle"></i>
         <h3>{t("Something went wrong")}</h3>
         <p>{error}</p>
-        <button className="btn-retry" onClick={() => loadDashboard()}>
+        <button className="btn-retry" onClick={loadDashboard}>
           <i className="fas fa-sync-alt"></i>
           {t("Try Again")}
         </button>
@@ -407,7 +337,6 @@ export default function ErpDashboardHome() {
   }
 
   if (!data) {
-    console.log("Showing no data screen");
     return (
       <div className="dashboard-empty">
         <i className="fas fa-chart-line"></i>
@@ -417,7 +346,6 @@ export default function ErpDashboardHome() {
     );
   }
 
-  console.log("Showing dashboard with data");
   const kpis = data.kpis || {};
   const recentAppointments = data.recent_appointments || [];
   const recentInvoices = data.recent_invoices || [];
@@ -427,6 +355,7 @@ export default function ErpDashboardHome() {
   const alerts = data.reminders?.alerts || [];
 
   const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
+  // حساب إجماليات سريعة
   const totalRevenue = (kpis.today_revenue || 0) + (kpis.month_revenue || 0);
   const completionRate = kpis.today_appointments_count
     ? Math.round(
@@ -524,6 +453,10 @@ export default function ErpDashboardHome() {
             <span className="stat-value">{formatCurrency(totalRevenue)}</span>
             <span className="stat-label">{t("Total Revenue")}</span>
           </div>
+          {/* <div className="stat-trend up">
+            <i className="fas fa-arrow-up"></i>
+            <span>+12%</span>
+          </div> */}
         </div>
         <div className="quick-stat-card">
           <div className="stat-icon warning">
@@ -533,6 +466,10 @@ export default function ErpDashboardHome() {
             <span className="stat-value">{reminderStats.pending ?? 0}</span>
             <span className="stat-label">{t("Pending Reminders")}</span>
           </div>
+          {/* <div className="stat-trend down">
+            <i className="fas fa-arrow-down"></i>
+            <span>-5%</span>
+          </div> */}
         </div>
         <div className="quick-stat-card">
           <div className="stat-icon info">
@@ -542,6 +479,10 @@ export default function ErpDashboardHome() {
             <span className="stat-value">{kpis.total_patients ?? 0}</span>
             <span className="stat-label">{t("Total Patients")}</span>
           </div>
+          {/* <div className="stat-trend up">
+            <i className="fas fa-arrow-up"></i>
+            <span>+8%</span>
+          </div> */}
         </div>
       </div>
 
@@ -558,24 +499,28 @@ export default function ErpDashboardHome() {
           icon="fas fa-calendar-day"
           color="primary"
           link="/admin/erp/appointments/calendar"
+          // trend="+12%"
         />
         <KpiCard
           title={t("Scheduled Today")}
           value={kpis.scheduled_today_count ?? 0}
           icon="fas fa-clock"
           color="info"
+          // trend="+5%"
         />
         <KpiCard
           title={t("Completed Today")}
           value={kpis.completed_today_count ?? 0}
           icon="fas fa-check-circle"
           color="success"
+          // trend="+8%"
         />
         <KpiCard
           title={t("Cancelled / No Show")}
           value={`${kpis.cancelled_today_count ?? 0} / ${kpis.no_show_today_count ?? 0}`}
           icon="fas fa-times-circle"
           color="danger"
+          // trend="-3%"
         />
         <KpiCard
           title={t("Unpaid Invoices")}
@@ -899,7 +844,7 @@ export default function ErpDashboardHome() {
   );
 }
 
-// KpiCard Component
+// KpiCard Component - Premium Design
 function KpiCard({ title, value, icon, color = "primary", link, trend }) {
   const colorMap = {
     primary: {
@@ -961,6 +906,7 @@ function KpiCard({ title, value, icon, color = "primary", link, trend }) {
   );
 
   if (!link) return cardContent;
+
   return (
     <Link to={link} className="kpi-link-wrapper">
       {cardContent}
@@ -978,7 +924,7 @@ function EmptyState({ text }) {
   );
 }
 
-// StatusBadge Component
+// StatusBadge Component - Improved
 function StatusBadge({ status }) {
   const statusMap = {
     paid: { label: "Paid", class: "success" },

@@ -9,5 +9,5 @@ const echo = new Echo({
   cluster: import.meta.env.VITE_PUSHER_CLUSTER,
   forceTLS: true,
 });
-
+window.Pusher.logToConsole = true;
 export default echo;

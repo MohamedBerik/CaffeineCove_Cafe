@@ -3,6 +3,7 @@ import axios from "../../services/axios";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "./ErpDashboardHome.css";
+import useAlertsSocket from "../../hooks/useAlertsSocket";
 
 export default function ErpDashboardHome() {
   const { t, i18n } = useTranslation();

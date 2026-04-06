@@ -184,38 +184,38 @@ export default function ErpDashboardHome() {
     poll();
   }, [loadDashboard, loadActivityLogs]);
 
-  // const handleNewAlert = useCallback((newAlert) => {
-  //   setData((prev) => {
-  //     if (!prev) return prev;
+  const handleNewAlert = useCallback((newAlert) => {
+    setData((prev) => {
+      if (!prev) return prev;
 
-  //     const currentAlerts = prev.reminders?.alerts || [];
+      const currentAlerts = prev.reminders?.alerts || [];
 
-  //     let updatedAlerts = [
-  //       newAlert,
-  //       ...currentAlerts.filter((a) => a.id !== newAlert.id),
-  //     ];
+      let updatedAlerts = [
+        newAlert,
+        ...currentAlerts.filter((a) => a.id !== newAlert.id),
+      ];
 
-  //     updatedAlerts = updatedAlerts
-  //       .sort(
-  //         (a, b) =>
-  //           (PRIORITY_MAP[b.priority] || 0) - (PRIORITY_MAP[a.priority] || 0),
-  //       )
-  //       .slice(0, 10);
+      updatedAlerts = updatedAlerts
+        .sort(
+          (a, b) =>
+            (PRIORITY_MAP[b.priority] || 0) - (PRIORITY_MAP[a.priority] || 0),
+        )
+        .slice(0, 10);
 
-  //     const updated = {
-  //       ...prev,
-  //       reminders: {
-  //         ...(prev.reminders || {}),
-  //         alerts: updatedAlerts,
-  //       },
-  //     };
-  //     dataRef.current = updated;
-  //     dataHashRef.current = getDataHash(updated);
-  //     return updated;
-  //   });
-  // }, []);
+      const updated = {
+        ...prev,
+        reminders: {
+          ...(prev.reminders || {}),
+          alerts: updatedAlerts,
+        },
+      };
+      dataRef.current = updated;
+      dataHashRef.current = getDataHash(updated);
+      return updated;
+    });
+  }, []);
 
-  // useAlertsSocket(handleNewAlert);
+  useAlertsSocket(handleNewAlert);
 
   const formatLog = (log) => {
     const type = log.subject_type;
@@ -262,7 +262,7 @@ export default function ErpDashboardHome() {
         clearTimeout(pollingTimeout.current);
       }
     };
-  }, []); // ❗ بدون dependencies
+  }, []);
 
   // ========================= Helpers =========================
   const formatCurrency = (value) => {

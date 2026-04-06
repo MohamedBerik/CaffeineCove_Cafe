@@ -203,8 +203,8 @@ export default function ErpDashboardHome() {
     };
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = useAlertsSocket((newAlert) => {
+  const unsubscribe = useAlertsSocket((newAlert) => {
+    useEffect(() => {
       setData((prev) => {
         if (!prev) return prev;
 

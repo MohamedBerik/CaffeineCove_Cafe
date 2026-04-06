@@ -47,7 +47,9 @@ export default function ErpDashboardHome() {
     try {
       if (!silent) setLoading(true);
 
+      console.log("Fetching dashboard...");
       const res = await axios.get("/erp/dashboard");
+      console.log("Response:", res);
       let newData = res.data?.data ?? null;
 
       if (newData?.reminders?.alerts) {

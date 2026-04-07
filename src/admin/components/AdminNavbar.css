@@ -640,8 +640,9 @@
   }
 }
 
-/* للشاشات الصغيرة (موبايل) - Dropdown مع محاذاة ذكية */
+/* للشاشات الصغيرة (موبايل) - حل نهائي بدون تعارض أو رعشة */
 @media (max-width: 576px) {
+  /* 1. إعدادات النافبار */
   .navbar-container {
     height: 56px;
     padding: 0 0.85rem;
@@ -694,6 +695,31 @@
     font-size: 0.9rem;
   }
 
+  /* 2. إعدادات الإشعارات - الحل الجذري */
+
+  /* الخلفية الداكنة (Overlay) */
+  .notification-bell.open::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* القائمة المنسدلة - الحل الأمثل للموبايل */
   .notification-dropdown {
     position: fixed !important;
     top: 60px !important;
@@ -709,7 +735,10 @@
     overflow: hidden;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s ease;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease,
+      transform 0.3s ease;
   }
 
   .notification-bell.open .notification-dropdown {
@@ -718,7 +747,7 @@
     transform: translateX(-50%) translateY(0) !important;
   }
 
-  /* للغة العربية - نفس التمركز في المنتصف */
+  /* دعم اللغة العربية - نفس السلوك بالضبط */
   [dir="rtl"] .notification-dropdown {
     left: 50% !important;
     right: auto !important;
@@ -727,28 +756,6 @@
 
   [dir="rtl"] .notification-bell.open .notification-dropdown {
     transform: translateX(-50%) translateY(0) !important;
-  }
-
-  /* إضافة خلفية داكنة للتركيز */
-  .notification-bell.open::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 999;
-    animation: fadeIn 0.3s ease;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
   }
 
   /* تنسيقات داخلية محسنة */

@@ -609,46 +609,13 @@
 
 /* ==================== Mobile Responsive for Notifications ==================== */
 
-/* ==================== Mobile Responsive for Notifications ==================== */
-
-/* للشاشات المتوسطة (تابلت) */
-@media (max-width: 768px) {
-  .notification-dropdown {
-    width: 320px;
-    max-height: 380px;
-    right: 0;
-  }
-
-  [dir="rtl"] .notification-dropdown {
-    right: auto;
-    left: 0;
-  }
-
-  .dropdown-header {
-    padding: 10px 14px;
-    font-size: 13px;
-  }
-
-  .notification-item {
-    padding: 10px 14px;
-  }
-
-  .notification-title {
-    font-size: 12px;
-  }
-
-  .notification-time {
-    font-size: 10px;
-  }
-}
-
 /* للشاشات الصغيرة (موبايل) */
 @media (max-width: 576px) {
   .notification-bell {
     position: relative;
   }
 
-  /* استخدام absolute مع right/left بدون transform */
+  /* القاعدة الأساسية للقائمة */
   .notification-dropdown {
     position: absolute;
     top: 45px;
@@ -667,17 +634,30 @@
     transition: all 0.25s ease;
   }
 
-  /* RTL - للعربية */
+  /* RTL (العربية): القائمة تظهر على اليسار */
   [dir="rtl"] .notification-dropdown {
     right: auto;
     left: 0;
   }
 
-  /* القاعدة اللي بتظهر القائمة */
+  /* إظهار القائمة */
   .notification-bell.open .notification-dropdown {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+  }
+
+  /* عرض كامل الشاشة لو المسافة ضيقة */
+  @media (max-width: 380px) {
+    .notification-dropdown {
+      width: calc(100vw - 20px);
+      left: 10px !important;
+      right: 10px !important;
+    }
+    [dir="rtl"] .notification-dropdown {
+      left: 10px !important;
+      right: 10px !important;
+    }
   }
 
   .dropdown-header {
@@ -721,32 +701,5 @@
   .notification-dropdown {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* للشاشات الصغيرة جداً */
-@media (max-width: 380px) {
-  .notification-dropdown {
-    width: 280px;
-  }
-
-  [dir="rtl"] .notification-dropdown {
-    left: -10px;
-  }
-}
-
-/* للشاشات الأفقية (Landscape) */
-@media (max-width: 850px) and (orientation: landscape) {
-  .notification-dropdown {
-    max-height: 70vh;
-    top: 45px;
-  }
-
-  .notification-item {
-    padding: 8px 12px;
-  }
-
-  .dropdown-header {
-    padding: 8px 12px;
   }
 }

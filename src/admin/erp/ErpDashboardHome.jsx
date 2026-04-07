@@ -195,7 +195,9 @@ export default function ErpDashboardHome() {
 
   const handleNewAlert = useCallback(
     (newAlert) => {
-      playSound();
+      if (document.visibilityState === "visible") {
+        playSound();
+      }
       addUnreadCount();
       addAlert(newAlert);
 

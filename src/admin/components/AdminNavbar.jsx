@@ -1,7 +1,7 @@
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAlerts } from "../../context/AlertContext";
 import "./AdminNavbar.css";
 
@@ -12,8 +12,21 @@ const AdminNavbar = () => {
   const location = useLocation();
   const { t, i18n } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
-  // ✅ أضف دالة formatTime
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const formatTime = (timestamp) => {
     if (!timestamp) return "";
     const date = new Date(timestamp);
@@ -96,6 +109,7 @@ const AdminNavbar = () => {
 
             {/* ✅ Notification Bell with Dropdown */}
             <div
+              ref={dropdownRef}
               className={`notification-bell ${showDropdown ? "open" : ""}`}
               onClick={() => {
                 setShowDropdown(!showDropdown);

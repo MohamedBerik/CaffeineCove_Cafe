@@ -609,37 +609,75 @@
 
 /* ==================== Mobile Responsive for Notifications ==================== */
 
-/* للشاشات الصغيرة (موبايل) - حل مضمون */
+/* ==================== Mobile Responsive for Notifications ==================== */
+
+/* للشاشات المتوسطة (تابلت) */
+@media (max-width: 768px) {
+  .notification-dropdown {
+    width: 320px;
+    max-height: 380px;
+    right: 0;
+  }
+
+  [dir="rtl"] .notification-dropdown {
+    right: auto;
+    left: 0;
+  }
+
+  .dropdown-header {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .notification-item {
+    padding: 10px 14px;
+  }
+
+  .notification-title {
+    font-size: 12px;
+  }
+
+  .notification-time {
+    font-size: 10px;
+  }
+}
+
+/* للشاشات الصغيرة (موبايل) */
 @media (max-width: 576px) {
   .notification-bell {
     position: relative;
   }
 
-  /* القائمة تاخد عرض الشاشة كامل مع مسافة بسيطة */
+  /* استخدام absolute مع right/left بدون transform */
   .notification-dropdown {
-    position: fixed;
-    top: 60px;
-    left: 10px !important;
-    right: 10px !important;
-    width: auto !important;
-    max-width: none;
+    position: absolute;
+    top: 45px;
+    right: 0;
+    width: 300px;
+    max-width: calc(100vw - 20px);
     max-height: 400px;
     background: white;
     border-radius: 16px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.25s ease;
   }
 
-  /* الاتجاه حسب اللغة */
-  [dir="ltr"] .notification-dropdown {
-    direction: ltr;
-    text-align: left;
-  }
-
+  /* RTL - للعربية */
   [dir="rtl"] .notification-dropdown {
-    direction: rtl;
-    text-align: right;
+    right: auto;
+    left: 0;
+  }
+
+  /* القاعدة اللي بتظهر القائمة */
+  .notification-bell.open .notification-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
   }
 
   .dropdown-header {
@@ -686,10 +724,29 @@
   }
 }
 
-/* للشاشات الصغيرة جداً (عرض أقل من 360px) */
-@media (max-width: 360px) {
+/* للشاشات الصغيرة جداً */
+@media (max-width: 380px) {
   .notification-dropdown {
-    top: 56px;
-    max-height: 350px;
+    width: 280px;
+  }
+
+  [dir="rtl"] .notification-dropdown {
+    left: -10px;
+  }
+}
+
+/* للشاشات الأفقية (Landscape) */
+@media (max-width: 850px) and (orientation: landscape) {
+  .notification-dropdown {
+    max-height: 70vh;
+    top: 45px;
+  }
+
+  .notification-item {
+    padding: 8px 12px;
+  }
+
+  .dropdown-header {
+    padding: 8px 12px;
   }
 }

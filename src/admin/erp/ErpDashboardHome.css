@@ -729,6 +729,38 @@
 .activity-text {
   font-weight: 500;
 }
+
+.custom-toast {
+  background: #1e293b;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-left: 4px solid;
+}
+
+.custom-toast.toast-high {
+  border-left-color: #ef4444;
+}
+
+.custom-toast.toast-medium {
+  border-left-color: #f59e0b;
+}
+
+.custom-toast.toast-low {
+  border-left-color: #10b981;
+}
+
+.custom-toast strong {
+  display: block;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.custom-toast p {
+  margin: 4px 0 0;
+  font-size: 14px;
+}
 /* ==================== Responsive Design ==================== */
 @media (max-width: 1200px) {
   .quick-stats {

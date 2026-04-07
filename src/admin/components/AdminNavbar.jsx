@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "./AdminNavbar.css";
 
-const AdminNavbar = () => {
+const AdminNavbar = ({ unreadCount = 0 }) => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -70,6 +70,15 @@ const AdminNavbar = () => {
               ></i>
               <span>{i18n.language === "en" ? "AR" : "EN"}</span>
             </button>
+
+            <div className="notification-bell">
+              <i className="fas fa-bell"></i>
+              {unreadCount > 0 && (
+                <span className="badge">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </div>
 
             <div className="navbar-user">
               <div className="user-info">

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Toaster } from "react-hot-toast";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 import "./App.css";
@@ -46,6 +47,7 @@ function App() {
   return (
     <div className="app" dir={i18n.language === "ar" ? "rtl" : "ltr"}>
       <Navbar />
+      <Toaster position="top-right" />
 
       {/* Hero Section - Dental Clinic Theme */}
       <section className="hero" id="hero">

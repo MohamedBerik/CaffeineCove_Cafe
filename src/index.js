@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { AlertProvider } from "./context/AlertContext";
 import App from "./App";
 import "./i18n";
 
@@ -72,215 +73,229 @@ import StartVisitPage from "./admin/erp/visits/StartVisitPage";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
-    <BrowserRouter>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        closeOnClick
-        pauseOnHover
-        draggable
-        theme="light"
-      />
-
-      <Routes>
-        {/* ================= Public ================= */}
-        <Route path="/" element={<App />} />
-        <Route path="/about" element={<AllAbout />} />
-        <Route path="/timeline" element={<AllTimeline />} />
-        <Route path="/testimonials" element={<AllTestimonials />} />
-        <Route path="/booking" element={<AllBooking />} />
-        <Route path="/contact" element={<AllContact />} />
-
-        {/* ================= Auth ================= */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/logout" element={<Logout />} />
-
-        {/* ================= ERP Dashboard (NEW SYSTEM) ================= */}
-        <Route
-          path="/admin/erp/*"
-          element={
-            <AdminRoute>
-              <ERPDashboard />
-            </AdminRoute>
-          }
-        >
-          {/* Default ERP page */}
-          <Route index element={<ErpDashboardHome />} />
-
-          {/* Orders */}
-          <Route path="orders" element={<OrdersList />} />
-          <Route path="orders/create" element={<CreateOrder />} />
-          <Route path="orders/:id" element={<OrderDetails />} />
-
-          {/* Invoices */}
-          <Route path="invoices" element={<InvoicesList />} />
-          <Route path="invoices/:id" element={<InvoiceDetails />} />
-
-          {/* Purchase Orders */}
-          <Route
-            path="purchase-orders/create"
-            element={<PurchaseOrderCreate />}
-          />
-          <Route path="purchase-orders" element={<PurchaseOrdersList />} />
-          <Route
-            path="purchase-orders/:id"
-            element={<PurchaseOrderDetails />}
-          />
-          <Route
-            path="purchase-orders/:id/returns"
-            element={<PurchaseOrderReturns />}
-          />
-          <Route
-            path="purchase-orders/:id/returns-history"
-            element={<PurchaseOrderReturnsHistory />}
-          />
-
-          {/* Supplier statement */}
-          <Route
-            path="suppliers/:id/statement"
-            element={<SupplierStatement />}
-          />
-
-          {/* ✅ Patient statement (UI route) */}
-          <Route path="patients/:id/statement" element={<PatientStatement />} />
-          <Route path="patients" element={<PatientsList />} />
-          <Route path="patients/:id/profile" element={<PatientProfilePage />} />
-          <Route
-            path="patients/:id/timeline"
-            element={<PatientTimelinePage />}
-          />
-          <Route path="patients/create" element={<PatientFormPage />} />
-          <Route path="patients/:id/edit" element={<PatientFormPage />} />
-
-          {/* Appointments */}
-          <Route path="appointments" element={<AppointmentsListPage />} />
-          <Route
-            path="appointments/:id/activity"
-            element={<AppointmentActivityPage />}
-          />
-          <Route path="appointments/create" element={<BookAppointmentPage />} />
-          <Route
-            path="appointments/calendar"
-            element={<AppointmentCalendarPage />}
-          />
-
-          {/* TreamentPlans */}
-          <Route path="treatment-plans" element={<TreatmentPlansListPage />} />
-          <Route
-            path="treatment-plans/:id"
-            element={<TreatmentPlanDetailsPage />}
-          />
-          <Route
-            path="treatment-plans/create"
-            element={<CreateTreatmentPlanPage />}
-          />
-
-          {/* DentalRecords */}
-          <Route path="dental-records" element={<DentalRecordsListPage />} />
-          <Route
-            path="dental-records/create"
-            element={<CreateDentalRecordPage />}
-          />
-
-          {/* Clinic settings */}
-          <Route path="settings/clinic" element={<ClinicSettingsPage />} />
-
-          {/* Doctors */}
-          <Route path="doctors/create" element={<DoctorFormPage />} />
-          {/* <Route path="doctors/:id" element={<DoctorDetailsPage />} /> */}
-          <Route path="doctors/:id/edit" element={<DoctorFormPage />} />
-          <Route path="doctors" element={<DoctorsListPage />} />
-          <Route
-            path="doctors/:id/availability"
-            element={<DoctorAvailabilityPage />}
-          />
-
-          {/* Reports */}
-          <Route path="reports" element={<ReportsDashboardPage />} />
-          <Route path="reports/revenue" element={<RevenueReportPage />} />
-          <Route
-            path="reports/appointments"
-            element={<AppointmentsReportPage />}
-          />
-          <Route
-            path="reports/doctors"
-            element={<DoctorPerformanceReportPage />}
-          />
-          <Route
-            path="reports/analytics"
-            element={<AnalyticsDashboardPage />}
-          />
-          <Route path="procedures" element={<ProceduresListPage />} />
-          <Route path="procedures/create" element={<ProcedureFormPage />} />
-          <Route path="procedures/:id/edit" element={<ProcedureFormPage />} />
-          <Route path="visits/start" element={<StartVisitPage />} />
-        </Route>
-
-        {/* ================= Generic admin CRUD (OLD / temporary) ================= */}
-        <Route
-          path="/admin/:table"
-          element={
-            <AdminRoute>
-              <CrudTable />
-            </AdminRoute>
-          }
+    <AlertProvider>
+      <BrowserRouter>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          closeOnClick
+          pauseOnHover
+          draggable
+          theme="light"
         />
 
-        <Route
-          path="/admin/:table/create"
-          element={
-            <AdminRoute>
-              <CrudForm />
-            </AdminRoute>
-          }
-        />
+        <Routes>
+          {/* ================= Public ================= */}
+          <Route path="/" element={<App />} />
+          <Route path="/about" element={<AllAbout />} />
+          <Route path="/timeline" element={<AllTimeline />} />
+          <Route path="/testimonials" element={<AllTestimonials />} />
+          <Route path="/booking" element={<AllBooking />} />
+          <Route path="/contact" element={<AllContact />} />
 
-        <Route
-          path="/admin/:table/:id/edit"
-          element={
-            <AdminRoute>
-              <CrudForm />
-            </AdminRoute>
-          }
-        />
+          {/* ================= Auth ================= */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/logout" element={<Logout />} />
 
-        <Route
-          path="/admin/:table/:id/show"
-          element={
-            <AdminRoute>
-              <CrudForm />
-            </AdminRoute>
-          }
-        />
+          {/* ================= ERP Dashboard (NEW SYSTEM) ================= */}
+          <Route
+            path="/admin/erp/*"
+            element={
+              <AdminRoute>
+                <ERPDashboard />
+              </AdminRoute>
+            }
+          >
+            {/* Default ERP page */}
+            <Route index element={<ErpDashboardHome />} />
 
-        {/* ================= Old Admin Dashboard (to be deprecated) ================= */}
-        <Route
-          path="/admin/dashboard/*"
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          }
-        />
+            {/* Orders */}
+            <Route path="orders" element={<OrdersList />} />
+            <Route path="orders/create" element={<CreateOrder />} />
+            <Route path="orders/:id" element={<OrderDetails />} />
 
-        {/* ================= Direct Admin Layout (legacy / optional) ================= */}
-        <Route
-          path="/adminLayout"
-          element={
-            <AdminRoute>
-              <AdminLayout />
-            </AdminRoute>
-          }
-        />
+            {/* Invoices */}
+            <Route path="invoices" element={<InvoicesList />} />
+            <Route path="invoices/:id" element={<InvoiceDetails />} />
 
-        {/* ================= 404 ================= */}
-        <Route
-          path="*"
-          element={<p style={{ padding: 20 }}>Page not found</p>}
-        />
-      </Routes>
-    </BrowserRouter>
+            {/* Purchase Orders */}
+            <Route
+              path="purchase-orders/create"
+              element={<PurchaseOrderCreate />}
+            />
+            <Route path="purchase-orders" element={<PurchaseOrdersList />} />
+            <Route
+              path="purchase-orders/:id"
+              element={<PurchaseOrderDetails />}
+            />
+            <Route
+              path="purchase-orders/:id/returns"
+              element={<PurchaseOrderReturns />}
+            />
+            <Route
+              path="purchase-orders/:id/returns-history"
+              element={<PurchaseOrderReturnsHistory />}
+            />
+
+            {/* Supplier statement */}
+            <Route
+              path="suppliers/:id/statement"
+              element={<SupplierStatement />}
+            />
+
+            {/* ✅ Patient statement (UI route) */}
+            <Route
+              path="patients/:id/statement"
+              element={<PatientStatement />}
+            />
+            <Route path="patients" element={<PatientsList />} />
+            <Route
+              path="patients/:id/profile"
+              element={<PatientProfilePage />}
+            />
+            <Route
+              path="patients/:id/timeline"
+              element={<PatientTimelinePage />}
+            />
+            <Route path="patients/create" element={<PatientFormPage />} />
+            <Route path="patients/:id/edit" element={<PatientFormPage />} />
+
+            {/* Appointments */}
+            <Route path="appointments" element={<AppointmentsListPage />} />
+            <Route
+              path="appointments/:id/activity"
+              element={<AppointmentActivityPage />}
+            />
+            <Route
+              path="appointments/create"
+              element={<BookAppointmentPage />}
+            />
+            <Route
+              path="appointments/calendar"
+              element={<AppointmentCalendarPage />}
+            />
+
+            {/* TreamentPlans */}
+            <Route
+              path="treatment-plans"
+              element={<TreatmentPlansListPage />}
+            />
+            <Route
+              path="treatment-plans/:id"
+              element={<TreatmentPlanDetailsPage />}
+            />
+            <Route
+              path="treatment-plans/create"
+              element={<CreateTreatmentPlanPage />}
+            />
+
+            {/* DentalRecords */}
+            <Route path="dental-records" element={<DentalRecordsListPage />} />
+            <Route
+              path="dental-records/create"
+              element={<CreateDentalRecordPage />}
+            />
+
+            {/* Clinic settings */}
+            <Route path="settings/clinic" element={<ClinicSettingsPage />} />
+
+            {/* Doctors */}
+            <Route path="doctors/create" element={<DoctorFormPage />} />
+            {/* <Route path="doctors/:id" element={<DoctorDetailsPage />} /> */}
+            <Route path="doctors/:id/edit" element={<DoctorFormPage />} />
+            <Route path="doctors" element={<DoctorsListPage />} />
+            <Route
+              path="doctors/:id/availability"
+              element={<DoctorAvailabilityPage />}
+            />
+
+            {/* Reports */}
+            <Route path="reports" element={<ReportsDashboardPage />} />
+            <Route path="reports/revenue" element={<RevenueReportPage />} />
+            <Route
+              path="reports/appointments"
+              element={<AppointmentsReportPage />}
+            />
+            <Route
+              path="reports/doctors"
+              element={<DoctorPerformanceReportPage />}
+            />
+            <Route
+              path="reports/analytics"
+              element={<AnalyticsDashboardPage />}
+            />
+            <Route path="procedures" element={<ProceduresListPage />} />
+            <Route path="procedures/create" element={<ProcedureFormPage />} />
+            <Route path="procedures/:id/edit" element={<ProcedureFormPage />} />
+            <Route path="visits/start" element={<StartVisitPage />} />
+          </Route>
+
+          {/* ================= Generic admin CRUD (OLD / temporary) ================= */}
+          <Route
+            path="/admin/:table"
+            element={
+              <AdminRoute>
+                <CrudTable />
+              </AdminRoute>
+            }
+          />
+
+          <Route
+            path="/admin/:table/create"
+            element={
+              <AdminRoute>
+                <CrudForm />
+              </AdminRoute>
+            }
+          />
+
+          <Route
+            path="/admin/:table/:id/edit"
+            element={
+              <AdminRoute>
+                <CrudForm />
+              </AdminRoute>
+            }
+          />
+
+          <Route
+            path="/admin/:table/:id/show"
+            element={
+              <AdminRoute>
+                <CrudForm />
+              </AdminRoute>
+            }
+          />
+
+          {/* ================= Old Admin Dashboard (to be deprecated) ================= */}
+          <Route
+            path="/admin/dashboard/*"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
+
+          {/* ================= Direct Admin Layout (legacy / optional) ================= */}
+          <Route
+            path="/adminLayout"
+            element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }
+          />
+
+          {/* ================= 404 ================= */}
+          <Route
+            path="*"
+            element={<p style={{ padding: 20 }}>Page not found</p>}
+          />
+        </Routes>
+      </BrowserRouter>
+    </AlertProvider>
   </AuthProvider>,
 );

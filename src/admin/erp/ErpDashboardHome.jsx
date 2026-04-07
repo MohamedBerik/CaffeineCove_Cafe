@@ -2,8 +2,10 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import axios from "../../services/axios";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 import "./ErpDashboardHome.css";
 import useAlertsSocket from "../../hooks/useAlertsSocket";
+import { useAlerts } from "../../context/AlertContext";
 
 // ثوابت خارج المكون
 const PRIORITY_MAP = { high: 3, medium: 2, low: 1 };
@@ -28,6 +30,7 @@ export default function ErpDashboardHome() {
   const [hiddenAlerts, setHiddenAlerts] = useState(new Set());
   const [activityLogs, setActivityLogs] = useState([]);
   const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
+  const { addUnreadCount, clearUnreadCount } = useAlerts();
 
   const isFetching = useRef(false);
   const pollingTimeout = useRef(null);
@@ -184,36 +187,54 @@ export default function ErpDashboardHome() {
     poll();
   }, [loadDashboard, loadActivityLogs]);
 
-  const handleNewAlert = useCallback((newAlert) => {
-    setData((prev) => {
-      if (!prev) return prev;
+  const playSound = () => {
+    const audio = new Audio("/notification.mp3");
+    audio.play().catch(() => {});
+  };
 
-      const currentAlerts = prev.reminders?.alerts || [];
+  const handleNewAlert = useCallback(
+    (newAlert) => {
+      playSound();
+      addUnreadCount();
 
-      let updatedAlerts = [
-        newAlert,
-        ...currentAlerts.filter((a) => a.id !== newAlert.id),
-      ];
+      // 🔔 toast
+      toast.custom((t) => (
+        <div className="custom-toast">
+          <strong>{newAlert.priority.toUpperCase()}</strong>
+          <p>{newAlert.message}</p>
+        </div>
+      ));
+      setData((prev) => {
+        if (!prev) return prev;
 
-      updatedAlerts = updatedAlerts
-        .sort(
-          (a, b) =>
-            (PRIORITY_MAP[b.priority] || 0) - (PRIORITY_MAP[a.priority] || 0),
-        )
-        .slice(0, 10);
+        const currentAlerts = prev.reminders?.alerts || [];
 
-      const updated = {
-        ...prev,
-        reminders: {
-          ...(prev.reminders || {}),
-          alerts: updatedAlerts,
-        },
-      };
-      dataRef.current = updated;
-      dataHashRef.current = getDataHash(updated);
-      return updated;
-    });
-  }, []);
+        let updatedAlerts = [
+          newAlert,
+          ...currentAlerts.filter((a) => a.id !== newAlert.id),
+        ];
+
+        updatedAlerts = updatedAlerts
+          .sort(
+            (a, b) =>
+              (PRIORITY_MAP[b.priority] || 0) - (PRIORITY_MAP[a.priority] || 0),
+          )
+          .slice(0, 10);
+
+        const updated = {
+          ...prev,
+          reminders: {
+            ...(prev.reminders || {}),
+            alerts: updatedAlerts,
+          },
+        };
+        dataRef.current = updated;
+        dataHashRef.current = getDataHash(updated);
+        return updated;
+      });
+    },
+    [addUnreadCount],
+  );
 
   useAlertsSocket(handleNewAlert);
 
@@ -313,6 +334,7 @@ export default function ErpDashboardHome() {
       return value;
     }
   };
+
   // ========================= UI =========================
   if (loading) {
     return (
@@ -390,7 +412,7 @@ export default function ErpDashboardHome() {
 
       {/* Alerts Section */}
       {alerts.length > 0 && (
-        <div className="alerts-container">
+        <div className="alerts-container" onClick={clearUnreadCount}>
           {visibleAlerts.map((alert) => (
             <div key={alert.id} className={`alert-card alert-${alert.type}`}>
               <i

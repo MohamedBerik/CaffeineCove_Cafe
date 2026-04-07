@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Outlet } from "react-router-dom";
 import AdminNavbar from "../components/AdminNavbar";
 import ErpNav from "./components/ErpNav";
+import { AlertContext } from "../../context/AlertContext";
 
 const ERPDashboard = () => {
+  const { unreadCount } = useContext(AlertContext);
+
   return (
     <>
-      <AdminNavbar />
+      <AdminNavbar unreadCount={unreadCount} />
 
       <div className="container-fluid" style={{ paddingTop: 86 }}>
         <div className="row g-3">

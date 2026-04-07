@@ -609,6 +609,8 @@
 
 /* ==================== Mobile Responsive for Notifications ==================== */
 
+/* ==================== Mobile Responsive for Notifications ==================== */
+
 /* للشاشات المتوسطة (تابلت) */
 @media (max-width: 768px) {
   .notification-dropdown {
@@ -640,18 +642,21 @@
   }
 }
 
-/* للشاشات الصغيرة (موبايل) - حل نظيف بدون تعارض */
+/* للشاشات الصغيرة (موبايل) - حل نهائي */
 @media (max-width: 576px) {
-  /* تجاوز الخصائص السابقة نهائياً */
+  .notification-bell {
+    position: relative;
+  }
+
+  /* إعادة تعيين كل الخصائص السابقة */
   .notification-dropdown {
     position: fixed !important;
-    top: 60px !important;
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%) !important;
-    width: 320px !important;
-    max-width: calc(100vw - 20px) !important;
-    max-height: 400px !important;
+    top: 55px !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: 400px;
     background: white;
     border-radius: 16px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -659,7 +664,10 @@
     overflow: hidden;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.25s ease;
+    transition:
+      opacity 0.25s ease,
+      visibility 0.25s ease;
+    transform: none !important;
   }
 
   /* إظهار القائمة */
@@ -668,20 +676,17 @@
     visibility: visible;
   }
 
-  /* إزالة أي تأثيرات من hover أو transition على الـ position */
+  /* منع أي حركة عند hover */
   .notification-dropdown:hover {
-    transform: translateX(-50%) !important;
+    transform: none !important;
   }
 
-  /* RTL: نفس القاعدة */
+  /* RTL و LTR نفس القاعدة */
+  [dir="ltr"] .notification-dropdown,
   [dir="rtl"] .notification-dropdown {
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%) !important;
-  }
-
-  [dir="rtl"] .notification-dropdown:hover {
-    transform: translateX(-50%) !important;
+    left: 10px !important;
+    right: 10px !important;
+    transform: none !important;
   }
 
   .dropdown-header {
@@ -731,7 +736,8 @@
 /* للشاشات الصغيرة جداً */
 @media (max-width: 380px) {
   .notification-dropdown {
-    width: calc(100vw - 20px) !important;
+    top: 50px !important;
+    max-height: 350px;
   }
 }
 

@@ -4,6 +4,7 @@ const AlertContext = createContext();
 
 export const AlertProvider = ({ children }) => {
   const [unreadCount, setUnreadCount] = useState(0);
+  const [alerts, setAlerts] = useState([]);
 
   // ✅ أضف هاتين الدالتين
   const addUnreadCount = () => {
@@ -14,9 +15,19 @@ export const AlertProvider = ({ children }) => {
     setUnreadCount(0);
   };
 
+  const addAlert = (newAlert) => {
+    setAlerts((prev) => [newAlert, ...prev].slice(0, 20));
+  };
+
   return (
     <AlertContext.Provider
-      value={{ unreadCount, addUnreadCount, clearUnreadCount }}
+      value={{
+        unreadCount,
+        addUnreadCount,
+        clearUnreadCount,
+        alerts,
+        addAlert,
+      }}
     >
       {children}
     </AlertContext.Provider>

@@ -2,14 +2,23 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
+import { useAlerts } from "../../context/AlertContext";
 import "./AdminNavbar.css";
 
 const AdminNavbar = ({ unreadCount = 0 }) => {
+  const { alerts } = useAlerts();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
+
+  // ✅ أضف دالة formatTime
+  const formatTime = (timestamp) => {
+    if (!timestamp) return "";
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
 
   const goHome = () => {
     if (location.pathname.startsWith("/admin/erp")) {
@@ -92,10 +101,28 @@ const AdminNavbar = ({ unreadCount = 0 }) => {
                   <div className="dropdown-header">
                     <i className="fas fa-bell"></i> {t("Notifications")}
                   </div>
-                  <div className="dropdown-empty">
-                    <i className="fas fa-inbox"></i>
-                    <p>{t("No new notifications")}</p>
-                  </div>
+                  {alerts.length === 0 ? (
+                    <div className="dropdown-empty">
+                      <i className="fas fa-inbox"></i>
+                      <p>{t("No new notifications")}</p>
+                    </div>
+                  ) : (
+                    <div className="dropdown-list">
+                      {alerts.slice(0, 5).map((alert) => (
+                        <div
+                          key={alert.id}
+                          className={`notification-item ${alert.priority}`}
+                        >
+                          <div className="notification-title">
+                            {alert.message}
+                          </div>
+                          <div className="notification-time">
+                            {formatTime(alert.time)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

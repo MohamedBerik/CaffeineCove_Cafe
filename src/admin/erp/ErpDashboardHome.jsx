@@ -31,6 +31,7 @@ export default function ErpDashboardHome() {
   const [activityLogs, setActivityLogs] = useState([]);
   const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
   const { addUnreadCount, clearUnreadCount } = useAlerts();
+  const { addAlert } = useAlerts();
 
   const isFetching = useRef(false);
   const pollingTimeout = useRef(null);
@@ -196,6 +197,7 @@ export default function ErpDashboardHome() {
     (newAlert) => {
       playSound();
       addUnreadCount();
+      addAlert(newAlert);
 
       // 🔔 toast
       toast.custom((t) => (
@@ -233,7 +235,7 @@ export default function ErpDashboardHome() {
         return updated;
       });
     },
-    [addUnreadCount],
+    [addUnreadCount, addAlert],
   );
 
   useAlertsSocket(handleNewAlert);

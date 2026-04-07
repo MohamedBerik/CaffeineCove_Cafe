@@ -609,12 +609,46 @@
 
 /* ==================== Mobile Responsive for Notifications ==================== */
 
-/* للشاشات الصغيرة (موبايل) - حل شامل LTR & RTL */
+/* ==================== Mobile Responsive for Notifications ==================== */
+
+/* للشاشات المتوسطة (تابلت) */
+@media (max-width: 768px) {
+  .notification-dropdown {
+    width: 320px;
+    max-height: 380px;
+    right: -20px;
+  }
+
+  [dir="rtl"] .notification-dropdown {
+    right: auto;
+    left: -20px;
+  }
+
+  .dropdown-header {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .notification-item {
+    padding: 10px 14px;
+  }
+
+  .notification-title {
+    font-size: 12px;
+  }
+
+  .notification-time {
+    font-size: 10px;
+  }
+}
+
+/* للشاشات الصغيرة (موبايل) - حل شامل */
 @media (max-width: 576px) {
   .notification-bell {
     position: relative;
   }
 
+  /* القائمة تتمركز في منتصف الشاشة */
   .notification-dropdown {
     position: fixed;
     top: 60px;
@@ -631,7 +665,7 @@
     overflow: hidden;
   }
 
-  /* اتجاه المحتوى الداخلي حسب اللغة */
+  /* الاتجاه حسب اللغة */
   [dir="ltr"] .notification-dropdown {
     direction: ltr;
   }
@@ -681,5 +715,30 @@
   .notification-dropdown {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* للشاشات الصغيرة جداً (عرض أقل من 360px) */
+@media (max-width: 360px) {
+  .notification-dropdown {
+    width: calc(100vw - 20px);
+    left: 50% !important;
+    transform: translateX(-50%);
+  }
+}
+
+/* للشاشات الأفقية (Landscape) */
+@media (max-width: 850px) and (orientation: landscape) {
+  .notification-dropdown {
+    max-height: 70vh;
+    top: 45px;
+  }
+
+  .notification-item {
+    padding: 8px 12px;
+  }
+
+  .dropdown-header {
+    padding: 8px 12px;
   }
 }

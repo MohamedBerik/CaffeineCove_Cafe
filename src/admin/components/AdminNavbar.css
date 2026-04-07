@@ -640,64 +640,84 @@
   }
 }
 
-/* للشاشات الصغيرة (موبايل) */
+/* ✅ للشاشات الصغيرة (موبايل) - الإصدار المعدل */
 @media (max-width: 576px) {
   .notification-bell {
     position: relative;
   }
 
   .notification-dropdown {
-    position: fixed;
-    top: 60px;
-    left: 10px;
-    right: 10px;
-    width: auto;
-    max-width: none;
-    max-height: 65vh;
-    border-radius: 16px;
-    right: 10px !important;
-    left: 10px !important;
+    position: absolute;
+    top: 45px;
+    right: 0;
+    left: auto;
+    width: 300px;
+    max-width: calc(100vw - 20px);
+    max-height: 400px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    overflow: hidden;
   }
 
+  /* لو الـ dropdown هيتعدى حدود الشاشة على اليمين، نزحّحه لليسار */
+  .notification-dropdown {
+    right: 0;
+    left: auto;
+  }
+
+  /* لو الـ dropdown هيتعدى حدود الشاشة على اليسار (RTL أو مساحة صغيرة) */
   [dir="rtl"] .notification-dropdown {
-    left: 10px !important;
-    right: 10px !important;
+    left: 0;
+    right: auto;
+  }
+
+  /* إذا كان في مساحة صغيرة جداً، نخليه في النص */
+  @media (max-width: 380px) {
+    .notification-dropdown {
+      right: -10px;
+    }
+    [dir="rtl"] .notification-dropdown {
+      left: -10px;
+    }
   }
 
   .dropdown-header {
-    padding: 14px 16px;
+    padding: 12px 16px;
     font-size: 14px;
     position: sticky;
     top: 0;
     z-index: 10;
+    background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
   }
 
   .dropdown-header i {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .dropdown-empty {
-    padding: 40px 20px;
+    padding: 30px 20px;
   }
 
   .dropdown-empty i {
-    font-size: 40px;
+    font-size: 36px;
   }
 
   .dropdown-empty p {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .notification-item {
-    padding: 14px 16px;
+    padding: 12px 16px;
   }
 
   .notification-title {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .notification-time {
-    font-size: 11px;
+    font-size: 10px;
     margin-top: 4px;
   }
 
@@ -711,28 +731,27 @@
 /* للشاشات الصغيرة جداً */
 @media (max-width: 380px) {
   .notification-dropdown {
-    top: 56px;
-    max-height: 55vh;
+    width: 280px;
+    right: -10px;
   }
-
-  .dropdown-header {
-    padding: 12px 14px;
-    font-size: 13px;
-  }
-
-  .notification-title {
-    font-size: 13px;
+  [dir="rtl"] .notification-dropdown {
+    left: -10px;
+    right: auto;
   }
 }
 
 /* للشاشات الأفقية (Landscape) */
 @media (max-width: 850px) and (orientation: landscape) {
   .notification-dropdown {
-    max-height: 80vh;
-    top: 50px;
+    max-height: 70vh;
+    top: 45px;
   }
 
   .notification-item {
+    padding: 8px 12px;
+  }
+
+  .dropdown-header {
     padding: 8px 12px;
   }
 }

@@ -78,7 +78,7 @@ const AdminNavbar = ({ unreadCount = 0 }) => {
 
             {/* ✅ Notification Bell with Dropdown */}
             <div
-              className="notification-bell"
+              className={`notification-bell ${showDropdown ? "open" : ""}`}
               onClick={() => setShowDropdown(!showDropdown)}
             >
               <i className="fas fa-bell"></i>
@@ -89,11 +89,13 @@ const AdminNavbar = ({ unreadCount = 0 }) => {
               )}
               {showDropdown && (
                 <div className="notification-dropdown">
-                  <div className="dropdown-header">{t("Notifications")}</div>
-                  <div className="dropdown-empty">
-                    {t("No new notifications")}
+                  <div className="dropdown-header">
+                    <i className="fas fa-bell"></i> {t("Notifications")}
                   </div>
-                  {/* هنا هتجيب الـ alerts من Context لو عايز تعرضها */}
+                  <div className="dropdown-empty">
+                    <i className="fas fa-inbox"></i>
+                    <p>{t("No new notifications")}</p>
+                  </div>
                 </div>
               )}
             </div>

@@ -10,12 +10,10 @@ const AdminNavbar = ({ unreadCount = 0 }) => {
   const { t, i18n } = useTranslation();
 
   const goHome = () => {
-    // لو داخل ERP يرجع للـ ERP dashboard
     if (location.pathname.startsWith("/admin/erp")) {
       navigate("/admin/erp");
       return;
     }
-    // fallback
     navigate("/admin/erp");
   };
 
@@ -27,7 +25,6 @@ const AdminNavbar = ({ unreadCount = 0 }) => {
     const newLang = i18n.language === "en" ? "ar" : "en";
     i18n.changeLanguage(newLang);
     localStorage.setItem("appLanguage", newLang);
-    // تغيير اتجاه الصفحة للغة العربية
     document.documentElement.dir = newLang === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = newLang;
   };
@@ -38,6 +35,12 @@ const AdminNavbar = ({ unreadCount = 0 }) => {
     return t("Admin");
   };
 
+  const openAlerts = () => {
+    const alertsSection = document.querySelector(".alerts-container");
+    if (alertsSection) {
+      alertsSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
   return (
     <>
       <nav className="admin-navbar" dir="ltr">

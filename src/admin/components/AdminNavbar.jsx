@@ -1,6 +1,7 @@
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 import "./AdminNavbar.css";
 
 const AdminNavbar = ({ unreadCount = 0 }) => {
@@ -8,6 +9,7 @@ const AdminNavbar = ({ unreadCount = 0 }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation();
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const goHome = () => {
     if (location.pathname.startsWith("/admin/erp")) {
@@ -74,14 +76,25 @@ const AdminNavbar = ({ unreadCount = 0 }) => {
               <span>{i18n.language === "en" ? "AR" : "EN"}</span>
             </button>
 
-            <div className="notification-bell" onClick={openAlerts}>
-              {" "}
-              {/* ✅ أضف onClick */}
+            {/* ✅ Notification Bell with Dropdown */}
+            <div
+              className="notification-bell"
+              onClick={() => setShowDropdown(!showDropdown)}
+            >
               <i className="fas fa-bell"></i>
               {unreadCount > 0 && (
                 <span className="badge">
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </span>
+              )}
+              {showDropdown && (
+                <div className="notification-dropdown">
+                  <div className="dropdown-header">{t("Notifications")}</div>
+                  <div className="dropdown-empty">
+                    {t("No new notifications")}
+                  </div>
+                  {/* هنا هتجيب الـ alerts من Context لو عايز تعرضها */}
+                </div>
               )}
             </div>
 

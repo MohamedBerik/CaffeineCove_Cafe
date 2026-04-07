@@ -1,11 +1,10 @@
-import React, { useContext } from "react";
 import { Outlet } from "react-router-dom";
 import AdminNavbar from "../components/AdminNavbar";
 import ErpNav from "./components/ErpNav";
-import { AlertContext } from "../../context/AlertContext";
+import { useAlerts } from "../../context/AlertContext";
 
 const ERPDashboard = () => {
-  const { unreadCount } = useContext(AlertContext);
+  const { unreadCount } = useAlerts();
 
   return (
     <>

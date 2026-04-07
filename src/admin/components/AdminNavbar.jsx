@@ -107,14 +107,14 @@ const AdminNavbar = () => {
               <span>{i18n.language === "en" ? "AR" : "EN"}</span>
             </button>
 
-            {/* ✅ Notification Bell with Dropdown - حل جديد */}
+            {/* ✅ Notification Bell with Dropdown */}
             <div
               ref={dropdownRef}
-              className="notification-bell"
+              className={`notification-bell ${showDropdown ? "open" : ""}`}
               onClick={() => {
                 setShowDropdown(!showDropdown);
                 if (!showDropdown) {
-                  clearUnreadCount();
+                  clearUnreadCount(); // ✅ بيمسح العداد لما يفتح
                 }
               }}
             >
@@ -125,10 +125,7 @@ const AdminNavbar = () => {
                 </span>
               )}
               {showDropdown && (
-                <div
-                  className="notification-dropdown"
-                  style={{ display: "block" }}
-                >
+                <div className="notification-dropdown">
                   <div className="dropdown-header">
                     <i className="fas fa-bell"></i> {t("Notifications")}
                   </div>

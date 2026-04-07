@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useAlerts } from "../../context/AlertContext";
 import "./AdminNavbar.css";
 
-const AdminNavbar = ({ unreadCount = 0 }) => {
-  const { alerts } = useAlerts();
+const AdminNavbar = () => {
+  const { alerts, unreadCount, clearUnreadCount } = useAlerts();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -52,6 +52,15 @@ const AdminNavbar = ({ unreadCount = 0 }) => {
       alertsSection.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  // ✅ دالة مسح العداد عند فتح dropdown
+  const handleBellClick = () => {
+    const willOpen = !showDropdown;
+    setShowDropdown(willOpen);
+    if (willOpen) {
+      clearUnreadCount(); // ✅ بيمسح العداد
+    }
+  };
   return (
     <>
       <nav className="admin-navbar" dir="ltr">
@@ -88,7 +97,12 @@ const AdminNavbar = ({ unreadCount = 0 }) => {
             {/* ✅ Notification Bell with Dropdown */}
             <div
               className={`notification-bell ${showDropdown ? "open" : ""}`}
-              onClick={() => setShowDropdown(!showDropdown)}
+              onClick={() => {
+                setShowDropdown(!showDropdown);
+                if (!showDropdown) {
+                  clearUnreadCount(); // ✅ بيمسح العداد لما يفتح
+                }
+              }}
             >
               <i className="fas fa-bell"></i>
               {unreadCount > 0 && (

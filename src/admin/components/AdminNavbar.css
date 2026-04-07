@@ -691,15 +691,3 @@
     font-size: 11px;
   }
 }
-
-/* للشاشات الصغيرة جداً */
-@media (max-width: 380px) {
-  .notification-dropdown {
-    top: 56px;
-    max-height: 60vh;
-  }
-
-  .notification-title {
-    font-size: 13px;
-  }
-}

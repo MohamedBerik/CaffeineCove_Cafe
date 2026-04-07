@@ -609,18 +609,18 @@
 
 /* ==================== Mobile Responsive for Notifications ==================== */
 
-/* للشاشات الصغيرة (موبايل) */
+/* للشاشات الصغيرة (موبايل) - قائمة في المنتصف */
 @media (max-width: 576px) {
   .notification-bell {
     position: relative;
   }
 
-  /* القاعدة الأساسية للقائمة */
   .notification-dropdown {
-    position: absolute;
-    top: 45px;
-    right: 0;
-    width: 300px;
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
     max-width: calc(100vw - 20px);
     max-height: 400px;
     background: white;
@@ -630,34 +630,21 @@
     overflow: hidden;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-10px);
     transition: all 0.25s ease;
-  }
-
-  /* RTL (العربية): القائمة تظهر على اليسار */
-  [dir="rtl"] .notification-dropdown {
-    right: auto;
-    left: 0;
   }
 
   /* إظهار القائمة */
   .notification-bell.open .notification-dropdown {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
   }
 
-  /* عرض كامل الشاشة لو المسافة ضيقة */
-  @media (max-width: 380px) {
-    .notification-dropdown {
-      width: calc(100vw - 20px);
-      left: 10px !important;
-      right: 10px !important;
-    }
-    [dir="rtl"] .notification-dropdown {
-      left: 10px !important;
-      right: 10px !important;
-    }
+  /* الاتجاه حسب اللغة */
+  [dir="ltr"] .notification-dropdown,
+  [dir="rtl"] .notification-dropdown {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
   }
 
   .dropdown-header {
@@ -701,5 +688,28 @@
   .notification-dropdown {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* للشاشات الصغيرة جداً */
+@media (max-width: 380px) {
+  .notification-dropdown {
+    width: calc(100vw - 20px);
+  }
+}
+
+/* للشاشات الأفقية (Landscape) */
+@media (max-width: 850px) and (orientation: landscape) {
+  .notification-dropdown {
+    max-height: 70vh;
+    top: 50px;
+  }
+
+  .notification-item {
+    padding: 8px 12px;
+  }
+
+  .dropdown-header {
+    padding: 8px 12px;
   }
 }

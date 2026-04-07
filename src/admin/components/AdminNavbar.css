@@ -341,7 +341,7 @@
 
 /* Notification Dropdown - Smooth Animation */
 .notification-dropdown {
-  position: fixed;
+  position: absolute;
   top: 45px;
   right: 0;
   width: 340px;

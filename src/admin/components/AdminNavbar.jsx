@@ -71,7 +71,9 @@ const AdminNavbar = ({ unreadCount = 0 }) => {
               <span>{i18n.language === "en" ? "AR" : "EN"}</span>
             </button>
 
-            <div className="notification-bell">
+            <div className="notification-bell" onClick={openAlerts}>
+              {" "}
+              {/* ✅ أضف onClick */}
               <i className="fas fa-bell"></i>
               {unreadCount > 0 && (
                 <span className="badge">

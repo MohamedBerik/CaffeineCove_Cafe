@@ -341,7 +341,7 @@
 
 /* Notification Dropdown - Smooth Animation */
 .notification-dropdown {
-  position: absolute;
+  position: fixed;
   top: 45px;
   right: 0;
   width: 340px;
@@ -644,7 +644,7 @@
 /* للشاشات الصغيرة (موبايل) - Dropdown مع محاذاة ذكية */
 @media (max-width: 576px) {
   .notification-dropdown {
-    position: absolute;
+    position: fixed;
     top: 60px !important;
     left: 50% !important;
     transform: translateX(-50%) translateY(-10px) !important;

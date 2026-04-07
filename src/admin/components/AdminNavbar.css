@@ -240,7 +240,7 @@
 .erp-nav-link:hover {
   background: #f8f9ff;
   color: #1a237e;
-  transform: translateX(4px);
+  /* transform: translateX(4px); */
 }
 
 .erp-nav-link:hover i {

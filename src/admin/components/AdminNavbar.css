@@ -240,7 +240,7 @@
 .erp-nav-link:hover {
   background: #f8f9ff;
   color: #1a237e;
-  /* transform: translateX(4px); */
+  transform: translateX(4px);
 }
 
 .erp-nav-link:hover i {
@@ -701,34 +701,5 @@
   .notification-dropdown {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* للشاشات الصغيرة جداً */
-@media (max-width: 380px) {
-  .notification-dropdown {
-    top: 56px;
-    max-height: 55vh;
-  }
-
-  .dropdown-header {
-    padding: 12px 14px;
-    font-size: 13px;
-  }
-
-  .notification-title {
-    font-size: 13px;
-  }
-}
-
-/* للشاشات الأفقية (Landscape) */
-@media (max-width: 850px) and (orientation: landscape) {
-  .notification-dropdown {
-    max-height: 80vh;
-    top: 50px;
-  }
-
-  .notification-item {
-    padding: 8px 12px;
   }
 }

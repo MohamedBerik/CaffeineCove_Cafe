@@ -644,7 +644,7 @@
 /* للشاشات الصغيرة (موبايل) - Dropdown مع محاذاة ذكية */
 @media (max-width: 576px) {
   .notification-dropdown {
-    position: fixed !important;
+    position: absolute;
     top: 60px !important;
     left: 50% !important;
     transform: translateX(-50%) translateY(-10px) !important;

@@ -609,54 +609,20 @@
 
 /* ==================== Mobile Responsive for Notifications ==================== */
 
-/* ==================== Mobile Responsive for Notifications ==================== */
-
-/* للشاشات المتوسطة (تابلت) */
-@media (max-width: 768px) {
-  .notification-dropdown {
-    width: 320px;
-    max-height: 380px;
-    right: -20px;
-  }
-
-  [dir="rtl"] .notification-dropdown {
-    right: auto;
-    left: -20px;
-  }
-
-  .dropdown-header {
-    padding: 10px 14px;
-    font-size: 13px;
-  }
-
-  .notification-item {
-    padding: 10px 14px;
-  }
-
-  .notification-title {
-    font-size: 12px;
-  }
-
-  .notification-time {
-    font-size: 10px;
-  }
-}
-
-/* للشاشات الصغيرة (موبايل) - حل شامل */
+/* للشاشات الصغيرة (موبايل) - حل مضمون */
 @media (max-width: 576px) {
   .notification-bell {
     position: relative;
   }
 
-  /* القائمة تتمركز في منتصف الشاشة */
+  /* القائمة تاخد عرض الشاشة كامل مع مسافة بسيطة */
   .notification-dropdown {
     position: fixed;
     top: 60px;
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%);
-    width: 320px;
-    max-width: calc(100vw - 20px);
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    max-width: none;
     max-height: 400px;
     background: white;
     border-radius: 16px;
@@ -668,10 +634,12 @@
   /* الاتجاه حسب اللغة */
   [dir="ltr"] .notification-dropdown {
     direction: ltr;
+    text-align: left;
   }
 
   [dir="rtl"] .notification-dropdown {
     direction: rtl;
+    text-align: right;
   }
 
   .dropdown-header {
@@ -721,24 +689,7 @@
 /* للشاشات الصغيرة جداً (عرض أقل من 360px) */
 @media (max-width: 360px) {
   .notification-dropdown {
-    width: calc(100vw - 20px);
-    left: 50% !important;
-    transform: translateX(-50%);
-  }
-}
-
-/* للشاشات الأفقية (Landscape) */
-@media (max-width: 850px) and (orientation: landscape) {
-  .notification-dropdown {
-    max-height: 70vh;
-    top: 45px;
-  }
-
-  .notification-item {
-    padding: 8px 12px;
-  }
-
-  .dropdown-header {
-    padding: 8px 12px;
+    top: 56px;
+    max-height: 350px;
   }
 }

@@ -607,7 +607,7 @@
   }
 }
 
-/* ==================== Responsive Design ==================== */
+/* ==================== Responsive Design for Notifications ==================== */
 
 /* للشاشات المتوسطة (تابلت) */
 @media (max-width: 768px) {
@@ -615,6 +615,12 @@
     width: 300px;
     max-height: 350px;
     top: 40px;
+    right: -80px; /* عشان يظهر تحت الجرس بشكل مناسب */
+  }
+
+  [dir="rtl"] .notification-dropdown {
+    right: auto;
+    left: -80px;
   }
 
   .dropdown-header {
@@ -638,7 +644,7 @@
 /* للشاشات الصغيرة (موبايل) */
 @media (max-width: 576px) {
   .notification-bell {
-    position: static; /* عشان الdropdown يظهر تحت الجرس مباشرة */
+    position: relative;
   }
 
   .notification-dropdown {
@@ -648,19 +654,18 @@
     right: 10px;
     width: auto;
     max-width: none;
-    max-height: 70vh;
-    border-radius: 12px;
-  }
-
-  /* RTL للشاشات الصغيرة */
-  [dir="rtl"] .notification-dropdown {
-    left: 10px;
-    right: 10px;
+    max-height: 65vh;
+    border-radius: 16px;
+    right: 10px !important;
+    left: 10px !important;
   }
 
   .dropdown-header {
-    padding: 12px 16px;
+    padding: 14px 16px;
     font-size: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
 
   .dropdown-header i {
@@ -668,11 +673,11 @@
   }
 
   .dropdown-empty {
-    padding: 40px 20px;
+    padding: 50px 20px;
   }
 
   .dropdown-empty i {
-    font-size: 40px;
+    font-size: 48px;
   }
 
   .dropdown-empty p {
@@ -689,5 +694,41 @@
 
   .notification-time {
     font-size: 11px;
+    margin-top: 4px;
+  }
+
+  /* تحسين التمرير */
+  .notification-dropdown {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* للشاشات الصغيرة جداً */
+@media (max-width: 380px) {
+  .notification-dropdown {
+    top: 56px;
+    max-height: 55vh;
+  }
+
+  .dropdown-header {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+
+  .notification-title {
+    font-size: 13px;
+  }
+}
+
+/* للشاشات الأفقية (Landscape) */
+@media (max-width: 850px) and (orientation: landscape) {
+  .notification-dropdown {
+    max-height: 80vh;
+    top: 50px;
+  }
+
+  .notification-item {
+    padding: 8px 12px;
   }
 }

@@ -2135,6 +2135,25 @@ const resources = {
       "Privacy Policy": "Privacy Policy",
       "Hide password": "Hide password",
       "Show password": "Show password",
+
+      Notifications: "Notifications",
+      "No new notifications": "No new notifications",
+      "Alert acknowledged": "Alert acknowledged",
+      "Failed to acknowledge alert": "Failed to acknowledge alert",
+      "New alert received": "New alert received",
+
+      // Notification priorities
+      high: "High",
+      medium: "Medium",
+      low: "Low",
+
+      // Notification messages
+      "High failed reminders": "High failed reminders",
+      "Reminders stuck in processing": "Reminders stuck in processing",
+      "There are {{count}} failed reminders that need review":
+        "There are {{count}} failed reminders that need review",
+      "There are {{count}} reminders stuck for more than 10 minutes":
+        "There are {{count}} reminders stuck for more than 10 minutes",
     },
   },
   ar: {
@@ -4255,6 +4274,25 @@ const resources = {
       "Privacy Policy": "سياسة الخصوصية",
       "Hide password": "إخفاء كلمة المرور",
       "Show password": "إظهار كلمة المرور",
+
+      Notifications: "الإشعارات",
+      "No new notifications": "لا توجد إشعارات جديدة",
+      "Alert acknowledged": "تم تأكيد التنبيه",
+      "Failed to acknowledge alert": "فشل تأكيد التنبيه",
+      "New alert received": "تم استلام تنبيه جديد",
+
+      // Notification priorities
+      high: "عالية",
+      medium: "متوسطة",
+      low: "منخفضة",
+
+      // Notification messages
+      "High failed reminders": "تذكيرات فاشلة كثيرة",
+      "Reminders stuck in processing": "تذكيرات عالقة قيد المعالجة",
+      "There are {{count}} failed reminders that need review":
+        "هناك {{count}} تذكيرات فاشلة تحتاج إلى مراجعة",
+      "There are {{count}} reminders stuck for more than 10 minutes":
+        "هناك {{count}} تذكيرات عالقة منذ أكثر من 10 دقائق",
     },
   },
 };

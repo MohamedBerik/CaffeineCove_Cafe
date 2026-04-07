@@ -644,12 +644,12 @@
 @media (max-width: 576px) {
   .notification-dropdown {
     position: fixed !important;
-    top: 50px !important;
-    left: 30% !important;
+    top: 45px !important;
+    left: 20% !important;
     transform: translateX(-50%) translateY(-10px) !important;
     right: auto !important;
     width: calc(100vw - 20px) !important;
-    max-width: 400px !important;
+    max-width: 300px !important;
     background: white;
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);

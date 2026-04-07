@@ -529,7 +529,7 @@
     font-size: 0.85rem;
   }
 }
-
+/* 
 @media (max-width: 576px) {
   .navbar-container {
     height: 56px;
@@ -582,7 +582,7 @@
     width: 18px;
     font-size: 0.9rem;
   }
-}
+} */
 
 /* Mobile Menu (for future enhancement) */
 @media (max-width: 768px) {
@@ -642,6 +642,58 @@
 
 /* للشاشات الصغيرة (موبايل) - Dropdown مع محاذاة ذكية */
 @media (max-width: 576px) {
+  .navbar-container {
+    height: 56px;
+    padding: 0 0.85rem;
+  }
+
+  .navbar-brand i {
+    font-size: 1.45rem;
+  }
+
+  .brand-title {
+    font-size: 0.95rem;
+  }
+
+  .navbar-actions {
+    gap: 0.6rem;
+  }
+
+  .navbar-user {
+    gap: 0.6rem;
+  }
+
+  .user-info {
+    padding: 0.25rem;
+  }
+
+  .user-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .logout-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .logout-btn span {
+    display: none;
+  }
+
+  .lang-switch-btn {
+    padding: 0.5rem;
+  }
+
+  .navbar-spacer {
+    height: 56px;
+  }
+
+  .erp-nav-link i {
+    width: 18px;
+    font-size: 0.9rem;
+  }
+
   .notification-dropdown {
     position: fixed !important;
     top: 60px !important;

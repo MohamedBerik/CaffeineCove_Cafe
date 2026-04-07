@@ -609,72 +609,35 @@
 
 /* ==================== Mobile Responsive for Notifications ==================== */
 
-/* للشاشات المتوسطة (تابلت) */
-@media (max-width: 768px) {
-  .notification-dropdown {
-    width: 320px;
-    max-height: 380px;
-    right: -20px;
-  }
-
-  [dir="rtl"] .notification-dropdown {
-    right: auto;
-    left: -20px;
-  }
-
-  .dropdown-header {
-    padding: 10px 14px;
-    font-size: 13px;
-  }
-
-  .notification-item {
-    padding: 10px 14px;
-  }
-
-  .notification-title {
-    font-size: 12px;
-  }
-
-  .notification-time {
-    font-size: 10px;
-  }
-}
-
-/* للشاشات الصغيرة (موبايل) */
+/* للشاشات الصغيرة (موبايل) - حل شامل LTR & RTL */
 @media (max-width: 576px) {
   .notification-bell {
     position: relative;
   }
 
   .notification-dropdown {
-    position: absolute;
-    top: 45px;
-    right: 0;
-    left: auto;
-    width: 280px;
+    position: fixed;
+    top: 60px;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%);
+    width: 320px;
     max-width: calc(100vw - 20px);
     max-height: 400px;
     background: white;
-    border-radius: 12px;
+    border-radius: 16px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     overflow: hidden;
   }
 
-  /* ✅ RTL fix - للغة العربية */
-  [dir="rtl"] .notification-dropdown {
-    right: auto !important;
-    left: 0 !important;
+  /* اتجاه المحتوى الداخلي حسب اللغة */
+  [dir="ltr"] .notification-dropdown {
+    direction: ltr;
   }
 
-  @media (max-width: 380px) {
-    .notification-dropdown {
-      right: -10px;
-    }
-    [dir="rtl"] .notification-dropdown {
-      left: -10px !important;
-      right: auto !important;
-    }
+  [dir="rtl"] .notification-dropdown {
+    direction: rtl;
   }
 
   .dropdown-header {
@@ -718,38 +681,5 @@
   .notification-dropdown {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* للشاشات الصغيرة جداً */
-@media (max-width: 380px) {
-  .notification-dropdown {
-    width: 280px;
-    right: -10px;
-  }
-  [dir="rtl"] .notification-dropdown {
-    left: -10px !important;
-    right: auto !important;
-  }
-}
-
-/* للشاشات الأفقية (Landscape) */
-@media (max-width: 850px) and (orientation: landscape) {
-  .notification-dropdown {
-    max-height: 70vh;
-    top: 45px;
-  }
-
-  .notification-item {
-    padding: 8px 12px;
-  }
-
-  .dropdown-header {
-    padding: 8px 12px;
-  }
-
-  [dir="rtl"] .notification-dropdown {
-    left: 0 !important;
-    right: auto !important;
   }
 }

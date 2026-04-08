@@ -512,7 +512,7 @@
 /* ==================== Notification Dropdown - Desktop & Tablet ==================== */
 .notification-dropdown.global {
   position: absolute;
-  top: 45px;
+  top: 65px;
   right: 0; /* ✅ غيرناها من 20px إلى 0 */
   width: 340px;
   max-height: 400px;
@@ -535,8 +535,9 @@
 
 [dir="rtl"] .notification-dropdown.global {
   right: auto;
-  left: 0; /* ✅ غيرناها من 20px إلى 0 */
+  left: auto; /* ✅ غيرناها من 20px إلى 0 */
 }
+
 /* 2️⃣ Tablets (max-width: 768px) */
 @media (max-width: 768px) {
   /* ERP Nav */

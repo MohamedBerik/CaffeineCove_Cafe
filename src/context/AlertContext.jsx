@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
 import { useAuth } from "./AuthContext"; // ✅ أضف السطر ده
 import useAlertsSocket from "../hooks/useAlertsSocket"; // ✅ أضف السطر ده
 import api from "../services/axios";
@@ -9,6 +9,30 @@ export const AlertProvider = ({ children }) => {
   const { user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
   const [alerts, setAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // ✅ أضف useEffect ده
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchAlerts = async () => {
+      try {
+        const [alertsRes, countRes] = await Promise.all([
+          api.get("/erp/alerts"),
+          api.get("/erp/alerts/unread-count"),
+        ]);
+
+        setAlerts(alertsRes.data);
+        setUnreadCount(countRes.data.count);
+      } catch (error) {
+        console.error("❌ Error fetching alerts:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAlerts();
+  }, [user]);
 
   // ✅ أضف هاتين الدالتين
   const addUnreadCount = () => {
@@ -43,8 +67,8 @@ export const AlertProvider = ({ children }) => {
   };
 
   useAlertsSocket((newAlert) => {
-    setAlerts((prev) => [newAlert, ...prev]);
-    setUnreadCount((prev) => prev + 1);
+    addAlert(newAlert);
+    addUnreadCount();
   }, user?.company_id);
 
   return (

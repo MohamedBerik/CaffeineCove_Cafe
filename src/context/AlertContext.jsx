@@ -18,6 +18,19 @@ export const AlertProvider = ({ children }) => {
     setUnreadCount(0);
   };
 
+  const updateUnreadCount = () => {
+    // ✅ دالة تحديث العداد من الباك إند
+    const fetchCount = async () => {
+      try {
+        const response = await api.get("/erp/alerts/unread-count");
+        setUnreadCount(response.data.count);
+      } catch (error) {
+        console.error("❌ Error fetching unread count:", error);
+      }
+    };
+    fetchCount();
+  };
+
   const addAlert = (newAlert) => {
     setAlerts((prev) => [newAlert, ...prev].slice(0, 20));
   };
@@ -39,7 +52,9 @@ export const AlertProvider = ({ children }) => {
         unreadCount,
         addUnreadCount,
         clearUnreadCount,
+        updateUnreadCount,
         alerts,
+        setAlerts,
         addAlert,
         markAsRead,
       }}

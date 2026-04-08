@@ -4,9 +4,16 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect, useRef } from "react";
 import { useAlerts } from "../../context/AlertContext";
 import "./AdminNavbar.css";
+import api from "../services/axios";
 
 const AdminNavbar = () => {
-  const { alerts, unreadCount, clearUnreadCount } = useAlerts();
+  const {
+    alerts,
+    unreadCount,
+    clearUnreadCount,
+    setAlerts,
+    updateUnreadCount,
+  } = useAlerts();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -77,7 +84,7 @@ const AdminNavbar = () => {
   // ✅ دالة تحديد الإشعار كمقروء مع مزامنة API
   const markAsRead = async (alertId) => {
     try {
-      await axios.post(`/api/erp/alerts/${alertId}/ack`);
+      await api.post(`/erp/alerts/${alertId}/ack`);
 
       // تحديث الـ state لو الوظائف موجودة
       if (typeof setAlerts === "function") {

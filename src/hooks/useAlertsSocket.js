@@ -2,6 +2,32 @@ import { useEffect, useRef } from "react";
 import echo from "../services/echo";
 import toast from "react-hot-toast";
 
+// ✅ دالة ترجمة الكود إلى أيقونة - برا الـ useEffect
+const getAlertIcon = (code, type) => {
+  switch (code) {
+    case "LOW_STOCK":
+      return "📦";
+    case "PAYMENT_FAILED":
+      return "💳";
+    case "NEW_ORDER":
+      return "🛒";
+    case "APPOINTMENT_BOOKED":
+      return "📅";
+    case "APPOINTMENT_CANCELLED":
+      return "❌";
+    case "TREATMENT_COMPLETED":
+      return "✅";
+    default:
+      return type === "warning"
+        ? "⚠️"
+        : type === "error"
+          ? "❌"
+          : type === "success"
+            ? "✅"
+            : "🔔";
+  }
+};
+
 export default function useAlertsSocket(onNewAlert, companyId) {
   const audioRef = useRef(null);
 
@@ -19,7 +45,6 @@ export default function useAlertsSocket(onNewAlert, companyId) {
   useEffect(() => {
     if (!companyId) return;
 
-    // ✅ الاستماع على Private Channel خاصة بالشركة
     const channel = echo.private(`company.${companyId}`);
 
     const playSound = () => {
@@ -51,7 +76,13 @@ export default function useAlertsSocket(onNewAlert, companyId) {
               gap: "12px",
               minWidth: "300px",
               maxWidth: "400px",
-              borderLeft: `4px solid ${e.alert.priority === "high" ? "#ef4444" : e.alert.priority === "medium" ? "#f59e0b" : "#10b981"}`,
+              borderLeft: `4px solid ${
+                e.alert.priority === "high"
+                  ? "#ef4444"
+                  : e.alert.priority === "medium"
+                    ? "#f59e0b"
+                    : "#10b981"
+              }`,
               animation: "slideIn 0.3s ease",
             }}
           >
@@ -72,13 +103,7 @@ export default function useAlertsSocket(onNewAlert, companyId) {
               }}
             >
               <span style={{ fontSize: "20px" }}>
-                {e.alert.type === "warning"
-                  ? "⚠️"
-                  : e.alert.type === "error"
-                    ? "❌"
-                    : e.alert.type === "success"
-                      ? "✅"
-                      : "🔔"}
+                {getAlertIcon(e.alert.code, e.alert.type)}
               </span>
             </div>
             <div style={{ flex: 1 }}>
@@ -134,37 +159,6 @@ export default function useAlertsSocket(onNewAlert, companyId) {
         },
       );
     });
-
-    // ✅ استخدام code لتحديد الأيقونة المناسبة
-    const getAlertIcon = (code, type) => {
-      switch (code) {
-        case "LOW_STOCK":
-          return "📦";
-        case "PAYMENT_FAILED":
-          return "💳";
-        case "NEW_ORDER":
-          return "🛒";
-        case "APPOINTMENT_BOOKED":
-          return "📅";
-        case "APPOINTMENT_CANCELLED":
-          return "❌";
-        case "TREATMENT_COMPLETED":
-          return "✅";
-        default:
-          return type === "warning"
-            ? "⚠️"
-            : type === "error"
-              ? "❌"
-              : type === "success"
-                ? "✅"
-                : "🔔";
-      }
-    };
-
-    // في toast.custom
-    <span style={{ fontSize: "20px" }}>
-      {getAlertIcon(e.alert.code, e.alert.type)}
-    </span>;
 
     return () => {
       echo.leave(`company.${companyId}`);

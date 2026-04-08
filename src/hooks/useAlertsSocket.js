@@ -2,16 +2,13 @@ import { useEffect, useRef } from "react";
 import echo from "../services/echo";
 import toast from "react-hot-toast";
 
-export default function useAlertsSocket(onNewAlert) {
-  // ✅ إنشاء Audio مرة واحدة فقط (Performance)
+export default function useAlertsSocket(onNewAlert, companyId) {
   const audioRef = useRef(null);
 
   useEffect(() => {
-    // تهيئة الصوت مرة واحدة
     audioRef.current = new Audio("/notification.mp3");
 
     return () => {
-      // تنظيف
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -20,12 +17,14 @@ export default function useAlertsSocket(onNewAlert) {
   }, []);
 
   useEffect(() => {
-    const channel = echo.channel("alerts");
+    if (!companyId) return;
 
-    // ✅ دالة تشغيل الصوت
+    // ✅ الاستماع على Private Channel خاصة بالشركة
+    const channel = echo.private(`company.${companyId}`);
+
     const playSound = () => {
       if (audioRef.current) {
-        audioRef.current.currentTime = 0; // إعادة الصوت للبداية
+        audioRef.current.currentTime = 0;
         audioRef.current.play().catch((err) => {
           console.log("🔇 لم يتم تشغيل الصوت:", err);
         });
@@ -35,13 +34,9 @@ export default function useAlertsSocket(onNewAlert) {
     channel.listen(".alert.created", (e) => {
       console.log("🔥 ALERT RECEIVED:", e);
 
-      // ✅ استدعاء الكولباك لتحديث الـ state
       onNewAlert(e.alert);
-
-      // ✅ تشغيل صوت الإشعار
       playSound();
 
-      // ✅ إظهار توست احترافي
       toast.custom(
         (t) => (
           <div
@@ -56,7 +51,7 @@ export default function useAlertsSocket(onNewAlert) {
               gap: "12px",
               minWidth: "300px",
               maxWidth: "400px",
-              borderLeft: "4px solid #ef4444",
+              borderLeft: `4px solid ${e.alert.priority === "high" ? "#ef4444" : e.alert.priority === "medium" ? "#f59e0b" : "#10b981"}`,
               animation: "slideIn 0.3s ease",
             }}
           >
@@ -65,13 +60,26 @@ export default function useAlertsSocket(onNewAlert) {
                 width: "40px",
                 height: "40px",
                 borderRadius: "50%",
-                background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+                background:
+                  e.alert.priority === "high"
+                    ? "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
+                    : e.alert.priority === "medium"
+                      ? "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
+                      : "linear-gradient(135deg, #10b981 0%, #059669 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <span style={{ fontSize: "20px" }}>🔔</span>
+              <span style={{ fontSize: "20px" }}>
+                {e.alert.type === "warning"
+                  ? "⚠️"
+                  : e.alert.type === "error"
+                    ? "❌"
+                    : e.alert.type === "success"
+                      ? "✅"
+                      : "🔔"}
+              </span>
             </div>
             <div style={{ flex: 1 }}>
               <div
@@ -99,7 +107,7 @@ export default function useAlertsSocket(onNewAlert) {
                   marginTop: "6px",
                 }}
               >
-                {new Date().toLocaleTimeString([], {
+                {new Date(e.alert.time).toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
@@ -128,7 +136,7 @@ export default function useAlertsSocket(onNewAlert) {
     });
 
     return () => {
-      echo.leave("alerts");
+      echo.leave(`company.${companyId}`);
     };
-  }, [onNewAlert]);
+  }, [onNewAlert, companyId]);
 }

@@ -133,7 +133,9 @@ const AdminNavbar = () => {
                   className="notification-overlay"
                   onClick={() => setShowDropdown(false)}
                 />
-                <div className="notification-dropdown global">
+                <div
+                  className={`notification-dropdown global ${showDropdown ? "open" : ""}`}
+                >
                   <div className="dropdown-header">
                     <i className="fas fa-bell"></i> {t("Notifications")}
                   </div>

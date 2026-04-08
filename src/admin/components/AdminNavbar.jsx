@@ -74,9 +74,29 @@ const AdminNavbar = () => {
     }
   };
 
-  const markAsRead = (alertId) => {
-    setShowDropdown(false);
-    console.log("Alert clicked:", alertId);
+  // ✅ دالة تحديد الإشعار كمقروء مع مزامنة API
+  const markAsRead = async (alertId) => {
+    try {
+      await axios.post(`/api/erp/alerts/${alertId}/ack`);
+
+      // تحديث الـ state لو الوظائف موجودة
+      if (typeof setAlerts === "function") {
+        setAlerts((prevAlerts) =>
+          prevAlerts.map((alert) =>
+            alert.id === alertId ? { ...alert, read: true } : alert,
+          ),
+        );
+      }
+
+      if (typeof updateUnreadCount === "function") {
+        updateUnreadCount();
+      }
+
+      setShowDropdown(false);
+      console.log("✅ Alert marked as read:", alertId);
+    } catch (error) {
+      console.error("❌ Error marking alert as read:", error);
+    }
   };
 
   return (

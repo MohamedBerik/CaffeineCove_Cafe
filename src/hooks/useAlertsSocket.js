@@ -135,6 +135,37 @@ export default function useAlertsSocket(onNewAlert, companyId) {
       );
     });
 
+    // ✅ استخدام code لتحديد الأيقونة المناسبة
+    const getAlertIcon = (code, type) => {
+      switch (code) {
+        case "LOW_STOCK":
+          return "📦";
+        case "PAYMENT_FAILED":
+          return "💳";
+        case "NEW_ORDER":
+          return "🛒";
+        case "APPOINTMENT_BOOKED":
+          return "📅";
+        case "APPOINTMENT_CANCELLED":
+          return "❌";
+        case "TREATMENT_COMPLETED":
+          return "✅";
+        default:
+          return type === "warning"
+            ? "⚠️"
+            : type === "error"
+              ? "❌"
+              : type === "success"
+                ? "✅"
+                : "🔔";
+      }
+    };
+
+    // في toast.custom
+    <span style={{ fontSize: "20px" }}>
+      {getAlertIcon(e.alert.code, e.alert.type)}
+    </span>;
+
     return () => {
       echo.leave(`company.${companyId}`);
     };

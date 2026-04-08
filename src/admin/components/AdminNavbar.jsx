@@ -99,6 +99,24 @@ const AdminNavbar = () => {
     }
   };
 
+  // ✅ دالة ترجمة الكود إلى أيقونة
+  const getAlertIcon = (code) => {
+    switch (code) {
+      case "LOW_STOCK":
+        return "📦";
+      case "PAYMENT_FAILED":
+        return "💳";
+      case "NEW_ORDER":
+        return "🛒";
+      case "APPOINTMENT_BOOKED":
+        return "📅";
+      case "APPOINTMENT_CANCELLED":
+        return "❌";
+      default:
+        return "🔔";
+    }
+  };
+
   return (
     <>
       <nav className="admin-navbar" dir="ltr">
@@ -180,6 +198,14 @@ const AdminNavbar = () => {
                             </div>
                             <div className="notification-time">
                               {formatTime(alert.time)}
+                            </div>
+                            <div className="notification-item">
+                              <span className="alert-icon">
+                                {getAlertIcon(alert.code)}
+                              </span>
+                              <div className="notification-title">
+                                {alert.message}
+                              </div>
                             </div>
                           </div>
                         ))}

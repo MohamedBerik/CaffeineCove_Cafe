@@ -577,7 +577,7 @@
   }
 }
 
-/* 3️⃣ Mobile Phones (max-width: 576px) - القائمة في المنتصف */
+/* 3️⃣ Mobile Phones (max-width: 576px) - All Mobile Styles Combined */
 @media (max-width: 576px) {
   /* Navbar Mobile */
   .navbar-container {
@@ -632,19 +632,19 @@
     font-size: 0.9rem;
   }
 
-  /* Notifications Mobile - في المنتصف للكل */
+  /* Notifications Mobile - Fixed & Centered */
   .notification-dropdown {
     position: fixed !important;
     top: 60px !important;
     left: 50% !important;
-    right: auto !important;
     transform: translateX(-50%) translateY(-10px) !important;
-    width: calc(100vw - 32px) !important;
+    right: auto !important;
+    width: calc(100vw - 20px) !important;
     max-width: 400px !important;
     background: white;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-    z-index: 1000 !important;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    z-index: 1050 !important;
     overflow: hidden;
     opacity: 0;
     visibility: hidden;
@@ -657,7 +657,6 @@
     transform: translateX(-50%) translateY(0) !important;
   }
 
-  /* ✅ العربي زي الإنجليزي - في المنتصف */
   [dir="rtl"] .notification-dropdown {
     left: 50% !important;
     right: auto !important;
@@ -668,109 +667,77 @@
     transform: translateX(-50%) translateY(0) !important;
   }
 
+  /* Mobile Overlay */
+  .notification-bell.open::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1040 !important;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
   /* Mobile Inner Styles */
   .dropdown-header {
-    padding: 16px 20px;
-    font-size: 16px;
-    font-weight: 600;
+    padding: 14px 18px;
+    font-size: 15px;
     position: sticky;
     top: 0;
     z-index: 10;
     background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-    color: white;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    align-items: center;
-    gap: 10px;
   }
 
   .dropdown-header i {
-    font-size: 16px;
-    color: #64b5f6;
-  }
-
-  [dir="rtl"] .dropdown-header i {
-    margin-left: 0;
+    font-size: 15px;
   }
 
   .dropdown-empty {
-    padding: 50px 20px;
-    text-align: center;
+    padding: 40px 20px;
   }
 
   .dropdown-empty i {
-    font-size: 48px;
-    color: #b0bec5;
-    margin-bottom: 16px;
+    font-size: 40px;
   }
 
   .dropdown-empty p {
-    font-size: 15px;
-    color: #78909c;
+    font-size: 14px;
+    margin-top: 8px;
   }
 
   .notification-item {
-    padding: 16px 20px;
+    padding: 14px 18px;
     border-bottom: 1px solid #f0f0f0;
-    cursor: pointer;
-    transition: background 0.2s;
   }
 
-  .notification-item:active {
-    background: #f5f5f5;
-  }
-
-  .notification-item.high {
-    border-left: 4px solid #ef4444;
-  }
-
-  .notification-item.medium {
-    border-left: 4px solid #f59e0b;
-  }
-
-  .notification-item.low {
-    border-left: 4px solid #10b981;
-  }
-
-  [dir="rtl"] .notification-item.high {
-    border-left: none;
-    border-right: 4px solid #ef4444;
-  }
-
-  [dir="rtl"] .notification-item.medium {
-    border-left: none;
-    border-right: 4px solid #f59e0b;
-  }
-
-  [dir="rtl"] .notification-item.low {
-    border-left: none;
-    border-right: 4px solid #10b981;
+  .notification-item:last-child {
+    border-bottom: none;
   }
 
   .notification-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin-bottom: 6px;
-    line-height: 1.4;
+    font-size: 14px;
+    margin-bottom: 5px;
   }
 
   .notification-time {
-    font-size: 12px;
-    color: #9e9e9e;
-    margin-top: 6px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .notification-time::before {
-    content: "🕐";
-    font-size: 12px;
+    font-size: 11px;
+    margin-top: 5px;
   }
 
   .dropdown-list {
-    max-height: 400px;
+    max-height: 350px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }

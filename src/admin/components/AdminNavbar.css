@@ -1,13 +1,12 @@
-/* ==================== Admin Navbar ==================== */
 .admin-navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1100; /* رفع الرقم لتجنب التداخل */
+  z-index: 1000;
   background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
   color: #fff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15); /* تقليل الحمل */
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.18);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -22,7 +21,6 @@
   gap: 1rem;
 }
 
-/* ==================== Brand ==================== */
 .navbar-brand {
   display: inline-flex;
   align-items: center;
@@ -30,6 +28,9 @@
   color: #fff;
   cursor: pointer;
   user-select: none;
+  padding: 0;
+  margin: 0;
+  outline: none;
   transition: opacity 0.2s ease;
 }
 
@@ -37,84 +38,79 @@
   opacity: 0.92;
 }
 
+.navbar-brand:focus {
+  box-shadow: none;
+}
+
 .navbar-brand i {
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   color: #64b5f6;
 }
 
 .brand-text {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
+  line-height: 1.15;
   text-align: left;
 }
 
 .brand-title {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: 0.3px;
+  color: #fff;
 }
 
 .brand-subtitle {
-  font-size: 0.8rem;
-  opacity: 0.85;
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.82;
   color: #e8eaf6;
 }
 
-/* ==================== Actions ==================== */
 .navbar-actions {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.lang-switch-btn,
-.logout-btn {
+/* Language Switcher Button */
+.lang-switch-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.9rem;
+  padding: 0.55rem 0.95rem;
   border-radius: 8px;
+  border: 1px solid rgba(100, 181, 246, 0.35);
+  background: rgba(100, 181, 246, 0.12);
+  color: #64b5f6;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s ease;
 }
 
-.lang-switch-btn {
-  border: 1px solid rgba(100, 181, 246, 0.35);
-  background: rgba(100, 181, 246, 0.12);
-  color: #64b5f6;
-}
-
 .lang-switch-btn:hover {
   background: rgba(100, 181, 246, 0.2);
   border-color: rgba(100, 181, 246, 0.55);
+  transform: translateY(-1px);
 }
 
-.logout-btn {
-  border: 1px solid rgba(255, 82, 82, 0.35);
-  background: rgba(244, 67, 54, 0.12);
-  color: #ffb4b4;
+.lang-switch-btn i {
+  font-size: 0.95rem;
 }
 
-.logout-btn:hover {
-  background: rgba(244, 67, 54, 0.2);
-  border-color: rgba(255, 82, 82, 0.55);
-}
-
-/* ==================== User ==================== */
 .navbar-user {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 1rem;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.3rem 0.5rem;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem;
   border-radius: 10px;
   transition: background 0.25s ease;
 }
@@ -124,8 +120,8 @@
 }
 
 .user-avatar {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
   display: flex;
@@ -134,27 +130,152 @@
 }
 
 .user-avatar i {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
+  color: #fff;
 }
 
 .user-details {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .user-name {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
+  color: #fff;
 }
 
 .user-role {
-  font-size: 0.8rem; /* تحسين الوضوح */
-  opacity: 0.85;
+  font-size: 0.76rem;
+  opacity: 0.82;
+  color: #e8eaf6;
   text-transform: capitalize;
 }
 
-/* ==================== Notification Bell ==================== */
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 82, 82, 0.35);
+  background: rgba(244, 67, 54, 0.12);
+  color: #ffb4b4;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(244, 67, 54, 0.2);
+  border-color: rgba(255, 82, 82, 0.55);
+  transform: translateY(-1px);
+}
+
+.logout-btn i {
+  font-size: 0.95rem;
+}
+
+.navbar-spacer {
+  height: 64px;
+}
+
+/* ==================== ERP Nav Styles ==================== */
+.erp-nav-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.erp-nav-header {
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+  border-bottom: 1px solid rgba(26, 35, 126, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #1a237e;
+}
+
+.erp-nav-header i {
+  font-size: 1.1rem;
+  color: #283593;
+}
+
+.erp-nav-menu {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.erp-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  color: #2c3e50;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.erp-nav-link i {
+  width: 20px;
+  font-size: 1rem;
+  color: #5f6b7a;
+  transition: all 0.2s ease;
+}
+
+.erp-nav-link:hover {
+  background: #f8f9ff;
+  color: #1a237e;
+  transform: translateX(4px);
+}
+
+.erp-nav-link:hover i {
+  color: #283593;
+}
+
+.erp-nav-link.active {
+  background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(26, 35, 126, 0.25);
+}
+
+.erp-nav-link.active i {
+  color: #fff;
+}
+
+/* ==================== RTL Support ==================== */
+[dir="rtl"] .admin-navbar,
+[dir="rtl"] .erp-nav-card {
+  font-family: "Segoe UI", "Cairo", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+[dir="rtl"] .navbar-brand .brand-text {
+  text-align: right;
+}
+
+[dir="rtl"] .erp-nav-link:hover {
+  transform: translateX(-4px);
+}
+
+[dir="rtl"] .erp-nav-link {
+  direction: rtl;
+}
+
+/* Notification Bell Container */
 .notification-bell {
   position: relative;
   cursor: pointer;
@@ -171,18 +292,29 @@
   transform: scale(1.05);
 }
 
-.notification-bell i {
-  font-size: 1.2rem;
-  color: #64b5f6;
+.notification-bell:active {
+  transform: scale(0.95);
+  transition: all 0.05s ease;
 }
 
+.notification-bell i {
+  font-size: 1.3rem;
+  color: #64b5f6;
+  transition: all 0.2s ease;
+}
+
+.notification-bell:hover i {
+  color: #90caf9;
+}
+
+/* Badge with Pulse Animation */
 .badge {
   position: absolute;
   top: -5px;
   right: -5px;
   background: #ef4444;
   color: white;
-  font-size: 11px; /* تحسين الوضوح */
+  font-size: 10px;
   font-weight: bold;
   min-width: 18px;
   height: 18px;
@@ -190,6 +322,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0 4px;
   animation: pulse 1.5s infinite;
   box-shadow: 0 0 0 2px #1a237e;
 }
@@ -199,25 +332,25 @@
     transform: scale(1);
   }
   50% {
-    transform: scale(1.12);
+    transform: scale(1.15);
   }
   100% {
     transform: scale(1);
   }
 }
 
-/* ==================== Notification Dropdown ==================== */
+/* Notification Dropdown - Smooth Animation */
 .notification-dropdown {
   position: absolute;
   top: 45px;
   right: 0;
-  width: 320px;
+  width: 340px;
   max-height: 400px;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  z-index: 1100;
-  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
@@ -241,13 +374,26 @@
   gap: 8px;
 }
 
+.dropdown-header i {
+  font-size: 14px;
+  color: #64b5f6;
+  margin: 0;
+}
+
 .dropdown-empty {
-  padding: 25px 20px;
+  padding: 30px 20px;
   text-align: center;
   color: #9e9e9e;
   font-size: 13px;
 }
 
+.dropdown-empty i {
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: #e0e0e0;
+}
+
+/* Notification Items */
 .notification-item {
   padding: 12px 16px;
   border-bottom: 1px solid #f0f0f0;
@@ -259,48 +405,365 @@
   background: #f8f9ff;
 }
 
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item.high {
+  border-left: 3px solid #ef4444;
+}
+
+.notification-item.medium {
+  border-left: 3px solid #f59e0b;
+}
+
+.notification-item.low {
+  border-left: 3px solid #10b981;
+}
+
 .notification-title {
   font-weight: 600;
   font-size: 13px;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.notification-message {
+  font-size: 12px;
+  color: #666;
   margin-bottom: 4px;
 }
 
 .notification-time {
-  font-size: 11px; /* تحسين الوضوح */
+  font-size: 10px;
   color: #999;
 }
 
-/* ==================== Responsive ==================== */
+/* Scrollbar for dropdown */
+.notification-dropdown {
+  overflow-y: auto;
+}
+
+.notification-dropdown::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notification-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb {
+  background: #1a237e;
+  border-radius: 4px;
+}
+
+/* RTL Support */
+[dir="rtl"] .notification-dropdown {
+  right: auto;
+  left: 0;
+}
+
+[dir="rtl"] .notification-item {
+  border-left: none;
+  border-right: 3px solid;
+}
+
+[dir="rtl"] .notification-item.high {
+  border-right-color: #ef4444;
+}
+
+[dir="rtl"] .notification-item.medium {
+  border-right-color: #f59e0b;
+}
+
+[dir="rtl"] .notification-item.low {
+  border-right-color: #10b981;
+}
+
+/* ==================== Responsive Design ==================== */
 @media (max-width: 992px) {
+  .navbar-container {
+    padding: 0 1rem;
+  }
+
   .brand-subtitle {
     display: none;
   }
+
+  .brand-title {
+    font-size: 1rem;
+  }
+
   .user-details {
     display: none;
   }
+
   .lang-switch-btn span {
     display: none;
+  }
+
+  .lang-switch-btn {
+    padding: 0.55rem;
+  }
+
+  .lang-switch-btn i {
+    margin: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .erp-nav-card {
+    border-radius: 8px;
+  }
+
+  .erp-nav-header {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .erp-nav-menu {
+    padding: 0.5rem;
+  }
+
+  .erp-nav-link {
+    padding: 0.6rem 0.85rem;
+    font-size: 0.85rem;
   }
 }
 
 @media (max-width: 576px) {
   .navbar-container {
     height: 56px;
-    padding: 0 0.8rem;
+    padding: 0 0.85rem;
   }
-  .navbar-spacer {
-    height: 56px;
+
+  .navbar-brand i {
+    font-size: 1.45rem;
   }
+
+  .brand-title {
+    font-size: 0.95rem;
+  }
+
+  .navbar-actions {
+    gap: 0.6rem;
+  }
+
+  .navbar-user {
+    gap: 0.6rem;
+  }
+
+  .user-info {
+    padding: 0.25rem;
+  }
+
   .user-avatar {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
   }
+
+  .logout-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
   .logout-btn span {
     display: none;
   }
+
+  .lang-switch-btn {
+    padding: 0.5rem;
+  }
+
+  .navbar-spacer {
+    height: 56px;
+  }
+
+  .erp-nav-link i {
+    width: 18px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile Menu (for future enhancement) */
+@media (max-width: 768px) {
+  .erp-nav-menu {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  /* Custom scrollbar */
+  .erp-nav-menu::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .erp-nav-menu::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  .erp-nav-menu::-webkit-scrollbar-thumb {
+    background: #1a237e;
+    border-radius: 4px;
+  }
+}
+
+/* ==================== Mobile Responsive for Notifications ==================== */
+
+/* للشاشات المتوسطة (تابلت) */
+@media (max-width: 768px) {
   .notification-dropdown {
-    width: calc(100vw - 20px);
-    left: 50%;
-    transform: translateX(-50%);
+    width: 320px;
+    max-height: 380px;
+    right: -20px;
+  }
+
+  [dir="rtl"] .notification-dropdown {
+    right: auto;
+    left: -20px;
+  }
+
+  .dropdown-header {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .notification-item {
+    padding: 10px 14px;
+  }
+
+  .notification-title {
+    font-size: 12px;
+  }
+
+  .notification-time {
+    font-size: 10px;
+  }
+}
+
+/* للشاشات الصغيرة (موبايل) - Dropdown مع محاذاة ذكية */
+@media (max-width: 576px) {
+  .notification-dropdown {
+    position: fixed;
+    top: 60px !important;
+    left: 50% !important;
+    transform: translateX(-50%) translateY(-10px) !important;
+    right: auto !important;
+    width: calc(100vw - 20px) !important;
+    max-width: 400px !important;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .notification-bell.open .notification-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0) !important;
+  }
+
+  /* للغة العربية - نفس التمركز في المنتصف */
+  [dir="rtl"] .notification-dropdown {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) translateY(-10px) !important;
+  }
+
+  [dir="rtl"] .notification-bell.open .notification-dropdown {
+    transform: translateX(-50%) translateY(0) !important;
+  }
+
+  /* إضافة خلفية داكنة للتركيز */
+  .notification-bell.open::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* تنسيقات داخلية محسنة */
+  .dropdown-header {
+    padding: 14px 18px;
+    font-size: 15px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .dropdown-header i {
+    font-size: 15px;
+  }
+
+  .dropdown-empty {
+    padding: 40px 20px;
+  }
+
+  .dropdown-empty i {
+    font-size: 40px;
+  }
+
+  .dropdown-empty p {
+    font-size: 14px;
+    margin-top: 8px;
+  }
+
+  .notification-item {
+    padding: 14px 18px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .notification-item:last-child {
+    border-bottom: none;
+  }
+
+  .notification-title {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .notification-time {
+    font-size: 11px;
+    margin-top: 5px;
+  }
+
+  /* سكرول محسن للموبايل */
+  .dropdown-list {
+    max-height: 350px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dropdown-list::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .dropdown-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .dropdown-list::-webkit-scrollbar-thumb {
+    background: #1a237e;
+    border-radius: 4px;
   }
 }

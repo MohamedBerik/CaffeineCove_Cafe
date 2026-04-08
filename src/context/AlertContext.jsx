@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext } from "react";
 import { useAuth } from "./AuthContext"; // ✅ أضف السطر ده
 import useAlertsSocket from "../hooks/useAlertsSocket"; // ✅ أضف السطر ده
+import api from "../services/axios";
 
 const AlertContext = createContext();
 

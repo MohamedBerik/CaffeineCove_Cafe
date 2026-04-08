@@ -1,16 +1,45 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import echo from "../services/echo";
 import toast from "react-hot-toast";
 
 export default function useAlertsSocket(onNewAlert) {
+  // ✅ إنشاء Audio مرة واحدة فقط (Performance)
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    // تهيئة الصوت مرة واحدة
+    audioRef.current = new Audio("/notification.mp3");
+
+    return () => {
+      // تنظيف
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
   useEffect(() => {
     const channel = echo.channel("alerts");
+
+    // ✅ دالة تشغيل الصوت
+    const playSound = () => {
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0; // إعادة الصوت للبداية
+        audioRef.current.play().catch((err) => {
+          console.log("🔇 لم يتم تشغيل الصوت:", err);
+        });
+      }
+    };
 
     channel.listen(".alert.created", (e) => {
       console.log("🔥 ALERT RECEIVED:", e);
 
       // ✅ استدعاء الكولباك لتحديث الـ state
       onNewAlert(e.alert);
+
+      // ✅ تشغيل صوت الإشعار
+      playSound();
 
       // ✅ إظهار توست احترافي
       toast.custom(

@@ -275,6 +275,8 @@
   direction: rtl;
 }
 
+/* ==================== Notification System - Complete ==================== */
+
 /* Notification Bell Container */
 .notification-bell {
   position: relative;
@@ -307,7 +309,7 @@
   color: #90caf9;
 }
 
-/* Badge with Pulse Animation */
+/* Badge */
 .badge {
   position: absolute;
   top: -5px;
@@ -339,8 +341,8 @@
   }
 }
 
-/* ==================== Notification Dropdown - Desktop (min-width: 577px) ==================== */
-@media (min-width: 577px) {
+/* ==================== Desktop & Tablet (min-width: 769px) ==================== */
+@media (min-width: 769px) {
   .notification-dropdown {
     position: absolute;
     top: 45px;
@@ -368,31 +370,168 @@
     right: auto;
     left: 0;
   }
+
+  .dropdown-header {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .notification-item {
+    padding: 12px 16px;
+  }
+
+  .notification-title {
+    font-size: 13px;
+  }
+
+  .notification-time {
+    font-size: 10px;
+  }
 }
 
-/* ==================== Notification Dropdown - Base Styles ==================== */
+/* ==================== Tablet Only (min-width: 577px) and (max-width: 768px) ==================== */
+@media (min-width: 577px) and (max-width: 768px) {
+  .notification-dropdown {
+    position: absolute;
+    top: 45px;
+    right: -10px;
+    width: 320px;
+    max-height: 380px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.25s ease;
+  }
+
+  .notification-bell.open .notification-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  [dir="rtl"] .notification-dropdown {
+    right: auto;
+    left: -10px;
+  }
+
+  .dropdown-header {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .notification-item {
+    padding: 10px 14px;
+  }
+
+  .notification-title {
+    font-size: 12px;
+  }
+
+  .notification-time {
+    font-size: 10px;
+  }
+}
+
+/* ==================== Mobile Only (max-width: 576px) ==================== */
+@media (max-width: 576px) {
+  .notification-dropdown {
+    position: fixed !important;
+    top: 60px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: calc(100vw - 32px) !important;
+    max-width: 400px !important;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+    z-index: 1000 !important;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
+  }
+
+  .notification-bell.open .notification-dropdown {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* ✅ تثبيت المكان - مفيش أي حركة */
+  .notification-dropdown:hover,
+  .notification-dropdown:focus,
+  .notification-dropdown:active,
+  .notification-bell.open .notification-dropdown:hover {
+    transform: translateX(-50%) !important;
+    left: 50% !important;
+  }
+
+  [dir="rtl"] .notification-dropdown,
+  [dir="rtl"] .notification-bell.open .notification-dropdown {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+  }
+
+  /* تنسيقات داخلية */
+  .dropdown-header {
+    padding: 16px 20px;
+    font-size: 16px;
+  }
+
+  .dropdown-header i {
+    font-size: 16px;
+  }
+
+  .notification-item {
+    padding: 16px 20px;
+  }
+
+  .notification-title {
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  .notification-time {
+    font-size: 12px;
+    margin-top: 6px;
+  }
+
+  .dropdown-list {
+    max-height: 400px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ==================== Common Styles (All Screens) ==================== */
 .dropdown-header {
-  padding: 12px 16px;
   background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
   color: white;
   font-weight: bold;
-  font-size: 14px;
   display: flex;
   align-items: center;
   gap: 8px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .dropdown-header i {
-  font-size: 14px;
   color: #64b5f6;
-  margin: 0;
 }
 
 .dropdown-empty {
   padding: 30px 20px;
   text-align: center;
   color: #9e9e9e;
-  font-size: 13px;
 }
 
 .dropdown-empty i {
@@ -402,7 +541,6 @@
 }
 
 .notification-item {
-  padding: 12px 16px;
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   transition: background 0.2s ease;
@@ -428,15 +566,30 @@
   border-left: 3px solid #10b981;
 }
 
+[dir="rtl"] .notification-item {
+  border-left: none;
+  border-right: 3px solid;
+}
+
+[dir="rtl"] .notification-item.high {
+  border-right-color: #ef4444;
+}
+
+[dir="rtl"] .notification-item.medium {
+  border-right-color: #f59e0b;
+}
+
+[dir="rtl"] .notification-item.low {
+  border-right-color: #10b981;
+}
+
 .notification-title {
   font-weight: 600;
-  font-size: 13px;
   color: #1a1a1a;
-  margin-bottom: 4px;
+  line-height: 1.4;
 }
 
 .notification-time {
-  font-size: 10px;
   color: #999;
 }
 
@@ -455,336 +608,4 @@
 .notification-dropdown::-webkit-scrollbar-thumb {
   background: #1a237e;
   border-radius: 4px;
-}
-
-[dir="rtl"] .notification-item {
-  border-left: none;
-  border-right: 3px solid;
-}
-
-[dir="rtl"] .notification-item.high {
-  border-right-color: #ef4444;
-}
-
-[dir="rtl"] .notification-item.medium {
-  border-right-color: #f59e0b;
-}
-
-[dir="rtl"] .notification-item.low {
-  border-right-color: #10b981;
-}
-
-/* ==================== Responsive Design - Unified Media Queries ==================== */
-
-/* ✅ تم دمج جميع media queries المتفرقة هنا */
-
-/* 1️⃣ Tablet & Small Laptops (max-width: 992px) */
-@media (max-width: 992px) {
-  .navbar-container {
-    padding: 0 1rem;
-  }
-
-  .brand-subtitle {
-    display: none;
-  }
-
-  .brand-title {
-    font-size: 1rem;
-  }
-
-  .user-details {
-    display: none;
-  }
-
-  .lang-switch-btn span {
-    display: none;
-  }
-
-  .lang-switch-btn {
-    padding: 0.55rem;
-  }
-
-  .lang-switch-btn i {
-    margin: 0;
-  }
-}
-
-/* 2️⃣ Tablets (max-width: 768px) */
-@media (max-width: 768px) {
-  /* ERP Nav */
-  .erp-nav-card {
-    border-radius: 8px;
-  }
-
-  .erp-nav-header {
-    padding: 0.75rem 1rem;
-    font-size: 0.85rem;
-  }
-
-  .erp-nav-menu {
-    padding: 0.5rem;
-    max-height: 70vh;
-    overflow-y: auto;
-  }
-
-  .erp-nav-link {
-    padding: 0.6rem 0.85rem;
-    font-size: 0.85rem;
-  }
-
-  /* ERP Nav Scrollbar */
-  .erp-nav-menu::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .erp-nav-menu::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-  }
-
-  .erp-nav-menu::-webkit-scrollbar-thumb {
-    background: #1a237e;
-    border-radius: 4px;
-  }
-
-  /* Notifications */
-  .notification-dropdown {
-    width: 320px;
-    max-height: 380px;
-    right: -20px;
-  }
-
-  [dir="rtl"] .notification-dropdown {
-    right: auto;
-    left: -20px;
-  }
-
-  .dropdown-header {
-    padding: 10px 14px;
-    font-size: 13px;
-  }
-
-  .notification-item {
-    padding: 10px 14px;
-  }
-
-  .notification-title {
-    font-size: 12px;
-  }
-
-  .notification-time {
-    font-size: 10px;
-  }
-}
-
-/* 3️⃣ Mobile Phones (max-width: 576px) - القائمة في المنتصف */
-@media (max-width: 576px) {
-  /* Navbar Mobile */
-  .navbar-container {
-    height: 56px;
-    padding: 0 0.85rem;
-  }
-
-  .navbar-brand i {
-    font-size: 1.45rem;
-  }
-
-  .brand-title {
-    font-size: 0.95rem;
-  }
-
-  .navbar-actions {
-    gap: 0.6rem;
-  }
-
-  .navbar-user {
-    gap: 0.6rem;
-  }
-
-  .user-info {
-    padding: 0.25rem;
-  }
-
-  .user-avatar {
-    width: 34px;
-    height: 34px;
-  }
-
-  .logout-btn {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
-  }
-
-  .logout-btn span {
-    display: none;
-  }
-
-  .lang-switch-btn {
-    padding: 0.5rem;
-  }
-
-  .navbar-spacer {
-    height: 56px;
-  }
-
-  .erp-nav-link i {
-    width: 18px;
-    font-size: 0.9rem;
-  }
-
-  /* Notifications Mobile - في المنتصف للكل */
-  .notification-dropdown {
-    position: fixed !important;
-    top: 60px !important;
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%) translateY(-10px) !important;
-    width: calc(100vw - 32px) !important;
-    max-width: 400px !important;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-    z-index: 1000 !important;
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-  }
-
-  .notification-bell.open .notification-dropdown {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(0) !important;
-  }
-
-  /* ✅ العربي زي الإنجليزي - في المنتصف */
-  [dir="rtl"] .notification-dropdown {
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%) translateY(-10px) !important;
-  }
-
-  [dir="rtl"] .notification-bell.open .notification-dropdown {
-    transform: translateX(-50%) translateY(0) !important;
-  }
-
-  /* Mobile Inner Styles */
-  .dropdown-header {
-    padding: 16px 20px;
-    font-size: 16px;
-    font-weight: 600;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-    color: white;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .dropdown-header i {
-    font-size: 16px;
-    color: #64b5f6;
-  }
-
-  [dir="rtl"] .dropdown-header i {
-    margin-left: 0;
-  }
-
-  .dropdown-empty {
-    padding: 50px 20px;
-    text-align: center;
-  }
-
-  .dropdown-empty i {
-    font-size: 48px;
-    color: #b0bec5;
-    margin-bottom: 16px;
-  }
-
-  .dropdown-empty p {
-    font-size: 15px;
-    color: #78909c;
-  }
-
-  .notification-item {
-    padding: 16px 20px;
-    border-bottom: 1px solid #f0f0f0;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .notification-item:active {
-    background: #f5f5f5;
-  }
-
-  .notification-item.high {
-    border-left: 4px solid #ef4444;
-  }
-
-  .notification-item.medium {
-    border-left: 4px solid #f59e0b;
-  }
-
-  .notification-item.low {
-    border-left: 4px solid #10b981;
-  }
-
-  [dir="rtl"] .notification-item.high {
-    border-left: none;
-    border-right: 4px solid #ef4444;
-  }
-
-  [dir="rtl"] .notification-item.medium {
-    border-left: none;
-    border-right: 4px solid #f59e0b;
-  }
-
-  [dir="rtl"] .notification-item.low {
-    border-left: none;
-    border-right: 4px solid #10b981;
-  }
-
-  .notification-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin-bottom: 6px;
-    line-height: 1.4;
-  }
-
-  .notification-time {
-    font-size: 12px;
-    color: #9e9e9e;
-    margin-top: 6px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .notification-time::before {
-    content: "🕐";
-    font-size: 12px;
-  }
-
-  .dropdown-list {
-    max-height: 400px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .dropdown-list::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .dropdown-list::-webkit-scrollbar-track {
-    background: #f1f1f1;
-  }
-
-  .dropdown-list::-webkit-scrollbar-thumb {
-    background: #1a237e;
-    border-radius: 4px;
-  }
 }

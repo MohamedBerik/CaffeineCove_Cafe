@@ -67,6 +67,9 @@ export const AlertProvider = ({ children }) => {
   };
 
   useAlertsSocket((newAlert) => {
+    console.log("📨 Raw alert from socket:", newAlert);
+    console.log("📋 Alert structure:", Object.keys(newAlert));
+
     addAlert(newAlert);
     addUnreadCount();
   }, user?.company_id);

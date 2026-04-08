@@ -57,6 +57,8 @@ export default function useAlertsSocket(onNewAlert, companyId) {
     };
 
     channel.listen(".alert.created", (e) => {
+      console.log("🔥 Full event data:", e);
+      console.log("📦 Alert object:", e.alert);
       console.log("🔥 ALERT RECEIVED:", e);
 
       onNewAlert(e.alert);

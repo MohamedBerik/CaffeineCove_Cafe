@@ -513,7 +513,7 @@
 .notification-dropdown.global {
   position: absolute;
   top: 65px;
-  right: 20; /* ✅ غيرناها من 20px إلى 0 */
+  right: 40px;
   width: 340px;
   max-height: 400px;
   background: white;
@@ -535,7 +535,7 @@
 
 [dir="rtl"] .notification-dropdown.global {
   right: auto;
-  left: auto; /* ✅ غيرناها من 20px إلى 0 */
+  left: auto;
 }
 
 /* 2️⃣ Tablets (max-width: 768px) */

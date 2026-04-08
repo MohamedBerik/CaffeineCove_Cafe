@@ -609,6 +609,14 @@ body.notification-open {
 
 /* 3️⃣ Mobile Phones (max-width: 576px) */
 @media (max-width: 576px) {
+  /* إجبار جميع العناصر الأبوية على عدم استخدام transform */
+  .admin-navbar,
+  .navbar-container,
+  #root,
+  body {
+    transform: none !important;
+  }
+
   .navbar-container {
     height: 56px;
     padding: 0 0.75rem;
@@ -661,37 +669,47 @@ body.notification-open {
     font-size: 0.9rem;
   }
 
-  /* Notification Dropdown - Mobile Centered */
+  /* Notification Dropdown - Mobile Centered (مضمون) */
   .notification-dropdown {
-    position: fixed;
-    top: 60px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-10px);
-    right: auto;
-    width: calc(100vw - 20px);
-    max-width: 400px;
+    position: fixed !important;
+    top: 60px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) translateY(-10px) !important;
+    width: calc(100vw - 20px) !important;
+    max-width: 400px !important;
+    margin: 0 !important;
     background: white;
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    z-index: 1050;
-    overflow: hidden;
+    z-index: 1050 !important;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease,
+      visibility 0.25s ease;
   }
 
   .notification-bell.open .notification-dropdown {
-    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0) !important;
   }
 
   [dir="rtl"] .notification-dropdown {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%) translateY(-10px);
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) translateY(-10px) !important;
   }
 
   [dir="rtl"] .notification-bell.open .notification-dropdown {
-    transform: translateX(-50%) translateY(0);
+    transform: translateX(-50%) translateY(0) !important;
   }
 
-  /* Mobile Overlay - Fixed z-index issue */
+  /* Mobile Overlay - ثابت وخلف القائمة */
   .notification-bell.open::before {
     content: "";
     position: fixed;
@@ -757,77 +775,5 @@ body.notification-open {
   .notification-time {
     font-size: 11px;
     margin-top: 5px;
-  }
-}
-
-/* 4️⃣ Extra Small Devices (max-width: 360px) */
-@media (max-width: 360px) {
-  .navbar-container {
-    padding: 0 0.5rem;
-    gap: 0.5rem;
-  }
-
-  .navbar-brand i {
-    font-size: 1.3rem;
-  }
-
-  .brand-title {
-    font-size: 0.85rem;
-  }
-
-  .navbar-actions {
-    gap: 0.35rem;
-  }
-
-  .navbar-user {
-    gap: 0.35rem;
-  }
-
-  .user-avatar {
-    width: 30px;
-    height: 30px;
-  }
-
-  .user-avatar i {
-    font-size: 1.2rem;
-  }
-
-  .lang-switch-btn,
-  .logout-btn {
-    padding: 0.45rem;
-  }
-
-  .notification-bell {
-    padding: 4px;
-  }
-
-  .notification-bell i {
-    font-size: 1.2rem;
-  }
-
-  .badge {
-    min-width: 16px;
-    height: 16px;
-    font-size: 9px;
-    top: -4px;
-    right: -4px;
-  }
-
-  .notification-dropdown {
-    width: calc(100vw - 12px);
-    top: 55px;
-  }
-
-  .dropdown-header {
-    padding: 12px 14px;
-    font-size: 14px;
-  }
-
-  .notification-item {
-    padding: 12px 14px;
-  }
-
-  .notification-title {
-    font-size: 13px;
   }
 }

@@ -73,6 +73,12 @@ const AdminNavbar = () => {
       clearUnreadCount(); // ✅ بيمسح العداد لما يفتح
     }
   };
+
+  const markAsRead = (alertId) => {
+    setShowDropdown(false);
+    console.log("Alert clicked:", alertId);
+  };
+
   return (
     <>
       <nav className="admin-navbar" dir="ltr">

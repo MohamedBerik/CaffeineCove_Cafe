@@ -124,8 +124,16 @@ const AdminNavbar = () => {
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </span>
               )}
-              {showDropdown && (
-                <div className="notification-dropdown">
+            </div>
+
+            {/* ✅ القائمة برا الجرس - عشان تتجنب مشاكل الـ stacking context */}
+            {showDropdown && (
+              <>
+                <div
+                  className="notification-overlay"
+                  onClick={() => setShowDropdown(false)}
+                />
+                <div className="notification-dropdown global">
                   <div className="dropdown-header">
                     <i className="fas fa-bell"></i> {t("Notifications")}
                   </div>
@@ -152,8 +160,8 @@ const AdminNavbar = () => {
                     </div>
                   )}
                 </div>
-              )}
-            </div>
+              </>
+            )}
 
             <div className="navbar-user">
               <div className="user-info">

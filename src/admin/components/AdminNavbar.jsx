@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect, useRef } from "react";
 import { useAlerts } from "../../context/AlertContext";
 import "./AdminNavbar.css";
-import api from "../services/axios";
+import api from "../../services/axios";
 
 const AdminNavbar = () => {
   const {

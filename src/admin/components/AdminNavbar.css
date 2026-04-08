@@ -513,7 +513,7 @@
 .notification-dropdown.global {
   position: absolute;
   top: 65px;
-  right: 0; /* ✅ غيرناها من 20px إلى 0 */
+  right: 20; /* ✅ غيرناها من 20px إلى 0 */
   width: 340px;
   max-height: 400px;
   background: white;

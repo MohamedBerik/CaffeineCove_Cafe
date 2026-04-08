@@ -1,3 +1,4 @@
+/* ==================== Admin Navbar Styles ==================== */
 .admin-navbar {
   position: fixed;
   top: 0;
@@ -87,13 +88,16 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    margin-top 0.25s ease;
 }
 
 .lang-switch-btn:hover {
   background: rgba(100, 181, 246, 0.2);
   border-color: rgba(100, 181, 246, 0.55);
-  transform: translateY(-1px);
+  margin-top: -1px;
 }
 
 .lang-switch-btn i {
@@ -165,13 +169,16 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    margin-top 0.25s ease;
 }
 
 .logout-btn:hover {
   background: rgba(244, 67, 54, 0.2);
   border-color: rgba(255, 82, 82, 0.55);
-  transform: translateY(-1px);
+  margin-top: -1px;
 }
 
 .logout-btn i {
@@ -188,7 +195,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease;
 }
 
 .erp-nav-header {
@@ -227,14 +234,17 @@
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .erp-nav-link i {
   width: 20px;
   font-size: 1rem;
   color: #5f6b7a;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease;
 }
 
 .erp-nav-link:hover {
@@ -275,11 +285,13 @@
   direction: rtl;
 }
 
-/* Notification Bell Container */
+/* ==================== Notification Bell Styles ==================== */
 .notification-bell {
   position: relative;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
   padding: 6px;
   border-radius: 50%;
   display: flex;
@@ -294,13 +306,13 @@
 
 .notification-bell:active {
   transform: scale(0.95);
-  transition: all 0.05s ease;
+  transition: transform 0.05s ease;
 }
 
 .notification-bell i {
   font-size: 1.3rem;
   color: #64b5f6;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease;
 }
 
 .notification-bell:hover i {
@@ -339,38 +351,40 @@
   }
 }
 
-/* ==================== Notification Dropdown - Desktop (min-width: 577px) ==================== */
-@media (min-width: 577px) {
-  .notification-dropdown {
-    position: absolute;
-    top: 45px;
-    right: 0;
-    width: 340px;
-    max-height: 400px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    z-index: 1000;
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    transition: all 0.25s ease;
-  }
-
-  .notification-bell.open .notification-dropdown {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
-
-  [dir="rtl"] .notification-dropdown {
-    right: auto;
-    left: 0;
-  }
+/* ==================== Notification Dropdown - Base Styles ==================== */
+.notification-dropdown {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  width: 340px;
+  max-height: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-10px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    visibility 0.25s ease;
 }
 
-/* ==================== Notification Dropdown - Base Styles ==================== */
+.notification-bell.open .notification-dropdown {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+[dir="rtl"] .notification-dropdown {
+  right: auto;
+  left: 0;
+}
+
 .dropdown-header {
   padding: 12px 16px;
   background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
@@ -388,6 +402,32 @@
   margin: 0;
 }
 
+.dropdown-list {
+  max-height: 360px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Firefox Scrollbar Support */
+.dropdown-list {
+  scrollbar-width: thin;
+  scrollbar-color: #1a237e #f1f1f1;
+}
+
+/* WebKit Scrollbar Styles */
+.dropdown-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dropdown-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.dropdown-list::-webkit-scrollbar-thumb {
+  background: #1a237e;
+  border-radius: 4px;
+}
+
 .dropdown-empty {
   padding: 30px 20px;
   text-align: center;
@@ -399,6 +439,10 @@
   font-size: 32px;
   margin-bottom: 10px;
   color: #e0e0e0;
+}
+
+.dropdown-empty p {
+  margin: 0;
 }
 
 .notification-item {
@@ -428,35 +472,6 @@
   border-left: 3px solid #10b981;
 }
 
-.notification-title {
-  font-weight: 600;
-  font-size: 13px;
-  color: #1a1a1a;
-  margin-bottom: 4px;
-}
-
-.notification-time {
-  font-size: 10px;
-  color: #999;
-}
-
-.notification-dropdown {
-  overflow-y: auto;
-}
-
-.notification-dropdown::-webkit-scrollbar {
-  width: 4px;
-}
-
-.notification-dropdown::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.notification-dropdown::-webkit-scrollbar-thumb {
-  background: #1a237e;
-  border-radius: 4px;
-}
-
 [dir="rtl"] .notification-item {
   border-left: none;
   border-right: 3px solid;
@@ -474,9 +489,25 @@
   border-right-color: #10b981;
 }
 
-/* ==================== Responsive Design - Unified Media Queries ==================== */
+.notification-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
 
-/* ✅ تم دمج جميع media queries المتفرقة هنا */
+.notification-time {
+  font-size: 10px;
+  color: #999;
+  margin: 0;
+}
+
+/* ==================== Body Lock for Modal ==================== */
+body.notification-open {
+  overflow: hidden;
+}
+
+/* ==================== Responsive Design ==================== */
 
 /* 1️⃣ Tablet & Small Laptops (max-width: 992px) */
 @media (max-width: 992px) {
@@ -511,7 +542,6 @@
 
 /* 2️⃣ Tablets (max-width: 768px) */
 @media (max-width: 768px) {
-  /* ERP Nav */
   .erp-nav-card {
     border-radius: 8px;
   }
@@ -525,14 +555,10 @@
     padding: 0.5rem;
     max-height: 70vh;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1a237e #f1f1f1;
   }
 
-  .erp-nav-link {
-    padding: 0.6rem 0.85rem;
-    font-size: 0.85rem;
-  }
-
-  /* ERP Nav Scrollbar */
   .erp-nav-menu::-webkit-scrollbar {
     width: 4px;
   }
@@ -547,7 +573,11 @@
     border-radius: 4px;
   }
 
-  /* Notifications */
+  .erp-nav-link {
+    padding: 0.6rem 0.85rem;
+    font-size: 0.85rem;
+  }
+
   .notification-dropdown {
     width: 320px;
     max-height: 380px;
@@ -577,12 +607,11 @@
   }
 }
 
-/* 3️⃣ Mobile Phones (max-width: 576px) - All Mobile Styles Combined */
+/* 3️⃣ Mobile Phones (max-width: 576px) */
 @media (max-width: 576px) {
-  /* Navbar Mobile */
   .navbar-container {
     height: 56px;
-    padding: 0 0.85rem;
+    padding: 0 0.75rem;
   }
 
   .navbar-brand i {
@@ -594,11 +623,11 @@
   }
 
   .navbar-actions {
-    gap: 0.6rem;
+    gap: 0.5rem;
   }
 
   .navbar-user {
-    gap: 0.6rem;
+    gap: 0.5rem;
   }
 
   .user-info {
@@ -632,42 +661,37 @@
     font-size: 0.9rem;
   }
 
-  /* Notifications Mobile - Fixed & Centered */
+  /* Notification Dropdown - Mobile Centered */
   .notification-dropdown {
-    position: fixed !important;
-    top: 60px !important;
-    left: 50% !important;
-    transform: translateX(-50%) translateY(-10px) !important;
-    right: auto !important;
-    width: calc(100vw - 20px) !important;
-    max-width: 400px !important;
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    right: auto;
+    width: calc(100vw - 20px);
+    max-width: 400px;
     background: white;
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    z-index: 1050 !important;
+    z-index: 1050;
     overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
   }
 
   .notification-bell.open .notification-dropdown {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(0) !important;
+    transform: translateX(-50%) translateY(0);
   }
 
   [dir="rtl"] .notification-dropdown {
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%) translateY(-10px) !important;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) translateY(-10px);
   }
 
   [dir="rtl"] .notification-bell.open .notification-dropdown {
-    transform: translateX(-50%) translateY(0) !important;
+    transform: translateX(-50%) translateY(0);
   }
 
-  /* Mobile Overlay */
+  /* Mobile Overlay - Fixed z-index issue */
   .notification-bell.open::before {
     content: "";
     position: fixed;
@@ -676,7 +700,7 @@
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.4);
-    z-index: 1040 !important;
+    z-index: 1045;
     animation: fadeIn 0.3s ease;
   }
 
@@ -704,6 +728,10 @@
     font-size: 15px;
   }
 
+  .dropdown-list {
+    max-height: 350px;
+  }
+
   .dropdown-empty {
     padding: 40px 20px;
   }
@@ -719,11 +747,6 @@
 
   .notification-item {
     padding: 14px 18px;
-    border-bottom: 1px solid #f0f0f0;
-  }
-
-  .notification-item:last-child {
-    border-bottom: none;
   }
 
   .notification-title {
@@ -735,23 +758,76 @@
     font-size: 11px;
     margin-top: 5px;
   }
+}
 
-  .dropdown-list {
-    max-height: 350px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+/* 4️⃣ Extra Small Devices (max-width: 360px) */
+@media (max-width: 360px) {
+  .navbar-container {
+    padding: 0 0.5rem;
+    gap: 0.5rem;
   }
 
-  .dropdown-list::-webkit-scrollbar {
-    width: 4px;
+  .navbar-brand i {
+    font-size: 1.3rem;
   }
 
-  .dropdown-list::-webkit-scrollbar-track {
-    background: #f1f1f1;
+  .brand-title {
+    font-size: 0.85rem;
   }
 
-  .dropdown-list::-webkit-scrollbar-thumb {
-    background: #1a237e;
-    border-radius: 4px;
+  .navbar-actions {
+    gap: 0.35rem;
+  }
+
+  .navbar-user {
+    gap: 0.35rem;
+  }
+
+  .user-avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+  .user-avatar i {
+    font-size: 1.2rem;
+  }
+
+  .lang-switch-btn,
+  .logout-btn {
+    padding: 0.45rem;
+  }
+
+  .notification-bell {
+    padding: 4px;
+  }
+
+  .notification-bell i {
+    font-size: 1.2rem;
+  }
+
+  .badge {
+    min-width: 16px;
+    height: 16px;
+    font-size: 9px;
+    top: -4px;
+    right: -4px;
+  }
+
+  .notification-dropdown {
+    width: calc(100vw - 12px);
+    top: 55px;
+  }
+
+  .dropdown-header {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  .notification-item {
+    padding: 12px 14px;
+  }
+
+  .notification-title {
+    font-size: 13px;
   }
 }

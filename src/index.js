@@ -29,6 +29,7 @@ import AdminLayout from "./admin/layouts/AdminLayout";
 import { AdminRoute } from "./admin/routes/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Toaster } from "react-hot-toast";
 
 /* ================= ERP ================= */
 import ERPDashboard from "./admin/erp/ERPDashboard";
@@ -84,7 +85,7 @@ createRoot(document.getElementById("root")).render(
           draggable
           theme="light"
         />
-
+        <Toaster position="top-right" />
         <Routes>
           {/* ================= Public ================= */}
           <Route path="/" element={<App />} />

@@ -19,6 +19,12 @@ export const AlertProvider = ({ children }) => {
     setAlerts((prev) => [newAlert, ...prev].slice(0, 20));
   };
 
+  const markAsRead = (id) => {
+    setAlerts((prev) =>
+      prev.map((alert) => (alert.id === id ? { ...alert, read: true } : alert)),
+    );
+  };
+
   return (
     <AlertContext.Provider
       value={{
@@ -27,6 +33,7 @@ export const AlertProvider = ({ children }) => {
         clearUnreadCount,
         alerts,
         addAlert,
+        markAsRead,
       }}
     >
       {children}

@@ -146,7 +146,8 @@ const AdminNavbar = () => {
                         {alerts.slice(0, 5).map((alert) => (
                           <div
                             key={alert.id}
-                            className={`notification-item ${alert.priority}`}
+                            className={`notification-item ${alert.priority} ${alert.read ? "read" : ""}`}
+                            onClick={() => markAsRead(alert.id)}
                           >
                             <div className="notification-title">
                               {alert.message}

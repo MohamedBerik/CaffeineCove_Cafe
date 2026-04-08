@@ -88,11 +88,10 @@ const AdminNavbar = () => {
 
       // تحديث الـ state لو الوظائف موجودة
       if (typeof setAlerts === "function") {
-        setAlerts(
-          alertsRes.data.map((a) => ({
-            ...a,
-            read: !!a.acknowledged_at,
-          })),
+        setAlerts((prevAlerts) =>
+          prevAlerts.map((alert) =>
+            alert.id === alertId ? { ...alert, read: true } : alert,
+          ),
         );
       }
 

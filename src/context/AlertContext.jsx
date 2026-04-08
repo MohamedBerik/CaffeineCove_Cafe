@@ -21,6 +21,7 @@ export const AlertProvider = ({ children }) => {
           api.get("/erp/alerts"),
           api.get("/erp/alerts/unread-count"),
         ]);
+        console.log("ALERTS API:", alertsRes.data);
 
         setAlerts(alertsRes.data);
         setUnreadCount(countRes.data.count);

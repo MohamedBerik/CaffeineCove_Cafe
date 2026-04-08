@@ -75,10 +75,10 @@ const AdminNavbar = () => {
 
   // ✅ دالة مسح العداد عند فتح dropdown
   const handleBellClick = () => {
-    setShowDropdown((prev) => !prev); // ✅ استخدام prev
-    if (!showDropdown) {
-      clearUnreadCount(); // ✅ بيمسح العداد لما يفتح
-    }
+    setShowDropdown((prev) => {
+      if (!prev) clearUnreadCount();
+      return !prev;
+    });
   };
 
   // ✅ دالة تحديد الإشعار كمقروء مع مزامنة API
@@ -88,10 +88,11 @@ const AdminNavbar = () => {
 
       // تحديث الـ state لو الوظائف موجودة
       if (typeof setAlerts === "function") {
-        setAlerts((prevAlerts) =>
-          prevAlerts.map((alert) =>
-            alert.id === alertId ? { ...alert, read: true } : alert,
-          ),
+        setAlerts(
+          alertsRes.data.map((a) => ({
+            ...a,
+            read: !!a.acknowledged_at,
+          })),
         );
       }
 
@@ -200,18 +201,17 @@ const AdminNavbar = () => {
                             className={`notification-item ${alert.priority} ${alert.read ? "read" : ""}`}
                             onClick={() => markAsRead(alert.id)}
                           >
-                            <div className="notification-title">
-                              {alert.message}
-                            </div>
-                            <div className="notification-time">
-                              {formatTime(alert.time)}
-                            </div>
-                            <div className="notification-item">
-                              <span className="alert-icon">
-                                {getAlertIcon(alert.code)}
-                              </span>
+                            <span className="alert-icon">
+                              {getAlertIcon(alert.code)}
+                            </span>
+
+                            <div>
                               <div className="notification-title">
                                 {alert.message}
+                              </div>
+
+                              <div className="notification-time">
+                                {formatTime(alert.time || alert.triggered_at)}
                               </div>
                             </div>
                           </div>

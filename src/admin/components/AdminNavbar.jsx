@@ -14,20 +14,6 @@ const AdminNavbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
-  // ✅ إضافة/إزالة كلاس منع التمرير على body
-  useEffect(() => {
-    if (showDropdown) {
-      document.body.classList.add("notification-open");
-    } else {
-      document.body.classList.remove("notification-open");
-    }
-
-    // تنظيف عند إلغاء تحميل المكون
-    return () => {
-      document.body.classList.remove("notification-open");
-    };
-  }, [showDropdown]);
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -73,15 +59,21 @@ const AdminNavbar = () => {
     return t("Admin");
   };
 
-  // ✅ دالة موحدة لفتح/غلق القائمة
-  const toggleDropdown = () => {
-    const willOpen = !showDropdown;
-    setShowDropdown(willOpen);
-    if (willOpen) {
-      clearUnreadCount(); // مسح العداد عند الفتح
+  const openAlerts = () => {
+    const alertsSection = document.querySelector(".alerts-container");
+    if (alertsSection) {
+      alertsSection.scrollIntoView({ behavior: "smooth" });
     }
   };
 
+  // ✅ دالة مسح العداد عند فتح dropdown
+  const handleBellClick = () => {
+    const willOpen = !showDropdown;
+    setShowDropdown(willOpen);
+    if (willOpen) {
+      clearUnreadCount(); // ✅ بيمسح العداد
+    }
+  };
   return (
     <>
       <nav className="admin-navbar" dir="ltr">
@@ -115,11 +107,16 @@ const AdminNavbar = () => {
               <span>{i18n.language === "en" ? "AR" : "EN"}</span>
             </button>
 
-            {/* ✅ Notification Bell with Dropdown - تم إصلاح الـ onClick */}
+            {/* ✅ Notification Bell with Dropdown */}
             <div
               ref={dropdownRef}
               className={`notification-bell ${showDropdown ? "open" : ""}`}
-              onClick={toggleDropdown}
+              onClick={() => {
+                setShowDropdown(!showDropdown);
+                if (!showDropdown) {
+                  clearUnreadCount(); // ✅ بيمسح العداد لما يفتح
+                }
+              }}
             >
               <i className="fas fa-bell"></i>
               {unreadCount > 0 && (

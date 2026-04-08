@@ -1,4 +1,3 @@
-/* ==================== Admin Navbar Styles ==================== */
 .admin-navbar {
   position: fixed;
   top: 0;
@@ -88,16 +87,13 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition:
-    background 0.25s ease,
-    border-color 0.25s ease,
-    margin-top 0.25s ease;
+  transition: all 0.25s ease;
 }
 
 .lang-switch-btn:hover {
   background: rgba(100, 181, 246, 0.2);
   border-color: rgba(100, 181, 246, 0.55);
-  margin-top: -1px;
+  transform: translateY(-1px);
 }
 
 .lang-switch-btn i {
@@ -169,16 +165,13 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition:
-    background 0.25s ease,
-    border-color 0.25s ease,
-    margin-top 0.25s ease;
+  transition: all 0.25s ease;
 }
 
 .logout-btn:hover {
   background: rgba(244, 67, 54, 0.2);
   border-color: rgba(255, 82, 82, 0.55);
-  margin-top: -1px;
+  transform: translateY(-1px);
 }
 
 .logout-btn i {
@@ -195,7 +188,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  transition: box-shadow 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .erp-nav-header {
@@ -234,17 +227,14 @@
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .erp-nav-link i {
   width: 20px;
   font-size: 1rem;
   color: #5f6b7a;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .erp-nav-link:hover {
@@ -285,13 +275,11 @@
   direction: rtl;
 }
 
-/* ==================== Notification Bell Styles ==================== */
+/* Notification Bell Container */
 .notification-bell {
   position: relative;
   cursor: pointer;
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+  transition: all 0.2s ease;
   padding: 6px;
   border-radius: 50%;
   display: flex;
@@ -306,13 +294,13 @@
 
 .notification-bell:active {
   transform: scale(0.95);
-  transition: transform 0.05s ease;
+  transition: all 0.05s ease;
 }
 
 .notification-bell i {
   font-size: 1.3rem;
   color: #64b5f6;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .notification-bell:hover i {
@@ -351,40 +339,38 @@
   }
 }
 
+/* ==================== Notification Dropdown - Desktop (min-width: 577px) ==================== */
+@media (min-width: 577px) {
+  .notification-dropdown {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    width: 340px;
+    max-height: 400px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.25s ease;
+  }
+
+  .notification-bell.open .notification-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  [dir="rtl"] .notification-dropdown {
+    right: auto;
+    left: 0;
+  }
+}
+
 /* ==================== Notification Dropdown - Base Styles ==================== */
-.notification-dropdown {
-  position: absolute;
-  top: 45px;
-  right: 0;
-  width: 340px;
-  max-height: 400px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  overflow: hidden;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: translateY(-10px);
-  transition:
-    opacity 0.25s ease,
-    transform 0.25s ease,
-    visibility 0.25s ease;
-}
-
-.notification-bell.open .notification-dropdown {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-[dir="rtl"] .notification-dropdown {
-  right: auto;
-  left: 0;
-}
-
 .dropdown-header {
   padding: 12px 16px;
   background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
@@ -402,32 +388,6 @@
   margin: 0;
 }
 
-.dropdown-list {
-  max-height: 360px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Firefox Scrollbar Support */
-.dropdown-list {
-  scrollbar-width: thin;
-  scrollbar-color: #1a237e #f1f1f1;
-}
-
-/* WebKit Scrollbar Styles */
-.dropdown-list::-webkit-scrollbar {
-  width: 4px;
-}
-
-.dropdown-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.dropdown-list::-webkit-scrollbar-thumb {
-  background: #1a237e;
-  border-radius: 4px;
-}
-
 .dropdown-empty {
   padding: 30px 20px;
   text-align: center;
@@ -439,10 +399,6 @@
   font-size: 32px;
   margin-bottom: 10px;
   color: #e0e0e0;
-}
-
-.dropdown-empty p {
-  margin: 0;
 }
 
 .notification-item {
@@ -472,6 +428,35 @@
   border-left: 3px solid #10b981;
 }
 
+.notification-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.notification-time {
+  font-size: 10px;
+  color: #999;
+}
+
+.notification-dropdown {
+  overflow-y: auto;
+}
+
+.notification-dropdown::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notification-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb {
+  background: #1a237e;
+  border-radius: 4px;
+}
+
 [dir="rtl"] .notification-item {
   border-left: none;
   border-right: 3px solid;
@@ -489,25 +474,9 @@
   border-right-color: #10b981;
 }
 
-.notification-title {
-  font-weight: 600;
-  font-size: 13px;
-  color: #1a1a1a;
-  margin-bottom: 4px;
-}
+/* ==================== Responsive Design - Unified Media Queries ==================== */
 
-.notification-time {
-  font-size: 10px;
-  color: #999;
-  margin: 0;
-}
-
-/* ==================== Body Lock for Modal ==================== */
-body.notification-open {
-  overflow: hidden;
-}
-
-/* ==================== Responsive Design ==================== */
+/* ✅ تم دمج جميع media queries المتفرقة هنا */
 
 /* 1️⃣ Tablet & Small Laptops (max-width: 992px) */
 @media (max-width: 992px) {
@@ -542,6 +511,7 @@ body.notification-open {
 
 /* 2️⃣ Tablets (max-width: 768px) */
 @media (max-width: 768px) {
+  /* ERP Nav */
   .erp-nav-card {
     border-radius: 8px;
   }
@@ -555,10 +525,14 @@ body.notification-open {
     padding: 0.5rem;
     max-height: 70vh;
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #1a237e #f1f1f1;
   }
 
+  .erp-nav-link {
+    padding: 0.6rem 0.85rem;
+    font-size: 0.85rem;
+  }
+
+  /* ERP Nav Scrollbar */
   .erp-nav-menu::-webkit-scrollbar {
     width: 4px;
   }
@@ -573,11 +547,7 @@ body.notification-open {
     border-radius: 4px;
   }
 
-  .erp-nav-link {
-    padding: 0.6rem 0.85rem;
-    font-size: 0.85rem;
-  }
-
+  /* Notifications */
   .notification-dropdown {
     width: 320px;
     max-height: 380px;
@@ -607,19 +577,12 @@ body.notification-open {
   }
 }
 
-/* 3️⃣ Mobile Phones (max-width: 576px) */
+/* 3️⃣ Mobile Phones (max-width: 576px) - All Mobile Styles Combined */
 @media (max-width: 576px) {
-  /* إجبار جميع العناصر الأبوية على عدم استخدام transform */
-  .admin-navbar,
-  .navbar-container,
-  #root,
-  body {
-    transform: none !important;
-  }
-
+  /* Navbar Mobile */
   .navbar-container {
     height: 56px;
-    padding: 0 0.75rem;
+    padding: 0 0.85rem;
   }
 
   .navbar-brand i {
@@ -631,11 +594,11 @@ body.notification-open {
   }
 
   .navbar-actions {
-    gap: 0.5rem;
+    gap: 0.6rem;
   }
 
   .navbar-user {
-    gap: 0.5rem;
+    gap: 0.6rem;
   }
 
   .user-info {
@@ -669,33 +632,28 @@ body.notification-open {
     font-size: 0.9rem;
   }
 
-  /* Notification Dropdown - Mobile Centered (مضمون) */
+  /* Notifications Mobile - Fixed & Centered */
   .notification-dropdown {
     position: fixed !important;
     top: 60px !important;
     left: 50% !important;
-    right: auto !important;
     transform: translateX(-50%) translateY(-10px) !important;
+    right: auto !important;
     width: calc(100vw - 20px) !important;
     max-width: 400px !important;
-    margin: 0 !important;
     background: white;
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     z-index: 1050 !important;
+    overflow: hidden;
     opacity: 0;
     visibility: hidden;
-    pointer-events: none;
-    transition:
-      opacity 0.25s ease,
-      transform 0.25s ease,
-      visibility 0.25s ease;
+    transition: all 0.3s ease;
   }
 
   .notification-bell.open .notification-dropdown {
     opacity: 1;
     visibility: visible;
-    pointer-events: auto;
     transform: translateX(-50%) translateY(0) !important;
   }
 
@@ -709,7 +667,7 @@ body.notification-open {
     transform: translateX(-50%) translateY(0) !important;
   }
 
-  /* Mobile Overlay - ثابت وخلف القائمة */
+  /* Mobile Overlay */
   .notification-bell.open::before {
     content: "";
     position: fixed;
@@ -718,7 +676,7 @@ body.notification-open {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.4);
-    z-index: 1045;
+    z-index: 1040 !important;
     animation: fadeIn 0.3s ease;
   }
 
@@ -746,10 +704,6 @@ body.notification-open {
     font-size: 15px;
   }
 
-  .dropdown-list {
-    max-height: 350px;
-  }
-
   .dropdown-empty {
     padding: 40px 20px;
   }
@@ -765,6 +719,11 @@ body.notification-open {
 
   .notification-item {
     padding: 14px 18px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .notification-item:last-child {
+    border-bottom: none;
   }
 
   .notification-title {
@@ -775,5 +734,24 @@ body.notification-open {
   .notification-time {
     font-size: 11px;
     margin-top: 5px;
+  }
+
+  .dropdown-list {
+    max-height: 350px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dropdown-list::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .dropdown-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .dropdown-list::-webkit-scrollbar-thumb {
+    background: #1a237e;
+    border-radius: 4px;
   }
 }

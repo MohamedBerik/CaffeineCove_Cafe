@@ -11,7 +11,6 @@ export const AlertProvider = ({ children }) => {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ أضف useEffect ده
   useEffect(() => {
     if (!user) return;
 
@@ -22,6 +21,7 @@ export const AlertProvider = ({ children }) => {
           api.get("/erp/alerts/unread-count"),
         ]);
         console.log("ALERTS API:", alertsRes.data);
+        console.log("🔢 COUNT:", countRes.data);
 
         setAlerts(alertsRes.data);
         setUnreadCount(countRes.data.count);
@@ -35,7 +35,6 @@ export const AlertProvider = ({ children }) => {
     fetchAlerts();
   }, [user]);
 
-  // ✅ أضف هاتين الدالتين
   const addUnreadCount = () => {
     setUnreadCount((prev) => prev + 1);
   };

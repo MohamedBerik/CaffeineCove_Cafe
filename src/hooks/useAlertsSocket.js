@@ -45,7 +45,12 @@ export default function useAlertsSocket(onNewAlert, companyId) {
   useEffect(() => {
     if (!companyId) return;
 
-    const channel = echo.private(`company.${companyId}`);
+    const channelName = `company.${companyId}`;
+
+    // ✅ امنع التكرار
+    echo.leave(channelName);
+
+    const channel = echo.private(channelName);
 
     const playSound = () => {
       if (audioRef.current) {
@@ -161,7 +166,7 @@ export default function useAlertsSocket(onNewAlert, companyId) {
     });
 
     return () => {
-      echo.leave(`company.${companyId}`);
+      echo.leave(channelName);
     };
-  }, [onNewAlert, companyId]);
+  }, [companyId]); // ✅ غيرنا dependency array إلى [companyId] فقط
 }

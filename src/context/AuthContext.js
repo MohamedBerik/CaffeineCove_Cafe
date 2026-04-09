@@ -7,10 +7,10 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const logoutLocal = () => {
-    localStorage.clear();
-    setUser(null);
-  };
+  // const logoutLocal = () => {
+  //   localStorage.clear();
+  //   setUser(null);
+  // };
 
   const loadUser = async (token) => {
     try {
@@ -21,6 +21,10 @@ export function AuthProvider({ children }) {
       const userData = res.data;
 
       localStorage.setItem("user", JSON.stringify(userData));
+
+      // ✅ أضف السطرين دول
+      localStorage.setItem("company_id", userData.company_id);
+      localStorage.setItem("user_role", userData.role);
 
       setUser({
         ...userData,
@@ -34,6 +38,10 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const logoutLocal = () => {
+    localStorage.clear();
+    setUser(null);
+  };
   useEffect(() => {
     const token = localStorage.getItem("token");
 

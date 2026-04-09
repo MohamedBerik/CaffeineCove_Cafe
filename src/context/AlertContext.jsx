@@ -66,11 +66,32 @@ export const AlertProvider = ({ children }) => {
     );
   };
 
+  // useAlertsSocket((newAlert) => {
+  //   console.log("📨 Raw alert from socket:", newAlert);
+  //   console.log("📋 Alert structure:", Object.keys(newAlert));
+
+  //   addAlert(newAlert);
+  //   addUnreadCount();
+  // }, user?.company_id);
+
   useAlertsSocket((newAlert) => {
     console.log("📨 Raw alert from socket:", newAlert);
     console.log("📋 Alert structure:", Object.keys(newAlert));
 
-    addAlert(newAlert);
+    // ✅ تأكد من شكل البيانات
+    const formattedAlert = {
+      id: newAlert.id,
+      message: newAlert.message,
+      priority: newAlert.priority,
+      type: newAlert.type,
+      time: newAlert.time || newAlert.triggered_at,
+      read: newAlert.read || false,
+      code: newAlert.code,
+    };
+
+    console.log("✅ Formatted alert:", formattedAlert);
+
+    addAlert(formattedAlert);
     addUnreadCount();
   }, user?.company_id);
 

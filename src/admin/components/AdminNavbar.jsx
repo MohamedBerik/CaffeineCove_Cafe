@@ -157,58 +157,68 @@ const AdminNavbar = () => {
               <span>{i18n.language === "en" ? "AR" : "EN"}</span>
             </button>
 
-            {/* ✅ Notification Bell with Dropdown */}
-            <div
-              ref={dropdownRef}
-              className={`notification-bell ${showDropdown ? "open" : ""}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleBellClick();
-              }}
-            >
-              <i className="fas fa-bell"></i>
-              {unreadCount > 0 && (
-                <span className="badge">
-                  {unreadCount > 99 ? "99+" : unreadCount}
-                </span>
-              )}
+            {/* ✅ Notification Bell with Dropdown - Wrapper يشمل كل حاجة */}
+            <div ref={dropdownRef}>
+              <div
+                className={`notification-bell ${showDropdown ? "open" : ""}`}
+                onClick={(e) => {
+                  e.stopPropagation(); // 🔥 مهم - يمنع انتشار الحدث
+                  handleBellClick();
+                }}
+              >
+                <i className="fas fa-bell"></i>
+                {unreadCount > 0 && (
+                  <span className="badge">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </div>
 
+              {/* ✅ القائمة والـ overlay جوه الـ wrapper */}
               {showDropdown && (
-                <div
-                  className={`notification-dropdown global ${showDropdown ? "open" : ""}`}
-                >
-                  <div className="dropdown-header">
-                    <i className="fas fa-bell"></i> {t("Notifications")}
-                  </div>
-                  {alerts.length === 0 ? (
-                    <div className="dropdown-empty">
-                      <i className="fas fa-inbox"></i>
-                      <p>{t("No new notifications")}</p>
+                <>
+                  <div
+                    className="notification-overlay"
+                    onClick={() => setShowDropdown(false)}
+                  />
+                  <div
+                    className={`notification-dropdown global ${showDropdown ? "open" : ""}`}
+                  >
+                    <div className="dropdown-header">
+                      <i className="fas fa-bell"></i> {t("Notifications")}
                     </div>
-                  ) : (
-                    <div className="dropdown-list">
-                      {alerts.slice(0, 5).map((alert) => (
-                        <div
-                          key={alert.id}
-                          className={`notification-item ${alert.priority} ${alert.read ? "read" : ""}`}
-                          onClick={() => markAsRead(alert.id)}
-                        >
-                          <span className="alert-icon">
-                            {getAlertIcon(alert.code)}
-                          </span>
-                          <div>
-                            <div className="notification-title">
-                              {alert.message}
-                            </div>
-                            <div className="notification-time">
-                              {formatTime(alert.time || alert.triggered_at)}
+                    {alerts.length === 0 ? (
+                      <div className="dropdown-empty">
+                        <i className="fas fa-inbox"></i>
+                        <p>{t("No new notifications")}</p>
+                      </div>
+                    ) : (
+                      <div className="dropdown-list">
+                        {alerts.slice(0, 5).map((alert) => (
+                          <div
+                            key={alert.id}
+                            className={`notification-item ${alert.priority} ${alert.read ? "read" : ""}`}
+                            onClick={() => markAsRead(alert.id)}
+                          >
+                            <span className="alert-icon">
+                              {getAlertIcon(alert.code)}
+                            </span>
+
+                            <div>
+                              <div className="notification-title">
+                                {alert.message}
+                              </div>
+
+                              <div className="notification-time">
+                                {formatTime(alert.time || alert.triggered_at)}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </div>
 

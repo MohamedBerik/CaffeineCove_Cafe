@@ -9,7 +9,7 @@ const echo = new Echo({
   cluster: "mt1",
   forceTLS: true,
   authEndpoint:
-    "https://caffeinecoveapi-production-a107.up.railway.app/broadcasting/auth", // ✅ أضف السطر ده
+    "https://caffeinecoveapi-production-a107.up.railway.app/api/broadcasting/auth", // ✅ أضف السطر ده
   auth: {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,

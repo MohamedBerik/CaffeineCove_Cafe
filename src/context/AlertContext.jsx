@@ -7,8 +7,6 @@ const AlertContext = createContext();
 
 export const AlertProvider = ({ children }) => {
   const { user } = useAuth();
-  console.log("👤 AlertProvider - user:", user);
-  console.log("🏢 AlertProvider - company_id:", user?.company_id);
   const [unreadCount, setUnreadCount] = useState(0);
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);

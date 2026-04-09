@@ -5,8 +5,8 @@ window.Pusher = Pusher;
 
 const echo = new Echo({
   broadcaster: "pusher",
-  key: "YOUR_PUSHER_KEY",
-  cluster: "YOUR_CLUSTER",
+  key: "9b85ecf4278b5add7a38",
+  cluster: "mt1",
   forceTLS: true,
 
   authEndpoint:

@@ -3,17 +3,21 @@ import Pusher from "pusher-js";
 
 window.Pusher = Pusher;
 
-// ✅ تأكد من وجود الـ keys
-console.log(process.env.REACT_APP_PUSHER_KEY);
-
 const echo = new Echo({
   broadcaster: "pusher",
-  key: process.env.REACT_APP_PUSHER_KEY,
-  cluster: process.env.REACT_APP_PUSHER_CLUSTER,
+  key: "YOUR_PUSHER_KEY",
+  cluster: "YOUR_CLUSTER",
   forceTLS: true,
-});
 
-// ✅ بعد التهيئة
-window.Pusher.logToConsole = true;
+  authEndpoint:
+    "https://caffeinecoveapi-production-a107.up.railway.app/broadcasting/auth",
+
+  auth: {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+      Accept: "application/json",
+    },
+  },
+});
 
 export default echo;

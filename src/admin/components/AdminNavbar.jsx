@@ -61,6 +61,7 @@ const AdminNavbar = () => {
   };
 
   const openAlerts = () => {
+    setShowDropdown(false);
     navigate("/admin/erp/notifications");
   };
 

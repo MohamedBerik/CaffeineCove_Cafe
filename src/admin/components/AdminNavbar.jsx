@@ -73,8 +73,12 @@ const AdminNavbar = () => {
   //   }
   // };
 
+  // const openAlerts = () => {
+  //   navigate("/admin/erp/notifications");
+  // };
+
   const openAlerts = () => {
-    navigate("/admin/erp/notifications");
+    console.log("🔔 openAlerts called from somewhere!");
   };
 
   // ✅ دالة مسح العداد عند فتح dropdown

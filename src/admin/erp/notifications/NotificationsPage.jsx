@@ -34,13 +34,13 @@ const NotificationsPage = () => {
     fetchAlerts(1, false);
   }, [filter]);
 
-  const alertClick = (alert) => {
-    alert(`
-${alert.message}
+  const handleAlertClick = (alertItem) => {
+    window.alert(`
+${alertItem.message}
 
-Time: ${new Date(alert.time).toLocaleString()}
-Priority: ${alert.priority}
-Type: ${alert.type}
+Time: ${new Date(alertItem.time).toLocaleString()}
+Priority: ${alertItem.priority}
+Type: ${alertItem.type}
   `);
   };
 
@@ -67,7 +67,7 @@ Type: ${alert.type}
           <div
             key={alert.id}
             className={`notification-card ${alert.read ? "read" : ""}`}
-            onClick={() => alertClick(alert)}
+            onClick={() => handleAlertClick(alert)}
           >
             <div className="message">{alert.message}</div>
             <div className="time">{new Date(alert.time).toLocaleString()}</div>

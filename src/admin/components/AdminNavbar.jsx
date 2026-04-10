@@ -7,13 +7,7 @@ import "./AdminNavbar.css";
 import api from "../../services/axios";
 
 const AdminNavbar = () => {
-  const {
-    alerts,
-    unreadCount,
-    clearUnreadCount,
-    setAlerts,
-    updateUnreadCount,
-  } = useAlerts();
+  const { alerts, unreadCount, setAlerts, updateUnreadCount } = useAlerts();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -66,35 +60,27 @@ const AdminNavbar = () => {
     return t("Admin");
   };
 
-  // const openAlerts = () => {
-  //   const alertsSection = document.querySelector(".alerts-container");
-  //   if (alertsSection) {
-  //     alertsSection.scrollIntoView({ behavior: "smooth" });
-  //   }
-  // };
-
-  // const openAlerts = () => {
-  //   navigate("/admin/erp/notifications");
-  // };
-
   const openAlerts = () => {
-    console.log("🔔 openAlerts called from somewhere!");
+    navigate("/admin/erp/notifications");
   };
 
-  // ✅ دالة مسح العداد عند فتح dropdown
-  const handleBellClick = () => {
-    setShowDropdown((prev) => {
-      if (!prev) clearUnreadCount();
-      return !prev;
-    });
+  const handleBellClick = async () => {
+    setShowDropdown((prev) => !prev);
+
+    if (!showDropdown) {
+      try {
+        await api.post("/erp/alerts/mark-all-read");
+        updateUnreadCount();
+      } catch (e) {
+        console.error("Failed to mark all as read:", e);
+      }
+    }
   };
 
-  // ✅ دالة تحديد الإشعار كمقروء مع مزامنة API
   const markAsRead = async (alertId) => {
     try {
       await api.post(`/erp/alerts/${alertId}/ack`);
 
-      // تحديث الـ state لو الوظائف موجودة
       if (typeof setAlerts === "function") {
         setAlerts((prevAlerts) =>
           prevAlerts.map((alert) =>
@@ -107,14 +93,17 @@ const AdminNavbar = () => {
         updateUnreadCount();
       }
 
-      setShowDropdown(false);
       console.log("✅ Alert marked as read:", alertId);
     } catch (error) {
       console.error("❌ Error marking alert as read:", error);
     }
   };
 
-  // ✅ دالة ترجمة الكود إلى أيقونة
+  const handleAlertClick = async (alert) => {
+    await markAsRead(alert.id);
+    navigate("/admin/erp/notifications");
+  };
+
   const getAlertIcon = (code) => {
     switch (code) {
       case "LOW_STOCK":
@@ -136,28 +125,23 @@ const AdminNavbar = () => {
     <>
       <nav className="admin-navbar" dir="ltr">
         <div className="navbar-container">
-          {/* Brand */}
           <button
             type="button"
             className="navbar-brand border-0 bg-transparent"
             onClick={goHome}
           >
             <i className="fas fa-chart-line"></i>
-
             <div className="brand-text">
               <span className="brand-title">{t("ERP System")}</span>
               <span className="brand-subtitle">{t("Clinic Admin Panel")}</span>
             </div>
           </button>
 
-          {/* Right section */}
           <div className="navbar-actions">
-            {/* Language Switcher */}
             <button
               type="button"
               className="lang-switch-btn"
               onClick={toggleLanguage}
-              title={i18n.language === "en" ? "العربية" : "English"}
             >
               <i
                 className={`fas ${i18n.language === "en" ? "fa-language" : "fa-globe"}`}
@@ -165,12 +149,11 @@ const AdminNavbar = () => {
               <span>{i18n.language === "en" ? "AR" : "EN"}</span>
             </button>
 
-            {/* ✅ Notification Bell with Dropdown - Wrapper يشمل كل حاجة */}
             <div ref={dropdownRef}>
               <div
                 className={`notification-bell ${showDropdown ? "open" : ""}`}
                 onClick={(e) => {
-                  e.stopPropagation(); // 🔥 مهم - يمنع انتشار الحدث
+                  e.stopPropagation();
                   handleBellClick();
                 }}
               >
@@ -182,7 +165,6 @@ const AdminNavbar = () => {
                 )}
               </div>
 
-              {/* ✅ القائمة والـ overlay جوه الـ wrapper */}
               {showDropdown && (
                 <>
                   <div
@@ -195,7 +177,7 @@ const AdminNavbar = () => {
                     <div className="dropdown-header">
                       <i className="fas fa-bell"></i> {t("Notifications")}
                     </div>
-                    {alerts.length === 0 ? (
+                    {!Array.isArray(alerts) || alerts.length === 0 ? (
                       <div className="dropdown-empty">
                         <i className="fas fa-inbox"></i>
                         <p>{t("No new notifications")}</p>
@@ -206,26 +188,30 @@ const AdminNavbar = () => {
                           <div
                             key={alert.id}
                             className={`notification-item ${alert.priority} ${alert.read ? "read" : ""}`}
-                            onClick={() => markAsRead(alert.id)}
+                            onClick={() => handleAlertClick(alert)}
                           >
                             <span className="alert-icon">
                               {getAlertIcon(alert.code)}
                             </span>
-
-                            <div>
+                            <div className="notification-content">
                               <div className="notification-title">
                                 {alert.message}
                               </div>
-
-                              <div className="notification-time">
-                                {formatTime(alert.time || alert.triggered_at)}
+                              <div className="notification-meta">
+                                <span
+                                  className={`priority-badge ${alert.priority}`}
+                                >
+                                  {alert.priority}
+                                </span>
+                                <span className="notification-time">
+                                  {formatTime(alert.time || alert.triggered_at)}
+                                </span>
                               </div>
                             </div>
                           </div>
                         ))}
                       </div>
                     )}
-                    {/* ✅ أضف الجزء ده */}
                     <div className="dropdown-footer">
                       <button onClick={openAlerts} className="see-all-btn">
                         {t("See All Notifications")} →
@@ -241,7 +227,6 @@ const AdminNavbar = () => {
                 <div className="user-avatar">
                   <i className="fas fa-user-circle"></i>
                 </div>
-
                 <div className="user-details">
                   <span className="user-name">
                     {user?.name || "Administrator"}
@@ -249,7 +234,6 @@ const AdminNavbar = () => {
                   <span className="user-role">{userRoleLabel()}</span>
                 </div>
               </div>
-
               <button
                 type="button"
                 className="logout-btn"
@@ -263,7 +247,6 @@ const AdminNavbar = () => {
           </div>
         </div>
       </nav>
-
       <div className="navbar-spacer"></div>
     </>
   );

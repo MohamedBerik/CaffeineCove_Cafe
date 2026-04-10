@@ -2154,6 +2154,22 @@ const resources = {
         "There are {{count}} failed reminders that need review",
       "There are {{count}} reminders stuck for more than 10 minutes":
         "There are {{count}} reminders stuck for more than 10 minutes",
+
+      Notifications: "Notifications",
+      "Stay updated with important system alerts and reminders":
+        "Stay updated with important system alerts and reminders",
+      "Filter Notifications": "Filter Notifications",
+      "Notifications List": "Notifications List",
+      notifications: "notifications",
+      "No notifications found.": "No notifications found.",
+      Unread: "Unread",
+      "High Priority": "High Priority",
+      "Loading notifications...": "Loading notifications...",
+      Priority: "Priority",
+      Count: "Count",
+      Code: "Code",
+      Acknowledge: "Acknowledge",
+      Normal: "Normal",
     },
   },
   ar: {
@@ -4293,6 +4309,22 @@ const resources = {
         "هناك {{count}} تذكيرات فاشلة تحتاج إلى مراجعة",
       "There are {{count}} reminders stuck for more than 10 minutes":
         "هناك {{count}} تذكيرات عالقة منذ أكثر من 10 دقائق",
+
+      Notifications: "الإشعارات",
+      "Stay updated with important system alerts and reminders":
+        "ابق على اطلاع دائم بتنبيهاات النظام والتذكيرات الهامة",
+      "Filter Notifications": "تصفية الإشعارات",
+      "Notifications List": "قائمة الإشعارات",
+      notifications: "إشعار",
+      "No notifications found.": "لا توجد إشعارات",
+      Unread: "غير مقروء",
+      "High Priority": "أولوية عالية",
+      "Loading notifications...": "جاري تحميل الإشعارات...",
+      Priority: "الأولوية",
+      Count: "العدد",
+      Code: "الكود",
+      Acknowledge: "تأكيد",
+      Normal: "عادي",
     },
   },
 };

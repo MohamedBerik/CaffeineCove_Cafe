@@ -219,14 +219,14 @@ const AdminNavbar = () => {
                             </div>
                           </div>
                         ))}
+                        {/* ✅ أضف الجزء ده */}
+                        <div className="dropdown-footer">
+                          <button onClick={openAlerts} className="see-all-btn">
+                            {t("See All Notifications")} →
+                          </button>
+                        </div>
                       </div>
                     )}
-                  </div>
-                  {/* ✅ أضف الجزء ده */}
-                  <div className="dropdown-footer">
-                    <button onClick={openAlerts} className="see-all-btn">
-                      {t("See All Notifications")} →
-                    </button>
                   </div>
                 </>
               )}

@@ -530,6 +530,8 @@
   visibility: hidden;
   transform: translateY(-10px);
   transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .notification-dropdown.global.open {
@@ -703,6 +705,17 @@
     overflow: hidden;
   }
 
+  .notification-dropdown.global .dropdown-list {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 300px;
+  }
+
+  .notification-dropdown.global .dropdown-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+  }
+
   [dir="rtl"] .notification-dropdown.global {
     left: 50% !important;
     right: auto !important;
@@ -807,4 +820,84 @@
 
 [dir="rtl"] .toast-card {
   animation: slideInRTL 0.3s ease;
+}
+
+/* ==================== Dropdown Footer & See All Button ==================== */
+.dropdown-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #e0e0e0;
+  background: #fafafa;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.see-all-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #1a237e;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.see-all-btn:hover {
+  background: #e8eaf6;
+  color: #283593;
+}
+
+.see-all-btn i {
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.see-all-btn:hover i {
+  transform: translateX(3px);
+}
+
+/* أيقونة السهم */
+.see-all-btn .arrow-icon {
+  margin-left: 4px;
+  font-size: 11px;
+}
+
+.see-all-btn:hover .arrow-icon {
+  transform: translateX(3px);
+}
+
+/* RTL Support */
+[dir="rtl"] .see-all-btn .arrow-icon {
+  margin-left: 0;
+  margin-right: 4px;
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] .see-all-btn:hover .arrow-icon {
+  transform: rotate(180deg) translateX(3px);
+}
+
+/* Mobile adjustments */
+@media (max-width: 576px) {
+  .dropdown-footer {
+    padding: 14px 18px;
+  }
+
+  .see-all-btn {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+}
+
+/* Tablet adjustments */
+@media (max-width: 768px) {
+  .dropdown-footer {
+    padding: 10px 14px;
+  }
 }

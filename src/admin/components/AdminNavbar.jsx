@@ -214,7 +214,8 @@ const AdminNavbar = () => {
                     )}
                     <div className="dropdown-footer">
                       <button onClick={openAlerts} className="see-all-btn">
-                        {t("See All Notifications")} →
+                        {t("See All Notifications")}
+                        <span className="arrow-icon">→</span>
                       </button>
                     </div>
                   </div>

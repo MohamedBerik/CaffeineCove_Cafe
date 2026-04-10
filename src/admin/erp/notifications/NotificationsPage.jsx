@@ -34,6 +34,15 @@ const NotificationsPage = () => {
     fetchAlerts(1, false);
   }, [filter]);
 
+  const alertClick = (alert) => {
+    alert(`
+${alert.message}
+
+Time: ${new Date(alert.time).toLocaleString()}
+Priority: ${alert.priority}
+Type: ${alert.type}
+  `);
+  };
   const loadMore = () => {
     const nextPage = page + 1;
     setPage(nextPage);

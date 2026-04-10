@@ -77,16 +77,6 @@ const AdminNavbar = () => {
     navigate("/admin/erp/notifications");
   };
 
-  const alertClick = (alert) => {
-    alert(`
-${alert.message}
-
-Time: ${new Date(alert.time).toLocaleString()}
-Priority: ${alert.priority}
-Type: ${alert.type}
-  `);
-  };
-
   // ✅ دالة مسح العداد عند فتح dropdown
   const handleBellClick = () => {
     setShowDropdown((prev) => {

@@ -202,10 +202,7 @@ const AdminNavbar = () => {
                           <div
                             key={alert.id}
                             className={`notification-item ${alert.priority} ${alert.read ? "read" : ""}`}
-                            onClick={() => {
-                              alertClick(alert);
-                              markAsRead(alert.id);
-                            }}
+                            onClick={() => markAsRead(alert.id)}
                           >
                             <span className="alert-icon">
                               {getAlertIcon(alert.code)}

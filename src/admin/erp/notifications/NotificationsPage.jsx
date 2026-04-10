@@ -43,6 +43,7 @@ Priority: ${alert.priority}
 Type: ${alert.type}
   `);
   };
+
   const loadMore = () => {
     const nextPage = page + 1;
     setPage(nextPage);

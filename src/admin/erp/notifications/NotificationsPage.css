@@ -1,0 +1,25 @@
+.notifications-page {
+  padding: 20px;
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notification-card {
+  padding: 15px;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  border-left: 4px solid #3b82f6;
+}
+
+.notification-card.read {
+  opacity: 0.6;
+}
+
+.filters button {
+  margin-right: 10px;
+}

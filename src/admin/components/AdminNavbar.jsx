@@ -66,11 +66,25 @@ const AdminNavbar = () => {
     return t("Admin");
   };
 
+  // const openAlerts = () => {
+  //   const alertsSection = document.querySelector(".alerts-container");
+  //   if (alertsSection) {
+  //     alertsSection.scrollIntoView({ behavior: "smooth" });
+  //   }
+  // };
+
   const openAlerts = () => {
-    const alertsSection = document.querySelector(".alerts-container");
-    if (alertsSection) {
-      alertsSection.scrollIntoView({ behavior: "smooth" });
-    }
+    navigate("/admin/erp/notifications");
+  };
+
+  const alertClick = (alert) => {
+    alert(`
+${alert.message}
+
+Time: ${new Date(alert.time).toLocaleString()}
+Priority: ${alert.priority}
+Type: ${alert.type}
+  `);
   };
 
   // ✅ دالة مسح العداد عند فتح dropdown
@@ -198,7 +212,10 @@ const AdminNavbar = () => {
                           <div
                             key={alert.id}
                             className={`notification-item ${alert.priority} ${alert.read ? "read" : ""}`}
-                            onClick={() => markAsRead(alert.id)}
+                            onClick={() => {
+                              alertClick(alert);
+                              markAsRead(alert.id);
+                            }}
                           >
                             <span className="alert-icon">
                               {getAlertIcon(alert.code)}
@@ -217,6 +234,12 @@ const AdminNavbar = () => {
                         ))}
                       </div>
                     )}
+                  </div>
+                  {/* ✅ أضف الجزء ده */}
+                  <div className="dropdown-footer">
+                    <button onClick={openAlerts} className="see-all-btn">
+                      {t("See All Notifications")} →
+                    </button>
                   </div>
                 </>
               )}

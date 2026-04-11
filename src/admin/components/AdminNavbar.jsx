@@ -14,8 +14,8 @@ const AdminNavbar = () => {
   const { t, i18n } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const isMarkingAllRef = useRef(false);
 
-  // ✅ رجوع إلى click + defensive check
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!dropdownRef.current) return;
@@ -37,10 +37,6 @@ const AdminNavbar = () => {
   };
 
   const goHome = () => {
-    if (location.pathname.startsWith("/admin/erp")) {
-      navigate("/admin/erp");
-      return;
-    }
     navigate("/admin/erp");
   };
 
@@ -68,26 +64,27 @@ const AdminNavbar = () => {
   };
 
   const markAllAsRead = async () => {
+    if (isMarkingAllRef.current) return;
+    isMarkingAllRef.current = true;
+
     try {
       await api.post("/erp/alerts/mark-all-read");
 
-      // ✅ تأكد إن prev Array
       if (typeof setAlerts === "function") {
-        setAlerts((prev) => {
-          if (!Array.isArray(prev)) return prev;
-          return prev.map((a) => ({ ...a, read: true }));
-        });
+        setAlerts((prev) =>
+          Array.isArray(prev) ? prev.map((a) => ({ ...a, read: true })) : prev,
+        );
       }
 
-      updateUnreadCount();
+      updateUnreadCount?.();
     } catch (e) {
-      console.error(e);
+      console.error("❌ markAllAsRead error:", e);
+    } finally {
+      isMarkingAllRef.current = false;
     }
   };
 
-  // ✅ تبسيط مع log
   const handleBellClick = () => {
-    console.log("🔔 CLICKED BELL ONLY");
     setShowDropdown((prev) => {
       const next = !prev;
       if (next) {
@@ -102,18 +99,15 @@ const AdminNavbar = () => {
       await api.post(`/erp/alerts/${alertId}/ack`);
 
       if (typeof setAlerts === "function") {
-        setAlerts((prevAlerts) =>
-          prevAlerts.map((alert) =>
+        setAlerts((prevAlerts) => {
+          if (!Array.isArray(prevAlerts)) return prevAlerts;
+          return prevAlerts.map((alert) =>
             alert.id === alertId ? { ...alert, read: true } : alert,
-          ),
-        );
+          );
+        });
       }
 
-      if (typeof updateUnreadCount === "function") {
-        updateUnreadCount();
-      }
-
-      console.log("✅ Alert marked as read:", alertId);
+      updateUnreadCount?.();
     } catch (error) {
       console.error("❌ Error marking alert as read:", error);
     }
@@ -171,12 +165,14 @@ const AdminNavbar = () => {
             </button>
 
             <div ref={dropdownRef}>
-              <div
+              <button
+                type="button"
                 className={`notification-bell ${showDropdown ? "open" : ""}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleBellClick();
                 }}
+                aria-label={t("Notifications")}
               >
                 <i className="fas fa-bell"></i>
                 {unreadCount > 0 && (
@@ -184,7 +180,7 @@ const AdminNavbar = () => {
                     {unreadCount > 99 ? "99+" : unreadCount}
                   </span>
                 )}
-              </div>
+              </button>
 
               {showDropdown && (
                 <>

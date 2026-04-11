@@ -2172,6 +2172,13 @@ const resources = {
       Normal: "Normal",
 
       "See All Notifications": "See All Notifications",
+
+      Today: "Today",
+      Yesterday: "Yesterday",
+      "days ago": "days ago",
+      "No high priority notifications": "No high priority notifications",
+      "No unread notifications!": "🎉 No unread notifications!",
+      "No more notifications": "No more notifications",
     },
   },
   ar: {
@@ -4329,6 +4336,13 @@ const resources = {
       Normal: "عادي",
 
       "See All Notifications": "عرض كل الإشعارات",
+
+      Today: "اليوم",
+      Yesterday: "أمس",
+      "days ago": "أيام",
+      "No high priority notifications": "لا توجد إشعارات عالية الأهمية",
+      "No unread notifications!": "🎉 لا توجد إشعارات غير مقروءة!",
+      "No more notifications": "لا توجد إشعارات أخرى",
     },
   },
 };

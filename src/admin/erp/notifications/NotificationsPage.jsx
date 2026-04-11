@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../context/AuthContext";
 import { useAlerts } from "../../../context/AlertContext";
-import useAlertsSocket from "../../../hooks/useAlertsSocket";
 import "./NotificationsPage.css";
 
 const NotificationsPage = () => {
@@ -12,6 +11,7 @@ const NotificationsPage = () => {
     alerts,
     fetchAlerts: fetchAlertsFromContext,
     markAsRead,
+    setAlerts,
   } = useAlerts();
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -20,6 +20,7 @@ const NotificationsPage = () => {
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const abortControllerRef = useRef(null);
+
   const displayAlerts = alerts.filter((a) => {
     if (filter === "unread") return !a.read;
     if (filter === "high") return a.priority === "high";
@@ -65,9 +66,16 @@ const NotificationsPage = () => {
         setLoading(true);
         const res = await fetchAlertsFromContext(pageNumber, filter);
         const newAlerts = res.data;
-        // setDisplayAlerts((prev) =>
-        //   append ? [...prev, ...newAlerts] : newAlerts,
-        // );
+
+        setAlerts((prev) => {
+          if (!append) return newAlerts;
+
+          const existingIds = new Set(prev.map((a) => a.id));
+          const filtered = newAlerts.filter((a) => !existingIds.has(a.id));
+
+          return [...prev, ...filtered];
+        });
+
         setHasMore(res.meta.has_more);
       } catch (err) {
         if (err.name !== "AbortError" && err.code !== "ERR_CANCELED") {
@@ -77,11 +85,10 @@ const NotificationsPage = () => {
         setLoading(false);
       }
     },
-    [filter, fetchAlertsFromContext],
+    [filter, fetchAlertsFromContext, setAlerts],
   );
 
   useEffect(() => {
-    // setDisplayAlerts([]);
     setPage(1);
     fetchAlerts(1, false);
 
@@ -95,11 +102,6 @@ const NotificationsPage = () => {
   const handleAcknowledge = async (alertId) => {
     try {
       await markAsRead(alertId);
-
-      if (filter === "unread") {
-        await markAsRead(alertId);
-      }
-
       setSelectedAlert((prev) => (prev ? { ...prev, read: true } : null));
     } catch (err) {
       console.error("❌ Error acknowledging alert:", err);

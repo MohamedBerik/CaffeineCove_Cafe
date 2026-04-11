@@ -9,7 +9,9 @@ import { useAuth } from "./AuthContext";
 import useAlertsSocket from "../hooks/useAlertsSocket";
 import api from "../services/axios";
 
-const AlertContext = createContext();
+// ✅ تقسيم الـ Context
+const AlertStateContext = createContext();
+const AlertActionsContext = createContext();
 
 export const AlertProvider = ({ children }) => {
   const { user } = useAuth();
@@ -88,22 +90,38 @@ export const AlertProvider = ({ children }) => {
     addAlert(newAlert);
   }, user?.company_id);
 
+  const stateValue = { alerts, unreadCount, loading };
+  const actionsValue = {
+    fetchAlerts,
+    markAsRead,
+    markAllAsRead,
+    addAlert,
+    setAlerts,
+  };
+
   return (
-    <AlertContext.Provider
-      value={{
-        alerts,
-        unreadCount,
-        loading,
-        fetchAlerts,
-        markAsRead,
-        markAllAsRead,
-        addAlert,
-        setAlerts,
-      }}
-    >
-      {children}
-    </AlertContext.Provider>
+    <AlertStateContext.Provider value={stateValue}>
+      <AlertActionsContext.Provider value={actionsValue}>
+        {children}
+      </AlertActionsContext.Provider>
+    </AlertStateContext.Provider>
   );
 };
 
-export const useAlerts = () => useContext(AlertContext);
+// ✅ Hooks منفصلة
+export const useAlertState = () => useContext(AlertStateContext);
+export const useAlertActions = () => useContext(AlertActionsContext);
+
+// ✅ Hook موحد للتوافق مع الكود القديم
+export const useAlerts = () => ({
+  ...useAlertState(),
+  ...useAlertActions(),
+});
+
+//لاحقا :
+// ✅ الطريقة الجديدة (أداء أفضل)
+// const { alerts, unreadCount } = useAlertState();
+// const { markAsRead, markAllAsRead } = useAlertActions();
+
+// ✅ الطريقة القديمة (لسه شغالة)
+// const { alerts, unreadCount, markAsRead } = useAlerts();

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../context/AuthContext";
 import { useAlertState, useAlertActions } from "../../../context/AlertContext";
@@ -7,16 +7,16 @@ import "./NotificationsPage.css";
 const NotificationsPage = () => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
-  const { alerts, unreadCount } = useAlertState();
-  const { markAsRead, markAllAsRead } = useAlertActions();
-  const { fetchAlerts: fetchAlertsFromContext, setAlerts } = useAlertActions();
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const { alerts, loading, hasMore } = useAlertState();
+  const {
+    markAsRead,
+    loadAlerts,
+    loadMore: loadMoreFromContext,
+  } = useAlertActions();
+
   const [filter, setFilter] = useState("all");
-  const [loading, setLoading] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
-  const abortControllerRef = useRef(null);
 
   const displayAlerts = alerts.filter((a) => {
     if (filter === "unread") return !a.read;
@@ -50,51 +50,9 @@ const NotificationsPage = () => {
     [i18n.language],
   );
 
-  const fetchAlerts = useCallback(
-    async (pageNumber = 1, append = false) => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
-
-      try {
-        setLoading(true);
-        const res = await fetchAlertsFromContext(pageNumber, filter);
-        const newAlerts = res.data;
-
-        setAlerts((prev) => {
-          if (!append) return newAlerts;
-
-          const existingIds = new Set(prev.map((a) => a.id));
-          const filtered = newAlerts.filter((a) => !existingIds.has(a.id));
-
-          return [...prev, ...filtered];
-        });
-
-        setHasMore(res.meta.has_more);
-      } catch (err) {
-        if (err.name !== "AbortError" && err.code !== "ERR_CANCELED") {
-          console.error("❌ Error loading alerts:", err);
-        }
-      } finally {
-        setLoading(false);
-      }
-    },
-    [filter, fetchAlertsFromContext, setAlerts],
-  );
-
   useEffect(() => {
-    setPage(1);
-    fetchAlerts(1, false);
-
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, [filter, fetchAlerts]);
+    loadAlerts(1, filter);
+  }, [filter, loadAlerts]);
 
   const handleAcknowledge = async (alertId) => {
     try {
@@ -114,11 +72,7 @@ const NotificationsPage = () => {
   };
 
   const loadMore = () => {
-    setPage((prev) => {
-      const next = prev + 1;
-      fetchAlerts(next, true);
-      return next;
-    });
+    loadMoreFromContext(filter);
   };
 
   const getPriorityClass = (priority) => {
@@ -147,7 +101,7 @@ const NotificationsPage = () => {
     }
   };
 
-  if (loading && page === 1 && displayAlerts.length === 0) {
+  if (loading && displayAlerts.length === 0) {
     return (
       <div className="notifications-loading">
         <div className="loading-animation">

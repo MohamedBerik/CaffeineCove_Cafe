@@ -2,11 +2,12 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useAlerts } from "../../context/AlertContext";
+import { useAlertState, useAlertActions } from "../../../context/AlertContext";
 import "./AdminNavbar.css";
 
 const AdminNavbar = () => {
-  const { alerts, unreadCount, markAllAsRead, markAsRead } = useAlerts();
+  const { alerts, unreadCount } = useAlertState();
+  const { markAsRead, markAllAsRead } = useAlertActions();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -198,7 +199,7 @@ const AdminNavbar = () => {
                     <div className="dropdown-footer">
                       <button onClick={openAlerts} className="see-all-btn">
                         {t("See All Notifications")}
-                        <i class="fa-solid fa-arrow-right"></i>
+                        <i className="fa-solid fa-arrow-right"></i>
                       </button>
                     </div>
                   </div>

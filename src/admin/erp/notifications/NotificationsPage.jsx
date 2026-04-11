@@ -1,18 +1,15 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../context/AuthContext";
-import { useAlerts } from "../../../context/AlertContext";
+import { useAlertState, useAlertActions } from "../../../context/AlertContext";
 import "./NotificationsPage.css";
 
 const NotificationsPage = () => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
-  const {
-    alerts,
-    fetchAlerts: fetchAlertsFromContext,
-    markAsRead,
-    setAlerts,
-  } = useAlerts();
+  const { alerts, unreadCount } = useAlertState();
+  const { markAsRead, markAllAsRead } = useAlertActions();
+  const { fetchAlerts: fetchAlertsFromContext, setAlerts } = useAlertActions();
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [filter, setFilter] = useState("all");

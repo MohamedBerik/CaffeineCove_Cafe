@@ -111,17 +111,3 @@ export const AlertProvider = ({ children }) => {
 // ✅ Hooks منفصلة
 export const useAlertState = () => useContext(AlertStateContext);
 export const useAlertActions = () => useContext(AlertActionsContext);
-
-// ✅ Hook موحد للتوافق مع الكود القديم
-export const useAlerts = () => ({
-  ...useAlertState(),
-  ...useAlertActions(),
-});
-
-//لاحقا :
-// ✅ الطريقة الجديدة (أداء أفضل)
-// const { alerts, unreadCount } = useAlertState();
-// const { markAsRead, markAllAsRead } = useAlertActions();
-
-// ✅ الطريقة القديمة (لسه شغالة)
-// const { alerts, unreadCount, markAsRead } = useAlerts();

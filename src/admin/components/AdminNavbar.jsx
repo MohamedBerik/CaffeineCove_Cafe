@@ -1,7 +1,7 @@
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useAlerts } from "../../context/AlertContext";
 import "./AdminNavbar.css";
 import api from "../../services/axios";
@@ -30,11 +30,20 @@ const AdminNavbar = () => {
     };
   }, []);
 
-  const formatTime = (timestamp) => {
+  // ✅ نقل side effect إلى useEffect
+  useEffect(() => {
+    if (showDropdown) {
+      markAllAsRead();
+    }
+  }, [showDropdown]);
+
+  const formatTime = useCallback((timestamp) => {
     if (!timestamp) return "";
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }, []);
 
   const goHome = () => {
     navigate("/admin/erp");
@@ -84,14 +93,9 @@ const AdminNavbar = () => {
     }
   };
 
+  // ✅ تبسيط handleBellClick
   const handleBellClick = () => {
-    setShowDropdown((prev) => {
-      const next = !prev;
-      if (next) {
-        markAllAsRead();
-      }
-      return next;
-    });
+    setShowDropdown((prev) => !prev);
   };
 
   const markAsRead = async (alertId) => {
@@ -113,9 +117,10 @@ const AdminNavbar = () => {
     }
   };
 
-  const handleAlertClick = (alert, e) => {
+  // ✅ async/await عشان navigation يستنى الـ API
+  const handleAlertClick = async (alert, e) => {
     e.stopPropagation();
-    markAsRead(alert.id);
+    await markAsRead(alert.id);
     navigate("/admin/erp/notifications");
   };
 
@@ -173,6 +178,8 @@ const AdminNavbar = () => {
                   handleBellClick();
                 }}
                 aria-label={t("Notifications")}
+                aria-expanded={showDropdown}
+                aria-haspopup="true"
               >
                 <i className="fas fa-bell"></i>
                 {unreadCount > 0 && (

@@ -20,18 +20,11 @@ const NotificationsPage = () => {
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const abortControllerRef = useRef(null);
-  const displayAlerts = alerts;
-
-  // useAlertsSocket((newAlert) => {
-  //   setDisplayAlerts((prev) => {
-  //     if (prev.some((a) => a.id === newAlert.id)) return prev;
-  //     return [newAlert, ...prev];
-  //   });
-  // }, user?.company_id);
-
-  // useEffect(() => {
-  //   setDisplayAlerts(alerts);
-  // }, [alerts]);
+  const displayAlerts = alerts.filter((a) => {
+    if (filter === "unread") return !a.read;
+    if (filter === "high") return a.priority === "high";
+    return true;
+  });
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -72,9 +65,9 @@ const NotificationsPage = () => {
         setLoading(true);
         const res = await fetchAlertsFromContext(pageNumber, filter);
         const newAlerts = res.data;
-        setDisplayAlerts((prev) =>
-          append ? [...prev, ...newAlerts] : newAlerts,
-        );
+        // setDisplayAlerts((prev) =>
+        //   append ? [...prev, ...newAlerts] : newAlerts,
+        // );
         setHasMore(res.meta.has_more);
       } catch (err) {
         if (err.name !== "AbortError" && err.code !== "ERR_CANCELED") {
@@ -88,7 +81,7 @@ const NotificationsPage = () => {
   );
 
   useEffect(() => {
-    setDisplayAlerts([]);
+    // setDisplayAlerts([]);
     setPage(1);
     fetchAlerts(1, false);
 
@@ -104,11 +97,7 @@ const NotificationsPage = () => {
       await markAsRead(alertId);
 
       if (filter === "unread") {
-        setDisplayAlerts((prev) => prev.filter((a) => a.id !== alertId));
-      } else {
-        setDisplayAlerts((prev) =>
-          prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)),
-        );
+        await markAsRead(alertId);
       }
 
       setSelectedAlert((prev) => (prev ? { ...prev, read: true } : null));

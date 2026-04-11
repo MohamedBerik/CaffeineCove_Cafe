@@ -15,6 +15,7 @@ const AdminNavbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
+  // ✅ mousedown بدل click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -22,9 +23,9 @@ const AdminNavbar = () => {
       }
     };
 
-    document.addEventListener("click", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -65,20 +66,27 @@ const AdminNavbar = () => {
     navigate("/admin/erp/notifications");
   };
 
-  const handleBellClick = () =>
+  // ✅ فصل الـ side effects
+  const markAllAsRead = async () => {
+    try {
+      await api.post("/erp/alerts/mark-all-read");
+      setAlerts((prev) => prev.map((a) => ({ ...a, read: true })));
+      updateUnreadCount();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleBellClick = () => {
+    console.log("🔔 Bell clicked");
     setShowDropdown((prev) => {
-      if (!prev) {
-        api.post("/erp/alerts/mark-all-read").catch(console.error);
-
-        setAlerts((prevAlerts) =>
-          prevAlerts.map((a) => ({ ...a, read: true })),
-        );
-
-        updateUnreadCount();
+      const next = !prev;
+      if (next) {
+        markAllAsRead();
       }
-
-      return !prev;
+      return next;
     });
+  };
 
   const markAsRead = async (alertId) => {
     try {
@@ -102,8 +110,9 @@ const AdminNavbar = () => {
     }
   };
 
-  // ✅ من غير await - navigation أسرع
-  const handleAlertClick = (alert) => {
+  // ✅ إضافة e.stopPropagation
+  const handleAlertClick = (alert, e) => {
+    e.stopPropagation();
     markAsRead(alert.id);
     navigate("/admin/erp/notifications");
   };
@@ -170,61 +179,55 @@ const AdminNavbar = () => {
               </div>
 
               {showDropdown && (
-                <>
-                  {/* <div
-                    className="notification-overlay"
-                    onClick={() => setShowDropdown(false)}
-                  /> */}
-                  <div
-                    className={`notification-dropdown global ${showDropdown ? "open" : ""}`}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="dropdown-header">
-                      <i className="fas fa-bell"></i> {t("Notifications")}
+                <div
+                  className={`notification-dropdown global ${showDropdown ? "open" : ""}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="dropdown-header">
+                    <i className="fas fa-bell"></i> {t("Notifications")}
+                  </div>
+                  {!Array.isArray(alerts) || alerts.length === 0 ? (
+                    <div className="dropdown-empty">
+                      <i className="fas fa-inbox"></i>
+                      <p>{t("No new notifications")}</p>
                     </div>
-                    {!Array.isArray(alerts) || alerts.length === 0 ? (
-                      <div className="dropdown-empty">
-                        <i className="fas fa-inbox"></i>
-                        <p>{t("No new notifications")}</p>
-                      </div>
-                    ) : (
-                      <div className="dropdown-list">
-                        {alerts.slice(0, 5).map((alert) => (
-                          <div
-                            key={alert.id}
-                            className={`notification-item ${alert.priority} ${alert.read ? "read" : ""}`}
-                            onClick={() => handleAlertClick(alert)}
-                          >
-                            <span className="alert-icon">
-                              {getAlertIcon(alert.code)}
-                            </span>
-                            <div className="notification-content">
-                              <div className="notification-title">
-                                {alert.message}
-                              </div>
-                              <div className="notification-meta">
-                                <span
-                                  className={`priority-badge ${alert.priority}`}
-                                >
-                                  {alert.priority}
-                                </span>
-                                <span className="notification-time">
-                                  {formatTime(alert.time || alert.triggered_at)}
-                                </span>
-                              </div>
+                  ) : (
+                    <div className="dropdown-list">
+                      {alerts.slice(0, 5).map((alert) => (
+                        <div
+                          key={alert.id}
+                          className={`notification-item ${alert.priority} ${alert.read ? "read" : ""}`}
+                          onClick={(e) => handleAlertClick(alert, e)}
+                        >
+                          <span className="alert-icon">
+                            {getAlertIcon(alert.code)}
+                          </span>
+                          <div className="notification-content">
+                            <div className="notification-title">
+                              {alert.message}
+                            </div>
+                            <div className="notification-meta">
+                              <span
+                                className={`priority-badge ${alert.priority}`}
+                              >
+                                {alert.priority}
+                              </span>
+                              <span className="notification-time">
+                                {formatTime(alert.time || alert.triggered_at)}
+                              </span>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                    <div className="dropdown-footer">
-                      <button onClick={openAlerts} className="see-all-btn">
-                        {t("See All Notifications")}
-                        <span className="arrow-icon">→</span>
-                      </button>
+                        </div>
+                      ))}
                     </div>
+                  )}
+                  <div className="dropdown-footer">
+                    <button onClick={openAlerts} className="see-all-btn">
+                      {t("See All Notifications")}
+                      <span className="arrow-icon">→</span>
+                    </button>
                   </div>
-                </>
+                </div>
               )}
             </div>
 

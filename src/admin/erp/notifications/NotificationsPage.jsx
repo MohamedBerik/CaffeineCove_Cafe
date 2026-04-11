@@ -1,20 +1,30 @@
 import { useEffect, useState } from "react";
 import api from "../../../services/axios";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../../context/AuthContext";
+import useAlertsSocket from "../../../hooks/useAlertsSocket";
 import "./NotificationsPage.css";
 
 const NotificationsPage = () => {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const [alerts, setAlerts] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState(null);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(false);
 
+  // ✅ Realtime sync
+  useAlertsSocket((newAlert) => {
+    setAlerts((prev) => [newAlert, ...prev]);
+  }, user?.company_id);
+
+  // ✅ isMobile SSR compatible
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -38,15 +48,11 @@ const NotificationsPage = () => {
   const fetchAlerts = async (pageNumber = 1, append = false) => {
     try {
       setLoading(true);
-
       const res = await api.get(
         `/erp/alerts?page=${pageNumber}&filter=${filter}`,
       );
-
       const newAlerts = res.data.data;
-
       setAlerts((prev) => (append ? [...prev, ...newAlerts] : newAlerts));
-
       setHasMore(res.data.meta.has_more);
     } catch (err) {
       console.error("❌ Error loading alerts:", err);
@@ -55,16 +61,21 @@ const NotificationsPage = () => {
     }
   };
 
+  // ✅ إصلاح filter + pagination
   useEffect(() => {
+    setAlerts([]);
     setPage(1);
     fetchAlerts(1, false);
   }, [filter]);
 
+  // ✅ إصلاح acknowledge (mark as read بدل delete)
   const handleAcknowledge = async (alertId) => {
     try {
       await api.post(`/erp/alerts/${alertId}/ack`);
-      setAlerts((prev) => prev.filter((alert) => alert.id !== alertId));
-      setSelectedAlert(null);
+      setAlerts((prev) =>
+        prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)),
+      );
+      setSelectedAlert((prev) => (prev ? { ...prev, read: true } : null));
     } catch (err) {
       console.error("❌ Error acknowledging alert:", err);
     }
@@ -222,6 +233,21 @@ const NotificationsPage = () => {
                       </span>
                     </div>
                   </div>
+                  {/* ✅ فصل الـ action عن الـ click */}
+                  <div className="notification-actions">
+                    {!alert.read && (
+                      <button
+                        className="btn-mark-read"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAcknowledge(alert.id);
+                        }}
+                        title={t("Mark as read")}
+                      >
+                        <i className="fas fa-check"></i>
+                      </button>
+                    )}
+                  </div>
                   <div className="notification-status">
                     {!alert.read && <span className="unread-dot"></span>}
                     <i className="fas fa-chevron-right"></i>
@@ -231,7 +257,6 @@ const NotificationsPage = () => {
             </div>
           )}
 
-          {/* Load More */}
           {hasMore && alerts.length > 0 && (
             <div className="load-more-container">
               <button
@@ -256,7 +281,7 @@ const NotificationsPage = () => {
         </div>
       </div>
 
-      {/* Alert Detail Modal */}
+      {/* Modal */}
       {selectedAlert && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -298,14 +323,6 @@ const NotificationsPage = () => {
                   {formatDateTime(selectedAlert.time)}
                 </span>
               </div>
-              {selectedAlert.meta?.count && (
-                <div className="detail-row">
-                  <span className="detail-label">{t("Count")}:</span>
-                  <span className="detail-value">
-                    {selectedAlert.meta.count}
-                  </span>
-                </div>
-              )}
               {selectedAlert.code && (
                 <div className="detail-row">
                   <span className="detail-label">{t("Code")}:</span>
@@ -316,13 +333,16 @@ const NotificationsPage = () => {
               )}
             </div>
             <div className="modal-footer">
-              <button
-                className="btn-acknowledge"
-                onClick={() => handleAcknowledge(selectedAlert.id)}
-              >
-                <i className="fas fa-check-circle me-2"></i>
-                {t("Acknowledge")}
-              </button>
+              {/* ✅ زر Acknowledge يظهر فقط لو الإشعار مش مقروء */}
+              {!selectedAlert.read && (
+                <button
+                  className="btn-acknowledge"
+                  onClick={() => handleAcknowledge(selectedAlert.id)}
+                >
+                  <i className="fas fa-check-circle me-2"></i>
+                  {t("Acknowledge")}
+                </button>
+              )}
               <button className="btn-close-modal" onClick={closeModal}>
                 <i className="fas fa-times me-2"></i>
                 {t("Close")}

@@ -407,4 +407,21 @@ const NotificationsPage = () => {
   );
 };
 
+// ✅ هيشتغل تلقائي حسب اللغة المختارة
+const formatGroupDate = (dateString) => {
+  const date = new Date(dateString);
+  const today = new Date();
+  const diffTime = today - date;
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return t("Today"); // "اليوم" أو "Today"
+  if (diffDays === 1) return t("Yesterday"); // "أمس" أو "Yesterday"
+  if (diffDays < 7) return `${diffDays} ${t("days ago")}`; // "3 أيام" أو "3 days ago"
+  return date.toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
 export default NotificationsPage;

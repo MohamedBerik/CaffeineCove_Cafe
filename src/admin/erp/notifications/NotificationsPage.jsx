@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../context/AuthContext";
-import { useAlertState, useAlertActions } from "../../../context/AlertContext";
+import { useAlertState, useAlertActions } from "../../context/AlertContext";
 import "./NotificationsPage.css";
 
 const NotificationsPage = () => {

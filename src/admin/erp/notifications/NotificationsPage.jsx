@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import api from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../context/AuthContext";
@@ -15,8 +15,8 @@ const NotificationsPage = () => {
   const [loading, setLoading] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const abortControllerRef = useRef(null);
 
-  // ✅ منع duplicate من socket
   useAlertsSocket((newAlert) => {
     setAlerts((prev) => {
       if (prev.some((a) => a.id === newAlert.id)) return prev;
@@ -31,35 +31,49 @@ const NotificationsPage = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const formatDateTime = (value) => {
-    if (!value) return "-";
-    try {
-      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
-      return new Date(value).toLocaleString(lang, {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return value;
-    }
-  };
+  const formatDateTime = useCallback(
+    (value) => {
+      if (!value) return "-";
+      try {
+        const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
+        return new Date(value).toLocaleString(lang, {
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      } catch {
+        return value;
+      }
+    },
+    [i18n.language],
+  );
 
-  // ✅ fetchAlerts مع useCallback و dependency filter
   const fetchAlerts = useCallback(
     async (pageNumber = 1, append = false) => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       try {
         setLoading(true);
         const res = await api.get(
           `/erp/alerts?page=${pageNumber}&filter=${filter}`,
+          {
+            signal: controller.signal,
+          },
         );
         const newAlerts = res.data.data;
         setAlerts((prev) => (append ? [...prev, ...newAlerts] : newAlerts));
         setHasMore(res.data.meta.has_more);
       } catch (err) {
-        console.error("❌ Error loading alerts:", err);
+        if (err.name !== "AbortError" && err.code !== "ERR_CANCELED") {
+          console.error("❌ Error loading alerts:", err);
+        }
       } finally {
         setLoading(false);
       }
@@ -71,9 +85,14 @@ const NotificationsPage = () => {
     setAlerts([]);
     setPage(1);
     fetchAlerts(1, false);
+
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [filter, fetchAlerts]);
 
-  // ✅ تحسين UX: إخفاء من unread filter
   const handleAcknowledge = async (alertId) => {
     try {
       await api.post(`/erp/alerts/${alertId}/ack`);
@@ -100,7 +119,6 @@ const NotificationsPage = () => {
     setSelectedAlert(null);
   };
 
-  // ✅ إصلاح Pagination bug
   const loadMore = () => {
     setPage((prev) => {
       const next = prev + 1;
@@ -286,6 +304,12 @@ const NotificationsPage = () => {
                   </>
                 )}
               </button>
+            </div>
+          )}
+
+          {!hasMore && alerts.length > 0 && (
+            <div className="no-more-container">
+              <p className="no-more-text">{t("No more notifications")}</p>
             </div>
           )}
         </div>

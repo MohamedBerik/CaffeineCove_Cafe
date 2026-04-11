@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import api from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../context/AuthContext";
@@ -16,12 +16,14 @@ const NotificationsPage = () => {
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  // ✅ Realtime sync
+  // ✅ منع duplicate من socket
   useAlertsSocket((newAlert) => {
-    setAlerts((prev) => [newAlert, ...prev]);
+    setAlerts((prev) => {
+      if (prev.some((a) => a.id === newAlert.id)) return prev;
+      return [newAlert, ...prev];
+    });
   }, user?.company_id);
 
-  // ✅ isMobile SSR compatible
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
@@ -45,36 +47,45 @@ const NotificationsPage = () => {
     }
   };
 
-  const fetchAlerts = async (pageNumber = 1, append = false) => {
-    try {
-      setLoading(true);
-      const res = await api.get(
-        `/erp/alerts?page=${pageNumber}&filter=${filter}`,
-      );
-      const newAlerts = res.data.data;
-      setAlerts((prev) => (append ? [...prev, ...newAlerts] : newAlerts));
-      setHasMore(res.data.meta.has_more);
-    } catch (err) {
-      console.error("❌ Error loading alerts:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // ✅ fetchAlerts مع useCallback و dependency filter
+  const fetchAlerts = useCallback(
+    async (pageNumber = 1, append = false) => {
+      try {
+        setLoading(true);
+        const res = await api.get(
+          `/erp/alerts?page=${pageNumber}&filter=${filter}`,
+        );
+        const newAlerts = res.data.data;
+        setAlerts((prev) => (append ? [...prev, ...newAlerts] : newAlerts));
+        setHasMore(res.data.meta.has_more);
+      } catch (err) {
+        console.error("❌ Error loading alerts:", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [filter],
+  );
 
-  // ✅ إصلاح filter + pagination
   useEffect(() => {
     setAlerts([]);
     setPage(1);
     fetchAlerts(1, false);
-  }, [filter]);
+  }, [filter, fetchAlerts]);
 
-  // ✅ إصلاح acknowledge (mark as read بدل delete)
+  // ✅ تحسين UX: إخفاء من unread filter
   const handleAcknowledge = async (alertId) => {
     try {
       await api.post(`/erp/alerts/${alertId}/ack`);
-      setAlerts((prev) =>
-        prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)),
-      );
+
+      if (filter === "unread") {
+        setAlerts((prev) => prev.filter((a) => a.id !== alertId));
+      } else {
+        setAlerts((prev) =>
+          prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)),
+        );
+      }
+
       setSelectedAlert((prev) => (prev ? { ...prev, read: true } : null));
     } catch (err) {
       console.error("❌ Error acknowledging alert:", err);
@@ -89,10 +100,13 @@ const NotificationsPage = () => {
     setSelectedAlert(null);
   };
 
+  // ✅ إصلاح Pagination bug
   const loadMore = () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    fetchAlerts(nextPage, true);
+    setPage((prev) => {
+      const next = prev + 1;
+      fetchAlerts(next, true);
+      return next;
+    });
   };
 
   const getPriorityClass = (priority) => {
@@ -139,7 +153,6 @@ const NotificationsPage = () => {
       className="notifications-page"
       dir={i18n.language === "ar" ? "rtl" : "ltr"}
     >
-      {/* Header */}
       <div className="page-header">
         <div className="header-text">
           <h1 className="page-title">{t("Notifications")}</h1>
@@ -149,7 +162,6 @@ const NotificationsPage = () => {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="filters-card">
         <div className="filters-card-header">
           <i className="fas fa-filter me-2"></i>
@@ -182,7 +194,6 @@ const NotificationsPage = () => {
         </div>
       </div>
 
-      {/* Notifications List */}
       <div className="notifications-card">
         <div className="notifications-card-header">
           <i className="fas fa-bell me-2"></i>
@@ -233,7 +244,6 @@ const NotificationsPage = () => {
                       </span>
                     </div>
                   </div>
-                  {/* ✅ فصل الـ action عن الـ click */}
                   <div className="notification-actions">
                     {!alert.read && (
                       <button
@@ -281,7 +291,6 @@ const NotificationsPage = () => {
         </div>
       </div>
 
-      {/* Modal */}
       {selectedAlert && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -333,7 +342,6 @@ const NotificationsPage = () => {
               )}
             </div>
             <div className="modal-footer">
-              {/* ✅ زر Acknowledge يظهر فقط لو الإشعار مش مقروء */}
               {!selectedAlert.read && (
                 <button
                   className="btn-acknowledge"

@@ -61,19 +61,43 @@ export const AlertProvider = ({ children }) => {
 
   // ✅ mark one
   const markAsRead = useCallback(async (alertId) => {
-    await api.post(`/erp/alerts/${alertId}/ack`);
+    // ✅ optimistic update
     setAlerts((prev) =>
       prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)),
     );
+
     setUnreadCount((prev) => Math.max(prev - 1, 0));
+
+    try {
+      await api.post(`/erp/alerts/${alertId}/ack`);
+    } catch (err) {
+      console.error("❌ rollback markAsRead:", err);
+
+      // ❗ rollback لو فشل
+      setAlerts((prev) =>
+        prev.map((a) => (a.id === alertId ? { ...a, read: false } : a)),
+      );
+
+      setUnreadCount((prev) => prev + 1);
+    }
   }, []);
 
   // ✅ mark all
   const markAllAsRead = useCallback(async () => {
-    await api.post("/erp/alerts/mark-all-read");
+    const prevAlerts = alerts;
+
     setAlerts((prev) => prev.map((a) => ({ ...a, read: true })));
     setUnreadCount(0);
-  }, []);
+
+    try {
+      await api.post("/erp/alerts/mark-all-read");
+    } catch (err) {
+      console.error("❌ rollback markAll:", err);
+
+      setAlerts(prevAlerts);
+      setUnreadCount(prevAlerts.filter((a) => !a.read).length);
+    }
+  }, [alerts]);
 
   // ✅ add from socket
   const addAlert = useCallback((newAlert) => {

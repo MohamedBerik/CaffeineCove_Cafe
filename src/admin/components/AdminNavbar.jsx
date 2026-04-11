@@ -28,11 +28,11 @@ const AdminNavbar = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (showDropdown) {
-      markAllAsRead();
-    }
-  }, [showDropdown, markAllAsRead]);
+  // useEffect(() => {
+  //   if (showDropdown) {
+  //     markAllAsRead();
+  //   }
+  // }, [showDropdown, markAllAsRead]);
 
   const formatTime = useCallback((timestamp) => {
     if (!timestamp) return "";
@@ -70,7 +70,15 @@ const AdminNavbar = () => {
   };
 
   const handleBellClick = () => {
-    setShowDropdown((prev) => !prev);
+    setShowDropdown((prev) => {
+      const next = !prev;
+
+      if (next) {
+        markAllAsRead();
+      }
+
+      return next;
+    });
   };
 
   const handleAlertClick = async (alert, e) => {

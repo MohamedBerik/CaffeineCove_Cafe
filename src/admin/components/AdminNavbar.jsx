@@ -1,23 +1,20 @@
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useAlerts } from "../../context/AlertContext";
 import "./AdminNavbar.css";
+import api from "../../services/axios";
 
 const AdminNavbar = () => {
-  const {
-    alerts,
-    unreadCount,
-    markAllAsRead: markAllAsReadFromContext,
-    markAsRead: markAsReadFromContext,
-  } = useAlerts();
+  const { alerts, unreadCount, setAlerts, updateUnreadCount } = useAlerts();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const isMarkingAllRef = useRef(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -68,22 +65,64 @@ const AdminNavbar = () => {
     navigate("/admin/erp/notifications");
   };
 
+  // ✅ markAllAsRead مع useCallback
+  const markAllAsRead = useCallback(async () => {
+    if (isMarkingAllRef.current) return;
+    isMarkingAllRef.current = true;
+
+    try {
+      await api.post("/erp/alerts/mark-all-read");
+
+      if (typeof setAlerts === "function") {
+        setAlerts((prev) =>
+          Array.isArray(prev) ? prev.map((a) => ({ ...a, read: true })) : prev,
+        );
+      }
+
+      updateUnreadCount?.();
+    } catch (e) {
+      console.error("❌ markAllAsRead error:", e);
+    } finally {
+      isMarkingAllRef.current = false;
+    }
+  }, [setAlerts, updateUnreadCount]);
+
   const handleBellClick = () => {
     setShowDropdown((prev) => {
       const next = !prev;
       if (next) {
-        markAllAsReadFromContext();
+        markAllAsRead();
       }
       return next;
     });
   };
 
+  const markAsRead = async (alertId) => {
+    try {
+      await api.post(`/erp/alerts/${alertId}/ack`);
+
+      if (typeof setAlerts === "function") {
+        setAlerts((prevAlerts) => {
+          if (!Array.isArray(prevAlerts)) return prevAlerts;
+          return prevAlerts.map((alert) =>
+            alert.id === alertId ? { ...alert, read: true } : alert,
+          );
+        });
+      }
+
+      updateUnreadCount?.();
+    } catch (error) {
+      console.error("❌ Error marking alert as read:", error);
+    }
+  };
+
   const handleAlertClick = async (alert, e) => {
     e.stopPropagation();
-    await markAsReadFromContext(alert.id);
+    await markAsRead(alert.id);
     navigate("/admin/erp/notifications");
   };
 
+  // ✅ getAlertIcon مع useCallback
   const getAlertIcon = useCallback((code) => {
     switch (code) {
       case "LOW_STOCK":

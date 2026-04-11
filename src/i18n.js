@@ -4339,7 +4339,7 @@ const resources = {
 
       Today: "اليوم",
       Yesterday: "أمس",
-      "days ago": "أيام",
+      "days ago": "أيام منذ",
       ago: "منذ",
       "No high priority notifications": "لا توجد إشعارات عالية الأهمية",
       "No unread notifications!": "🎉 لا توجد إشعارات غير مقروءة!",

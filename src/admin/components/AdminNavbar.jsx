@@ -6,12 +6,7 @@ import { useAlerts } from "../../context/AlertContext";
 import "./AdminNavbar.css";
 
 const AdminNavbar = () => {
-  const {
-    alerts,
-    unreadCount,
-    markAllAsRead: markAllAsReadFromContext,
-    markAsRead,
-  } = useAlerts();
+  const { alerts, unreadCount, markAllAsRead } = useAlerts();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -72,15 +67,14 @@ const AdminNavbar = () => {
     setShowDropdown((prev) => {
       const next = !prev;
       if (next) {
-        markAllAsReadFromContext();
+        markAllAsRead();
       }
       return next;
     });
   };
 
-  const handleAlertClick = async (alert, e) => {
+  const handleAlertClick = (alert, e) => {
     e.stopPropagation();
-    await markAsRead(alert.id);
     navigate("/admin/erp/notifications");
   };
 

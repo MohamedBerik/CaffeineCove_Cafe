@@ -15,17 +15,18 @@ const AdminNavbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
-  // ✅ mousedown بدل click
+  // ✅ رجوع إلى click + defensive check
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (!dropdownRef.current) return;
+      if (!dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, []);
 
@@ -66,7 +67,6 @@ const AdminNavbar = () => {
     navigate("/admin/erp/notifications");
   };
 
-  // ✅ فصل الـ side effects
   const markAllAsRead = async () => {
     try {
       await api.post("/erp/alerts/mark-all-read");
@@ -77,8 +77,9 @@ const AdminNavbar = () => {
     }
   };
 
+  // ✅ تبسيط مع log
   const handleBellClick = () => {
-    console.log("🔔 Bell clicked");
+    console.log("🔔 CLICKED BELL ONLY");
     setShowDropdown((prev) => {
       const next = !prev;
       if (next) {
@@ -110,7 +111,6 @@ const AdminNavbar = () => {
     }
   };
 
-  // ✅ إضافة e.stopPropagation
   const handleAlertClick = (alert, e) => {
     e.stopPropagation();
     markAsRead(alert.id);

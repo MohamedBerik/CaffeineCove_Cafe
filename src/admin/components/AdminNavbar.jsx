@@ -4,17 +4,15 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAlerts } from "../../context/AlertContext";
 import "./AdminNavbar.css";
-import api from "../../services/axios";
 
 const AdminNavbar = () => {
-  const { alerts, unreadCount, setAlerts, updateUnreadCount } = useAlerts();
+  const { alerts, unreadCount, markAllAsRead, markAsRead } = useAlerts();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
-  const isMarkingAllRef = useRef(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -29,6 +27,12 @@ const AdminNavbar = () => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    if (showDropdown) {
+      markAllAsRead();
+    }
+  }, [showDropdown, markAllAsRead]);
 
   const formatTime = useCallback((timestamp) => {
     if (!timestamp) return "";
@@ -65,55 +69,8 @@ const AdminNavbar = () => {
     navigate("/admin/erp/notifications");
   };
 
-  // ✅ markAllAsRead مع useCallback
-  const markAllAsRead = useCallback(async () => {
-    if (isMarkingAllRef.current) return;
-    isMarkingAllRef.current = true;
-
-    try {
-      await api.post("/erp/alerts/mark-all-read");
-
-      if (typeof setAlerts === "function") {
-        setAlerts((prev) =>
-          Array.isArray(prev) ? prev.map((a) => ({ ...a, read: true })) : prev,
-        );
-      }
-
-      updateUnreadCount?.();
-    } catch (e) {
-      console.error("❌ markAllAsRead error:", e);
-    } finally {
-      isMarkingAllRef.current = false;
-    }
-  }, [setAlerts, updateUnreadCount]);
-
   const handleBellClick = () => {
-    setShowDropdown((prev) => {
-      const next = !prev;
-      if (next) {
-        markAllAsRead();
-      }
-      return next;
-    });
-  };
-
-  const markAsRead = async (alertId) => {
-    try {
-      await api.post(`/erp/alerts/${alertId}/ack`);
-
-      if (typeof setAlerts === "function") {
-        setAlerts((prevAlerts) => {
-          if (!Array.isArray(prevAlerts)) return prevAlerts;
-          return prevAlerts.map((alert) =>
-            alert.id === alertId ? { ...alert, read: true } : alert,
-          );
-        });
-      }
-
-      updateUnreadCount?.();
-    } catch (error) {
-      console.error("❌ Error marking alert as read:", error);
-    }
+    setShowDropdown((prev) => !prev);
   };
 
   const handleAlertClick = async (alert, e) => {

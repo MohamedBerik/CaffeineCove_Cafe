@@ -7,14 +7,11 @@ import "./NotificationsPage.css";
 const NotificationsPage = () => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
-  const { alerts, loading, hasMore } = useAlertState();
-  const {
-    markAsRead,
-    loadAlerts,
-    loadMore: loadMoreFromContext,
-  } = useAlertActions();
 
-  const [filter, setFilter] = useState("all");
+  // ✅ كل حاجة من Context
+  const { alerts, loading, hasMore, filter } = useAlertState();
+  const { markAsRead, loadAlerts, loadMore, setFilter } = useAlertActions();
+
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -50,8 +47,9 @@ const NotificationsPage = () => {
     [i18n.language],
   );
 
+  // ✅ تحميل البيانات لما الفلتر يتغير
   useEffect(() => {
-    loadAlerts(1, filter);
+    loadAlerts(1);
   }, [filter, loadAlerts]);
 
   const handleAcknowledge = async (alertId) => {
@@ -69,10 +67,6 @@ const NotificationsPage = () => {
 
   const closeModal = () => {
     setSelectedAlert(null);
-  };
-
-  const loadMore = () => {
-    loadMoreFromContext(filter);
   };
 
   const getPriorityClass = (priority) => {

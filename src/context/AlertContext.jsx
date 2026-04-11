@@ -9,6 +9,7 @@ import { useAuth } from "./AuthContext";
 import useAlertsSocket from "../hooks/useAlertsSocket";
 import api from "../services/axios";
 
+// ✅ تقسيم الـ Context
 const AlertStateContext = createContext();
 const AlertActionsContext = createContext();
 
@@ -19,43 +20,46 @@ export const AlertProvider = ({ children }) => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all"); // ✅ أضفنا filter
 
-  const fetchAlerts = useCallback(async (page = 1, filter = "all") => {
-    const res = await api.get(`/erp/alerts?page=${page}&filter=${filter}`);
+  // ✅ fetch alerts (used by page)
+  const fetchAlerts = useCallback(async (page = 1, filterParam = "all") => {
+    const res = await api.get(`/erp/alerts?page=${page}&filter=${filterParam}`);
     return res.data;
   }, []);
 
-  // ✅ Pagination function
-  const loadAlerts = useCallback(async (pageNumber = 1, filter = "all") => {
-    setLoading(true);
-    try {
-      const res = await api.get(
-        `/erp/alerts?page=${pageNumber}&filter=${filter}`,
-      );
-      const newAlerts = res.data.data;
+  // ✅ Pagination function - تستخدم filter من الـ state
+  const loadAlerts = useCallback(
+    async (pageNumber = 1) => {
+      setLoading(true);
+      try {
+        const res = await api.get(
+          `/erp/alerts?page=${pageNumber}&filter=${filter}`,
+        );
+        const newAlerts = res.data.data;
 
-      setAlerts((prev) =>
-        pageNumber === 1 ? newAlerts : [...prev, ...newAlerts],
-      );
+        setAlerts((prev) =>
+          pageNumber === 1 ? newAlerts : [...prev, ...newAlerts],
+        );
 
-      setHasMore(res.data.meta.has_more);
-      setPage(pageNumber);
-    } catch (error) {
-      console.error("❌ Error loading alerts:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // ✅ Load more function
-  const loadMore = useCallback(
-    (filter = "all") => {
-      if (!hasMore || loading) return;
-      loadAlerts(page + 1, filter);
+        setHasMore(res.data.meta.has_more);
+        setPage(pageNumber);
+      } catch (error) {
+        console.error("❌ Error loading alerts:", error);
+      } finally {
+        setLoading(false);
+      }
     },
-    [hasMore, loading, page, loadAlerts],
+    [filter],
   );
 
+  // ✅ Load more function
+  const loadMore = useCallback(() => {
+    if (!hasMore || loading) return;
+    loadAlerts(page + 1);
+  }, [hasMore, loading, page, loadAlerts]);
+
+  // ✅ mark one
   const markAsRead = useCallback(async (alertId) => {
     await api.post(`/erp/alerts/${alertId}/ack`);
     setAlerts((prev) =>
@@ -64,12 +68,14 @@ export const AlertProvider = ({ children }) => {
     setUnreadCount((prev) => Math.max(prev - 1, 0));
   }, []);
 
+  // ✅ mark all
   const markAllAsRead = useCallback(async () => {
     await api.post("/erp/alerts/mark-all-read");
     setAlerts((prev) => prev.map((a) => ({ ...a, read: true })));
     setUnreadCount(0);
   }, []);
 
+  // ✅ add from socket
   const addAlert = useCallback((newAlert) => {
     setAlerts((prev) => {
       if (prev.some((a) => a.id === newAlert.id)) return prev;
@@ -78,17 +84,27 @@ export const AlertProvider = ({ children }) => {
     setUnreadCount((prev) => prev + 1);
   }, []);
 
+  // ✅ تحميل الإشعارات الأولية
   useEffect(() => {
     if (!user) return;
-    loadAlerts(1, "all");
+    loadAlerts(1);
   }, [user, loadAlerts]);
 
+  // ✅ الاستماع للإشعارات الجديدة
   useAlertsSocket((newAlert) => {
     console.log("📨 Raw alert from socket:", newAlert);
     addAlert(newAlert);
   }, user?.company_id);
 
-  const stateValue = { alerts, unreadCount, loading, page, hasMore };
+  const stateValue = {
+    alerts,
+    unreadCount,
+    loading,
+    page,
+    hasMore,
+    filter, // ✅ أضفنا filter
+  };
+
   const actionsValue = {
     fetchAlerts,
     markAsRead,
@@ -97,6 +113,8 @@ export const AlertProvider = ({ children }) => {
     setAlerts,
     loadAlerts,
     loadMore,
+    setFilter, // ✅ أضفنا setFilter
+    // ✅ دوال التوافق
     addUnreadCount: () => {},
     clearUnreadCount: () => markAllAsRead(),
     updateUnreadCount: () => {},
@@ -111,5 +129,6 @@ export const AlertProvider = ({ children }) => {
   );
 };
 
+// ✅ Hooks منفصلة
 export const useAlertState = () => useContext(AlertStateContext);
 export const useAlertActions = () => useContext(AlertActionsContext);

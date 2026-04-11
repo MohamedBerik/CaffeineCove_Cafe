@@ -147,10 +147,10 @@ const AdminNavbar = () => {
 
               {showDropdown && (
                 <>
-                  <div
+                  {/* <div
                     className="notification-overlay"
                     onClick={() => setShowDropdown(false)}
-                  />
+                  /> */}
                   <div
                     className={`notification-dropdown global ${showDropdown ? "open" : ""}`}
                     onClick={(e) => e.stopPropagation()}

@@ -1,24 +1,29 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import api from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../context/AuthContext";
+import { useAlerts } from "../../../context/AlertContext";
 import useAlertsSocket from "../../../hooks/useAlertsSocket";
 import "./NotificationsPage.css";
 
 const NotificationsPage = () => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
-  const [alerts, setAlerts] = useState([]);
+  const {
+    alerts,
+    fetchAlerts: fetchAlertsFromContext,
+    markAsRead,
+  } = useAlerts();
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [displayAlerts, setDisplayAlerts] = useState([]);
   const abortControllerRef = useRef(null);
 
   useAlertsSocket((newAlert) => {
-    setAlerts((prev) => {
+    setDisplayAlerts((prev) => {
       if (prev.some((a) => a.id === newAlert.id)) return prev;
       return [newAlert, ...prev];
     });
@@ -30,6 +35,10 @@ const NotificationsPage = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    setDisplayAlerts(alerts);
+  }, [alerts]);
 
   const formatDateTime = useCallback(
     (value) => {
@@ -61,15 +70,12 @@ const NotificationsPage = () => {
 
       try {
         setLoading(true);
-        const res = await api.get(
-          `/erp/alerts?page=${pageNumber}&filter=${filter}`,
-          {
-            signal: controller.signal,
-          },
+        const res = await fetchAlertsFromContext(pageNumber, filter);
+        const newAlerts = res.data;
+        setDisplayAlerts((prev) =>
+          append ? [...prev, ...newAlerts] : newAlerts,
         );
-        const newAlerts = res.data.data;
-        setAlerts((prev) => (append ? [...prev, ...newAlerts] : newAlerts));
-        setHasMore(res.data.meta.has_more);
+        setHasMore(res.meta.has_more);
       } catch (err) {
         if (err.name !== "AbortError" && err.code !== "ERR_CANCELED") {
           console.error("❌ Error loading alerts:", err);
@@ -78,11 +84,11 @@ const NotificationsPage = () => {
         setLoading(false);
       }
     },
-    [filter],
+    [filter, fetchAlertsFromContext],
   );
 
   useEffect(() => {
-    setAlerts([]);
+    setDisplayAlerts([]);
     setPage(1);
     fetchAlerts(1, false);
 
@@ -95,12 +101,12 @@ const NotificationsPage = () => {
 
   const handleAcknowledge = async (alertId) => {
     try {
-      await api.post(`/erp/alerts/${alertId}/ack`);
+      await markAsRead(alertId);
 
       if (filter === "unread") {
-        setAlerts((prev) => prev.filter((a) => a.id !== alertId));
+        setDisplayAlerts((prev) => prev.filter((a) => a.id !== alertId));
       } else {
-        setAlerts((prev) =>
+        setDisplayAlerts((prev) =>
           prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)),
         );
       }
@@ -153,7 +159,7 @@ const NotificationsPage = () => {
     }
   };
 
-  if (loading && page === 1 && alerts.length === 0) {
+  if (loading && page === 1 && displayAlerts.length === 0) {
     return (
       <div className="notifications-loading">
         <div className="loading-animation">
@@ -217,19 +223,19 @@ const NotificationsPage = () => {
           <i className="fas fa-bell me-2"></i>
           <h5 className="mb-0">{t("Notifications List")}</h5>
           <span className="notification-count">
-            {alerts.length} {t("notifications")}
+            {displayAlerts.length} {t("notifications")}
           </span>
         </div>
 
         <div className="notifications-card-body">
-          {alerts.length === 0 ? (
+          {displayAlerts.length === 0 ? (
             <div className="empty-state">
               <i className="fas fa-bell-slash empty-icon"></i>
               <p className="empty-text">{t("No notifications found.")}</p>
             </div>
           ) : (
             <div className="notifications-list">
-              {alerts.map((alert) => (
+              {displayAlerts.map((alert) => (
                 <div
                   key={alert.id}
                   className={`notification-card ${getPriorityClass(alert.priority)} ${getTypeClass(alert.type)} ${alert.read ? "read" : "unread"}`}
@@ -285,7 +291,7 @@ const NotificationsPage = () => {
             </div>
           )}
 
-          {hasMore && alerts.length > 0 && (
+          {hasMore && displayAlerts.length > 0 && (
             <div className="load-more-container">
               <button
                 className="btn-load-more"
@@ -307,7 +313,7 @@ const NotificationsPage = () => {
             </div>
           )}
 
-          {!hasMore && alerts.length > 0 && (
+          {!hasMore && displayAlerts.length > 0 && (
             <div className="no-more-container">
               <p className="no-more-text">{t("No more notifications")}</p>
             </div>

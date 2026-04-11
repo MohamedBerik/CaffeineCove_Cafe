@@ -1,4 +1,10 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+} from "react";
 import { useAuth } from "./AuthContext";
 import useAlertsSocket from "../hooks/useAlertsSocket";
 import api from "../services/axios";
@@ -11,10 +17,46 @@ export const AlertProvider = ({ children }) => {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // ✅ fetch alerts (used by page)
+  const fetchAlerts = useCallback(async (page = 1, filter = "all") => {
+    const res = await api.get(`/erp/alerts?page=${page}&filter=${filter}`);
+    return res.data;
+  }, []);
+
+  // ✅ mark one
+  const markAsRead = useCallback(async (alertId) => {
+    await api.post(`/erp/alerts/${alertId}/ack`);
+
+    setAlerts((prev) =>
+      prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)),
+    );
+
+    setUnreadCount((prev) => Math.max(prev - 1, 0));
+  }, []);
+
+  // ✅ mark all
+  const markAllAsRead = useCallback(async () => {
+    await api.post("/erp/alerts/mark-all-read");
+
+    setAlerts((prev) => prev.map((a) => ({ ...a, read: true })));
+    setUnreadCount(0);
+  }, []);
+
+  // ✅ add from socket
+  const addAlert = useCallback((newAlert) => {
+    setAlerts((prev) => {
+      if (prev.some((a) => a.id === newAlert.id)) return prev;
+      return [newAlert, ...prev];
+    });
+
+    setUnreadCount((prev) => prev + 1);
+  }, []);
+
+  // ✅ تحميل الإشعارات الأولية
   useEffect(() => {
     if (!user) return;
 
-    const fetchAlerts = async () => {
+    const loadInitialAlerts = async () => {
       try {
         const [alertsRes, countRes] = await Promise.all([
           api.get("/erp/alerts"),
@@ -32,59 +74,26 @@ export const AlertProvider = ({ children }) => {
       }
     };
 
-    fetchAlerts();
+    loadInitialAlerts();
   }, [user]);
 
-  const addUnreadCount = () => {
-    setUnreadCount((prev) => prev + 1);
-  };
-
-  const clearUnreadCount = () => {
-    setUnreadCount(0);
-  };
-
-  const updateUnreadCount = () => {
-    // ✅ دالة تحديث العداد من الباك إند
-    const fetchCount = async () => {
-      try {
-        const response = await api.get("/erp/alerts/unread-count");
-        setUnreadCount(response.data.count);
-      } catch (error) {
-        console.error("❌ Error fetching unread count:", error);
-      }
-    };
-    fetchCount();
-  };
-
-  const addAlert = (newAlert) => {
-    setAlerts((prev) => [newAlert, ...prev].slice(0, 20));
-  };
-
-  const markAsRead = (id) => {
-    setAlerts((prev) =>
-      prev.map((alert) => (alert.id === id ? { ...alert, read: true } : alert)),
-    );
-  };
-
+  // ✅ الاستماع للإشعارات الجديدة
   useAlertsSocket((newAlert) => {
     console.log("📨 Raw alert from socket:", newAlert);
-    console.log("📋 Alert structure:", Object.keys(newAlert));
-
     addAlert(newAlert);
-    addUnreadCount();
   }, user?.company_id);
 
   return (
     <AlertContext.Provider
       value={{
-        unreadCount,
-        addUnreadCount,
-        clearUnreadCount,
-        updateUnreadCount,
         alerts,
-        setAlerts,
-        addAlert,
+        unreadCount,
+        loading,
+        fetchAlerts,
         markAsRead,
+        markAllAsRead,
+        addAlert,
+        setAlerts,
       }}
     >
       {children}

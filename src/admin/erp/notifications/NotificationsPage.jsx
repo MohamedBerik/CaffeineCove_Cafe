@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../context/AuthContext";
 import { useAlertState, useAlertActions } from "../../../context/AlertContext";
@@ -8,12 +8,12 @@ const NotificationsPage = () => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
 
-  // ✅ كل حاجة من Context
   const { alerts, loading, hasMore, filter } = useAlertState();
   const { markAsRead, loadAlerts, loadMore, setFilter } = useAlertActions();
 
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const debounceTimer = useRef(null);
 
   const displayAlerts = alerts.filter((a) => {
     if (filter === "unread") return !a.read;
@@ -47,7 +47,6 @@ const NotificationsPage = () => {
     [i18n.language],
   );
 
-  // ✅ تحميل البيانات لما الفلتر يتغير
   useEffect(() => {
     loadAlerts(1);
   }, [filter, loadAlerts]);
@@ -68,6 +67,15 @@ const NotificationsPage = () => {
   const closeModal = () => {
     setSelectedAlert(null);
   };
+
+  const debouncedLoadMore = useCallback(() => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+    debounceTimer.current = setTimeout(() => {
+      loadMore();
+    }, 300);
+  }, [loadMore]);
 
   const getPriorityClass = (priority) => {
     switch (priority?.toLowerCase()) {
@@ -95,15 +103,39 @@ const NotificationsPage = () => {
     }
   };
 
+  // ✅ Skeleton Loader
   if (loading && displayAlerts.length === 0) {
     return (
-      <div className="notifications-loading">
-        <div className="loading-animation">
-          <div className="loading-ring"></div>
-          <div className="loading-ring"></div>
-          <div className="loading-ring"></div>
+      <div
+        className="notifications-page"
+        dir={i18n.language === "ar" ? "rtl" : "ltr"}
+      >
+        <div className="page-header skeleton">
+          <div className="skeleton-title"></div>
+          <div className="skeleton-subtitle"></div>
         </div>
-        <p>{t("Loading notifications...")}</p>
+
+        <div className="filters-card skeleton">
+          <div className="skeleton-filters">
+            <div className="skeleton-filter-btn"></div>
+            <div className="skeleton-filter-btn"></div>
+            <div className="skeleton-filter-btn"></div>
+          </div>
+        </div>
+
+        <div className="notifications-card skeleton">
+          <div className="notifications-list">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="notification-card skeleton">
+                <div className="skeleton-icon"></div>
+                <div className="skeleton-content">
+                  <div className="skeleton-line"></div>
+                  <div className="skeleton-line short"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -167,7 +199,13 @@ const NotificationsPage = () => {
           {displayAlerts.length === 0 ? (
             <div className="empty-state">
               <i className="fas fa-bell-slash empty-icon"></i>
-              <p className="empty-text">{t("No notifications found.")}</p>
+              <p className="empty-text">
+                {filter === "unread"
+                  ? t("🎉 No unread notifications!")
+                  : filter === "high"
+                    ? t("No high priority notifications")
+                    : t("No notifications found.")}
+              </p>
             </div>
           ) : (
             <div className="notifications-list">
@@ -231,7 +269,7 @@ const NotificationsPage = () => {
             <div className="load-more-container">
               <button
                 className="btn-load-more"
-                onClick={loadMore}
+                onClick={debouncedLoadMore}
                 disabled={loading}
               >
                 {loading ? (

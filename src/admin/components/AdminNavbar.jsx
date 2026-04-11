@@ -6,7 +6,7 @@ import { useAlertState, useAlertActions } from "../../context/AlertContext";
 import "./AdminNavbar.css";
 
 const AdminNavbar = () => {
-  const { alerts, unreadCount } = useAlertState();
+  const { alerts, unreadCount, loading } = useAlertState();
   const { markAsRead, markAllAsRead } = useAlertActions();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
@@ -197,9 +197,22 @@ const AdminNavbar = () => {
                       </div>
                     )}
                     <div className="dropdown-footer">
-                      <button onClick={openAlerts} className="see-all-btn">
-                        {t("See All Notifications")}
-                        <i className="fa-solid fa-arrow-right"></i>
+                      <button
+                        onClick={openAlerts}
+                        className="see-all-btn"
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm me-2"></span>
+                            {t("Loading...")}
+                          </>
+                        ) : (
+                          <>
+                            {t("See All Notifications")}
+                            <i className="fa-solid fa-arrow-right"></i>
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>

@@ -19,15 +19,19 @@ const NotificationsPage = () => {
   const [loading, setLoading] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [displayAlerts, setDisplayAlerts] = useState([]);
   const abortControllerRef = useRef(null);
+  const displayAlerts = alerts;
 
-  useAlertsSocket((newAlert) => {
-    setDisplayAlerts((prev) => {
-      if (prev.some((a) => a.id === newAlert.id)) return prev;
-      return [newAlert, ...prev];
-    });
-  }, user?.company_id);
+  // useAlertsSocket((newAlert) => {
+  //   setDisplayAlerts((prev) => {
+  //     if (prev.some((a) => a.id === newAlert.id)) return prev;
+  //     return [newAlert, ...prev];
+  //   });
+  // }, user?.company_id);
+
+  // useEffect(() => {
+  //   setDisplayAlerts(alerts);
+  // }, [alerts]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -35,10 +39,6 @@ const NotificationsPage = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  useEffect(() => {
-    setDisplayAlerts(alerts);
-  }, [alerts]);
 
   const formatDateTime = useCallback(
     (value) => {

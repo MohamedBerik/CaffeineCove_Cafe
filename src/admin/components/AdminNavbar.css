@@ -277,6 +277,9 @@
 
 /* Notification Bell Container */
 .notification-bell {
+  background: transparent;
+  border: none;
+  outline: none;
   position: relative;
   cursor: pointer;
   transition: all 0.2s ease;

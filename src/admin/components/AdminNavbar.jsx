@@ -65,15 +65,20 @@ const AdminNavbar = () => {
     navigate("/admin/erp/notifications");
   };
 
-  const handleBellClick = () => {
-    setShowDropdown((prev) => !prev);
+  const handleBellClick = () =>
+    setShowDropdown((prev) => {
+      if (!prev) {
+        api.post("/erp/alerts/mark-all-read").catch(console.error);
 
-    if (!showDropdown) {
-      api.post("/erp/alerts/mark-all-read").catch(console.error);
-      setAlerts((prev) => prev.map((a) => ({ ...a, read: true })));
-      updateUnreadCount();
-    }
-  };
+        setAlerts((prevAlerts) =>
+          prevAlerts.map((a) => ({ ...a, read: true })),
+        );
+
+        updateUnreadCount();
+      }
+
+      return !prev;
+    });
 
   const markAsRead = async (alertId) => {
     try {
@@ -166,10 +171,10 @@ const AdminNavbar = () => {
 
               {showDropdown && (
                 <>
-                  <div
+                  {/* <div
                     className="notification-overlay"
                     onClick={() => setShowDropdown(false)}
-                  />
+                  /> */}
                   <div
                     className={`notification-dropdown global ${showDropdown ? "open" : ""}`}
                     onClick={(e) => e.stopPropagation()}

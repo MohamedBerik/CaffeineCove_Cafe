@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import "./ErpDashboardHome.css";
 import useAlertsSocket from "../../hooks/useAlertsSocket";
-import { useAlerts } from "../../context/AlertContext";
+import { useAlertState, useAlertActions } from "../../context/AlertContext";
 
 // ثوابت خارج المكون
 const PRIORITY_MAP = { high: 3, medium: 2, low: 1 };

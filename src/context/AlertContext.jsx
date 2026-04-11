@@ -97,6 +97,9 @@ export const AlertProvider = ({ children }) => {
     markAllAsRead,
     addAlert,
     setAlerts,
+    addUnreadCount: () => {},
+    clearUnreadCount: () => markAllAsRead(),
+    updateUnreadCount: () => {},
   };
 
   return (

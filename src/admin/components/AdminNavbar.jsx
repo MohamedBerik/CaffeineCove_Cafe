@@ -70,7 +70,15 @@ const AdminNavbar = () => {
   const markAllAsRead = async () => {
     try {
       await api.post("/erp/alerts/mark-all-read");
-      setAlerts((prev) => prev.map((a) => ({ ...a, read: true })));
+
+      // ✅ تأكد إن prev Array
+      if (typeof setAlerts === "function") {
+        setAlerts((prev) => {
+          if (!Array.isArray(prev)) return prev;
+          return prev.map((a) => ({ ...a, read: true }));
+        });
+      }
+
       updateUnreadCount();
     } catch (e) {
       console.error(e);

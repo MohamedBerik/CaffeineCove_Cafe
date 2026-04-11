@@ -30,13 +30,6 @@ const AdminNavbar = () => {
     };
   }, []);
 
-  // ✅ نقل side effect إلى useEffect
-  useEffect(() => {
-    if (showDropdown) {
-      markAllAsRead();
-    }
-  }, [showDropdown]);
-
   const formatTime = useCallback((timestamp) => {
     if (!timestamp) return "";
     return new Date(timestamp).toLocaleTimeString([], {
@@ -72,7 +65,8 @@ const AdminNavbar = () => {
     navigate("/admin/erp/notifications");
   };
 
-  const markAllAsRead = async () => {
+  // ✅ markAllAsRead مع useCallback
+  const markAllAsRead = useCallback(async () => {
     if (isMarkingAllRef.current) return;
     isMarkingAllRef.current = true;
 
@@ -91,9 +85,15 @@ const AdminNavbar = () => {
     } finally {
       isMarkingAllRef.current = false;
     }
-  };
+  }, [setAlerts, updateUnreadCount]);
 
-  // ✅ تبسيط handleBellClick
+  // ✅ useEffect مع dependency صحيحة
+  useEffect(() => {
+    if (showDropdown) {
+      markAllAsRead();
+    }
+  }, []);
+
   const handleBellClick = () => {
     setShowDropdown((prev) => !prev);
   };
@@ -117,14 +117,14 @@ const AdminNavbar = () => {
     }
   };
 
-  // ✅ async/await عشان navigation يستنى الـ API
   const handleAlertClick = async (alert, e) => {
     e.stopPropagation();
     await markAsRead(alert.id);
     navigate("/admin/erp/notifications");
   };
 
-  const getAlertIcon = (code) => {
+  // ✅ getAlertIcon مع useCallback
+  const getAlertIcon = useCallback((code) => {
     switch (code) {
       case "LOW_STOCK":
         return "📦";
@@ -139,7 +139,7 @@ const AdminNavbar = () => {
       default:
         return "🔔";
     }
-  };
+  }, []);
 
   return (
     <>

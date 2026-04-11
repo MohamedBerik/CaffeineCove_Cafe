@@ -537,6 +537,15 @@
   flex-direction: column;
 }
 
+.dropdown-list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.dropdown-footer {
+  flex-shrink: 0;
+}
+
 .notification-dropdown.global.open {
   opacity: 1;
   visibility: visible;

@@ -28,12 +28,6 @@ const AdminNavbar = () => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   if (showDropdown) {
-  //     markAllAsRead();
-  //   }
-  // }, [showDropdown, markAllAsRead]);
-
   const formatTime = useCallback((timestamp) => {
     if (!timestamp) return "";
     return new Date(timestamp).toLocaleTimeString([], {

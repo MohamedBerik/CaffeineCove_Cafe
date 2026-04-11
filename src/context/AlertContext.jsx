@@ -65,8 +65,13 @@ export const AlertProvider = ({ children }) => {
         console.log("ALERTS API:", alertsRes.data);
         console.log("🔢 COUNT:", countRes.data);
 
-        setAlerts(alertsRes.data);
-        setUnreadCount(countRes.data.count);
+        // ✅ تأكد إنها Array
+        const alertsData = Array.isArray(alertsRes.data)
+          ? alertsRes.data
+          : alertsRes.data?.data || [];
+
+        setAlerts(alertsData);
+        setUnreadCount(countRes.data?.count || 0);
       } catch (error) {
         console.error("❌ Error fetching alerts:", error);
       } finally {

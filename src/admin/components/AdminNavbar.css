@@ -537,12 +537,13 @@
   flex-direction: column;
 }
 
-.dropdown-list {
+.notification-dropdown.global .dropdown-list {
   overflow-y: auto;
   flex: 1;
+  max-height: 300px;
 }
 
-.dropdown-footer {
+.notification-dropdown.global .dropdown-footer {
   flex-shrink: 0;
 }
 

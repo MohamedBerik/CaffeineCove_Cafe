@@ -2,7 +2,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useAlertState, useAlertActions } from "../../../context/AlertContext";
+import { useAlertState, useAlertActions } from "../../context/AlertContext";
 import "./AdminNavbar.css";
 
 const AdminNavbar = () => {

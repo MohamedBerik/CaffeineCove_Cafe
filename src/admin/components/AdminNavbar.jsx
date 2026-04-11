@@ -65,17 +65,22 @@ const AdminNavbar = () => {
     navigate("/admin/erp/notifications");
   };
 
-  const handleBellClick = async () => {
-    setShowDropdown((prev) => !prev);
+  // ✅ إصلاح stale state + تحديث UI فوراً
+  const handleBellClick = () => {
+    setShowDropdown((prev) => {
+      if (!prev) {
+        api
+          .post("/erp/alerts/mark-all-read")
+          .then(() => updateUnreadCount())
+          .catch((e) => console.error(e));
 
-    if (!showDropdown) {
-      try {
-        await api.post("/erp/alerts/mark-all-read");
-        updateUnreadCount();
-      } catch (e) {
-        console.error("Failed to mark all as read:", e);
+        // ✅ تحديث UI فوراً - كل الإشعارات تبقى مقروءة
+        setAlerts((prevAlerts) =>
+          prevAlerts.map((a) => ({ ...a, read: true })),
+        );
       }
-    }
+      return !prev;
+    });
   };
 
   const markAsRead = async (alertId) => {
@@ -100,8 +105,9 @@ const AdminNavbar = () => {
     }
   };
 
-  const handleAlertClick = async (alert) => {
-    await markAsRead(alert.id);
+  // ✅ من غير await - navigation أسرع
+  const handleAlertClick = (alert) => {
+    markAsRead(alert.id);
     navigate("/admin/erp/notifications");
   };
 

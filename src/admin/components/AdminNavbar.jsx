@@ -87,13 +87,6 @@ const AdminNavbar = () => {
     }
   }, [setAlerts, updateUnreadCount]);
 
-  // ✅ useEffect مع dependency صحيحة
-  // useEffect(() => {
-  //   if (showDropdown) {
-  //     markAllAsRead();
-  //   }
-  // }, []);
-
   const handleBellClick = () => {
     setShowDropdown((prev) => {
       const next = !prev;

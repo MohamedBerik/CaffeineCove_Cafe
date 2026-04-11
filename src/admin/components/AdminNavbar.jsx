@@ -68,14 +68,14 @@ const AdminNavbar = () => {
     navigate("/admin/erp/notifications");
   };
 
-  // useEffect(() => {
-  //   if (showDropdown) {
-  //     markAllAsReadFromContext();
-  //   }
-  // }, [showDropdown, markAllAsReadFromContext]);
-
   const handleBellClick = () => {
-    setShowDropdown((prev) => !prev);
+    setShowDropdown((prev) => {
+      const next = !prev;
+      if (next) {
+        markAllAsReadFromContext();
+      }
+      return next;
+    });
   };
 
   const handleAlertClick = async (alert, e) => {

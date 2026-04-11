@@ -1,7 +1,7 @@
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAlerts } from "../../context/AlertContext";
 import "./AdminNavbar.css";
 

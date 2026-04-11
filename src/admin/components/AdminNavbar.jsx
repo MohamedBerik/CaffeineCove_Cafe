@@ -22,9 +22,9 @@ const AdminNavbar = () => {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, []);
 
@@ -65,22 +65,14 @@ const AdminNavbar = () => {
     navigate("/admin/erp/notifications");
   };
 
-  // ✅ إصلاح stale state + تحديث UI فوراً
   const handleBellClick = () => {
-    setShowDropdown((prev) => {
-      if (!prev) {
-        api
-          .post("/erp/alerts/mark-all-read")
-          .then(() => updateUnreadCount())
-          .catch((e) => console.error(e));
+    setShowDropdown((prev) => !prev);
 
-        // ✅ تحديث UI فوراً - كل الإشعارات تبقى مقروءة
-        setAlerts((prevAlerts) =>
-          prevAlerts.map((a) => ({ ...a, read: true })),
-        );
-      }
-      return !prev;
-    });
+    if (!showDropdown) {
+      api.post("/erp/alerts/mark-all-read").catch(console.error);
+      setAlerts((prev) => prev.map((a) => ({ ...a, read: true })));
+      updateUnreadCount();
+    }
   };
 
   const markAsRead = async (alertId) => {
@@ -180,6 +172,7 @@ const AdminNavbar = () => {
                   />
                   <div
                     className={`notification-dropdown global ${showDropdown ? "open" : ""}`}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <div className="dropdown-header">
                       <i className="fas fa-bell"></i> {t("Notifications")}

@@ -30,8 +30,7 @@ export default function ErpDashboardHome() {
   const [hiddenAlerts, setHiddenAlerts] = useState(new Set());
   const [activityLogs, setActivityLogs] = useState([]);
   const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
-  const { addUnreadCount, clearUnreadCount } = useAlerts();
-  const { addAlert } = useAlerts();
+  const { addAlert, markAllAsRead } = useAlertActions();
 
   const isFetching = useRef(false);
   const pollingTimeout = useRef(null);
@@ -198,7 +197,7 @@ export default function ErpDashboardHome() {
       if (document.visibilityState === "visible") {
         playSound();
       }
-      addUnreadCount();
+      // addUnreadCount();
       addAlert(newAlert);
 
       // 🔔 toast
@@ -237,7 +236,7 @@ export default function ErpDashboardHome() {
         return updated;
       });
     },
-    [addUnreadCount, addAlert],
+    [addAlert],
   );
 
   useAlertsSocket(handleNewAlert);
@@ -416,7 +415,7 @@ export default function ErpDashboardHome() {
 
       {/* Alerts Section */}
       {alerts.length > 0 && (
-        <div className="alerts-container" onClick={clearUnreadCount}>
+        <div className="alerts-container" onClick={markAllAsRead}>
           {visibleAlerts.map((alert) => (
             <div key={alert.id} className={`alert-card alert-${alert.type}`}>
               <i

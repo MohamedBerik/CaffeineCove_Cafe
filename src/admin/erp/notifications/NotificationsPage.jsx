@@ -103,6 +103,41 @@ const NotificationsPage = () => {
     }
   };
 
+  // ✅ دالة grouping
+  const groupAlertsByDate = (alerts) => {
+    const groups = {};
+    alerts.forEach((alert) => {
+      const date = new Date(alert.time);
+      const key = date.toDateString();
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(alert);
+    });
+    return groups;
+  };
+
+  // ✅ دالة format للتاريخ
+  const formatGroupDate = (dateString) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const diffTime = today - date;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return t("Today");
+    if (diffDays === 1) return t("Yesterday");
+    if (diffDays < 7) return `${diffDays} ${t("days ago")}`;
+    return date.toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  // ✅ Sorting + Grouping
+  const sortedAlerts = [...displayAlerts].sort(
+    (a, b) => new Date(b.time) - new Date(a.time),
+  );
+  const groupedAlerts = Object.entries(groupAlertsByDate(sortedAlerts));
+
   // ✅ Skeleton Loader
   if (loading && displayAlerts.length === 0) {
     return (
@@ -209,57 +244,62 @@ const NotificationsPage = () => {
             </div>
           ) : (
             <div className="notifications-list">
-              {displayAlerts.map((alert) => (
-                <div
-                  key={alert.id}
-                  className={`notification-card ${getPriorityClass(alert.priority)} ${getTypeClass(alert.type)} ${alert.read ? "read" : "unread"}`}
-                  onClick={() => handleAlertClick(alert)}
-                >
-                  <div className="notification-icon">
-                    {alert.type === "danger" && (
-                      <i className="fas fa-exclamation-circle"></i>
-                    )}
-                    {alert.type === "warning" && (
-                      <i className="fas fa-exclamation-triangle"></i>
-                    )}
-                    {alert.type === "info" && (
-                      <i className="fas fa-info-circle"></i>
-                    )}
-                  </div>
-                  <div className="notification-content">
-                    <div className="notification-message">
-                      {t(alert.message)}
+              {groupedAlerts.map(([date, alerts]) => (
+                <div key={date} className="notification-group">
+                  <div className="group-title">{formatGroupDate(date)}</div>
+                  {alerts.map((alert) => (
+                    <div
+                      key={alert.id}
+                      className={`notification-card ${getPriorityClass(alert.priority)} ${getTypeClass(alert.type)} ${alert.read ? "read" : "unread"}`}
+                      onClick={() => handleAlertClick(alert)}
+                    >
+                      <div className="notification-icon">
+                        {alert.type === "danger" && (
+                          <i className="fas fa-exclamation-circle"></i>
+                        )}
+                        {alert.type === "warning" && (
+                          <i className="fas fa-exclamation-triangle"></i>
+                        )}
+                        {alert.type === "info" && (
+                          <i className="fas fa-info-circle"></i>
+                        )}
+                      </div>
+                      <div className="notification-content">
+                        <div className="notification-message">
+                          {t(alert.message)}
+                        </div>
+                        <div className="notification-meta">
+                          <span
+                            className={`priority-badge ${getPriorityClass(alert.priority)}`}
+                          >
+                            {t(alert.priority || "Normal")}
+                          </span>
+                          <span className="notification-time">
+                            <i className="fas fa-clock me-1"></i>
+                            {formatDateTime(alert.time)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="notification-actions">
+                        {!alert.read && (
+                          <button
+                            className="btn-mark-read"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAcknowledge(alert.id);
+                            }}
+                            title={t("Mark as read")}
+                          >
+                            <i className="fas fa-check"></i>
+                          </button>
+                        )}
+                      </div>
+                      <div className="notification-status">
+                        {!alert.read && <span className="unread-dot"></span>}
+                        <i className="fas fa-chevron-right"></i>
+                      </div>
                     </div>
-                    <div className="notification-meta">
-                      <span
-                        className={`priority-badge ${getPriorityClass(alert.priority)}`}
-                      >
-                        {t(alert.priority || "Normal")}
-                      </span>
-                      <span className="notification-time">
-                        <i className="fas fa-clock me-1"></i>
-                        {formatDateTime(alert.time)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="notification-actions">
-                    {!alert.read && (
-                      <button
-                        className="btn-mark-read"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAcknowledge(alert.id);
-                        }}
-                        title={t("Mark as read")}
-                      >
-                        <i className="fas fa-check"></i>
-                      </button>
-                    )}
-                  </div>
-                  <div className="notification-status">
-                    {!alert.read && <span className="unread-dot"></span>}
-                    <i className="fas fa-chevron-right"></i>
-                  </div>
+                  ))}
                 </div>
               ))}
             </div>

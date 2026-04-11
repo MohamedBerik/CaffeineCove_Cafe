@@ -656,3 +656,22 @@
   margin-right: 0;
   margin-left: 0.5rem;
 }
+
+.notification-group {
+  margin-bottom: 16px;
+}
+
+.group-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: #6c757d;
+  margin: 16px 0 8px;
+  padding-left: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+[dir="rtl"] .group-title {
+  padding-left: 0;
+  padding-right: 16px;
+}

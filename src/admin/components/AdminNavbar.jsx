@@ -67,7 +67,7 @@ const AdminNavbar = () => {
     setShowDropdown((prev) => {
       const next = !prev;
 
-      if (next) {
+      if (next && unreadCount > 0) {
         markAllAsRead();
       }
 

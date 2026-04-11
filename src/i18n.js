@@ -2170,6 +2170,8 @@ const resources = {
       Code: "Code",
       Acknowledge: "Acknowledge",
       Normal: "Normal",
+
+      "See All Notifications": "See All Notifications",
     },
   },
   ar: {
@@ -4325,6 +4327,8 @@ const resources = {
       Code: "الكود",
       Acknowledge: "تأكيد",
       Normal: "عادي",
+
+      "See All Notifications": "عرض كل الإشعارات",
     },
   },
 };

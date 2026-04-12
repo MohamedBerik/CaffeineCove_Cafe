@@ -56,7 +56,10 @@ export default function RadiologyGallery({ patientId, refreshTrigger }) {
     }
   };
 
-  const getFileTypeIcon = (type) => {
+  const getFileTypeIcon = (type, fileUrl) => {
+    if (fileUrl?.endsWith(".pdf")) {
+      return "fas fa-file-pdf";
+    }
     switch (type?.toLowerCase()) {
       case "panorama":
         return "fas fa-tooth";
@@ -64,9 +67,17 @@ export default function RadiologyGallery({ patientId, refreshTrigger }) {
         return "fas fa-cube";
       case "cephalometric":
         return "fas fa-ruler-combined";
+      case "report":
+        return "fas fa-file-pdf";
+      case "consent":
+        return "fas fa-file-signature";
       default:
         return "fas fa-x-ray";
     }
+  };
+
+  const isPdf = (fileUrl) => {
+    return fileUrl?.endsWith(".pdf");
   };
 
   if (loading) {
@@ -95,6 +106,14 @@ export default function RadiologyGallery({ patientId, refreshTrigger }) {
       <div className="gallery-grid">
         {radiologies.map((rad) => (
           <div key={rad.id} className="gallery-item">
+            {isPdf(rad.file_url) ? (
+              <div className="gallery-pdf-preview">
+                <i className="fas fa-file-pdf"></i>
+                <span>PDF</span>
+              </div>
+            ) : (
+              <img src={rad.file_url} alt={rad.title} />
+            )}
             <div
               className="gallery-image"
               onClick={() => setSelectedImage(rad)}

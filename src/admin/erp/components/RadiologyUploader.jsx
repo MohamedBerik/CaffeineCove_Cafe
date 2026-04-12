@@ -16,11 +16,38 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
   const [error, setError] = useState("");
 
   const fileTypes = [
-    { value: "xray", label: t("X-Ray") },
-    { value: "panorama", label: t("Panorama") },
-    { value: "cbct", label: t("CBCT") },
-    { value: "cephalometric", label: t("Cephalometric") },
-    { value: "other", label: t("Other") },
+    {
+      value: "xray",
+      label: t("X-Ray Image"),
+      icon: "fas fa-x-ray",
+      accept: "image/*",
+    },
+    {
+      value: "panorama",
+      label: t("Panorama"),
+      icon: "fas fa-tooth",
+      accept: "image/*",
+    },
+    { value: "cbct", label: t("CBCT"), icon: "fas fa-cube", accept: "image/*" },
+    {
+      value: "cephalometric",
+      label: t("Cephalometric"),
+      icon: "fas fa-ruler-combined",
+      accept: "image/*",
+    },
+    {
+      value: "report",
+      label: t("PDF Report"),
+      icon: "fas fa-file-pdf",
+      accept: "application/pdf",
+    },
+    {
+      value: "consent",
+      label: t("Consent Form"),
+      icon: "fas fa-file-signature",
+      accept: "application/pdf,image/*",
+    },
+    { value: "other", label: t("Other"), icon: "fas fa-file", accept: "*/*" },
   ];
 
   const handleFileChange = (e) => {

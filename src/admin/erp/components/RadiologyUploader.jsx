@@ -52,7 +52,7 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile && selectedFile.type.startsWith("image/")) {
+    if (selectedFile && selectedFile.type.startsWith("image/pdf")) {
       setFile(selectedFile);
       setError("");
     } else {

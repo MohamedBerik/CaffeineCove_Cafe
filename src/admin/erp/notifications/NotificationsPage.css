@@ -675,3 +675,133 @@
   padding-left: 0;
   padding-right: 16px;
 }
+
+/* Smart Notification Cards */
+.smart-notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.smart-alert-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-left: 4px solid;
+  transition: all 0.2s ease;
+}
+
+.smart-alert-card.critical {
+  border-left-color: #ef4444;
+  background: #fef2f2;
+}
+
+.smart-alert-card.attention {
+  border-left-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.smart-alert-card.info {
+  border-left-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.alert-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.alert-category-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.critical .alert-category-badge {
+  background: #ef4444;
+  color: white;
+}
+
+.attention .alert-category-badge {
+  background: #f59e0b;
+  color: white;
+}
+
+.info .alert-category-badge {
+  background: #3b82f6;
+  color: white;
+}
+
+.alert-count {
+  background: #e5e7eb;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.alert-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-view-group,
+.btn-ack-group {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-view-group {
+  background: transparent;
+  color: #1a237e;
+  border: 1px solid #1a237e;
+}
+
+.btn-view-group:hover {
+  background: #1a237e;
+  color: white;
+}
+
+.btn-ack-group {
+  background: #1a237e;
+  color: white;
+}
+
+.btn-ack-group:hover {
+  background: #283593;
+}
+
+/* Group Modal Items */
+.group-item {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.group-item:last-child {
+  border-bottom: none;
+}
+
+/* RTL Support */
+[dir="rtl"] .smart-alert-card {
+  border-left: none;
+  border-right: 4px solid;
+}
+
+[dir="rtl"] .alert-count {
+  margin-left: 0;
+  margin-right: auto;
+}

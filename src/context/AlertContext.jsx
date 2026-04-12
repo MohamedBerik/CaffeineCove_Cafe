@@ -16,21 +16,27 @@ const AlertActionsContext = createContext();
 export const AlertProvider = ({ children }) => {
   const { user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [alerts, setAlerts] = useState([]);
+  const [alertsByFilter, setAlertsByFilter] = useState({
+    all: [],
+    unread: [],
+    high: [],
+  });
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all"); // ✅ أضفنا filter
+  const [filter, setFilter] = useState("all");
 
-  // ✅ fetch alerts (used by page)
-  const fetchAlerts = useCallback(async (page = 1, filterParam = "all") => {
-    const res = await api.get(`/erp/alerts?page=${page}&filter=${filterParam}`);
-    return res.data;
-  }, []);
+  const currentAlerts = alertsByFilter[filter] || [];
 
-  // ✅ Pagination function - تستخدم filter من الـ state
+  // ✅ Pagination function - مع كاش
   const loadAlerts = useCallback(
     async (pageNumber = 1) => {
+      // ✅ لو موجود في الكاش → رجعه فوراً
+      if (alertsByFilter[filter]?.length > 0 && pageNumber === 1) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       try {
         const res = await api.get(
@@ -38,9 +44,13 @@ export const AlertProvider = ({ children }) => {
         );
         const newAlerts = res.data.data;
 
-        setAlerts((prev) =>
-          pageNumber === 1 ? newAlerts : [...prev, ...newAlerts],
-        );
+        setAlertsByFilter((prev) => ({
+          ...prev,
+          [filter]:
+            pageNumber === 1
+              ? newAlerts
+              : [...(prev[filter] || []), ...newAlerts],
+        }));
 
         setHasMore(res.data.meta.has_more);
         setPage(pageNumber);
@@ -50,7 +60,7 @@ export const AlertProvider = ({ children }) => {
         setLoading(false);
       }
     },
-    [filter],
+    [filter, alertsByFilter],
   );
 
   // ✅ Load more function
@@ -59,12 +69,18 @@ export const AlertProvider = ({ children }) => {
     loadAlerts(page + 1);
   }, [hasMore, loading, page, loadAlerts]);
 
-  // ✅ mark one
+  // ✅ mark one - مع تحديث كل الفلاتر
   const markAsRead = useCallback(async (alertId) => {
-    // ✅ optimistic update
-    setAlerts((prev) =>
-      prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)),
-    );
+    // ✅ optimistic update لكل الفلاتر
+    setAlertsByFilter((prev) => {
+      const updated = {};
+      Object.keys(prev).forEach((key) => {
+        updated[key] = prev[key].map((a) =>
+          a.id === alertId ? { ...a, read: true } : a,
+        );
+      });
+      return updated;
+    });
 
     setUnreadCount((prev) => Math.max(prev - 1, 0));
 
@@ -74,19 +90,31 @@ export const AlertProvider = ({ children }) => {
       console.error("❌ rollback markAsRead:", err);
 
       // ❗ rollback لو فشل
-      setAlerts((prev) =>
-        prev.map((a) => (a.id === alertId ? { ...a, read: false } : a)),
-      );
+      setAlertsByFilter((prev) => {
+        const updated = {};
+        Object.keys(prev).forEach((key) => {
+          updated[key] = prev[key].map((a) =>
+            a.id === alertId ? { ...a, read: false } : a,
+          );
+        });
+        return updated;
+      });
 
       setUnreadCount((prev) => prev + 1);
     }
   }, []);
 
-  // ✅ mark all
+  // ✅ mark all - مع تصفير كل الفلاتر
   const markAllAsRead = useCallback(async () => {
-    const prevAlerts = alerts;
+    const prevAlerts = alertsByFilter;
 
-    setAlerts((prev) => prev.map((a) => ({ ...a, read: true })));
+    setAlertsByFilter((prev) => {
+      const updated = {};
+      Object.keys(prev).forEach((key) => {
+        updated[key] = prev[key].map((a) => ({ ...a, read: true }));
+      });
+      return updated;
+    });
     setUnreadCount(0);
 
     try {
@@ -94,16 +122,25 @@ export const AlertProvider = ({ children }) => {
     } catch (err) {
       console.error("❌ rollback markAll:", err);
 
-      setAlerts(prevAlerts);
-      setUnreadCount(prevAlerts.filter((a) => !a.read).length);
+      setAlertsByFilter(prevAlerts);
+      const totalUnread = prevAlerts.all?.filter((a) => !a.read).length || 0;
+      setUnreadCount(totalUnread);
     }
-  }, [alerts]);
+  }, [alertsByFilter]);
 
-  // ✅ add from socket
+  // ✅ add from socket - مع تحديث كل الفلاتر
   const addAlert = useCallback((newAlert) => {
-    setAlerts((prev) => {
-      if (prev.some((a) => a.id === newAlert.id)) return prev;
-      return [newAlert, ...prev];
+    setAlertsByFilter((prev) => {
+      const updated = {};
+      Object.keys(prev).forEach((key) => {
+        const exists = prev[key].some((a) => a.id === newAlert.id);
+        if (!exists) {
+          updated[key] = [newAlert, ...prev[key]];
+        } else {
+          updated[key] = prev[key];
+        }
+      });
+      return updated;
     });
     setUnreadCount((prev) => prev + 1);
   }, []);
@@ -121,23 +158,21 @@ export const AlertProvider = ({ children }) => {
   }, user?.company_id);
 
   const stateValue = {
-    alerts,
+    alerts: currentAlerts,
     unreadCount,
     loading,
     page,
     hasMore,
-    filter, // ✅ أضفنا filter
+    filter,
   };
 
   const actionsValue = {
-    fetchAlerts,
     markAsRead,
     markAllAsRead,
     addAlert,
-    setAlerts,
     loadAlerts,
     loadMore,
-    setFilter, // ✅ أضفنا setFilter
+    setFilter,
     // ✅ دوال التوافق
     addUnreadCount: () => {},
     clearUnreadCount: () => markAllAsRead(),

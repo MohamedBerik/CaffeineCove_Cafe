@@ -1,43 +1,121 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "../../services/axios";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import "./ErpDashboardHome.css";
 import useAlertsSocket from "../../hooks/useAlertsSocket";
-import { useAlertState, useAlertActions } from "../../context/AlertContext";
+import { useAlertActions } from "../../context/AlertContext";
 
 // ثوابت خارج المكون
 const PRIORITY_MAP = { high: 3, medium: 2, low: 1 };
 
-// دالة مساعدة لحساب hash بسيط للـ data (بدل JSON.stringify)
-const getDataHash = (data) => {
-  if (!data) return "";
-  const alerts = data.reminders?.alerts || [];
-  const kpis = data.kpis || {};
-  return (
-    alerts.map((a) => `${a.id}-${a.priority}`).join("|") +
-    `-${kpis.today_appointments_count}-${kpis.today_revenue}`
-  );
-};
-
 export default function ErpDashboardHome() {
   const { t, i18n } = useTranslation();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [greeting, setGreeting] = useState("");
-  const [hiddenAlerts, setHiddenAlerts] = useState(new Set());
-  const [activityLogs, setActivityLogs] = useState([]);
-  const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
+  const queryClient = useQueryClient();
   const { addAlert, markAllAsRead } = useAlertActions();
 
-  const isFetching = useRef(false);
-  const pollingTimeout = useRef(null);
-  const intervalTime = useRef(15000);
-  const dataRef = useRef(null);
-  const isMounted = useRef(true);
-  const dataHashRef = useRef("");
+  const [greeting, setGreeting] = useState("");
+  const [hiddenAlerts, setHiddenAlerts] = useState(new Set());
+  const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
+  const acknowledgingRef = { current: new Set() };
+
+  // ✅ Dashboard Query - تحل محل loadDashboard + polling
+  const {
+    data: dashboard,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["dashboard"],
+    queryFn: async () => {
+      const res = await axios.get("/erp/dashboard");
+      let newData = res.data?.data ?? null;
+
+      if (newData?.reminders?.alerts) {
+        const processedAlerts = newData.reminders.alerts
+          .filter(
+            (a, index, self) => index === self.findIndex((x) => x.id === a.id),
+          )
+          .sort(
+            (a, b) =>
+              (PRIORITY_MAP[b.priority] || 0) - (PRIORITY_MAP[a.priority] || 0),
+          )
+          .slice(0, 10);
+
+        newData = {
+          ...newData,
+          reminders: {
+            ...(newData.reminders || {}),
+            alerts: processedAlerts,
+          },
+        };
+      }
+
+      return newData;
+    },
+    staleTime: 10000, // 10 ثواني
+    refetchOnWindowFocus: true,
+  });
+
+  // ✅ Activity Logs Query - تحل محل loadActivityLogs
+  const { data: activityLogs = [] } = useQuery({
+    queryKey: ["activityLogs"],
+    queryFn: async () => {
+      const res = await axios.get("/erp/activity-logs?limit=5");
+      return res.data?.data || [];
+    },
+    refetchInterval: 30000, // 30 ثانية
+  });
+
+  // ✅ Acknowledge Mutation - تحل محل acknowledge
+  const acknowledgeMutation = useMutation({
+    mutationFn: (id) => axios.post(`/erp/alerts/${id}/ack`),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries(["dashboard"]);
+      const prev = queryClient.getQueryData(["dashboard"]);
+
+      queryClient.setQueryData(["dashboard"], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          reminders: {
+            ...old.reminders,
+            alerts: old.reminders?.alerts?.filter((a) => a.id !== id) || [],
+          },
+        };
+      });
+
+      return { prev };
+    },
+    onError: (err, id, context) => {
+      queryClient.setQueryData(["dashboard"], context.prev);
+      console.error("Failed to acknowledge alert", err);
+    },
+  });
+
+  const acknowledge = (id) => {
+    if (acknowledgingRef.current.has(id)) return;
+    acknowledgingRef.current.add(id);
+
+    setAcknowledgingIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+
+    acknowledgeMutation.mutate(id, {
+      onSettled: () => {
+        setAcknowledgingIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+        acknowledgingRef.current.delete(id);
+      },
+    });
+  };
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -46,197 +124,51 @@ export default function ErpDashboardHome() {
     return t("Good Evening");
   };
 
-  const loadDashboard = useCallback(
-    async (silent = false) => {
-      try {
-        if (!silent) setLoading(true);
-
-        const res = await axios.get("/erp/dashboard");
-        let newData = res.data?.data ?? null;
-
-        if (newData?.reminders?.alerts) {
-          const processedAlerts = newData.reminders.alerts
-            .filter(
-              (a, index, self) =>
-                index === self.findIndex((x) => x.id === a.id),
-            )
-            .sort(
-              (a, b) =>
-                (PRIORITY_MAP[b.priority] || 0) -
-                (PRIORITY_MAP[a.priority] || 0),
-            )
-            .slice(0, 10);
-
-          newData = {
-            ...newData,
-            reminders: {
-              ...(newData.reminders || {}),
-              alerts: processedAlerts,
-            },
-          };
-        }
-
-        if (isMounted.current) {
-          setData(newData);
-          dataRef.current = newData;
-          dataHashRef.current = getDataHash(newData);
-        }
-
-        return newData;
-      } catch (err) {
-        if (!silent && isMounted.current) {
-          setError(
-            err?.response?.data?.message ||
-              err?.response?.data?.msg ||
-              t("Failed to load ERP dashboard."),
-          );
-        }
-        return null;
-      } finally {
-        if (!silent && isMounted.current) setLoading(false);
-      }
-    },
-    [t],
-  );
-
-  const acknowledgingRef = useRef(new Set());
-
-  const acknowledge = async (id) => {
-    if (acknowledgingRef.current.has(id)) return;
-    acknowledgingRef.current.add(id);
-
-    // إضافة Set state للـ UI (إذا كنت محتاج تعطل الزر)
-    setAcknowledgingIds((prev) => {
-      const next = new Set(prev);
-      next.add(id);
-      return next;
-    });
-
-    try {
-      await axios.post(`/erp/alerts/${id}/ack`);
-
-      setData((prev) => {
-        if (!prev) return prev;
-
-        const alerts = prev.reminders?.alerts ?? [];
-        const updated = {
-          ...prev,
-          reminders: {
-            ...(prev.reminders || {}),
-            alerts: alerts.filter((a) => a.id !== id),
-          },
-        };
-        dataRef.current = updated; // ✅ تحديث ref
-        dataHashRef.current = getDataHash(updated);
-        return updated;
-      });
-
-      // toast.success(t("Alert acknowledged"));
-    } catch (e) {
-      console.error("Failed to acknowledge alert", e);
-      // toast.error(t("Failed to acknowledge alert"));
-    } finally {
-      setAcknowledgingIds((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-    }
-  };
-
-  const loadActivityLogs = useCallback(async () => {
-    if (!isMounted.current) return;
-    try {
-      const res = await axios.get("/erp/activity-logs?limit=5");
-      if (isMounted.current) {
-        setActivityLogs(res.data?.data || []);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, []);
-
-  const startPolling = useCallback(() => {
-    const poll = async () => {
-      if (isFetching.current) {
-        pollingTimeout.current = setTimeout(poll, intervalTime.current);
-        return;
-      }
-
-      isFetching.current = true;
-
-      if (document.visibilityState === "visible") {
-        const prevHash = dataHashRef.current;
-
-        const newDashboardData = await loadDashboard(true);
-        await loadActivityLogs();
-
-        const newHash = getDataHash(newDashboardData);
-
-        if (prevHash === newHash) {
-          intervalTime.current = Math.min(intervalTime.current + 5000, 60000);
-        } else {
-          intervalTime.current = 15000;
-        }
-      }
-
-      isFetching.current = false;
-      pollingTimeout.current = setTimeout(poll, intervalTime.current);
-    };
-
-    poll();
-  }, [loadDashboard, loadActivityLogs]);
-
   const playSound = () => {
     const audio = new Audio("/notification.mp3");
     audio.play().catch(() => {});
   };
 
+  // ✅ handleNewAlert - بتحدث الـ Cache مباشرة
   const handleNewAlert = useCallback(
     (newAlert) => {
       if (document.visibilityState === "visible") {
         playSound();
       }
-      // addUnreadCount();
+
       addAlert(newAlert);
 
-      // 🔔 toast
-      toast.custom((t) => (
-        <div className="custom-toast">
-          <strong>{newAlert.priority.toUpperCase()}</strong>
-          <p>{newAlert.message}</p>
-        </div>
-      ));
-      setData((prev) => {
-        if (!prev) return prev;
+      queryClient.setQueryData(["dashboard"], (old) => {
+        if (!old) return old;
 
-        const currentAlerts = prev.reminders?.alerts || [];
-
+        const currentAlerts = old.reminders?.alerts || [];
         let updatedAlerts = [
           newAlert,
           ...currentAlerts.filter((a) => a.id !== newAlert.id),
-        ];
-
-        updatedAlerts = updatedAlerts
+        ]
           .sort(
             (a, b) =>
               (PRIORITY_MAP[b.priority] || 0) - (PRIORITY_MAP[a.priority] || 0),
           )
           .slice(0, 10);
 
-        const updated = {
-          ...prev,
+        return {
+          ...old,
           reminders: {
-            ...(prev.reminders || {}),
+            ...old.reminders,
             alerts: updatedAlerts,
           },
         };
-        dataRef.current = updated;
-        dataHashRef.current = getDataHash(updated);
-        return updated;
       });
+
+      toast.custom((t) => (
+        <div className="custom-toast">
+          <strong>{newAlert.priority.toUpperCase()}</strong>
+          <p>{newAlert.message}</p>
+        </div>
+      ));
     },
-    [addAlert],
+    [addAlert, queryClient],
   );
 
   useAlertsSocket(handleNewAlert);
@@ -268,24 +200,11 @@ export default function ErpDashboardHome() {
   };
 
   useEffect(() => {
-    loadDashboard();
-    loadActivityLogs();
     setGreeting(getGreeting());
-
     const greetingInterval = setInterval(() => {
       setGreeting(getGreeting());
     }, 60000);
-
-    startPolling();
-
-    return () => {
-      isMounted.current = false;
-      clearInterval(greetingInterval);
-
-      if (pollingTimeout.current) {
-        clearTimeout(pollingTimeout.current);
-      }
-    };
+    return () => clearInterval(greetingInterval);
   }, []);
 
   // ========================= Helpers =========================
@@ -339,7 +258,7 @@ export default function ErpDashboardHome() {
   };
 
   // ========================= UI =========================
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="dashboard-loading">
         <div className="loading-animation">
@@ -357,8 +276,8 @@ export default function ErpDashboardHome() {
       <div className="dashboard-error">
         <i className="fas fa-exclamation-triangle"></i>
         <h3>{t("Something went wrong")}</h3>
-        <p>{error}</p>
-        <button className="btn-retry" onClick={loadDashboard}>
+        <p>{error.message}</p>
+        <button className="btn-retry" onClick={refetch}>
           <i className="fas fa-sync-alt"></i>
           {t("Try Again")}
         </button>
@@ -366,7 +285,7 @@ export default function ErpDashboardHome() {
     );
   }
 
-  if (!data) {
+  if (!dashboard) {
     return (
       <div className="dashboard-empty">
         <i className="fas fa-chart-line"></i>
@@ -376,16 +295,15 @@ export default function ErpDashboardHome() {
     );
   }
 
-  const kpis = data.kpis || {};
-  const recentAppointments = data.recent_appointments || [];
-  const recentInvoices = data.recent_invoices || [];
-  const recentPayments = data.recent_payments || [];
-  const reminderStats = data.reminders?.stats || {};
-  const failedReminders = data.reminders?.failed_recent || [];
-  const alerts = data.reminders?.alerts || [];
+  const kpis = dashboard.kpis || {};
+  const recentAppointments = dashboard.recent_appointments || [];
+  const recentInvoices = dashboard.recent_invoices || [];
+  const recentPayments = dashboard.recent_payments || [];
+  const reminderStats = dashboard.reminders?.stats || {};
+  const failedReminders = dashboard.reminders?.failed_recent || [];
+  const alerts = dashboard.reminders?.alerts || [];
 
   const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
-  // حساب إجماليات سريعة
   const totalRevenue = (kpis.today_revenue || 0) + (kpis.month_revenue || 0);
   const completionRate = kpis.today_appointments_count
     ? Math.round(
@@ -432,20 +350,24 @@ export default function ErpDashboardHome() {
               <small className="alert-time">{formatDateTime(alert.time)}</small>
               <button
                 className="alert-close"
-                onClick={() =>
+                onClick={(e) => {
+                  e.stopPropagation();
                   setHiddenAlerts((prev) => {
                     const next = new Set(prev);
                     next.add(alert.id);
                     return next;
-                  })
-                }
+                  });
+                }}
               >
                 <i className="fas fa-times"></i>
               </button>
               <button
                 className="alert-ack"
                 disabled={acknowledgingIds.has(alert.id)}
-                onClick={() => acknowledge(alert.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  acknowledge(alert.id);
+                }}
               >
                 {acknowledgingIds.has(alert.id) ? (
                   <i className="fas fa-spinner fa-spin"></i>
@@ -483,10 +405,6 @@ export default function ErpDashboardHome() {
             <span className="stat-value">{formatCurrency(totalRevenue)}</span>
             <span className="stat-label">{t("Total Revenue")}</span>
           </div>
-          {/* <div className="stat-trend up">
-            <i className="fas fa-arrow-up"></i>
-            <span>+12%</span>
-          </div> */}
         </div>
         <div className="quick-stat-card">
           <div className="stat-icon warning">
@@ -496,10 +414,6 @@ export default function ErpDashboardHome() {
             <span className="stat-value">{reminderStats.pending ?? 0}</span>
             <span className="stat-label">{t("Pending Reminders")}</span>
           </div>
-          {/* <div className="stat-trend down">
-            <i className="fas fa-arrow-down"></i>
-            <span>-5%</span>
-          </div> */}
         </div>
         <div className="quick-stat-card">
           <div className="stat-icon info">
@@ -509,10 +423,6 @@ export default function ErpDashboardHome() {
             <span className="stat-value">{kpis.total_patients ?? 0}</span>
             <span className="stat-label">{t("Total Patients")}</span>
           </div>
-          {/* <div className="stat-trend up">
-            <i className="fas fa-arrow-up"></i>
-            <span>+8%</span>
-          </div> */}
         </div>
       </div>
 
@@ -529,28 +439,24 @@ export default function ErpDashboardHome() {
           icon="fas fa-calendar-day"
           color="primary"
           link="/admin/erp/appointments/calendar"
-          // trend="+12%"
         />
         <KpiCard
           title={t("Scheduled Today")}
           value={kpis.scheduled_today_count ?? 0}
           icon="fas fa-clock"
           color="info"
-          // trend="+5%"
         />
         <KpiCard
           title={t("Completed Today")}
           value={kpis.completed_today_count ?? 0}
           icon="fas fa-check-circle"
           color="success"
-          // trend="+8%"
         />
         <KpiCard
           title={t("Cancelled / No Show")}
           value={`${kpis.cancelled_today_count ?? 0} / ${kpis.no_show_today_count ?? 0}`}
           icon="fas fa-times-circle"
           color="danger"
-          // trend="-3%"
         />
         <KpiCard
           title={t("Unpaid Invoices")}
@@ -936,7 +842,6 @@ function KpiCard({ title, value, icon, color = "primary", link, trend }) {
   );
 
   if (!link) return cardContent;
-
   return (
     <Link to={link} className="kpi-link-wrapper">
       {cardContent}
@@ -956,6 +861,7 @@ function EmptyState({ text }) {
 
 // StatusBadge Component - Improved
 function StatusBadge({ status }) {
+  const { t } = useTranslation();
   const statusMap = {
     paid: { label: "Paid", class: "success" },
     completed: { label: "Completed", class: "success" },
@@ -970,7 +876,6 @@ function StatusBadge({ status }) {
 
   const value = String(status || "").toLowerCase();
   const statusInfo = statusMap[value] || { label: status, class: "secondary" };
-  const { t } = useTranslation();
 
   return (
     <span className={`status-badge status-${statusInfo.class}`}>

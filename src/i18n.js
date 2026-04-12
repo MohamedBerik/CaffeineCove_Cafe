@@ -2216,6 +2216,13 @@ const resources = {
       Cancelled: "Cancelled",
       "No data available": "No data available",
       appointments: "appointments",
+
+      critical: "Critical",
+      attention: "Attention",
+      info: "Info",
+      "View Details": "View Details",
+      "Acknowledge All": "Acknowledge All",
+      Acknowledge: "Acknowledge",
     },
   },
   ar: {
@@ -4417,6 +4424,13 @@ const resources = {
       Cancelled: "ملغي",
       "No data available": "لا توجد بيانات",
       appointments: "مواعيد",
+
+      critical: "حرج",
+      attention: "انتباه",
+      info: "معلومات",
+      "View Details": "عرض التفاصيل",
+      "Acknowledge All": "تأكيد الكل",
+      Acknowledge: "تأكيد",
     },
   },
 };

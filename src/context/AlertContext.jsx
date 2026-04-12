@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "./AuthContext";
 import useAlertsSocket from "../hooks/useAlertsSocket";
 import api from "../services/axios";
@@ -15,79 +16,84 @@ const AlertActionsContext = createContext();
 
 export const AlertProvider = ({ children }) => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [alerts, setAlerts] = useState([]);
 
-  // ✅ add from socket (داخلي فقط)
-  const addAlert = useCallback((newAlert) => {
-    setAlerts((prev) => {
-      if (prev.some((a) => a.id === newAlert.id)) return prev;
-      return [newAlert, ...prev];
-    });
-    setUnreadCount((prev) => prev + 1);
-  }, []);
+  // ✅ add from socket - يحدث React Query Cache
+  const addAlert = useCallback(
+    (newAlert) => {
+      const filters = ["all", "unread", "high"];
+
+      filters.forEach((filter) => {
+        // ✅ فلترة حسب الفلتر
+        if (filter === "unread" && newAlert.read) return;
+        if (filter === "high" && newAlert.priority !== "high") return;
+
+        queryClient.setQueryData(["alerts", filter], (oldData) => {
+          if (!oldData) return oldData;
+
+          // ✅ منع التكرار
+          const alreadyExists = oldData.pages.some((page) =>
+            page.data.some((a) => a.id === newAlert.id),
+          );
+          if (alreadyExists) return oldData;
+
+          // ✅ إضافة الإشعار الجديد
+          return {
+            ...oldData,
+            pages: [
+              {
+                ...oldData.pages[0],
+                data: [newAlert, ...oldData.pages[0].data],
+              },
+              ...oldData.pages.slice(1),
+            ],
+          };
+        });
+      });
+
+      setUnreadCount((prev) => prev + 1);
+    },
+    [queryClient],
+  );
 
   // ✅ mark one
   const markAsRead = useCallback(async (alertId) => {
-    // ✅ optimistic update
-    setAlerts((prev) =>
-      prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)),
-    );
     setUnreadCount((prev) => Math.max(prev - 1, 0));
-
     try {
       await api.post(`/erp/alerts/${alertId}/ack`);
     } catch (err) {
-      console.error("❌ rollback markAsRead:", err);
-
-      // ❗ rollback لو فشل
-      setAlerts((prev) =>
-        prev.map((a) => (a.id === alertId ? { ...a, read: false } : a)),
-      );
+      console.error("❌ markAsRead failed:", err);
       setUnreadCount((prev) => prev + 1);
     }
   }, []);
 
   // ✅ mark all
   const markAllAsRead = useCallback(async () => {
-    const prevAlerts = alerts;
-
-    setAlerts((prev) => prev.map((a) => ({ ...a, read: true })));
+    const prevUnread = unreadCount;
     setUnreadCount(0);
-
     try {
       await api.post("/erp/alerts/mark-all-read");
     } catch (err) {
-      console.error("❌ rollback markAll:", err);
-
-      setAlerts(prevAlerts);
-      setUnreadCount(prevAlerts.filter((a) => !a.read).length);
+      console.error("❌ markAllAsRead failed:", err);
+      setUnreadCount(prevUnread);
     }
-  }, [alerts]);
+  }, [unreadCount]);
 
-  // ✅ تحميل الإشعارات الأولية
+  // ✅ تحميل العداد الأولي
   useEffect(() => {
     if (!user) return;
 
-    const loadInitialAlerts = async () => {
+    const loadUnreadCount = async () => {
       try {
-        const [alertsRes, countRes] = await Promise.all([
-          api.get("/erp/alerts"),
-          api.get("/erp/alerts/unread-count"),
-        ]);
-
-        const alertsData = Array.isArray(alertsRes.data)
-          ? alertsRes.data
-          : alertsRes.data?.data || [];
-
-        setAlerts(alertsData);
-        setUnreadCount(countRes.data?.count || 0);
+        const res = await api.get("/erp/alerts/unread-count");
+        setUnreadCount(res.data?.count || 0);
       } catch (error) {
-        console.error("❌ Error fetching alerts:", error);
+        console.error("❌ Error fetching unread count:", error);
       }
     };
 
-    loadInitialAlerts();
+    loadUnreadCount();
   }, [user]);
 
   // ✅ الاستماع للإشعارات الجديدة

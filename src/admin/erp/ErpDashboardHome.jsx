@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import axios from "../../services/axios";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -19,9 +19,10 @@ export default function ErpDashboardHome() {
   const [greeting, setGreeting] = useState("");
   const [hiddenAlerts, setHiddenAlerts] = useState(new Set());
   const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
-  const acknowledgingRef = { current: new Set() };
+  const acknowledgingRef = useRef(new Set());
+  const buffer = useRef([]);
 
-  // ✅ Dashboard Query - تحل محل loadDashboard + polling
+  // ✅ Dashboard Query - مع fallback sync كل دقيقة
   const {
     data: dashboard,
     isLoading,
@@ -57,9 +58,10 @@ export default function ErpDashboardHome() {
     },
     staleTime: 10000, // 10 ثواني
     refetchOnWindowFocus: true,
+    refetchInterval: 60000, // ✅ Fallback sync كل دقيقة
   });
 
-  // ✅ Activity Logs Query - تحل محل loadActivityLogs
+  // ✅ Activity Logs Query
   const { data: activityLogs = [] } = useQuery({
     queryKey: ["activityLogs"],
     queryFn: async () => {
@@ -69,7 +71,7 @@ export default function ErpDashboardHome() {
     refetchInterval: 30000, // 30 ثانية
   });
 
-  // ✅ Acknowledge Mutation - تحل محل acknowledge
+  // ✅ Acknowledge Mutation
   const acknowledgeMutation = useMutation({
     mutationFn: (id) => axios.post(`/erp/alerts/${id}/ack`),
     onMutate: async (id) => {
@@ -129,7 +131,7 @@ export default function ErpDashboardHome() {
     audio.play().catch(() => {});
   };
 
-  // ✅ handleNewAlert - بتحدث الـ Cache مباشرة
+  // ✅ handleNewAlert - للـ Alerts فقط
   const handleNewAlert = useCallback(
     (newAlert) => {
       if (document.visibilityState === "visible") {
@@ -171,7 +173,121 @@ export default function ErpDashboardHome() {
     [addAlert, queryClient],
   );
 
-  useAlertsSocket(handleNewAlert);
+  // ✅ handleDashboardEvent - للـ KPIs
+  const handleDashboardEvent = useCallback(
+    (event) => {
+      queryClient.setQueryData(["dashboard"], (old) => {
+        if (!old) return old;
+
+        const kpis = { ...old.kpis };
+
+        switch (event.type) {
+          case "appointment_created":
+            kpis.today_appointments_count =
+              (kpis.today_appointments_count || 0) + 1;
+            kpis.scheduled_today_count = (kpis.scheduled_today_count || 0) + 1;
+            break;
+
+          case "appointment_completed":
+            kpis.completed_today_count = (kpis.completed_today_count || 0) + 1;
+            kpis.scheduled_today_count = Math.max(
+              0,
+              (kpis.scheduled_today_count || 0) - 1,
+            );
+            break;
+
+          case "appointment_cancelled":
+            kpis.cancelled_today_count = (kpis.cancelled_today_count || 0) + 1;
+            kpis.scheduled_today_count = Math.max(
+              0,
+              (kpis.scheduled_today_count || 0) - 1,
+            );
+            break;
+
+          case "appointment_no_show":
+            kpis.no_show_today_count = (kpis.no_show_today_count || 0) + 1;
+            kpis.scheduled_today_count = Math.max(
+              0,
+              (kpis.scheduled_today_count || 0) - 1,
+            );
+            break;
+
+          case "payment_created":
+            kpis.today_revenue =
+              (kpis.today_revenue || 0) + (event.data?.today_revenue || 0);
+            kpis.month_revenue =
+              (kpis.month_revenue || 0) + (event.data?.month_revenue || 0);
+            break;
+
+          case "invoice_paid":
+            kpis.paid_invoices_count = (kpis.paid_invoices_count || 0) + 1;
+            kpis.unpaid_invoices_count = Math.max(
+              0,
+              (kpis.unpaid_invoices_count || 0) - 1,
+            );
+            break;
+
+          default:
+            return old;
+        }
+
+        return { ...old, kpis };
+      });
+    },
+    [queryClient],
+  );
+
+  // ✅ Batching - flush updates كل 2 ثانية
+  const flushUpdates = useCallback(() => {
+    if (buffer.current.length === 0) return;
+
+    queryClient.setQueryData(["dashboard"], (old) => {
+      if (!old) return old;
+
+      const kpis = { ...old.kpis };
+      let totalRevenue = 0;
+
+      buffer.current.forEach((event) => {
+        if (event.type === "payment_created") {
+          totalRevenue += event.data?.today_revenue || 0;
+        }
+      });
+
+      if (totalRevenue > 0) {
+        kpis.today_revenue = (kpis.today_revenue || 0) + totalRevenue;
+        kpis.month_revenue = (kpis.month_revenue || 0) + totalRevenue;
+      }
+
+      return { ...old, kpis };
+    });
+
+    buffer.current = [];
+  }, [queryClient]);
+
+  useEffect(() => {
+    const interval = setInterval(flushUpdates, 2000);
+    return () => clearInterval(interval);
+  }, [flushUpdates]);
+
+  // ✅ Socket handler الموحد
+  useAlertsSocket((payload) => {
+    // لو Alert
+    if (payload.alert || payload.type === "alert") {
+      handleNewAlert(payload.alert || payload.data);
+    }
+
+    // لو Dashboard Update
+    if (
+      payload.type === "appointment_created" ||
+      payload.type === "appointment_completed" ||
+      payload.type === "appointment_cancelled" ||
+      payload.type === "appointment_no_show" ||
+      payload.type === "payment_created" ||
+      payload.type === "invoice_paid"
+    ) {
+      handleDashboardEvent(payload);
+    }
+  });
 
   const formatLog = (log) => {
     const type = log.subject_type;

@@ -1425,7 +1425,7 @@ function ConvertForm({
 
 // Radiology Tabs Component
 function RadiologyTabs({ patientId }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState("gallery");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 

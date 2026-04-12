@@ -25,20 +25,17 @@ export const AlertProvider = ({ children }) => {
       const filters = ["all", "unread", "high"];
 
       filters.forEach((filter) => {
-        // ✅ فلترة حسب الفلتر
         if (filter === "unread" && newAlert.read) return;
         if (filter === "high" && newAlert.priority !== "high") return;
 
         queryClient.setQueryData(["alerts", filter], (oldData) => {
           if (!oldData) return oldData;
 
-          // ✅ منع التكرار
           const alreadyExists = oldData.pages.some((page) =>
             page.data.some((a) => a.id === newAlert.id),
           );
           if (alreadyExists) return oldData;
 
-          // ✅ إضافة الإشعار الجديد
           return {
             ...oldData,
             pages: [
@@ -57,28 +54,108 @@ export const AlertProvider = ({ children }) => {
     [queryClient],
   );
 
-  // ✅ mark one
-  const markAsRead = useCallback(async (alertId) => {
-    setUnreadCount((prev) => Math.max(prev - 1, 0));
-    try {
-      await api.post(`/erp/alerts/${alertId}/ack`);
-    } catch (err) {
-      console.error("❌ markAsRead failed:", err);
-      setUnreadCount((prev) => prev + 1);
-    }
-  }, []);
+  // ✅ mark one - مع optimistic update + rollback
+  const markAsRead = useCallback(
+    async (alertId) => {
+      const filters = ["all", "unread", "high"];
 
-  // ✅ mark all
+      // ✅ Optimistic update
+      filters.forEach((filter) => {
+        queryClient.setQueryData(["alerts", filter], (oldData) => {
+          if (!oldData) return oldData;
+
+          if (filter === "unread") {
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                data: page.data.filter((a) => a.id !== alertId),
+              })),
+            };
+          }
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: page.data.map((a) =>
+                a.id === alertId ? { ...a, read: true } : a,
+              ),
+            })),
+          };
+        });
+      });
+
+      setUnreadCount((prev) => Math.max(prev - 1, 0));
+
+      try {
+        await api.post(`/erp/alerts/${alertId}/ack`);
+      } catch (err) {
+        console.error("❌ rollback markAsRead:", err);
+
+        // ❗ Rollback
+        filters.forEach((filter) => {
+          queryClient.setQueryData(["alerts", filter], (oldData) => {
+            if (!oldData) return oldData;
+
+            if (filter === "unread") {
+              return oldData; // صعب نرجع الإشعار - محتاج refetch
+            }
+
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                data: page.data.map((a) =>
+                  a.id === alertId ? { ...a, read: false } : a,
+                ),
+              })),
+            };
+          });
+        });
+
+        setUnreadCount((prev) => prev + 1);
+      }
+    },
+    [queryClient],
+  );
+
+  // ✅ mark all - مع تحديث كل الفلاتر
   const markAllAsRead = useCallback(async () => {
-    const prevUnread = unreadCount;
+    const filters = ["all", "unread", "high"];
+
+    filters.forEach((filter) => {
+      queryClient.setQueryData(["alerts", filter], (oldData) => {
+        if (!oldData) return oldData;
+
+        if (filter === "unread") {
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: [],
+            })),
+          };
+        }
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => ({
+            ...page,
+            data: page.data.map((a) => ({ ...a, read: true })),
+          })),
+        };
+      });
+    });
+
     setUnreadCount(0);
+
     try {
       await api.post("/erp/alerts/mark-all-read");
     } catch (err) {
       console.error("❌ markAllAsRead failed:", err);
-      setUnreadCount(prevUnread);
     }
-  }, [unreadCount]);
+  }, [queryClient]);
 
   // ✅ تحميل العداد الأولي
   useEffect(() => {

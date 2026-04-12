@@ -3,6 +3,9 @@ import { useParams, Link } from "react-router-dom";
 import axios from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import "./PatientProfilePage.css";
+import RadiologyUploader from "../../components/RadiologyUploader";
+import RadiologyGallery from "../../components/RadiologyGallery";
+import "./PatientProfilePage.css";
 
 export default function PatientProfilePage() {
   const { t, i18n } = useTranslation();
@@ -780,6 +783,11 @@ export default function PatientProfilePage() {
           </div>
         )}
       </Section>
+
+      {/* Radiology Section - New */}
+      <Section title={t("Radiology")} icon="fas fa-x-ray">
+        <RadiologyTabs patientId={id} />
+      </Section>
     </div>
   );
 }
@@ -1410,6 +1418,54 @@ function ConvertForm({
             {t("Cancel")}
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Radiology Tabs Component
+function RadiologyTabs({ patientId }) {
+  const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState("gallery");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleUploadSuccess = () => {
+    setRefreshTrigger((prev) => prev + 1);
+    setActiveTab("gallery");
+  };
+
+  return (
+    <div className="radiology-tabs">
+      <div className="radiology-tabs-header">
+        <button
+          className={`tab-btn ${activeTab === "gallery" ? "active" : ""}`}
+          onClick={() => setActiveTab("gallery")}
+        >
+          <i className="fas fa-images me-2"></i>
+          {t("Image Gallery")}
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "upload" ? "active" : ""}`}
+          onClick={() => setActiveTab("upload")}
+        >
+          <i className="fas fa-upload me-2"></i>
+          {t("Upload New")}
+        </button>
+      </div>
+
+      <div className="radiology-tabs-content">
+        {activeTab === "gallery" && (
+          <RadiologyGallery
+            patientId={patientId}
+            refreshTrigger={refreshTrigger}
+          />
+        )}
+        {activeTab === "upload" && (
+          <RadiologyUploader
+            patientId={patientId}
+            onUploadSuccess={handleUploadSuccess}
+          />
+        )}
       </div>
     </div>
   );

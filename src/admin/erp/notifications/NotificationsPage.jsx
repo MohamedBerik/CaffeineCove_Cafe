@@ -1,25 +1,39 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useAuth } from "../../../context/AuthContext";
-import { useAlertState, useAlertActions } from "../../../context/AlertContext";
+import { useAlertActions } from "../../../context/AlertContext";
+import api from "../../../services/axios";
 import "./NotificationsPage.css";
 
 const NotificationsPage = () => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const { markAsRead } = useAlertActions();
 
-  const { alerts, loading, hasMore, filter } = useAlertState();
-  const { markAsRead, loadAlerts, loadMore, setFilter } = useAlertActions();
-
+  const [filter, setFilter] = useState("all");
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
-  const debounceTimer = useRef(null);
 
-  const displayAlerts = alerts.filter((a) => {
-    if (filter === "unread") return !a.read;
-    if (filter === "high") return a.priority === "high";
-    return true;
-  });
+  // ✅ React Query - useInfiniteQuery
+  const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
+    useInfiniteQuery({
+      queryKey: ["alerts", filter],
+      queryFn: async ({ pageParam = 1 }) => {
+        const res = await api.get(
+          `/erp/alerts?page=${pageParam}&filter=${filter}`,
+        );
+        return res.data;
+      },
+      getNextPageParam: (lastPage) => {
+        return lastPage.meta?.has_more
+          ? lastPage.meta.current_page + 1
+          : undefined;
+      },
+      staleTime: 1000 * 60 * 5, // 5 دقائق
+    });
+
+  const displayAlerts = data?.pages.flatMap((page) => page.data) || [];
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -47,10 +61,6 @@ const NotificationsPage = () => {
     [i18n.language],
   );
 
-  useEffect(() => {
-    loadAlerts(1);
-  }, [filter, loadAlerts]);
-
   const handleAcknowledge = async (alertId) => {
     try {
       await markAsRead(alertId);
@@ -67,15 +77,6 @@ const NotificationsPage = () => {
   const closeModal = () => {
     setSelectedAlert(null);
   };
-
-  const debouncedLoadMore = useCallback(() => {
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
-    debounceTimer.current = setTimeout(() => {
-      loadMore();
-    }, 300);
-  }, [loadMore]);
 
   const getPriorityClass = (priority) => {
     switch (priority?.toLowerCase()) {
@@ -103,7 +104,6 @@ const NotificationsPage = () => {
     }
   };
 
-  // ✅ دالة grouping
   const groupAlertsByDate = (alerts) => {
     const groups = {};
     alerts.forEach((alert) => {
@@ -115,7 +115,6 @@ const NotificationsPage = () => {
     return groups;
   };
 
-  // ✅ دالة format للتاريخ
   const formatGroupDate = (dateString) => {
     const date = new Date(dateString);
     const today = new Date();
@@ -132,14 +131,18 @@ const NotificationsPage = () => {
     });
   };
 
-  // ✅ Sorting + Grouping
-  const sortedAlerts = [...displayAlerts].sort(
+  const filteredAlerts = displayAlerts.filter((a) => {
+    if (filter === "unread") return !a.read;
+    if (filter === "high") return a.priority === "high";
+    return true;
+  });
+
+  const sortedAlerts = [...filteredAlerts].sort(
     (a, b) => new Date(b.time) - new Date(a.time),
   );
   const groupedAlerts = Object.entries(groupAlertsByDate(sortedAlerts));
 
-  // ✅ Skeleton Loader
-  if (loading && displayAlerts.length === 0) {
+  if (isLoading) {
     return (
       <div
         className="notifications-page"
@@ -149,7 +152,6 @@ const NotificationsPage = () => {
           <div className="skeleton-title"></div>
           <div className="skeleton-subtitle"></div>
         </div>
-
         <div className="filters-card skeleton">
           <div className="skeleton-filters">
             <div className="skeleton-filter-btn"></div>
@@ -157,7 +159,6 @@ const NotificationsPage = () => {
             <div className="skeleton-filter-btn"></div>
           </div>
         </div>
-
         <div className="notifications-card skeleton">
           <div className="notifications-list">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -226,12 +227,12 @@ const NotificationsPage = () => {
           <i className="fas fa-bell me-2"></i>
           <h5 className="mb-0">{t("Notifications List")}</h5>
           <span className="notification-count">
-            {displayAlerts.length} {t("notifications")}
+            {filteredAlerts.length} {t("notifications")}
           </span>
         </div>
 
         <div className="notifications-card-body">
-          {displayAlerts.length === 0 ? (
+          {filteredAlerts.length === 0 ? (
             <div className="empty-state">
               <i className="fas fa-bell-slash empty-icon"></i>
               <p className="empty-text">
@@ -305,14 +306,14 @@ const NotificationsPage = () => {
             </div>
           )}
 
-          {hasMore && displayAlerts.length > 0 && (
+          {hasNextPage && (
             <div className="load-more-container">
               <button
                 className="btn-load-more"
-                onClick={debouncedLoadMore}
-                disabled={loading}
+                onClick={fetchNextPage}
+                disabled={isFetchingNextPage}
               >
-                {loading ? (
+                {isFetchingNextPage ? (
                   <>
                     <span className="spinner-border spinner-border-sm me-2"></span>
                     {t("Loading...")}
@@ -324,12 +325,6 @@ const NotificationsPage = () => {
                   </>
                 )}
               </button>
-            </div>
-          )}
-
-          {!hasMore && displayAlerts.length > 0 && (
-            <div className="no-more-container">
-              <p className="no-more-text">{t("No more notifications")}</p>
             </div>
           )}
         </div>

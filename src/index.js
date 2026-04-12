@@ -1,5 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { AuthProvider } from "./context/AuthContext";
 import { AlertProvider } from "./context/AlertContext";
 import App from "./App";
@@ -73,232 +75,224 @@ import ProcedureFormPage from "./admin/erp/procedures/ProcedureFormPage";
 import StartVisitPage from "./admin/erp/visits/StartVisitPage";
 import NotificationsPage from "./admin/erp/notifications/NotificationsPage";
 
+// ✅ إنشاء QueryClient
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 دقائق
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 createRoot(document.getElementById("root")).render(
-  <AuthProvider>
-    <AlertProvider>
-      <BrowserRouter>
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          closeOnClick
-          pauseOnHover
-          draggable
-          theme="light"
-        />
-        <Toaster position="top-right" />
-        <Routes>
-          {/* ================= Public ================= */}
-          <Route path="/" element={<App />} />
-          <Route path="/about" element={<AllAbout />} />
-          <Route path="/timeline" element={<AllTimeline />} />
-          <Route path="/testimonials" element={<AllTestimonials />} />
-          <Route path="/booking" element={<AllBooking />} />
-          <Route path="/contact" element={<AllContact />} />
-
-          {/* ================= Auth ================= */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/logout" element={<Logout />} />
-
-          {/* ================= ERP Dashboard (NEW SYSTEM) ================= */}
-          <Route
-            path="/admin/erp/*"
-            element={
-              <AdminRoute>
-                <ERPDashboard />
-              </AdminRoute>
-            }
-          >
-            {/* Default ERP page */}
-            <Route index element={<ErpDashboardHome />} />
-
-            {/* Orders */}
-            <Route path="orders" element={<OrdersList />} />
-            <Route path="orders/create" element={<CreateOrder />} />
-            <Route path="orders/:id" element={<OrderDetails />} />
-
-            {/* Invoices */}
-            <Route path="invoices" element={<InvoicesList />} />
-            <Route path="invoices/:id" element={<InvoiceDetails />} />
-
-            {/* Purchase Orders */}
-            <Route
-              path="purchase-orders/create"
-              element={<PurchaseOrderCreate />}
-            />
-            <Route path="purchase-orders" element={<PurchaseOrdersList />} />
-            <Route
-              path="purchase-orders/:id"
-              element={<PurchaseOrderDetails />}
-            />
-            <Route
-              path="purchase-orders/:id/returns"
-              element={<PurchaseOrderReturns />}
-            />
-            <Route
-              path="purchase-orders/:id/returns-history"
-              element={<PurchaseOrderReturnsHistory />}
-            />
-
-            {/* Supplier statement */}
-            <Route
-              path="suppliers/:id/statement"
-              element={<SupplierStatement />}
-            />
-
-            {/* ✅ Patient statement (UI route) */}
-            <Route
-              path="patients/:id/statement"
-              element={<PatientStatement />}
-            />
-            <Route path="patients" element={<PatientsList />} />
-            <Route
-              path="patients/:id/profile"
-              element={<PatientProfilePage />}
-            />
-            <Route
-              path="patients/:id/timeline"
-              element={<PatientTimelinePage />}
-            />
-            <Route path="patients/create" element={<PatientFormPage />} />
-            <Route path="patients/:id/edit" element={<PatientFormPage />} />
-
-            {/* Appointments */}
-            <Route path="appointments" element={<AppointmentsListPage />} />
-            <Route
-              path="appointments/:id/activity"
-              element={<AppointmentActivityPage />}
-            />
-            <Route
-              path="appointments/create"
-              element={<BookAppointmentPage />}
-            />
-            <Route
-              path="appointments/calendar"
-              element={<AppointmentCalendarPage />}
-            />
-
-            {/* TreamentPlans */}
-            <Route
-              path="treatment-plans"
-              element={<TreatmentPlansListPage />}
-            />
-            <Route
-              path="treatment-plans/:id"
-              element={<TreatmentPlanDetailsPage />}
-            />
-            <Route
-              path="treatment-plans/create"
-              element={<CreateTreatmentPlanPage />}
-            />
-
-            {/* DentalRecords */}
-            <Route path="dental-records" element={<DentalRecordsListPage />} />
-            <Route
-              path="dental-records/create"
-              element={<CreateDentalRecordPage />}
-            />
-
-            {/* Clinic settings */}
-            <Route path="settings/clinic" element={<ClinicSettingsPage />} />
-
-            {/* Doctors */}
-            <Route path="doctors/create" element={<DoctorFormPage />} />
-            {/* <Route path="doctors/:id" element={<DoctorDetailsPage />} /> */}
-            <Route path="doctors/:id/edit" element={<DoctorFormPage />} />
-            <Route path="doctors" element={<DoctorsListPage />} />
-            <Route
-              path="doctors/:id/availability"
-              element={<DoctorAvailabilityPage />}
-            />
-
-            {/* Reports */}
-            <Route path="reports" element={<ReportsDashboardPage />} />
-            <Route path="reports/revenue" element={<RevenueReportPage />} />
-            <Route
-              path="reports/appointments"
-              element={<AppointmentsReportPage />}
-            />
-            <Route
-              path="reports/doctors"
-              element={<DoctorPerformanceReportPage />}
-            />
-            <Route
-              path="reports/analytics"
-              element={<AnalyticsDashboardPage />}
-            />
-            <Route path="procedures" element={<ProceduresListPage />} />
-            <Route path="procedures/create" element={<ProcedureFormPage />} />
-            <Route path="procedures/:id/edit" element={<ProcedureFormPage />} />
-            <Route path="visits/start" element={<StartVisitPage />} />
-            <Route path="notifications" element={<NotificationsPage />} />
-          </Route>
-
-          {/* ================= Generic admin CRUD (OLD / temporary) ================= */}
-          <Route
-            path="/admin/:table"
-            element={
-              <AdminRoute>
-                <CrudTable />
-              </AdminRoute>
-            }
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <AlertProvider>
+        <BrowserRouter>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            closeOnClick
+            pauseOnHover
+            draggable
+            theme="light"
           />
+          <Toaster position="top-right" />
+          <Routes>
+            {/* ================= Public ================= */}
+            <Route path="/" element={<App />} />
+            <Route path="/about" element={<AllAbout />} />
+            <Route path="/timeline" element={<AllTimeline />} />
+            <Route path="/testimonials" element={<AllTestimonials />} />
+            <Route path="/booking" element={<AllBooking />} />
+            <Route path="/contact" element={<AllContact />} />
 
-          <Route
-            path="/admin/:table/create"
-            element={
-              <AdminRoute>
-                <CrudForm />
-              </AdminRoute>
-            }
-          />
+            {/* ================= Auth ================= */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/logout" element={<Logout />} />
 
-          <Route
-            path="/admin/:table/:id/edit"
-            element={
-              <AdminRoute>
-                <CrudForm />
-              </AdminRoute>
-            }
-          />
+            {/* ================= ERP Dashboard (NEW SYSTEM) ================= */}
+            <Route
+              path="/admin/erp/*"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<ErpDashboardHome />} />
+              <Route path="orders" element={<OrdersList />} />
+              <Route path="orders/create" element={<CreateOrder />} />
+              <Route path="orders/:id" element={<OrderDetails />} />
+              <Route path="invoices" element={<InvoicesList />} />
+              <Route path="invoices/:id" element={<InvoiceDetails />} />
+              <Route
+                path="purchase-orders/create"
+                element={<PurchaseOrderCreate />}
+              />
+              <Route path="purchase-orders" element={<PurchaseOrdersList />} />
+              <Route
+                path="purchase-orders/:id"
+                element={<PurchaseOrderDetails />}
+              />
+              <Route
+                path="purchase-orders/:id/returns"
+                element={<PurchaseOrderReturns />}
+              />
+              <Route
+                path="purchase-orders/:id/returns-history"
+                element={<PurchaseOrderReturnsHistory />}
+              />
+              <Route
+                path="suppliers/:id/statement"
+                element={<SupplierStatement />}
+              />
+              <Route
+                path="patients/:id/statement"
+                element={<PatientStatement />}
+              />
+              <Route path="patients" element={<PatientsList />} />
+              <Route
+                path="patients/:id/profile"
+                element={<PatientProfilePage />}
+              />
+              <Route
+                path="patients/:id/timeline"
+                element={<PatientTimelinePage />}
+              />
+              <Route path="patients/create" element={<PatientFormPage />} />
+              <Route path="patients/:id/edit" element={<PatientFormPage />} />
+              <Route path="appointments" element={<AppointmentsListPage />} />
+              <Route
+                path="appointments/:id/activity"
+                element={<AppointmentActivityPage />}
+              />
+              <Route
+                path="appointments/create"
+                element={<BookAppointmentPage />}
+              />
+              <Route
+                path="appointments/calendar"
+                element={<AppointmentCalendarPage />}
+              />
+              <Route
+                path="treatment-plans"
+                element={<TreatmentPlansListPage />}
+              />
+              <Route
+                path="treatment-plans/:id"
+                element={<TreatmentPlanDetailsPage />}
+              />
+              <Route
+                path="treatment-plans/create"
+                element={<CreateTreatmentPlanPage />}
+              />
+              <Route
+                path="dental-records"
+                element={<DentalRecordsListPage />}
+              />
+              <Route
+                path="dental-records/create"
+                element={<CreateDentalRecordPage />}
+              />
+              <Route path="settings/clinic" element={<ClinicSettingsPage />} />
+              <Route path="doctors/create" element={<DoctorFormPage />} />
+              <Route path="doctors/:id/edit" element={<DoctorFormPage />} />
+              <Route path="doctors" element={<DoctorsListPage />} />
+              <Route
+                path="doctors/:id/availability"
+                element={<DoctorAvailabilityPage />}
+              />
+              <Route path="reports" element={<ReportsDashboardPage />} />
+              <Route path="reports/revenue" element={<RevenueReportPage />} />
+              <Route
+                path="reports/appointments"
+                element={<AppointmentsReportPage />}
+              />
+              <Route
+                path="reports/doctors"
+                element={<DoctorPerformanceReportPage />}
+              />
+              <Route
+                path="reports/analytics"
+                element={<AnalyticsDashboardPage />}
+              />
+              <Route path="procedures" element={<ProceduresListPage />} />
+              <Route path="procedures/create" element={<ProcedureFormPage />} />
+              <Route
+                path="procedures/:id/edit"
+                element={<ProcedureFormPage />}
+              />
+              <Route path="visits/start" element={<StartVisitPage />} />
+              <Route path="notifications" element={<NotificationsPage />} />
+            </Route>
 
-          <Route
-            path="/admin/:table/:id/show"
-            element={
-              <AdminRoute>
-                <CrudForm />
-              </AdminRoute>
-            }
-          />
+            {/* ================= Generic admin CRUD ================= */}
+            <Route
+              path="/admin/:table"
+              element={
+                <AdminRoute>
+                  <CrudTable />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/:table/create"
+              element={
+                <AdminRoute>
+                  <CrudForm />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/:table/:id/edit"
+              element={
+                <AdminRoute>
+                  <CrudForm />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/:table/:id/show"
+              element={
+                <AdminRoute>
+                  <CrudForm />
+                </AdminRoute>
+              }
+            />
 
-          {/* ================= Old Admin Dashboard (to be deprecated) ================= */}
-          <Route
-            path="/admin/dashboard/*"
-            element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            }
-          />
+            {/* ================= Old Admin Dashboard ================= */}
+            <Route
+              path="/admin/dashboard/*"
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/adminLayout"
+              element={
+                <AdminRoute>
+                  <AdminLayout />
+                </AdminRoute>
+              }
+            />
 
-          {/* ================= Direct Admin Layout (legacy / optional) ================= */}
-          <Route
-            path="/adminLayout"
-            element={
-              <AdminRoute>
-                <AdminLayout />
-              </AdminRoute>
-            }
-          />
+            {/* ================= 404 ================= */}
+            <Route
+              path="*"
+              element={<p style={{ padding: 20 }}>Page not found</p>}
+            />
+          </Routes>
+        </BrowserRouter>
+      </AlertProvider>
+    </AuthProvider>
 
-          {/* ================= 404 ================= */}
-          <Route
-            path="*"
-            element={<p style={{ padding: 20 }}>Page not found</p>}
-          />
-        </Routes>
-      </BrowserRouter>
-    </AlertProvider>
-  </AuthProvider>,
+    {/* ✅ React Query Devtools */}
+    <ReactQueryDevtools initialIsOpen={false} />
+  </QueryClientProvider>,
 );

@@ -7,6 +7,16 @@ import toast from "react-hot-toast";
 import "./ErpDashboardHome.css";
 import useAlertsSocket from "../../hooks/useAlertsSocket";
 import { useAlertActions } from "../../context/AlertContext";
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 // ثوابت خارج المكون
 const PRIORITY_MAP = { high: 3, medium: 2, low: 1 };
@@ -419,6 +429,17 @@ export default function ErpDashboardHome() {
   const failedReminders = dashboard.reminders?.failed_recent || [];
   const alerts = dashboard.reminders?.alerts || [];
 
+  const revenueChartData = [
+    { label: t("Today"), value: kpis.today_revenue || 0 },
+    { label: t("Month"), value: kpis.month_revenue || 0 },
+  ];
+
+  const appointmentsChartData = [
+    { label: t("Total"), value: kpis.today_appointments_count || 0 },
+    { label: t("Completed"), value: kpis.completed_today_count || 0 },
+    { label: t("Cancelled"), value: kpis.cancelled_today_count || 0 },
+  ];
+
   const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
   const totalRevenue = (kpis.today_revenue || 0) + (kpis.month_revenue || 0);
   const completionRate = kpis.today_appointments_count
@@ -631,6 +652,21 @@ export default function ErpDashboardHome() {
           icon="fas fa-paper-plane"
           color="success"
         />
+      </div>
+
+      {/* ✅ أضف هنا - Step 6: Charts Section */}
+      <div className="section-header">
+        <h2>{t("Analytics Overview")}</h2>
+        <p>{t("Real-time insights at a glance")}</p>
+      </div>
+
+      <div className="charts-grid">
+        <RevenueChart
+          data={revenueChartData}
+          t={t}
+          formatCurrency={formatCurrency}
+        />
+        <AppointmentsChart data={appointmentsChartData} t={t} />
       </div>
 
       {/* Tables Section */}
@@ -892,6 +928,73 @@ export default function ErpDashboardHome() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function RevenueChart({ data, t, formatCurrency }) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="chart-card">
+        <div className="chart-header">
+          <i className="fas fa-chart-line"></i>
+          <h4>{t("Revenue Overview")}</h4>
+        </div>
+        <div className="chart-empty">No data available</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="chart-card">
+      <div className="chart-header">
+        <i className="fas fa-chart-line"></i>
+        <h4>{t("Revenue Overview")}</h4>
+      </div>
+      <ResponsiveContainer width="100%" height={250}>
+        <LineChart data={data}>
+          <XAxis dataKey="label" />
+          <YAxis />
+          <Tooltip formatter={(value) => formatCurrency(value)} />
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke="#1a237e"
+            strokeWidth={2}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function AppointmentsChart({ data, t }) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="chart-card">
+        <div className="chart-header">
+          <i className="fas fa-calendar-check"></i>
+          <h4>{t("Appointments Today")}</h4>
+        </div>
+        <div className="chart-empty">No data available</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="chart-card">
+      <div className="chart-header">
+        <i className="fas fa-calendar-check"></i>
+        <h4>{t("Appointments Today")}</h4>
+      </div>
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart data={data}>
+          <XAxis dataKey="label" />
+          <YAxis />
+          <Tooltip />
+          <Bar dataKey="value" fill="#283593" radius={[8, 8, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }

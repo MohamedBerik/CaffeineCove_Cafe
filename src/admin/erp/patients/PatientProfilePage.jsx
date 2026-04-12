@@ -3,8 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import axios from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import "./PatientProfilePage.css";
-import RadiologyUploader from "../../components/RadiologyUploader";
-import RadiologyGallery from "../../components/RadiologyGallery";
+import RadiologyUploader from "../../../components/RadiologyUploader";
+import RadiologyGallery from "../../../components/RadiologyGallery";
 import "./PatientProfilePage.css";
 
 export default function PatientProfilePage() {

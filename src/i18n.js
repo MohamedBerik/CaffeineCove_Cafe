@@ -2202,6 +2202,8 @@ const resources = {
       "Loading images...": "Loading images...",
       "Are you sure you want to delete this image?":
         "Are you sure you want to delete this image?",
+      "Image Gallery": "Image Gallery",
+      "Upload New": "Upload New",
     },
   },
   ar: {
@@ -4389,6 +4391,8 @@ const resources = {
       "Loading images...": "جاري تحميل الصور...",
       "Are you sure you want to delete this image?":
         "هل أنت متأكد من حذف هذه الصورة؟",
+      "Image Gallery": "صور المعرض",
+      "Upload New": "ارفع ملف جديد",
     },
   },
 };

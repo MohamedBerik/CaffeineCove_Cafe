@@ -52,7 +52,7 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile && selectedFile.type.startsWith("image/pdf")) {
+    if (selectedFile && selectedFile.type.startsWith("image/")) {
       setFile(selectedFile);
       setError("");
     } else {
@@ -120,7 +120,7 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
           <input
             id="radiology-file-input"
             type="file"
-            accept="image/pdf/*"
+            accept="image/*"
             onChange={handleFileChange}
             style={{ display: "none" }}
           />

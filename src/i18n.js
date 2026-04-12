@@ -2179,6 +2179,29 @@ const resources = {
       "No high priority notifications": "No high priority notifications",
       "No unread notifications!": "🎉 No unread notifications!",
       "No more notifications": "No more notifications",
+
+      // أضف ضمن كائن en:
+      Radiology: "Radiology",
+      "Radiology Images": "Radiology Images",
+      "X-Ray": "X-Ray",
+      Panorama: "Panorama",
+      CBCT: "CBCT",
+      Cephalometric: "Cephalometric",
+      Other: "Other",
+      "Click or drag image to upload": "Click or drag image to upload",
+      "Upload Radiology": "Upload Radiology",
+      "Uploading...": "Uploading...",
+      "e.g., Pre-op X-Ray": "e.g., Pre-op X-Ray",
+      "Image Type": "Image Type",
+      "Captured At": "Captured At",
+      "Additional notes about this image...":
+        "Additional notes about this image...",
+      "No radiology images found": "No radiology images found",
+      "Upload X-rays, Panorama, or CBCT images for this patient":
+        "Upload X-rays, Panorama, or CBCT images for this patient",
+      "Loading images...": "Loading images...",
+      "Are you sure you want to delete this image?":
+        "Are you sure you want to delete this image?",
     },
   },
   ar: {
@@ -4344,6 +4367,28 @@ const resources = {
       "No high priority notifications": "لا توجد إشعارات عالية الأهمية",
       "No unread notifications!": "🎉 لا توجد إشعارات غير مقروءة!",
       "No more notifications": "لا توجد إشعارات أخرى",
+
+      // وفي كائن ar:
+      Radiology: "الأشعة",
+      "Radiology Images": "صور الأشعة",
+      "X-Ray": "أشعة سينية",
+      Panorama: "بانوراما",
+      CBCT: "CBCT",
+      Cephalometric: "قياس الرأس",
+      Other: "أخرى",
+      "Click or drag image to upload": "انقر أو اسحب الصورة للرفع",
+      "Upload Radiology": "رفع صورة أشعة",
+      "Uploading...": "جاري الرفع...",
+      "e.g., Pre-op X-Ray": "مثال: أشعة قبل العملية",
+      "Image Type": "نوع الصورة",
+      "Captured At": "تاريخ التقاط الصورة",
+      "Additional notes about this image...": "ملاحظات إضافية عن هذه الصورة...",
+      "No radiology images found": "لا توجد صور أشعة",
+      "Upload X-rays, Panorama, or CBCT images for this patient":
+        "رفع صور أشعة، بانوراما، أو CBCT لهذا المريض",
+      "Loading images...": "جاري تحميل الصور...",
+      "Are you sure you want to delete this image?":
+        "هل أنت متأكد من حذف هذه الصورة؟",
     },
   },
 };
@@ -4358,44 +4403,3 @@ i18n.use(initReactI18next).init({
 });
 
 export default i18n;
-
-
-// أضف ضمن كائن en:
-"Radiology": "Radiology",
-"Radiology Images": "Radiology Images",
-"X-Ray": "X-Ray",
-"Panorama": "Panorama",
-"CBCT": "CBCT",
-"Cephalometric": "Cephalometric",
-"Other": "Other",
-"Click or drag image to upload": "Click or drag image to upload",
-"Upload Radiology": "Upload Radiology",
-"Uploading...": "Uploading...",
-"e.g., Pre-op X-Ray": "e.g., Pre-op X-Ray",
-"Image Type": "Image Type",
-"Captured At": "Captured At",
-"Additional notes about this image...": "Additional notes about this image...",
-"No radiology images found": "No radiology images found",
-"Upload X-rays, Panorama, or CBCT images for this patient": "Upload X-rays, Panorama, or CBCT images for this patient",
-"Loading images...": "Loading images...",
-"Are you sure you want to delete this image?": "Are you sure you want to delete this image?",
-
-// وفي كائن ar:
-"Radiology": "الأشعة",
-"Radiology Images": "صور الأشعة",
-"X-Ray": "أشعة سينية",
-"Panorama": "بانوراما",
-"CBCT": "CBCT",
-"Cephalometric": "قياس الرأس",
-"Other": "أخرى",
-"Click or drag image to upload": "انقر أو اسحب الصورة للرفع",
-"Upload Radiology": "رفع صورة أشعة",
-"Uploading...": "جاري الرفع...",
-"e.g., Pre-op X-Ray": "مثال: أشعة قبل العملية",
-"Image Type": "نوع الصورة",
-"Captured At": "تاريخ التقاط الصورة",
-"Additional notes about this image...": "ملاحظات إضافية عن هذه الصورة...",
-"No radiology images found": "لا توجد صور أشعة",
-"Upload X-rays, Panorama, or CBCT images for this patient": "رفع صور أشعة، بانوراما، أو CBCT لهذا المريض",
-"Loading images...": "جاري تحميل الصور...",
-"Are you sure you want to delete this image?": "هل أنت متأكد من حذف هذه الصورة؟",

@@ -141,7 +141,7 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
           ) : (
             <div className="upload-placeholder">
               <i className="fas fa-cloud-upload-alt"></i>
-              <p>{t("Click or drag image to upload")}</p>
+              <p>{t("Click or drag file to upload")}</p>
             </div>
           )}
         </div>
@@ -161,7 +161,7 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
 
           <div className="form-row">
             <div className="form-group">
-              <label>{t("Image Type")}</label>
+              <label>{t("File Type")}</label>
               <select
                 className="form-select"
                 value={fileType}

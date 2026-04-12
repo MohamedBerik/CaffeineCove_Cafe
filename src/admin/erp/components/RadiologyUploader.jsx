@@ -52,18 +52,17 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile && selectedFile.type.startsWith("image/")) {
+    if (selectedFile) {
       setFile(selectedFile);
       setError("");
-    } else {
-      setError(t("Please select a valid image file"));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!file) {
-      setError(t("Please select an image file"));
+      setError(t("Please select a file to upload"));
       return;
     }
     if (!title) {
@@ -84,9 +83,11 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
     if (notes) formData.append("notes", notes);
 
     try {
-      await axios.post("/erp/patient-radiologies", formData, {
+      const response = await axios.post("/erp/patient-radiologies", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
+      console.log("Upload response:", response.data);
 
       // Reset form
       setFile(null);
@@ -102,11 +103,16 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
       // Reset file input
       document.getElementById("radiology-file-input").value = "";
     } catch (err) {
+      console.error("Upload error:", err.response?.data || err.message);
       setError(err.response?.data?.message || t("Failed to upload radiology"));
     } finally {
       setUploading(false);
     }
   };
+
+  // ✅ تحديد الـ accept بناءً على نوع الملف المختار
+  const currentAccept =
+    fileTypes.find((t) => t.value === fileType)?.accept || "*/*";
 
   return (
     <div className="radiology-uploader">
@@ -120,7 +126,7 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
           <input
             id="radiology-file-input"
             type="file"
-            accept="image/*"
+            accept={currentAccept}
             onChange={handleFileChange}
             style={{ display: "none" }}
           />
@@ -142,6 +148,9 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
             <div className="upload-placeholder">
               <i className="fas fa-cloud-upload-alt"></i>
               <p>{t("Click or drag file to upload")}</p>
+              <small className="text-muted">
+                {t("Supported: JPG, PNG, PDF")}
+              </small>
             </div>
           )}
         </div>

@@ -19,6 +19,7 @@ export default function RadiologyGallery({ patientId, refreshTrigger }) {
       const res = await axios.get(
         `/erp/patient-radiologies?customer_id=${patientId}`,
       );
+      console.log("Loaded radiologies:", res.data);
       setRadiologies(res.data.data || []);
     } catch (err) {
       console.error("Failed to load radiologies:", err);
@@ -77,7 +78,7 @@ export default function RadiologyGallery({ patientId, refreshTrigger }) {
   };
 
   const isPdf = (fileUrl) => {
-    return fileUrl?.endsWith(".pdf");
+    return fileUrl && fileUrl.endsWith(".pdf");
   };
 
   if (loading) {
@@ -106,26 +107,25 @@ export default function RadiologyGallery({ patientId, refreshTrigger }) {
       <div className="gallery-grid">
         {radiologies.map((rad) => (
           <div key={rad.id} className="gallery-item">
-            {isPdf(rad.file_url) ? (
-              <div className="gallery-pdf-preview">
-                <i className="fas fa-file-pdf"></i>
-                <span>PDF</span>
-              </div>
-            ) : (
-              <img src={rad.file_url} alt={rad.title} />
-            )}
             <div
               className="gallery-image"
               onClick={() => setSelectedImage(rad)}
             >
-              <img src={rad.file_url} alt={rad.title} />
+              {isPdf(rad.file_url) ? (
+                <div className="gallery-pdf-preview">
+                  <i className="fas fa-file-pdf"></i>
+                  <span>{rad.file_name || "PDF"}</span>
+                </div>
+              ) : (
+                <img src={rad.file_url} alt={rad.title} />
+              )}
               <div className="gallery-overlay">
                 <i className="fas fa-search-plus"></i>
               </div>
             </div>
             <div className="gallery-info">
               <div className="gallery-title">
-                <i className={getFileTypeIcon(rad.file_type)}></i>
+                <i className={getFileTypeIcon(rad.file_type, rad.file_url)}></i>
                 <span>{rad.title}</span>
               </div>
               <div className="gallery-meta">
@@ -157,7 +157,7 @@ export default function RadiologyGallery({ patientId, refreshTrigger }) {
       </div>
 
       {/* Lightbox Modal */}
-      {selectedImage && (
+      {selectedImage && !isPdf(selectedImage.file_url) && (
         <div className="lightbox-modal" onClick={() => setSelectedImage(null)}>
           <div
             className="lightbox-content"

@@ -120,7 +120,7 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
           <input
             id="radiology-file-input"
             type="file"
-            accept="image/*"
+            accept="image/pdf/*"
             onChange={handleFileChange}
             style={{ display: "none" }}
           />

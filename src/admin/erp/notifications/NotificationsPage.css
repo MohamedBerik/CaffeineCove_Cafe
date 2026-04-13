@@ -380,6 +380,17 @@
   flex-shrink: 0;
 }
 
+@media (max-width: 768px) {
+  .modal-content {
+    max-height: 90vh;
+    max-width: calc(100% - 2rem);
+  }
+
+  .modal-body {
+    max-height: 60vh;
+  }
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;

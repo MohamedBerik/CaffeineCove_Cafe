@@ -2237,6 +2237,15 @@ const resources = {
       "New Patients": "New Patients",
       "vs previous": "vs previous",
       "Reset View": "Reset View",
+
+      "Smart Summary": "Smart Summary",
+      summary_revenue_up:
+        "Revenue increased significantly compared to last period",
+      summary_revenue_down: "Revenue dropped compared to last period",
+      summary_appointments_up: "Appointments are growing rapidly",
+      summary_no_show_high: "No-show count is high today",
+      summary_unpaid_high: "You have a high number of unpaid invoices",
+      summary_cancelled_up: "Cancellation rate is high today",
     },
   },
   ar: {
@@ -4459,6 +4468,14 @@ const resources = {
       "New Patients": "مرضى جدد",
       "vs previous": "مقارنة بالسابق",
       "Reset View": "إعادة الضبط",
+
+      "Smart Summary": "ملخص ذكي",
+      summary_revenue_up: "الإيرادات ارتفعت بشكل ملحوظ مقارنة بالفترة السابقة",
+      summary_revenue_down: "الإيرادات انخفضت مقارنة بالفترة السابقة",
+      summary_appointments_up: "المواعيد تتزايد بسرعة ملحوظة",
+      summary_no_show_high: "عدد حالات عدم الحضور مرتفع اليوم",
+      summary_unpaid_high: "لديك عدد كبير من الفواتير غير المدفوعة",
+      summary_cancelled_up: "نسبة الإلغاء مرتفعة اليوم",
     },
   },
 };

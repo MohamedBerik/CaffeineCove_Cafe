@@ -407,6 +407,54 @@ export default function ErpDashboardHome() {
     setFocusRange([start, end]);
   }, [revenueAnomalyPoints, revenueChartData]);
 
+  const summaryMessages = useMemo(() => {
+    if (!dashboard?.kpis) return [];
+    return generateSummary(kpis);
+  }, [kpis]);
+
+  const generateSummary = (kpis) => {
+    const messages = [];
+    const priorityOrder = { negative: 3, warning: 2, positive: 1 };
+
+    // Revenue Rules
+    const revenueDelta = kpis.revenue?.delta || 0;
+    if (revenueDelta > 10) {
+      messages.push({ type: "positive", message: t("summary_revenue_up") });
+    } else if (revenueDelta < -10) {
+      messages.push({ type: "negative", message: t("summary_revenue_down") });
+    }
+
+    // Appointments Rules
+    const appointmentsDelta = kpis.appointments?.delta || 0;
+    if (appointmentsDelta > 15) {
+      messages.push({
+        type: "positive",
+        message: t("summary_appointments_up"),
+      });
+    }
+
+    // No-show Rules
+    const noShowCount = kpis.no_show_appointments?.current || 0;
+    if (noShowCount > 5) {
+      messages.push({ type: "warning", message: t("summary_no_show_high") });
+    }
+
+    // Unpaid Invoices Rules
+    const unpaidCount = kpis.unpaid_invoices?.current || 0;
+    if (unpaidCount > 10) {
+      messages.push({ type: "warning", message: t("summary_unpaid_high") });
+    }
+
+    // Cancellation Rules
+    const cancelledDelta = kpis.cancelled_appointments?.delta || 0;
+    if (cancelledDelta > 20) {
+      messages.push({ type: "warning", message: t("summary_cancelled_up") });
+    }
+
+    return messages
+      .sort((a, b) => priorityOrder[b.type] - priorityOrder[a.type])
+      .slice(0, 3);
+  };
   // ========================= Helpers =========================
   const formatLog = (log) => {
     const type = log.subject_type;
@@ -532,6 +580,11 @@ export default function ErpDashboardHome() {
     } catch {
       return value;
     }
+  };
+
+  const calculateChange = (current, previous) => {
+    if (!previous) return 0;
+    return ((current - previous) / previous) * 100;
   };
 
   // ========================= Early Returns =========================
@@ -701,6 +754,7 @@ export default function ErpDashboardHome() {
           ))}
         </div>
       )}
+      <SummaryCard messages={summaryMessages} t={t} />
 
       {/* Quick Stats */}
       <div className="quick-stats">
@@ -750,7 +804,6 @@ export default function ErpDashboardHome() {
         </div>
       </div>
 
-      {/* KPIs Grid */}
       {/* KPIs Grid */}
       <div className="section-header">
         <h2>{t("Key Performance Indicators")}</h2>
@@ -1331,5 +1384,29 @@ function StatusBadge({ status }) {
       <span className="status-dot"></span>
       {t(statusInfo.label)}
     </span>
+  );
+}
+
+function SummaryCard({ messages, t }) {
+  if (!messages.length) return null;
+
+  return (
+    <div className="summary-card">
+      <div className="summary-header">
+        <span>🧠 {t("Smart Summary")}</span>
+      </div>
+      <div className="summary-body">
+        {messages.map((msg, i) => (
+          <div key={i} className={`summary-item ${msg.type}`}>
+            <span className="icon">
+              {msg.type === "positive" && "📈"}
+              {msg.type === "negative" && "📉"}
+              {msg.type === "warning" && "⚠️"}
+            </span>
+            <span>{msg.message}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

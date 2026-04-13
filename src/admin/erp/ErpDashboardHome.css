@@ -1087,3 +1087,36 @@
 [dir="rtl"] .insight-card.low {
   border-right-color: #3b82f6;
 }
+
+.custom-tooltip {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+}
+
+.tooltip-value {
+  font-weight: 600;
+  color: #1a237e;
+  margin-bottom: 8px;
+}
+
+.tooltip-anomaly {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: #fef2f2;
+  border-radius: 6px;
+  border-left: 3px solid;
+}
+
+.anomaly-icon {
+  font-size: 14px;
+}
+
+.anomaly-message {
+  font-size: 12px;
+  color: #4b5563;
+}

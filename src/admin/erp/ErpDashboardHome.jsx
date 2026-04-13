@@ -251,7 +251,7 @@ export default function ErpDashboardHome() {
     (insight) => {
       if (insight.priority === "high") {
         playSound();
-        toast.custom((t) => (
+        toast.custom((toastInstance) => (
           <div className="custom-toast toast-high">
             <strong>🔔 {t("Smart Insight")}</strong>
             <p>{t(insight.message)}</p>
@@ -267,7 +267,7 @@ export default function ErpDashboardHome() {
         };
       });
     },
-    [queryClient],
+    [queryClient, t],
   );
 
   // ✅ Batching - flush updates كل 2 ثانية
@@ -359,6 +359,68 @@ export default function ErpDashboardHome() {
     return () => clearInterval(greetingInterval);
   }, []);
 
+  const getAnomalyColor = (priority) => {
+    switch (priority) {
+      case "high":
+        return "#ef4444";
+      case "medium":
+        return "#f59e0b";
+      default:
+        return "#eab308";
+    }
+  };
+
+  const CustomDot = (props) => {
+    const { cx, cy, payload } = props;
+    if (!payload.anomaly) return null;
+
+    return (
+      <g>
+        <circle
+          cx={cx}
+          cy={cy}
+          r={6}
+          fill={getAnomalyColor(payload.anomaly.priority)}
+          stroke="white"
+          strokeWidth={2}
+        />
+        <text
+          x={cx}
+          y={cy - 12}
+          fontSize="12"
+          textAnchor="middle"
+          fill={getAnomalyColor(payload.anomaly.priority)}
+        >
+          ⚠️
+        </text>
+      </g>
+    );
+  };
+
+  const CustomTooltip = ({ active, payload }) => {
+    if (!active || !payload?.length) return null;
+    const data = payload[0].payload;
+
+    return (
+      <div className="custom-tooltip">
+        <p className="tooltip-value">
+          {new Intl.NumberFormat(i18n.language === "ar" ? "ar-EG" : "en-US", {
+            style: "currency",
+            currency: "EGP",
+          }).format(data.value || 0)}
+        </p>
+        {data.anomaly && (
+          <div
+            className="tooltip-anomaly"
+            style={{ borderColor: getAnomalyColor(data.anomaly.priority) }}
+          >
+            <span className="anomaly-icon">⚠️</span>
+            <span className="anomaly-message">{t(data.anomaly.message)}</span>
+          </div>
+        )}
+      </div>
+    );
+  };
   // ========================= Helpers =========================
   const formatCurrency = (value) => {
     const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
@@ -468,16 +530,54 @@ export default function ErpDashboardHome() {
     patients: "👥",
   };
 
-  const revenueChartData = [
-    { label: t("Today"), value: kpis.today_revenue || 0 },
-    { label: t("Month"), value: kpis.month_revenue || 0 },
+  // const revenueChartData = [
+  //   { label: t("Today"), value: kpis.today_revenue || 0 },
+  //   { label: t("Month"), value: kpis.month_revenue || 0 },
+  // ];
+
+  const revenueChartData = dashboard.charts?.revenue || [
+    {
+      date: new Date().toISOString().split("T")[0],
+      value: kpis.today_revenue || 0,
+      label: t("Today"),
+    },
   ];
 
-  const appointmentsChartData = [
-    { label: t("Total"), value: kpis.today_appointments_count || 0 },
-    { label: t("Completed"), value: kpis.completed_today_count || 0 },
-    { label: t("Cancelled"), value: kpis.cancelled_today_count || 0 },
+  const revenueAnomalyPoints = insights
+    .filter((i) => i.category === "revenue" && i.point)
+    .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
+
+  const revenueDataWithAnomalies = revenueChartData.map((point) => {
+    const anomaly = revenueAnomalyPoints.find((a) => a.date === point.date);
+    return { ...point, anomaly: anomaly || null };
+  });
+
+  // const appointmentsChartData = [
+  //   { label: t("Total"), value: kpis.today_appointments_count || 0 },
+  //   { label: t("Completed"), value: kpis.completed_today_count || 0 },
+  //   { label: t("Cancelled"), value: kpis.cancelled_today_count || 0 },
+  // ];
+
+  const appointmentsChartData = dashboard.charts?.appointments || [
+    {
+      date: new Date().toISOString().split("T")[0],
+      total: kpis.today_appointments_count || 0,
+      completed: kpis.completed_today_count || 0,
+      cancelled: kpis.cancelled_today_count || 0,
+      label: t("Today"),
+    },
   ];
+
+  const appointmentsAnomalyPoints = insights
+    .filter((i) => i.category === "appointments" && i.point)
+    .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
+
+  const appointmentsDataWithAnomalies = appointmentsChartData.map((point) => {
+    const anomaly = appointmentsAnomalyPoints.find(
+      (a) => a.date === point.date,
+    );
+    return { ...point, anomaly: anomaly || null };
+  });
 
   const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
   const totalRevenue = (kpis.today_revenue || 0) + (kpis.month_revenue || 0);
@@ -721,11 +821,17 @@ export default function ErpDashboardHome() {
 
       <div className="charts-grid">
         <RevenueChart
-          data={revenueChartData}
+          data={revenueDataWithAnomalies}
           t={t}
           formatCurrency={formatCurrency}
+          CustomTooltip={CustomTooltip}
+          CustomDot={CustomDot}
         />
-        <AppointmentsChart data={appointmentsChartData} t={t} />
+        <AppointmentsChart
+          data={appointmentsDataWithAnomalies}
+          t={t}
+          CustomTooltip={CustomTooltip}
+        />
       </div>
 
       {/* Tables Section */}
@@ -991,7 +1097,7 @@ export default function ErpDashboardHome() {
   );
 }
 
-function RevenueChart({ data, t, formatCurrency }) {
+function RevenueChart({ data, t, formatCurrency, CustomTooltip, CustomDot }) {
   if (!data || data.length === 0) {
     return (
       <div className="chart-card">
@@ -1014,12 +1120,13 @@ function RevenueChart({ data, t, formatCurrency }) {
         <LineChart data={data}>
           <XAxis dataKey="label" />
           <YAxis />
-          <Tooltip formatter={(value) => formatCurrency(value)} />
+          <Tooltip content={<CustomTooltip />} />
           <Line
             type="monotone"
             dataKey="value"
             stroke="#1a237e"
             strokeWidth={2}
+            dot={<CustomDot />}
           />
         </LineChart>
       </ResponsiveContainer>
@@ -1027,7 +1134,7 @@ function RevenueChart({ data, t, formatCurrency }) {
   );
 }
 
-function AppointmentsChart({ data, t }) {
+function AppointmentsChart({ data, t, CustomTooltip }) {
   if (!data || data.length === 0) {
     return (
       <div className="chart-card">
@@ -1050,8 +1157,10 @@ function AppointmentsChart({ data, t }) {
         <BarChart data={data}>
           <XAxis dataKey="label" />
           <YAxis />
-          <Tooltip />
-          <Bar dataKey="value" fill="#283593" radius={[8, 8, 0, 0]} />
+          <Tooltip content={<CustomTooltip />} />
+          <Bar dataKey="total" fill="#1a237e" radius={[8, 8, 0, 0]} />
+          <Bar dataKey="completed" fill="#4caf50" radius={[8, 8, 0, 0]} />
+          <Bar dataKey="cancelled" fill="#ef4444" radius={[8, 8, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

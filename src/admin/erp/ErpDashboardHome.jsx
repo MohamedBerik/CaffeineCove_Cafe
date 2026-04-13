@@ -280,7 +280,7 @@ export default function ErpDashboardHome() {
   const [hiddenAlerts, setHiddenAlerts] = useState(new Set());
   const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
   const [focusRange, setFocusRange] = useState(null);
-  const [range, setRange] = useState("day"); // ✅ أضف هنا
+  const [range, setRange] = useState("day");
 
   // ========================= Refs =========================
   const acknowledgingRef = useRef(new Set());
@@ -294,7 +294,7 @@ export default function ErpDashboardHome() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["dashboard", range], // ✅ أضف range هنا
+    queryKey: ["dashboard", range],
     queryFn: async () => {
       const res = await axios.get(`/erp/dashboard?range=${range}`); // ✅ أضف ?range=${range}
       let newData = res.data?.data ?? null;
@@ -585,11 +585,6 @@ export default function ErpDashboardHome() {
       .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
   }, [dashboard]);
 
-  const summaryMessages = useMemo(() => {
-    if (!dashboard?.kpis) return [];
-    return generateSummary(kpis);
-  }, [kpis]);
-
   const revenueChartData = useMemo(() => {
     return dashboard?.charts?.revenue || [];
   }, [dashboard]);
@@ -619,50 +614,6 @@ export default function ErpDashboardHome() {
       return { ...point, anomaly: anomaly || null };
     });
   }, [appointmentsChartData, appointmentsAnomalyPoints]);
-
-  const generateSummary = (kpis) => {
-    const messages = [];
-    const priorityOrder = { negative: 3, warning: 2, positive: 1 };
-
-    // Revenue Rules
-    const revenueDelta = kpis.revenue?.delta || 0;
-    if (revenueDelta > 10) {
-      messages.push({ type: "positive", message: t("summary_revenue_up") });
-    } else if (revenueDelta < -10) {
-      messages.push({ type: "negative", message: t("summary_revenue_down") });
-    }
-
-    // Appointments Rules
-    const appointmentsDelta = kpis.appointments?.delta || 0;
-    if (appointmentsDelta > 15) {
-      messages.push({
-        type: "positive",
-        message: t("summary_appointments_up"),
-      });
-    }
-
-    // No-show Rules
-    const noShowCount = kpis.no_show_appointments?.current || 0;
-    if (noShowCount > 5) {
-      messages.push({ type: "warning", message: t("summary_no_show_high") });
-    }
-
-    // Unpaid Invoices Rules
-    const unpaidCount = kpis.unpaid_invoices?.current || 0;
-    if (unpaidCount > 10) {
-      messages.push({ type: "warning", message: t("summary_unpaid_high") });
-    }
-
-    // Cancellation Rules
-    const cancelledDelta = kpis.cancelled_appointments?.delta || 0;
-    if (cancelledDelta > 20) {
-      messages.push({ type: "warning", message: t("summary_cancelled_up") });
-    }
-
-    return messages
-      .sort((a, b) => priorityOrder[b.type] - priorityOrder[a.type])
-      .slice(0, 3);
-  };
 
   useEffect(() => {
     if (!revenueAnomalyPoints.length) {
@@ -863,6 +814,54 @@ export default function ErpDashboardHome() {
     patients: "👥",
   };
 
+  const summaryMessages = useMemo(() => {
+    if (!dashboard?.kpis) return [];
+    return generateSummary(kpis);
+  }, [kpis]);
+
+  const generateSummary = (kpis) => {
+    const messages = [];
+    const priorityOrder = { negative: 3, warning: 2, positive: 1 };
+
+    // Revenue Rules
+    const revenueDelta = kpis.revenue?.delta || 0;
+    if (revenueDelta > 10) {
+      messages.push({ type: "positive", message: t("summary_revenue_up") });
+    } else if (revenueDelta < -10) {
+      messages.push({ type: "negative", message: t("summary_revenue_down") });
+    }
+
+    // Appointments Rules
+    const appointmentsDelta = kpis.appointments?.delta || 0;
+    if (appointmentsDelta > 15) {
+      messages.push({
+        type: "positive",
+        message: t("summary_appointments_up"),
+      });
+    }
+
+    // No-show Rules
+    const noShowCount = kpis.no_show_appointments?.current || 0;
+    if (noShowCount > 5) {
+      messages.push({ type: "warning", message: t("summary_no_show_high") });
+    }
+
+    // Unpaid Invoices Rules
+    const unpaidCount = kpis.unpaid_invoices?.current || 0;
+    if (unpaidCount > 10) {
+      messages.push({ type: "warning", message: t("summary_unpaid_high") });
+    }
+
+    // Cancellation Rules
+    const cancelledDelta = kpis.cancelled_appointments?.delta || 0;
+    if (cancelledDelta > 20) {
+      messages.push({ type: "warning", message: t("summary_cancelled_up") });
+    }
+
+    return messages
+      .sort((a, b) => priorityOrder[b.type] - priorityOrder[a.type])
+      .slice(0, 3);
+  };
   const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
   const totalRevenue = kpis.revenue?.current || 0;
   const completionRate = kpis.appointments?.current

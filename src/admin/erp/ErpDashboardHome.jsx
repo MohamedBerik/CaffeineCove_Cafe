@@ -585,6 +585,11 @@ export default function ErpDashboardHome() {
       .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
   }, [dashboard]);
 
+  const summaryMessages = useMemo(() => {
+    if (!dashboard?.kpis) return [];
+    return generateSummary(kpis);
+  }, [kpis]);
+
   const revenueChartData = useMemo(() => {
     return dashboard?.charts?.revenue || [];
   }, [dashboard]);
@@ -845,10 +850,6 @@ export default function ErpDashboardHome() {
   // ========================= Data Extraction (بعد الـ early returns) =========================
   const kpis = dashboard.kpis || {};
   const recentAppointments = dashboard.recent_appointments || [];
-  const summaryMessages = useMemo(() => {
-    if (!dashboard?.kpis) return [];
-    return generateSummary(kpis);
-  }, [kpis]);
   const recentInvoices = dashboard.recent_invoices || [];
   const recentPayments = dashboard.recent_payments || [];
   const reminderStats = dashboard.reminders?.stats || {};

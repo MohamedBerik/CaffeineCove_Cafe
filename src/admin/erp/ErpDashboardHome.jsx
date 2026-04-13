@@ -656,11 +656,6 @@ export default function ErpDashboardHome() {
     setFocusRange([start, end]);
   }, [revenueAnomalyPoints, revenueChartData]);
 
-  const summaryMessages = useMemo(() => {
-    if (!dashboard?.kpis) return [];
-    return generateSummary(kpis);
-  }, [kpis]);
-
   const generateSummary = (kpis) => {
     const messages = [];
     const priorityOrder = { negative: 3, warning: 2, positive: 1 };
@@ -704,6 +699,12 @@ export default function ErpDashboardHome() {
       .sort((a, b) => priorityOrder[b.type] - priorityOrder[a.type])
       .slice(0, 3);
   };
+
+  const summaryMessages = useMemo(() => {
+    if (!dashboard?.kpis) return [];
+    return generateSummary(kpis);
+  }, [kpis]);
+
   // ========================= Helpers =========================
   const formatLog = (log) => {
     const type = log.subject_type;

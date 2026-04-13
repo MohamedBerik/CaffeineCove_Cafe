@@ -805,9 +805,6 @@ export default function ErpDashboardHome() {
 
   // ========================= Data Extraction (بعد الـ early returns) =========================
   const kpis = dashboard.kpis || {};
-  const summaryMessages = !dashboard?.kpis
-    ? []
-    : generateSummary(dashboard.kpis);
   const recentAppointments = dashboard.recent_appointments || [];
   const recentInvoices = dashboard.recent_invoices || [];
   const recentPayments = dashboard.recent_payments || [];

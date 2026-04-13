@@ -55,7 +55,7 @@ const NotificationsPage = () => {
       ...insight,
       notificationType: "insight",
       id: `insight-${insight.category}-${Date.now()}`, // ID مؤقت للـ insights
-      read: false, // Insights مش بتتقرأ
+      read: true, // Insights مش بتتقرأ
     })),
   ];
 

@@ -26,15 +26,18 @@ export default function ErpDashboardHome() {
   const queryClient = useQueryClient();
   const { addAlert, markAllAsRead } = useAlertActions();
 
+  // ========================= State =========================
   const [greeting, setGreeting] = useState("");
   const [hiddenAlerts, setHiddenAlerts] = useState(new Set());
   const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
+  const [focusRange, setFocusRange] = useState(null);
+
+  // ========================= Refs =========================
   const acknowledgingRef = useRef(new Set());
   const buffer = useRef([]);
-  const [focusRange, setFocusRange] = useState(null);
-  const chartRef = useRef(null); // ✅ أضف هنا
+  const chartRef = useRef(null);
 
-  // ✅ Dashboard Query - مع fallback sync كل دقيقة
+  // ========================= Queries =========================
   const {
     data: dashboard,
     isLoading,
@@ -68,28 +71,26 @@ export default function ErpDashboardHome() {
 
       return newData;
     },
-    staleTime: 10000, // 10 ثواني
+    staleTime: 10000,
     refetchOnWindowFocus: true,
-    refetchInterval: 60000, // ✅ Fallback sync كل دقيقة
+    refetchInterval: 60000,
   });
 
-  // ✅ Activity Logs Query
   const { data: activityLogs = [] } = useQuery({
     queryKey: ["activityLogs"],
     queryFn: async () => {
       const res = await axios.get("/erp/activity-logs?limit=5");
       return res.data?.data || [];
     },
-    refetchInterval: 30000, // 30 ثانية
+    refetchInterval: 30000,
   });
 
-  // ✅ Acknowledge Mutation
+  // ========================= Mutations =========================
   const acknowledgeMutation = useMutation({
     mutationFn: (id) => axios.post(`/erp/alerts/${id}/ack`),
     onMutate: async (id) => {
       await queryClient.cancelQueries(["dashboard"]);
       const prev = queryClient.getQueryData(["dashboard"]);
-
       queryClient.setQueryData(["dashboard"], (old) => {
         if (!old) return old;
         return {
@@ -100,7 +101,6 @@ export default function ErpDashboardHome() {
           },
         };
       });
-
       return { prev };
     },
     onError: (err, id, context) => {
@@ -109,6 +109,7 @@ export default function ErpDashboardHome() {
     },
   });
 
+  // ========================= Handlers =========================
   const acknowledge = (id) => {
     if (acknowledgingRef.current.has(id)) return;
     acknowledgingRef.current.add(id);
@@ -143,18 +144,14 @@ export default function ErpDashboardHome() {
     audio.play().catch(() => {});
   };
 
-  // ✅ handleNewAlert - للـ Alerts فقط
+  // ========================= Socket Handlers =========================
   const handleNewAlert = useCallback(
     (newAlert) => {
-      if (document.visibilityState === "visible") {
-        playSound();
-      }
-
+      if (document.visibilityState === "visible") playSound();
       addAlert(newAlert);
 
       queryClient.setQueryData(["dashboard"], (old) => {
         if (!old) return old;
-
         const currentAlerts = old.reminders?.alerts || [];
         let updatedAlerts = [
           newAlert,
@@ -185,12 +182,10 @@ export default function ErpDashboardHome() {
     [addAlert, queryClient],
   );
 
-  // ✅ handleDashboardEvent - للـ KPIs
   const handleDashboardEvent = useCallback(
     (event) => {
       queryClient.setQueryData(["dashboard"], (old) => {
         if (!old) return old;
-
         const kpis = { ...old.kpis };
 
         switch (event.type) {
@@ -199,7 +194,6 @@ export default function ErpDashboardHome() {
               (kpis.today_appointments_count || 0) + 1;
             kpis.scheduled_today_count = (kpis.scheduled_today_count || 0) + 1;
             break;
-
           case "appointment_completed":
             kpis.completed_today_count = (kpis.completed_today_count || 0) + 1;
             kpis.scheduled_today_count = Math.max(
@@ -207,7 +201,6 @@ export default function ErpDashboardHome() {
               (kpis.scheduled_today_count || 0) - 1,
             );
             break;
-
           case "appointment_cancelled":
             kpis.cancelled_today_count = (kpis.cancelled_today_count || 0) + 1;
             kpis.scheduled_today_count = Math.max(
@@ -215,7 +208,6 @@ export default function ErpDashboardHome() {
               (kpis.scheduled_today_count || 0) - 1,
             );
             break;
-
           case "appointment_no_show":
             kpis.no_show_today_count = (kpis.no_show_today_count || 0) + 1;
             kpis.scheduled_today_count = Math.max(
@@ -223,14 +215,12 @@ export default function ErpDashboardHome() {
               (kpis.scheduled_today_count || 0) - 1,
             );
             break;
-
           case "payment_created":
             kpis.today_revenue =
               (kpis.today_revenue || 0) + (event.data?.today_revenue || 0);
             kpis.month_revenue =
               (kpis.month_revenue || 0) + (event.data?.month_revenue || 0);
             break;
-
           case "invoice_paid":
             kpis.paid_invoices_count = (kpis.paid_invoices_count || 0) + 1;
             kpis.unpaid_invoices_count = Math.max(
@@ -238,11 +228,9 @@ export default function ErpDashboardHome() {
               (kpis.unpaid_invoices_count || 0) - 1,
             );
             break;
-
           default:
             return old;
         }
-
         return { ...old, kpis };
       });
     },
@@ -260,7 +248,6 @@ export default function ErpDashboardHome() {
           </div>
         ));
       }
-
       queryClient.setQueryData(["dashboard"], (old) => {
         if (!old) return old;
         return {
@@ -272,33 +259,27 @@ export default function ErpDashboardHome() {
     [queryClient, t],
   );
 
-  // ✅ Batching - flush updates كل 2 ثانية
   const flushUpdates = useCallback(() => {
     if (buffer.current.length === 0) return;
-
     queryClient.setQueryData(["dashboard"], (old) => {
       if (!old) return old;
-
       const kpis = { ...old.kpis };
       let totalRevenue = 0;
-
       buffer.current.forEach((event) => {
         if (event.type === "payment_created") {
           totalRevenue += event.data?.today_revenue || 0;
         }
       });
-
       if (totalRevenue > 0) {
         kpis.today_revenue = (kpis.today_revenue || 0) + totalRevenue;
         kpis.month_revenue = (kpis.month_revenue || 0) + totalRevenue;
       }
-
       return { ...old, kpis };
     });
-
     buffer.current = [];
   }, [queryClient]);
 
+  // ========================= Effects =========================
   useEffect(() => {
     if (focusRange && chartRef.current) {
       chartRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -310,17 +291,22 @@ export default function ErpDashboardHome() {
     return () => clearInterval(interval);
   }, [flushUpdates]);
 
-  // ✅ Socket handler الموحد
+  useEffect(() => {
+    setGreeting(getGreeting());
+    const greetingInterval = setInterval(() => {
+      setGreeting(getGreeting());
+    }, 60000);
+    return () => clearInterval(greetingInterval);
+  }, []);
+
+  // ========================= Socket =========================
   useAlertsSocket((payload) => {
     if (payload.type === "insight" || payload.insight) {
       handleNewInsight(payload.insight || payload);
     }
-    // لو Alert
     if (payload.alert || payload.type === "alert") {
       handleNewAlert(payload.alert || payload.data);
     }
-
-    // لو Dashboard Update
     if (
       payload.type === "appointment_created" ||
       payload.type === "appointment_completed" ||
@@ -333,39 +319,101 @@ export default function ErpDashboardHome() {
     }
   });
 
+  // ========================= Memoized Values (قبل الـ early returns) =========================
+  const revenueAnomalyPoints = useMemo(() => {
+    const insights = dashboard?.insights || [];
+    return insights
+      .filter((i) => i.category === "revenue" && i.point)
+      .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
+  }, [dashboard]);
+
+  const appointmentsAnomalyPoints = useMemo(() => {
+    const insights = dashboard?.insights || [];
+    return insights
+      .filter((i) => i.category === "appointments" && i.point)
+      .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
+  }, [dashboard]);
+
+  const revenueChartData = useMemo(() => {
+    const kpis = dashboard?.kpis || {};
+    return (
+      dashboard?.charts?.revenue || [
+        {
+          date: new Date().toISOString().split("T")[0],
+          value: kpis.today_revenue || 0,
+          label: t("Today"),
+        },
+      ]
+    );
+  }, [dashboard, t]);
+
+  const appointmentsChartData = useMemo(() => {
+    const kpis = dashboard?.kpis || {};
+    return (
+      dashboard?.charts?.appointments || [
+        {
+          date: new Date().toISOString().split("T")[0],
+          total: kpis.today_appointments_count || 0,
+          completed: kpis.completed_today_count || 0,
+          cancelled: kpis.cancelled_today_count || 0,
+          label: t("Today"),
+        },
+      ]
+    );
+  }, [dashboard, t]);
+
+  const revenueDataWithAnomalies = useMemo(() => {
+    return revenueChartData.map((point) => {
+      const anomaly = revenueAnomalyPoints.find((a) => a.date === point.date);
+      return { ...point, anomaly: anomaly || null };
+    });
+  }, [revenueChartData, revenueAnomalyPoints]);
+
+  const visibleRevenueData = useMemo(() => {
+    return focusRange
+      ? revenueDataWithAnomalies.slice(focusRange[0], focusRange[1])
+      : revenueDataWithAnomalies;
+  }, [focusRange, revenueDataWithAnomalies]);
+
+  const appointmentsDataWithAnomalies = useMemo(() => {
+    return appointmentsChartData.map((point) => {
+      const anomaly = appointmentsAnomalyPoints.find(
+        (a) => a.date === point.date,
+      );
+      return { ...point, anomaly: anomaly || null };
+    });
+  }, [appointmentsChartData, appointmentsAnomalyPoints]);
+
+  useEffect(() => {
+    if (!revenueAnomalyPoints.length) {
+      setFocusRange(null);
+      return;
+    }
+    const latest = revenueAnomalyPoints[0];
+    const index = revenueChartData.findIndex((d) => d.date === latest.date);
+    if (index === -1) return;
+    const start = Math.max(index - 3, 0);
+    const end = Math.min(index + 4, revenueChartData.length);
+    setFocusRange([start, end]);
+  }, [revenueAnomalyPoints, revenueChartData]);
+
+  // ========================= Helpers =========================
   const formatLog = (log) => {
     const type = log.subject_type;
     const action = log.action;
-
     if (type === "Appointment") {
       if (action === "created") return t("New appointment created");
       if (action === "updated") return t("Appointment updated");
       if (action === "deleted") return t("Appointment deleted");
     }
-
     if (type === "Invoice") {
       if (action === "created") return t("New invoice created");
       if (action === "paid") return t("Invoice paid");
     }
-
-    if (type === "Payment") {
-      return t("New payment recorded");
-    }
-
-    if (type === "Customer") {
-      return t("Customer updated");
-    }
-
+    if (type === "Payment") return t("New payment recorded");
+    if (type === "Customer") return t("Customer updated");
     return `${type} ${action}`;
   };
-
-  useEffect(() => {
-    setGreeting(getGreeting());
-    const greetingInterval = setInterval(() => {
-      setGreeting(getGreeting());
-    }, 60000);
-    return () => clearInterval(greetingInterval);
-  }, []);
 
   const getAnomalyColor = (priority) => {
     switch (priority) {
@@ -381,7 +429,6 @@ export default function ErpDashboardHome() {
   const AnimatedDot = (props) => {
     const { cx, cy, payload } = props;
     if (!payload.anomaly) return null;
-
     return (
       <g>
         <circle
@@ -407,7 +454,6 @@ export default function ErpDashboardHome() {
   const CustomTooltip = ({ active, payload }) => {
     if (!active || !payload?.length) return null;
     const data = payload[0].payload;
-
     return (
       <div className="custom-tooltip">
         <p className="tooltip-value">
@@ -429,7 +475,6 @@ export default function ErpDashboardHome() {
     );
   };
 
-  // ========================= Helpers =========================
   const formatCurrency = (value) => {
     const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
     return new Intl.NumberFormat(lang, {
@@ -479,24 +524,7 @@ export default function ErpDashboardHome() {
     }
   };
 
-  useEffect(() => {
-    if (!revenueAnomalyPoints.length) {
-      setFocusRange(null);
-      return;
-    }
-
-    const latest = revenueAnomalyPoints[0];
-    const index = revenueChartData.findIndex((d) => d.date === latest.date);
-
-    if (index === -1) return;
-
-    const start = Math.max(index - 3, 0);
-    const end = Math.min(index + 4, revenueChartData.length);
-
-    setFocusRange([start, end]);
-  }, [revenueAnomalyPoints, revenueChartData]);
-
-  // ========================= UI =========================
+  // ========================= Early Returns =========================
   if (isLoading) {
     return (
       <div className="dashboard-loading">
@@ -534,6 +562,7 @@ export default function ErpDashboardHome() {
     );
   }
 
+  // ========================= Data Extraction (بعد الـ early returns) =========================
   const kpis = dashboard.kpis || {};
   const recentAppointments = dashboard.recent_appointments || [];
   const recentInvoices = dashboard.recent_invoices || [];
@@ -543,77 +572,12 @@ export default function ErpDashboardHome() {
   const alerts = dashboard.reminders?.alerts || [];
   const insights = dashboard.insights || [];
 
-  const allNotifications = [
-    ...alerts.map((alert) => ({ ...alert, notificationType: "alert" })),
-    ...insights.map((insight) => ({ ...insight, notificationType: "insight" })),
-  ];
-
   const insightIconMap = {
     revenue: "💰",
     appointments: "📅",
     invoices: "🧾",
     patients: "👥",
   };
-
-  const revenueAnomalyPoints = useMemo(() => {
-    return insights
-      .filter((i) => i.category === "revenue" && i.point)
-      .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
-  }, [insights]);
-
-  const appointmentsAnomalyPoints = useMemo(() => {
-    return insights
-      .filter((i) => i.category === "appointments" && i.point)
-      .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
-  }, [insights]);
-
-  const revenueChartData = useMemo(() => {
-    return (
-      dashboard?.charts?.revenue || [
-        {
-          date: new Date().toISOString().split("T")[0],
-          value: kpis.today_revenue || 0,
-          label: t("Today"),
-        },
-      ]
-    );
-  }, [dashboard, kpis.today_revenue, t]);
-
-  const appointmentsChartData = useMemo(() => {
-    return (
-      dashboard?.charts?.appointments || [
-        {
-          date: new Date().toISOString().split("T")[0],
-          total: kpis.today_appointments_count || 0,
-          completed: kpis.completed_today_count || 0,
-          cancelled: kpis.cancelled_today_count || 0,
-          label: t("Today"),
-        },
-      ]
-    );
-  }, [
-    dashboard,
-    kpis.today_appointments_count,
-    kpis.completed_today_count,
-    kpis.cancelled_today_count,
-    t,
-  ]);
-
-  const revenueDataWithAnomalies = revenueChartData.map((point) => {
-    const anomaly = revenueAnomalyPoints.find((a) => a.date === point.date);
-    return { ...point, anomaly: anomaly || null };
-  });
-
-  const visibleRevenueData = focusRange
-    ? revenueDataWithAnomalies.slice(focusRange[0], focusRange[1])
-    : revenueDataWithAnomalies;
-
-  const appointmentsDataWithAnomalies = appointmentsChartData.map((point) => {
-    const anomaly = appointmentsAnomalyPoints.find(
-      (a) => a.date === point.date,
-    );
-    return { ...point, anomaly: anomaly || null };
-  });
 
   const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
   const totalRevenue = (kpis.today_revenue || 0) + (kpis.month_revenue || 0);
@@ -623,9 +587,10 @@ export default function ErpDashboardHome() {
       )
     : 0;
 
+  // ========================= UI =========================
   return (
     <div className="erp-dashboard">
-      {/* Welcome Header with Greeting */}
+      {/* Welcome Header */}
       <div className="welcome-header">
         <div className="welcome-content">
           <div className="greeting-badge">
@@ -658,7 +623,6 @@ export default function ErpDashboardHome() {
                 {t(alert.message)}{" "}
                 {alert.meta?.count ? `(${alert.meta.count})` : ""}
               </span>
-
               <small className="alert-time">{formatDateTime(alert.time)}</small>
               <button
                 className="alert-close"
@@ -692,6 +656,7 @@ export default function ErpDashboardHome() {
         </div>
       )}
 
+      {/* Insights Section */}
       {insights.length > 0 && (
         <div className="insights-container">
           <div className="insights-header">
@@ -712,7 +677,7 @@ export default function ErpDashboardHome() {
         </div>
       )}
 
-      {/* Quick Stats Row */}
+      {/* Quick Stats */}
       <div className="quick-stats">
         <div className="quick-stat-card">
           <div className="stat-icon primary">
@@ -763,7 +728,6 @@ export default function ErpDashboardHome() {
         <h2>{t("Key Performance Indicators")}</h2>
         <p>{t("Monitor your clinic's performance at a glance")}</p>
       </div>
-
       <div className="kpis-grid">
         <KpiCard
           title={t("Appointments Today")}
@@ -849,22 +813,21 @@ export default function ErpDashboardHome() {
         />
       </div>
 
-      {/* ✅ أضف هنا - Step 6: Charts Section */}
+      {/* Charts Section */}
       <div className="section-header">
         <h2>{t("Analytics Overview")}</h2>
         <p>{t("Real-time insights at a glance")}</p>
       </div>
-
       <div className="charts-grid">
         <RevenueChart
-          data={visibleRevenueData} // ✅ غيرنا من revenueDataWithAnomalies
+          data={visibleRevenueData}
           t={t}
           formatCurrency={formatCurrency}
           CustomTooltip={CustomTooltip}
-          AnimatedDot={AnimatedDot} // ✅ غيرنا من CustomDot
-          chartRef={chartRef} // ✅ أضف
-          focusRange={focusRange} // ✅ أضف
-          setFocusRange={setFocusRange} // ✅ أضف
+          AnimatedDot={AnimatedDot}
+          chartRef={chartRef}
+          focusRange={focusRange}
+          setFocusRange={setFocusRange}
         />
         <AppointmentsChart
           data={appointmentsDataWithAnomalies}
@@ -873,12 +836,11 @@ export default function ErpDashboardHome() {
         />
       </div>
 
-      {/* Tables Section */}
+      {/* Recent Activity */}
       <div className="section-header">
         <h2>{t("Recent Activity")}</h2>
         <p>{t("Latest updates from your clinic")}</p>
       </div>
-
       <div className="dashboard-card">
         <div className="card-header-custom">
           <div className="card-title-wrapper">
@@ -886,7 +848,6 @@ export default function ErpDashboardHome() {
             <h5 className="card-title">{t("Activity Logs")}</h5>
           </div>
         </div>
-
         <div className="card-body-custom">
           {activityLogs.length === 0 ? (
             <EmptyState text={t("No activity yet.")} />
@@ -905,8 +866,9 @@ export default function ErpDashboardHome() {
         </div>
       </div>
 
+      {/* Tables Grid */}
       <div className="tables-grid">
-        {/* Recent Appointments Table */}
+        {/* Recent Appointments */}
         <div className="dashboard-card">
           <div className="card-header-custom">
             <div className="card-title-wrapper">
@@ -917,7 +879,6 @@ export default function ErpDashboardHome() {
               {t("View All")} <i className="fas fa-arrow-right"></i>
             </Link>
           </div>
-
           <div className="card-body-custom">
             {recentAppointments.length === 0 ? (
               <EmptyState text={t("No recent appointments.")} />
@@ -966,7 +927,7 @@ export default function ErpDashboardHome() {
           </div>
         </div>
 
-        {/* Recent Invoices Table */}
+        {/* Recent Invoices */}
         <div className="dashboard-card">
           <div className="card-header-custom">
             <div className="card-title-wrapper">
@@ -977,7 +938,6 @@ export default function ErpDashboardHome() {
               {t("View All")} <i className="fas fa-arrow-right"></i>
             </Link>
           </div>
-
           <div className="card-body-custom">
             {recentInvoices.length === 0 ? (
               <EmptyState text={t("No recent invoices.")} />
@@ -1021,7 +981,7 @@ export default function ErpDashboardHome() {
           </div>
         </div>
 
-        {/* Recent Payments Table */}
+        {/* Recent Payments */}
         <div className="dashboard-card">
           <div className="card-header-custom">
             <div className="card-title-wrapper">
@@ -1032,7 +992,6 @@ export default function ErpDashboardHome() {
               {t("View All")} <i className="fas fa-arrow-right"></i>
             </Link>
           </div>
-
           <div className="card-body-custom">
             {recentPayments.length === 0 ? (
               <EmptyState text={t("No recent payments.")} />
@@ -1082,7 +1041,7 @@ export default function ErpDashboardHome() {
           </div>
         </div>
 
-        {/* Failed Reminders Table */}
+        {/* Failed Reminders */}
         {failedReminders.length > 0 && (
           <div className="dashboard-card warning-card">
             <div className="card-header-custom">
@@ -1091,7 +1050,6 @@ export default function ErpDashboardHome() {
                 <h5 className="card-title">{t("Failed Reminders")}</h5>
               </div>
             </div>
-
             <div className="card-body-custom">
               <div className="table-responsive">
                 <table className="dashboard-table">
@@ -1136,6 +1094,7 @@ export default function ErpDashboardHome() {
   );
 }
 
+// ========================= Sub-Components =========================
 function RevenueChart({
   data,
   t,
@@ -1157,14 +1116,12 @@ function RevenueChart({
       </div>
     );
   }
-
   return (
-    <div className="chart-card">
+    <div className="chart-card" ref={chartRef}>
       <div className="chart-header">
         <i className="fas fa-chart-line"></i>
         <h4>{t("Revenue Overview")}</h4>
       </div>
-      {/* ✅ أضف هنا - Legend يظهر فقط لو فيه Anomaly */}
       {data.some((d) => d.anomaly) && (
         <div className="chart-legend">
           <div className="legend-item">
@@ -1193,6 +1150,11 @@ function RevenueChart({
           />
         </LineChart>
       </ResponsiveContainer>
+      {focusRange && (
+        <button className="reset-view-btn" onClick={() => setFocusRange(null)}>
+          <i className="fas fa-expand"></i> {t("Reset View")}
+        </button>
+      )}
     </div>
   );
 }
@@ -1209,14 +1171,12 @@ function AppointmentsChart({ data, t, CustomTooltip }) {
       </div>
     );
   }
-
   return (
     <div className="chart-card">
       <div className="chart-header">
         <i className="fas fa-calendar-check"></i>
         <h4>{t("Appointments Today")}</h4>
       </div>
-      {/* ✅ أضف Legend هنا */}
       <div className="chart-legend">
         <div className="legend-item">
           <span className="legend-color total"></span>
@@ -1231,7 +1191,6 @@ function AppointmentsChart({ data, t, CustomTooltip }) {
           <span>{t("Cancelled")}</span>
         </div>
       </div>
-
       <ResponsiveContainer width="100%" height={250}>
         <BarChart data={data}>
           <XAxis dataKey="label" />
@@ -1246,7 +1205,6 @@ function AppointmentsChart({ data, t, CustomTooltip }) {
   );
 }
 
-// KpiCard Component - Premium Design
 function KpiCard({ title, value, icon, color = "primary", link, trend }) {
   const colorMap = {
     primary: {
@@ -1277,9 +1235,7 @@ function KpiCard({ title, value, icon, color = "primary", link, trend }) {
     },
     dark: { bg: "rgba(33, 37, 41, 0.1)", text: "#212529", border: "#212529" },
   };
-
   const colors = colorMap[color] || colorMap.primary;
-
   const cardContent = (
     <div className={`kpi-card premium-card ${link ? "clickable" : ""}`}>
       <div className="kpi-card-header">
@@ -1306,7 +1262,6 @@ function KpiCard({ title, value, icon, color = "primary", link, trend }) {
       </div>
     </div>
   );
-
   if (!link) return cardContent;
   return (
     <Link to={link} className="kpi-link-wrapper">
@@ -1315,7 +1270,6 @@ function KpiCard({ title, value, icon, color = "primary", link, trend }) {
   );
 }
 
-// EmptyState Component
 function EmptyState({ text }) {
   return (
     <div className="empty-state">
@@ -1325,7 +1279,6 @@ function EmptyState({ text }) {
   );
 }
 
-// StatusBadge Component - Improved
 function StatusBadge({ status }) {
   const { t } = useTranslation();
   const statusMap = {
@@ -1339,10 +1292,8 @@ function StatusBadge({ status }) {
     in_progress: { label: "In Progress", class: "info" },
     pending: { label: "Pending", class: "secondary" },
   };
-
   const value = String(status || "").toLowerCase();
   const statusInfo = statusMap[value] || { label: status, class: "secondary" };
-
   return (
     <span className={`status-badge status-${statusInfo.class}`}>
       <span className="status-dot"></span>

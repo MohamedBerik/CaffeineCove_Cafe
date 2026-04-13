@@ -31,6 +31,7 @@ export default function ErpDashboardHome() {
   const [hiddenAlerts, setHiddenAlerts] = useState(new Set());
   const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
   const [focusRange, setFocusRange] = useState(null);
+  const [range, setRange] = useState("day"); // ✅ أضف هنا
 
   // ========================= Refs =========================
   const acknowledgingRef = useRef(new Set());
@@ -44,9 +45,9 @@ export default function ErpDashboardHome() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["dashboard"],
+    queryKey: ["dashboard", range], // ✅ أضف range هنا
     queryFn: async () => {
-      const res = await axios.get("/erp/dashboard");
+      const res = await axios.get(`/erp/dashboard?range=${range}`); // ✅ أضف ?range=${range}
       let newData = res.data?.data ?? null;
 
       if (newData?.reminders?.alerts) {
@@ -184,7 +185,8 @@ export default function ErpDashboardHome() {
 
   const handleDashboardEvent = useCallback(
     (event) => {
-      queryClient.setQueryData(["dashboard"], (old) => {
+      if (range !== "day") return;
+      queryClient.setQueryData(["dashboard", "day"], (old) => {
         if (!old) return old;
         const kpis = { ...old.kpis };
 
@@ -234,7 +236,7 @@ export default function ErpDashboardHome() {
         return { ...old, kpis };
       });
     },
-    [queryClient],
+    [queryClient, range], // ✅ أضف range هنا
   );
 
   const handleNewInsight = useCallback(
@@ -334,33 +336,41 @@ export default function ErpDashboardHome() {
       .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
   }, [dashboard]);
 
+  // const revenueChartData = useMemo(() => {
+  //   const kpis = dashboard?.kpis || {};
+  //   return (
+  //     dashboard?.charts?.revenue || [
+  //       {
+  //         date: new Date().toISOString().split("T")[0],
+  //         value: kpis.today_revenue || 0,
+  //         label: t("Today"),
+  //       },
+  //     ]
+  //   );
+  // }, [dashboard, t]);
+
+  // const appointmentsChartData = useMemo(() => {
+  //   const kpis = dashboard?.kpis || {};
+  //   return (
+  //     dashboard?.charts?.appointments || [
+  //       {
+  //         date: new Date().toISOString().split("T")[0],
+  //         total: kpis.today_appointments_count || 0,
+  //         completed: kpis.completed_today_count || 0,
+  //         cancelled: kpis.cancelled_today_count || 0,
+  //         label: t("Today"),
+  //       },
+  //     ]
+  //   );
+  // }, [dashboard, t]);
+
   const revenueChartData = useMemo(() => {
-    const kpis = dashboard?.kpis || {};
-    return (
-      dashboard?.charts?.revenue || [
-        {
-          date: new Date().toISOString().split("T")[0],
-          value: kpis.today_revenue || 0,
-          label: t("Today"),
-        },
-      ]
-    );
-  }, [dashboard, t]);
+    return dashboard?.charts?.revenue || [];
+  }, [dashboard]);
 
   const appointmentsChartData = useMemo(() => {
-    const kpis = dashboard?.kpis || {};
-    return (
-      dashboard?.charts?.appointments || [
-        {
-          date: new Date().toISOString().split("T")[0],
-          total: kpis.today_appointments_count || 0,
-          completed: kpis.completed_today_count || 0,
-          cancelled: kpis.cancelled_today_count || 0,
-          label: t("Today"),
-        },
-      ]
-    );
-  }, [dashboard, t]);
+    return dashboard?.charts?.appointments || [];
+  }, [dashboard]);
 
   const revenueDataWithAnomalies = useMemo(() => {
     return revenueChartData.map((point) => {
@@ -608,6 +618,20 @@ export default function ErpDashboardHome() {
         </div>
       </div>
 
+      <div className="range-toggle-container">
+        <div className="range-toggle">
+          {["day", "week", "month"].map((r) => (
+            <button
+              key={r}
+              className={`range-btn ${range === r ? "active" : ""}`}
+              onClick={() => setRange(r)}
+            >
+              {t(r)}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Alerts Section */}
       {alerts.length > 0 && (
         <div className="alerts-container" onClick={markAllAsRead}>
@@ -724,92 +748,80 @@ export default function ErpDashboardHome() {
       </div>
 
       {/* KPIs Grid */}
+      {/* KPIs Grid */}
       <div className="section-header">
         <h2>{t("Key Performance Indicators")}</h2>
         <p>{t("Monitor your clinic's performance at a glance")}</p>
       </div>
+
+      {/* ✅ استبدل كل اللي جوه kpis-grid ده */}
       <div className="kpis-grid">
         <KpiCard
-          title={t("Appointments Today")}
-          value={kpis.today_appointments_count ?? 0}
-          icon="fas fa-calendar-day"
-          color="primary"
-          link="/admin/erp/appointments/calendar"
-        />
-        <KpiCard
-          title={t("Scheduled Today")}
-          value={kpis.scheduled_today_count ?? 0}
-          icon="fas fa-clock"
-          color="info"
-        />
-        <KpiCard
-          title={t("Completed Today")}
-          value={kpis.completed_today_count ?? 0}
-          icon="fas fa-check-circle"
+          title={t("Revenue")}
+          value={formatCurrency(kpis.revenue?.current || 0)}
+          icon="fas fa-money-bill-wave"
           color="success"
+          delta={kpis.revenue?.delta}
+          deltaLabel={t("vs previous")}
         />
         <KpiCard
-          title={t("Cancelled / No Show")}
-          value={`${kpis.cancelled_today_count ?? 0} / ${kpis.no_show_today_count ?? 0}`}
+          title={t("Appointments")}
+          value={kpis.appointments?.current || 0}
+          icon="fas fa-calendar-check"
+          color="primary"
+          delta={kpis.appointments?.delta}
+          deltaLabel={t("vs previous")}
+        />
+        <KpiCard
+          title={t("Completed")}
+          value={kpis.completed_appointments?.current || 0}
+          icon="fas fa-check-circle"
+          color="info"
+          delta={kpis.completed_appointments?.delta}
+          deltaLabel={t("vs previous")}
+        />
+        <KpiCard
+          title={t("Cancelled")}
+          value={kpis.cancelled_appointments?.current || 0}
           icon="fas fa-times-circle"
           color="danger"
+          delta={kpis.cancelled_appointments?.delta}
+          deltaLabel={t("vs previous")}
+        />
+        <KpiCard
+          title={t("No Show")}
+          value={kpis.no_show_appointments?.current || 0}
+          icon="fas fa-user-slash"
+          color="warning"
+          delta={kpis.no_show_appointments?.delta}
+          deltaLabel={t("vs previous")}
         />
         <KpiCard
           title={t("Unpaid Invoices")}
-          value={kpis.unpaid_invoices_count ?? 0}
+          value={kpis.unpaid_invoices?.current || 0}
           icon="fas fa-file-invoice"
-          color="warning"
+          color="danger"
+          delta={kpis.unpaid_invoices?.delta}
+          deltaLabel={t("vs previous")}
           link="/admin/erp/invoices"
-        />
-        <KpiCard
-          title={t("Partially Paid")}
-          value={kpis.partially_paid_invoices_count ?? 0}
-          icon="fas fa-receipt"
-          color="secondary"
-        />
-        <KpiCard
-          title={t("Today Revenue")}
-          value={formatCurrency(kpis.today_revenue)}
-          icon="fas fa-money-bill-wave"
-          color="success"
-        />
-        <KpiCard
-          title={t("Month Revenue")}
-          value={formatCurrency(kpis.month_revenue)}
-          icon="fas fa-chart-line"
-          color="dark"
-        />
-        <KpiCard
-          title={t("Customer Credit Balance")}
-          value={formatCurrency(kpis.credit_balance_total)}
-          icon="fas fa-wallet"
-          color="primary"
-          link="/admin/erp/patients"
         />
         <KpiCard
           title={t("Paid Invoices")}
-          value={kpis.paid_invoices_count ?? 0}
+          value={kpis.paid_invoices?.current || 0}
           icon="fas fa-check-double"
           color="success"
+          delta={kpis.paid_invoices?.delta}
+          deltaLabel={t("vs previous")}
           link="/admin/erp/invoices"
         />
         <KpiCard
-          title={t("Reminders Pending")}
-          value={reminderStats.pending ?? 0}
-          icon="fas fa-hourglass-half"
-          color="warning"
-        />
-        <KpiCard
-          title={t("Reminders Failed")}
-          value={reminderStats.failed ?? 0}
-          icon="fas fa-exclamation-triangle"
-          color="danger"
-        />
-        <KpiCard
-          title={t("Reminders Sent")}
-          value={reminderStats.sent ?? 0}
-          icon="fas fa-paper-plane"
-          color="success"
+          title={t("New Patients")}
+          value={kpis.total_patients?.current || 0}
+          icon="fas fa-user-plus"
+          color="primary"
+          delta={kpis.total_patients?.delta}
+          deltaLabel={t("vs previous")}
+          link="/admin/erp/patients"
         />
       </div>
 
@@ -1205,7 +1217,16 @@ function AppointmentsChart({ data, t, CustomTooltip }) {
   );
 }
 
-function KpiCard({ title, value, icon, color = "primary", link, trend }) {
+function KpiCard({
+  title,
+  value,
+  icon,
+  color = "primary",
+  link,
+  trend,
+  delta,
+  deltaLabel,
+}) {
   const colorMap = {
     primary: {
       bg: "rgba(26, 35, 126, 0.1)",
@@ -1259,6 +1280,14 @@ function KpiCard({ title, value, icon, color = "primary", link, trend }) {
       <div className="kpi-card-body">
         <span className="kpi-value">{value}</span>
         <span className="kpi-title">{title}</span>
+        {delta !== undefined && (
+          <div className={`kpi-delta ${delta >= 0 ? "positive" : "negative"}`}>
+            <i className={`fas fa-arrow-${delta >= 0 ? "up" : "down"}`}></i>
+            <span>
+              {Math.abs(delta).toFixed(1)}% {deltaLabel}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

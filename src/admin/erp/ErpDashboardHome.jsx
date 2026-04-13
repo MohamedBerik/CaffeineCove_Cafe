@@ -31,6 +31,8 @@ export default function ErpDashboardHome() {
   const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
   const acknowledgingRef = useRef(new Set());
   const buffer = useRef([]);
+  const [focusRange, setFocusRange] = useState(null);
+  const chartRef = useRef(null); // ✅ أضف هنا
 
   // ✅ Dashboard Query - مع fallback sync كل دقيقة
   const {
@@ -298,9 +300,32 @@ export default function ErpDashboardHome() {
   }, [queryClient]);
 
   useEffect(() => {
+    if (focusRange && chartRef.current) {
+      chartRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [focusRange]);
+
+  useEffect(() => {
     const interval = setInterval(flushUpdates, 2000);
     return () => clearInterval(interval);
   }, [flushUpdates]);
+
+  useEffect(() => {
+    if (!revenueAnomalyPoints.length) {
+      setFocusRange(null);
+      return;
+    }
+
+    const latest = revenueAnomalyPoints[0];
+    const index = revenueChartData.findIndex((d) => d.date === latest.date);
+
+    if (index === -1) return;
+
+    const start = Math.max(index - 3, 0);
+    const end = Math.min(index + 4, revenueChartData.length);
+
+    setFocusRange([start, end]);
+  }, [revenueAnomalyPoints, revenueChartData]);
 
   // ✅ Socket handler الموحد
   useAlertsSocket((payload) => {
@@ -370,7 +395,7 @@ export default function ErpDashboardHome() {
     }
   };
 
-  const CustomDot = (props) => {
+  const AnimatedDot = (props) => {
     const { cx, cy, payload } = props;
     if (!payload.anomaly) return null;
 
@@ -379,10 +404,9 @@ export default function ErpDashboardHome() {
         <circle
           cx={cx}
           cy={cy}
-          r={6}
+          r={8}
+          className="pulse-dot"
           fill={getAnomalyColor(payload.anomaly.priority)}
-          stroke="white"
-          strokeWidth={2}
         />
         <text
           x={cx}
@@ -530,11 +554,6 @@ export default function ErpDashboardHome() {
     patients: "👥",
   };
 
-  // const revenueChartData = [
-  //   { label: t("Today"), value: kpis.today_revenue || 0 },
-  //   { label: t("Month"), value: kpis.month_revenue || 0 },
-  // ];
-
   const revenueChartData = dashboard.charts?.revenue || [
     {
       date: new Date().toISOString().split("T")[0],
@@ -552,11 +571,9 @@ export default function ErpDashboardHome() {
     return { ...point, anomaly: anomaly || null };
   });
 
-  // const appointmentsChartData = [
-  //   { label: t("Total"), value: kpis.today_appointments_count || 0 },
-  //   { label: t("Completed"), value: kpis.completed_today_count || 0 },
-  //   { label: t("Cancelled"), value: kpis.cancelled_today_count || 0 },
-  // ];
+  const visibleRevenueData = focusRange
+    ? revenueDataWithAnomalies.slice(focusRange[0], focusRange[1])
+    : revenueDataWithAnomalies;
 
   const appointmentsChartData = dashboard.charts?.appointments || [
     {
@@ -821,11 +838,14 @@ export default function ErpDashboardHome() {
 
       <div className="charts-grid">
         <RevenueChart
-          data={revenueDataWithAnomalies}
+          data={visibleRevenueData} // ✅ غيرنا من revenueDataWithAnomalies
           t={t}
           formatCurrency={formatCurrency}
           CustomTooltip={CustomTooltip}
-          CustomDot={CustomDot}
+          AnimatedDot={AnimatedDot} // ✅ غيرنا من CustomDot
+          chartRef={chartRef} // ✅ أضف
+          focusRange={focusRange} // ✅ أضف
+          setFocusRange={setFocusRange} // ✅ أضف
         />
         <AppointmentsChart
           data={appointmentsDataWithAnomalies}
@@ -1097,7 +1117,16 @@ export default function ErpDashboardHome() {
   );
 }
 
-function RevenueChart({ data, t, formatCurrency, CustomTooltip, CustomDot }) {
+function RevenueChart({
+  data,
+  t,
+  formatCurrency,
+  CustomTooltip,
+  AnimatedDot,
+  chartRef,
+  focusRange,
+  setFocusRange,
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="chart-card">
@@ -1139,7 +1168,9 @@ function RevenueChart({ data, t, formatCurrency, CustomTooltip, CustomDot }) {
             dataKey="value"
             stroke="#1a237e"
             strokeWidth={2}
-            dot={<CustomDot />}
+            dot={<AnimatedDot />}
+            isAnimationActive={true}
+            animationDuration={500}
           />
         </LineChart>
       </ResponsiveContainer>

@@ -479,6 +479,61 @@ export default function ErpDashboardHome() {
     }
   };
 
+  useEffect(() => {
+    if (!revenueAnomalyPoints.length) {
+      setFocusRange(null);
+      return;
+    }
+
+    const latest = revenueAnomalyPoints[0];
+    const index = revenueChartData.findIndex((d) => d.date === latest.date);
+
+    if (index === -1) return;
+
+    const start = Math.max(index - 3, 0);
+    const end = Math.min(index + 4, revenueChartData.length);
+
+    setFocusRange([start, end]);
+  }, [revenueAnomalyPoints, revenueChartData]);
+
+  // ========================= UI =========================
+  if (isLoading) {
+    return (
+      <div className="dashboard-loading">
+        <div className="loading-animation">
+          <div className="loading-ring"></div>
+          <div className="loading-ring"></div>
+          <div className="loading-ring"></div>
+        </div>
+        <p>{t("Loading dashboard...")}</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-error">
+        <i className="fas fa-exclamation-triangle"></i>
+        <h3>{t("Something went wrong")}</h3>
+        <p>{error.message}</p>
+        <button className="btn-retry" onClick={refetch}>
+          <i className="fas fa-sync-alt"></i>
+          {t("Try Again")}
+        </button>
+      </div>
+    );
+  }
+
+  if (!dashboard) {
+    return (
+      <div className="dashboard-empty">
+        <i className="fas fa-chart-line"></i>
+        <h3>{t("No Data Available")}</h3>
+        <p>{t("No dashboard data available.")}</p>
+      </div>
+    );
+  }
+
   const kpis = dashboard.kpis || {};
   const recentAppointments = dashboard.recent_appointments || [];
   const recentInvoices = dashboard.recent_invoices || [];
@@ -559,61 +614,6 @@ export default function ErpDashboardHome() {
     );
     return { ...point, anomaly: anomaly || null };
   });
-
-  useEffect(() => {
-    if (!revenueAnomalyPoints.length) {
-      setFocusRange(null);
-      return;
-    }
-
-    const latest = revenueAnomalyPoints[0];
-    const index = revenueChartData.findIndex((d) => d.date === latest.date);
-
-    if (index === -1) return;
-
-    const start = Math.max(index - 3, 0);
-    const end = Math.min(index + 4, revenueChartData.length);
-
-    setFocusRange([start, end]);
-  }, [revenueAnomalyPoints, revenueChartData]);
-
-  // ========================= UI =========================
-  if (isLoading) {
-    return (
-      <div className="dashboard-loading">
-        <div className="loading-animation">
-          <div className="loading-ring"></div>
-          <div className="loading-ring"></div>
-          <div className="loading-ring"></div>
-        </div>
-        <p>{t("Loading dashboard...")}</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="dashboard-error">
-        <i className="fas fa-exclamation-triangle"></i>
-        <h3>{t("Something went wrong")}</h3>
-        <p>{error.message}</p>
-        <button className="btn-retry" onClick={refetch}>
-          <i className="fas fa-sync-alt"></i>
-          {t("Try Again")}
-        </button>
-      </div>
-    );
-  }
-
-  if (!dashboard) {
-    return (
-      <div className="dashboard-empty">
-        <i className="fas fa-chart-line"></i>
-        <h3>{t("No Data Available")}</h3>
-        <p>{t("No dashboard data available.")}</p>
-      </div>
-    );
-  }
 
   const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
   const totalRevenue = (kpis.today_revenue || 0) + (kpis.month_revenue || 0);

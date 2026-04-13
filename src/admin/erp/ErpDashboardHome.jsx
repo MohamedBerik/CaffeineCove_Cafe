@@ -1110,28 +1110,26 @@ function RevenueChart({ data, t, formatCurrency, CustomTooltip, CustomDot }) {
     );
   }
 
-  {
-    /* ✅ Legend للـ Revenue */
-  }
-  <div className="chart-legend">
-    <div className="legend-item">
-      <span className="legend-color revenue"></span>
-      <span>{t("Revenue")}</span>
-    </div>
-    {data.some((d) => d.anomaly) && (
-      <div className="legend-item">
-        <span className="legend-color anomaly"></span>
-        <span>{t("Anomaly")}</span>
-      </div>
-    )}
-  </div>;
-
   return (
     <div className="chart-card">
       <div className="chart-header">
         <i className="fas fa-chart-line"></i>
         <h4>{t("Revenue Overview")}</h4>
       </div>
+      {/* ✅ Legend للـ Revenue */}
+      <div className="chart-legend">
+        <div className="legend-item">
+          <span className="legend-color revenue"></span>
+          <span>{t("Revenue")}</span>
+        </div>
+        {data.some((d) => d.anomaly) && (
+          <div className="legend-item">
+            <span className="legend-color anomaly"></span>
+            <span>{t("Anomaly")}</span>
+          </div>
+        )}
+      </div>
+      ;
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={data}>
           <XAxis dataKey="label" />
@@ -1163,30 +1161,28 @@ function AppointmentsChart({ data, t, CustomTooltip }) {
     );
   }
 
-  {
-    /* ✅ أضف Legend هنا */
-  }
-  <div className="chart-legend">
-    <div className="legend-item">
-      <span className="legend-color total"></span>
-      <span>{t("Total")}</span>
-    </div>
-    <div className="legend-item">
-      <span className="legend-color completed"></span>
-      <span>{t("Completed")}</span>
-    </div>
-    <div className="legend-item">
-      <span className="legend-color cancelled"></span>
-      <span>{t("Cancelled")}</span>
-    </div>
-  </div>;
-
   return (
     <div className="chart-card">
       <div className="chart-header">
         <i className="fas fa-calendar-check"></i>
         <h4>{t("Appointments Today")}</h4>
       </div>
+      {/* ✅ أضف Legend هنا */}
+      <div className="chart-legend">
+        <div className="legend-item">
+          <span className="legend-color total"></span>
+          <span>{t("Total")}</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-color completed"></span>
+          <span>{t("Completed")}</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-color cancelled"></span>
+          <span>{t("Cancelled")}</span>
+        </div>
+      </div>
+
       <ResponsiveContainer width="100%" height={250}>
         <BarChart data={data}>
           <XAxis dataKey="label" />

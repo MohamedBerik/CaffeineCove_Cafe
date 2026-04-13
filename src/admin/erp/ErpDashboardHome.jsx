@@ -700,11 +700,6 @@ export default function ErpDashboardHome() {
       .slice(0, 3);
   };
 
-  const summaryMessages = useMemo(() => {
-    if (!dashboard?.kpis) return [];
-    return generateSummary(kpis);
-  }, [kpis]);
-
   // ========================= Helpers =========================
   const formatLog = (log) => {
     const type = log.subject_type;
@@ -901,6 +896,10 @@ export default function ErpDashboardHome() {
       )
     : 0;
 
+  const summaryMessages = useMemo(() => {
+    if (!dashboard?.kpis) return [];
+    return generateSummary(kpis);
+  }, [kpis]);
   // ========================= UI =========================
   return (
     <div className="erp-dashboard">

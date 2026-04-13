@@ -1110,6 +1110,22 @@ function RevenueChart({ data, t, formatCurrency, CustomTooltip, CustomDot }) {
     );
   }
 
+  {
+    /* ✅ Legend للـ Revenue */
+  }
+  <div className="chart-legend">
+    <div className="legend-item">
+      <span className="legend-color revenue"></span>
+      <span>{t("Revenue")}</span>
+    </div>
+    {data.some((d) => d.anomaly) && (
+      <div className="legend-item">
+        <span className="legend-color anomaly"></span>
+        <span>{t("Anomaly")}</span>
+      </div>
+    )}
+  </div>;
+
   return (
     <div className="chart-card">
       <div className="chart-header">
@@ -1146,6 +1162,24 @@ function AppointmentsChart({ data, t, CustomTooltip }) {
       </div>
     );
   }
+
+  {
+    /* ✅ أضف Legend هنا */
+  }
+  <div className="chart-legend">
+    <div className="legend-item">
+      <span className="legend-color total"></span>
+      <span>{t("Total")}</span>
+    </div>
+    <div className="legend-item">
+      <span className="legend-color completed"></span>
+      <span>{t("Completed")}</span>
+    </div>
+    <div className="legend-item">
+      <span className="legend-color cancelled"></span>
+      <span>{t("Cancelled")}</span>
+    </div>
+  </div>;
 
   return (
     <div className="chart-card">

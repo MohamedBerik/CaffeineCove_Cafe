@@ -1121,3 +1121,53 @@
   font-size: 12px;
   color: #4b5563;
 }
+
+/* ==================== Chart Legend ==================== */
+.chart-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #4b5563;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.legend-color.total {
+  background: #1a237e;
+}
+
+.legend-color.completed {
+  background: #4caf50;
+}
+
+.legend-color.cancelled {
+  background: #ef4444;
+}
+
+/* RTL Support */
+[dir="rtl"] .chart-legend {
+  flex-direction: row-reverse;
+}
+
+.legend-color.revenue {
+  background: #1a237e;
+}
+
+.legend-color.anomaly {
+  background: #ef4444;
+  border-radius: 50%;
+}

@@ -585,34 +585,6 @@ export default function ErpDashboardHome() {
       .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
   }, [dashboard]);
 
-  // const revenueChartData = useMemo(() => {
-  //   const kpis = dashboard?.kpis || {};
-  //   return (
-  //     dashboard?.charts?.revenue || [
-  //       {
-  //         date: new Date().toISOString().split("T")[0],
-  //         value: kpis.today_revenue || 0,
-  //         label: t("Today"),
-  //       },
-  //     ]
-  //   );
-  // }, [dashboard, t]);
-
-  // const appointmentsChartData = useMemo(() => {
-  //   const kpis = dashboard?.kpis || {};
-  //   return (
-  //     dashboard?.charts?.appointments || [
-  //       {
-  //         date: new Date().toISOString().split("T")[0],
-  //         total: kpis.today_appointments_count || 0,
-  //         completed: kpis.completed_today_count || 0,
-  //         cancelled: kpis.cancelled_today_count || 0,
-  //         label: t("Today"),
-  //       },
-  //     ]
-  //   );
-  // }, [dashboard, t]);
-
   const revenueChartData = useMemo(() => {
     return dashboard?.charts?.revenue || [];
   }, [dashboard]);
@@ -642,19 +614,6 @@ export default function ErpDashboardHome() {
       return { ...point, anomaly: anomaly || null };
     });
   }, [appointmentsChartData, appointmentsAnomalyPoints]);
-
-  useEffect(() => {
-    if (!revenueAnomalyPoints.length) {
-      setFocusRange(null);
-      return;
-    }
-    const latest = revenueAnomalyPoints[0];
-    const index = revenueChartData.findIndex((d) => d.date === latest.date);
-    if (index === -1) return;
-    const start = Math.max(index - 3, 0);
-    const end = Math.min(index + 4, revenueChartData.length);
-    setFocusRange([start, end]);
-  }, [revenueAnomalyPoints, revenueChartData]);
 
   const generateSummary = (kpis) => {
     const messages = [];
@@ -699,6 +658,19 @@ export default function ErpDashboardHome() {
       .sort((a, b) => priorityOrder[b.type] - priorityOrder[a.type])
       .slice(0, 3);
   };
+
+  useEffect(() => {
+    if (!revenueAnomalyPoints.length) {
+      setFocusRange(null);
+      return;
+    }
+    const latest = revenueAnomalyPoints[0];
+    const index = revenueChartData.findIndex((d) => d.date === latest.date);
+    if (index === -1) return;
+    const start = Math.max(index - 3, 0);
+    const end = Math.min(index + 4, revenueChartData.length);
+    setFocusRange([start, end]);
+  }, [revenueAnomalyPoints, revenueChartData]);
 
   // ========================= Helpers =========================
   const formatLog = (log) => {
@@ -873,13 +845,16 @@ export default function ErpDashboardHome() {
   // ========================= Data Extraction (بعد الـ early returns) =========================
   const kpis = dashboard.kpis || {};
   const recentAppointments = dashboard.recent_appointments || [];
+  const summaryMessages = useMemo(() => {
+    if (!dashboard?.kpis) return [];
+    return generateSummary(kpis);
+  }, [kpis]);
   const recentInvoices = dashboard.recent_invoices || [];
   const recentPayments = dashboard.recent_payments || [];
   const reminderStats = dashboard.reminders?.stats || {};
   const failedReminders = dashboard.reminders?.failed_recent || [];
   const alerts = dashboard.reminders?.alerts || [];
   const insights = dashboard.insights || [];
-
   const insightIconMap = {
     revenue: "💰",
     appointments: "📅",
@@ -896,10 +871,6 @@ export default function ErpDashboardHome() {
       )
     : 0;
 
-  const summaryMessages = useMemo(() => {
-    if (!dashboard?.kpis) return [];
-    return generateSummary(kpis);
-  }, [kpis]);
   // ========================= UI =========================
   return (
     <div className="erp-dashboard">

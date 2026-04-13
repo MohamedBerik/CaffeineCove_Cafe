@@ -274,7 +274,6 @@ export default function ErpDashboardHome() {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const { addAlert, markAllAsRead } = useAlertActions();
-  const kpis = dashboard.kpis || {};
 
   // ========================= State =========================
   const [greeting, setGreeting] = useState("");
@@ -805,7 +804,10 @@ export default function ErpDashboardHome() {
   }
 
   // ========================= Data Extraction (بعد الـ early returns) =========================
-  // const kpis = dashboard.kpis || {};
+  const kpis = dashboard.kpis || {};
+  const summaryMessages = !dashboard?.kpis
+    ? []
+    : generateSummary(dashboard.kpis);
   const recentAppointments = dashboard.recent_appointments || [];
   const recentInvoices = dashboard.recent_invoices || [];
   const recentPayments = dashboard.recent_payments || [];

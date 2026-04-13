@@ -479,6 +479,87 @@ export default function ErpDashboardHome() {
     }
   };
 
+  const kpis = dashboard.kpis || {};
+  const recentAppointments = dashboard.recent_appointments || [];
+  const recentInvoices = dashboard.recent_invoices || [];
+  const recentPayments = dashboard.recent_payments || [];
+  const reminderStats = dashboard.reminders?.stats || {};
+  const failedReminders = dashboard.reminders?.failed_recent || [];
+  const alerts = dashboard.reminders?.alerts || [];
+  const insights = dashboard.insights || [];
+
+  const allNotifications = [
+    ...alerts.map((alert) => ({ ...alert, notificationType: "alert" })),
+    ...insights.map((insight) => ({ ...insight, notificationType: "insight" })),
+  ];
+
+  const insightIconMap = {
+    revenue: "💰",
+    appointments: "📅",
+    invoices: "🧾",
+    patients: "👥",
+  };
+
+  const revenueAnomalyPoints = useMemo(() => {
+    return insights
+      .filter((i) => i.category === "revenue" && i.point)
+      .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
+  }, [insights]);
+
+  const appointmentsAnomalyPoints = useMemo(() => {
+    return insights
+      .filter((i) => i.category === "appointments" && i.point)
+      .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
+  }, [insights]);
+
+  const revenueChartData = useMemo(() => {
+    return (
+      dashboard?.charts?.revenue || [
+        {
+          date: new Date().toISOString().split("T")[0],
+          value: kpis.today_revenue || 0,
+          label: t("Today"),
+        },
+      ]
+    );
+  }, [dashboard, kpis.today_revenue, t]);
+
+  const appointmentsChartData = useMemo(() => {
+    return (
+      dashboard?.charts?.appointments || [
+        {
+          date: new Date().toISOString().split("T")[0],
+          total: kpis.today_appointments_count || 0,
+          completed: kpis.completed_today_count || 0,
+          cancelled: kpis.cancelled_today_count || 0,
+          label: t("Today"),
+        },
+      ]
+    );
+  }, [
+    dashboard,
+    kpis.today_appointments_count,
+    kpis.completed_today_count,
+    kpis.cancelled_today_count,
+    t,
+  ]);
+
+  const revenueDataWithAnomalies = revenueChartData.map((point) => {
+    const anomaly = revenueAnomalyPoints.find((a) => a.date === point.date);
+    return { ...point, anomaly: anomaly || null };
+  });
+
+  const visibleRevenueData = focusRange
+    ? revenueDataWithAnomalies.slice(focusRange[0], focusRange[1])
+    : revenueDataWithAnomalies;
+
+  const appointmentsDataWithAnomalies = appointmentsChartData.map((point) => {
+    const anomaly = appointmentsAnomalyPoints.find(
+      (a) => a.date === point.date,
+    );
+    return { ...point, anomaly: anomaly || null };
+  });
+
   useEffect(() => {
     if (!revenueAnomalyPoints.length) {
       setFocusRange(null);
@@ -533,87 +614,6 @@ export default function ErpDashboardHome() {
       </div>
     );
   }
-
-  const kpis = dashboard.kpis || {};
-  const recentAppointments = dashboard.recent_appointments || [];
-  const recentInvoices = dashboard.recent_invoices || [];
-  const recentPayments = dashboard.recent_payments || [];
-  const reminderStats = dashboard.reminders?.stats || {};
-  const failedReminders = dashboard.reminders?.failed_recent || [];
-  const alerts = dashboard.reminders?.alerts || [];
-  const insights = dashboard.insights || [];
-
-  const allNotifications = [
-    ...alerts.map((alert) => ({ ...alert, notificationType: "alert" })),
-    ...insights.map((insight) => ({ ...insight, notificationType: "insight" })),
-  ];
-
-  const insightIconMap = {
-    revenue: "💰",
-    appointments: "📅",
-    invoices: "🧾",
-    patients: "👥",
-  };
-
-  const revenueChartData = useMemo(() => {
-    return (
-      dashboard?.charts?.revenue || [
-        {
-          date: new Date().toISOString().split("T")[0],
-          value: kpis.today_revenue || 0,
-          label: t("Today"),
-        },
-      ]
-    );
-  }, [dashboard, kpis.today_revenue, t]);
-
-  const revenueAnomalyPoints = useMemo(() => {
-    return insights
-      .filter((i) => i.category === "revenue" && i.point)
-      .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
-  }, [insights]);
-
-  const revenueDataWithAnomalies = revenueChartData.map((point) => {
-    const anomaly = revenueAnomalyPoints.find((a) => a.date === point.date);
-    return { ...point, anomaly: anomaly || null };
-  });
-
-  const visibleRevenueData = focusRange
-    ? revenueDataWithAnomalies.slice(focusRange[0], focusRange[1])
-    : revenueDataWithAnomalies;
-
-  const appointmentsChartData = useMemo(() => {
-    return (
-      dashboard?.charts?.appointments || [
-        {
-          date: new Date().toISOString().split("T")[0],
-          total: kpis.today_appointments_count || 0,
-          completed: kpis.completed_today_count || 0,
-          cancelled: kpis.cancelled_today_count || 0,
-          label: t("Today"),
-        },
-      ]
-    );
-  }, [
-    dashboard,
-    kpis.today_appointments_count,
-    kpis.completed_today_count,
-    kpis.cancelled_today_count,
-    t,
-  ]);
-
-  const appointmentsAnomalyPoints = useMemo(() => {
-    return insights
-      .filter((i) => i.category === "appointments" && i.point)
-      .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
-  }, [insights]);
-
-  const appointmentsDataWithAnomalies = appointmentsChartData.map((point) => {
-    const anomaly = appointmentsAnomalyPoints.find(
-      (a) => a.date === point.date,
-    );
-    return { ...point, anomaly: anomaly || null };
-  });
 
   const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
   const totalRevenue = (kpis.today_revenue || 0) + (kpis.month_revenue || 0);

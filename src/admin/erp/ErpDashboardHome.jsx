@@ -247,6 +247,29 @@ export default function ErpDashboardHome() {
     [queryClient],
   );
 
+  const handleNewInsight = useCallback(
+    (insight) => {
+      if (insight.priority === "high") {
+        playSound();
+        toast.custom((t) => (
+          <div className="custom-toast toast-high">
+            <strong>🔔 {t("Smart Insight")}</strong>
+            <p>{t(insight.message)}</p>
+          </div>
+        ));
+      }
+
+      queryClient.setQueryData(["dashboard"], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          insights: [insight, ...(old.insights || [])].slice(0, 5),
+        };
+      });
+    },
+    [queryClient],
+  );
+
   // ✅ Batching - flush updates كل 2 ثانية
   const flushUpdates = useCallback(() => {
     if (buffer.current.length === 0) return;
@@ -281,6 +304,9 @@ export default function ErpDashboardHome() {
 
   // ✅ Socket handler الموحد
   useAlertsSocket((payload) => {
+    if (payload.type === "insight" || payload.insight) {
+      handleNewInsight(payload.insight || payload);
+    }
     // لو Alert
     if (payload.alert || payload.type === "alert") {
       handleNewAlert(payload.alert || payload.data);
@@ -428,6 +454,19 @@ export default function ErpDashboardHome() {
   const reminderStats = dashboard.reminders?.stats || {};
   const failedReminders = dashboard.reminders?.failed_recent || [];
   const alerts = dashboard.reminders?.alerts || [];
+  const insights = dashboard.insights || [];
+
+  const allNotifications = [
+    ...alerts.map((alert) => ({ ...alert, notificationType: "alert" })),
+    ...insights.map((insight) => ({ ...insight, notificationType: "insight" })),
+  ];
+
+  const insightIconMap = {
+    revenue: "💰",
+    appointments: "📅",
+    invoices: "🧾",
+    patients: "👥",
+  };
 
   const revenueChartData = [
     { label: t("Today"), value: kpis.today_revenue || 0 },
@@ -512,6 +551,26 @@ export default function ErpDashboardHome() {
                   <i className="fas fa-check"></i>
                 )}
               </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {insights.length > 0 && (
+        <div className="insights-container">
+          <div className="insights-header">
+            <i className="fas fa-lightbulb"></i>
+            <h4>{t("Smart Insights")}</h4>
+          </div>
+          {insights.map((insight, i) => (
+            <div key={i} className={`insight-card ${insight.priority}`}>
+              <div className="insight-icon">
+                {insightIconMap[insight.category] || "📊"}
+              </div>
+              <div className="insight-content">
+                <span className="insight-category">{t(insight.category)}</span>
+                <p>{t(insight.message)}</p>
+              </div>
             </div>
           ))}
         </div>

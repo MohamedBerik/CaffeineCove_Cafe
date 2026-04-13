@@ -585,6 +585,11 @@ export default function ErpDashboardHome() {
       .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
   }, [dashboard]);
 
+  const summaryMessages = useMemo(() => {
+    if (!dashboard?.kpis) return [];
+    return generateSummary(kpis);
+  }, [kpis]);
+
   const revenueChartData = useMemo(() => {
     return dashboard?.charts?.revenue || [];
   }, [dashboard]);
@@ -814,11 +819,6 @@ export default function ErpDashboardHome() {
     patients: "👥",
   };
 
-  const summaryMessages = useMemo(() => {
-    if (!dashboard?.kpis) return [];
-    return generateSummary(kpis);
-  }, [kpis]);
-
   const generateSummary = (kpis) => {
     const messages = [];
     const priorityOrder = { negative: 3, warning: 2, positive: 1 };
@@ -862,6 +862,7 @@ export default function ErpDashboardHome() {
       .sort((a, b) => priorityOrder[b.type] - priorityOrder[a.type])
       .slice(0, 3);
   };
+
   const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
   const totalRevenue = kpis.revenue?.current || 0;
   const completionRate = kpis.appointments?.current

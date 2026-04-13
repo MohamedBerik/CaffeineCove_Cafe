@@ -590,10 +590,11 @@ export default function ErpDashboardHome() {
   };
 
   const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
-  const totalRevenue = (kpis.today_revenue || 0) + (kpis.month_revenue || 0);
-  const completionRate = kpis.today_appointments_count
+  const totalRevenue = kpis.revenue?.current || 0;
+  const completionRate = kpis.appointments?.current
     ? Math.round(
-        (kpis.completed_today_count / kpis.today_appointments_count) * 100,
+        (kpis.completed_appointments?.current / kpis.appointments?.current) *
+          100,
       )
     : 0;
 
@@ -709,7 +710,7 @@ export default function ErpDashboardHome() {
           </div>
           <div className="stat-info">
             <span className="stat-value">
-              {kpis.today_appointments_count ?? 0}
+              {kpis.appointments?.current ?? 0} {/* ✅ عدل هنا */}
             </span>
             <span className="stat-label">{t("Appointments Today")}</span>
           </div>

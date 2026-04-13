@@ -1158,11 +1158,6 @@
   background: #ef4444;
 }
 
-/* RTL Support */
-[dir="rtl"] .chart-legend {
-  flex-direction: row-reverse;
-}
-
 .legend-color.revenue {
   background: #1a237e;
 }
@@ -1170,4 +1165,9 @@
 .legend-color.anomaly {
   background: #ef4444;
   border-radius: 50%;
+}
+
+/* RTL Support */
+[dir="rtl"] .chart-legend {
+  flex-direction: row-reverse;
 }

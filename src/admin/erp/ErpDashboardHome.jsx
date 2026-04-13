@@ -310,23 +310,6 @@ export default function ErpDashboardHome() {
     return () => clearInterval(interval);
   }, [flushUpdates]);
 
-  useEffect(() => {
-    if (!revenueAnomalyPoints.length) {
-      setFocusRange(null);
-      return;
-    }
-
-    const latest = revenueAnomalyPoints[0];
-    const index = revenueChartData.findIndex((d) => d.date === latest.date);
-
-    if (index === -1) return;
-
-    const start = Math.max(index - 3, 0);
-    const end = Math.min(index + 4, revenueChartData.length);
-
-    setFocusRange([start, end]);
-  }, [revenueAnomalyPoints, revenueChartData]);
-
   // ✅ Socket handler الموحد
   useAlertsSocket((payload) => {
     if (payload.type === "insight" || payload.insight) {
@@ -570,6 +553,23 @@ export default function ErpDashboardHome() {
     const anomaly = revenueAnomalyPoints.find((a) => a.date === point.date);
     return { ...point, anomaly: anomaly || null };
   });
+
+  useEffect(() => {
+    if (!revenueAnomalyPoints.length) {
+      setFocusRange(null);
+      return;
+    }
+
+    const latest = revenueAnomalyPoints[0];
+    const index = revenueChartData.findIndex((d) => d.date === latest.date);
+
+    if (index === -1) return;
+
+    const start = Math.max(index - 3, 0);
+    const end = Math.min(index + 4, revenueChartData.length);
+
+    setFocusRange([start, end]);
+  }, [revenueAnomalyPoints, revenueChartData]);
 
   const visibleRevenueData = focusRange
     ? revenueDataWithAnomalies.slice(focusRange[0], focusRange[1])

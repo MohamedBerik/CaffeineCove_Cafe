@@ -1116,20 +1116,19 @@ function RevenueChart({ data, t, formatCurrency, CustomTooltip, CustomDot }) {
         <i className="fas fa-chart-line"></i>
         <h4>{t("Revenue Overview")}</h4>
       </div>
-      {/* ✅ Legend للـ Revenue */}
-      <div className="chart-legend">
-        <div className="legend-item">
-          <span className="legend-color revenue"></span>
-          <span>{t("Revenue")}</span>
-        </div>
-        {data.some((d) => d.anomaly) && (
+      {/* ✅ أضف هنا - Legend يظهر فقط لو فيه Anomaly */}
+      {data.some((d) => d.anomaly) && (
+        <div className="chart-legend">
+          <div className="legend-item">
+            <span className="legend-color revenue"></span>
+            <span>{t("Revenue")}</span>
+          </div>
           <div className="legend-item">
             <span className="legend-color anomaly"></span>
             <span>{t("Anomaly")}</span>
           </div>
-        )}
-      </div>
-      ;
+        </div>
+      )}
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={data}>
           <XAxis dataKey="label" />

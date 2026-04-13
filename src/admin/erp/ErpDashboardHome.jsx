@@ -479,6 +479,23 @@ export default function ErpDashboardHome() {
     }
   };
 
+  useEffect(() => {
+    if (!revenueAnomalyPoints.length) {
+      setFocusRange(null);
+      return;
+    }
+
+    const latest = revenueAnomalyPoints[0];
+    const index = revenueChartData.findIndex((d) => d.date === latest.date);
+
+    if (index === -1) return;
+
+    const start = Math.max(index - 3, 0);
+    const end = Math.min(index + 4, revenueChartData.length);
+
+    setFocusRange([start, end]);
+  }, [revenueAnomalyPoints, revenueChartData]);
+
   // ========================= UI =========================
   if (isLoading) {
     return (
@@ -538,57 +555,58 @@ export default function ErpDashboardHome() {
     patients: "👥",
   };
 
-  const revenueChartData = dashboard.charts?.revenue || [
-    {
-      date: new Date().toISOString().split("T")[0],
-      value: kpis.today_revenue || 0,
-      label: t("Today"),
-    },
-  ];
+  const revenueChartData = useMemo(() => {
+    return (
+      dashboard?.charts?.revenue || [
+        {
+          date: new Date().toISOString().split("T")[0],
+          value: kpis.today_revenue || 0,
+          label: t("Today"),
+        },
+      ]
+    );
+  }, [dashboard, kpis.today_revenue, t]);
 
-  const revenueAnomalyPoints = insights
-    .filter((i) => i.category === "revenue" && i.point)
-    .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
+  const revenueAnomalyPoints = useMemo(() => {
+    return insights
+      .filter((i) => i.category === "revenue" && i.point)
+      .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
+  }, [insights]);
 
   const revenueDataWithAnomalies = revenueChartData.map((point) => {
     const anomaly = revenueAnomalyPoints.find((a) => a.date === point.date);
     return { ...point, anomaly: anomaly || null };
   });
 
-  useEffect(() => {
-    if (!revenueAnomalyPoints.length) {
-      setFocusRange(null);
-      return;
-    }
-
-    const latest = revenueAnomalyPoints[0];
-    const index = revenueChartData.findIndex((d) => d.date === latest.date);
-
-    if (index === -1) return;
-
-    const start = Math.max(index - 3, 0);
-    const end = Math.min(index + 4, revenueChartData.length);
-
-    setFocusRange([start, end]);
-  }, [revenueAnomalyPoints, revenueChartData]);
-
   const visibleRevenueData = focusRange
     ? revenueDataWithAnomalies.slice(focusRange[0], focusRange[1])
     : revenueDataWithAnomalies;
 
-  const appointmentsChartData = dashboard.charts?.appointments || [
-    {
-      date: new Date().toISOString().split("T")[0],
-      total: kpis.today_appointments_count || 0,
-      completed: kpis.completed_today_count || 0,
-      cancelled: kpis.cancelled_today_count || 0,
-      label: t("Today"),
-    },
-  ];
+  const appointmentsChartData = useMemo(() => {
+    return (
+      dashboard?.charts?.appointments || [
+        {
+          date: new Date().toISOString().split("T")[0],
+          total: kpis.today_appointments_count || 0,
+          completed: kpis.completed_today_count || 0,
+          cancelled: kpis.cancelled_today_count || 0,
+          label: t("Today"),
+        },
+      ]
+    );
+  }, [
+    dashboard,
+    kpis.today_appointments_count,
+    kpis.completed_today_count,
+    kpis.cancelled_today_count,
+    t,
+  ]);
 
-  const appointmentsAnomalyPoints = insights
-    .filter((i) => i.category === "appointments" && i.point)
-    .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
+  const appointmentsAnomalyPoints = useMemo(() => {
+    return insights
+      .filter((i) => i.category === "appointments" && i.point)
+      .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
+  }, [insights]);
 
   const appointmentsDataWithAnomalies = appointmentsChartData.map((point) => {
     const anomaly = appointmentsAnomalyPoints.find(

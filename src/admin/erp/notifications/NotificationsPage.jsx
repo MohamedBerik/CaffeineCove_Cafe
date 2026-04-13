@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useAuth } from "../../../context/AuthContext";
 import { useAlertActions } from "../../../context/AlertContext";
 import api from "../../../services/axios";
@@ -17,24 +17,47 @@ const NotificationsPage = () => {
   const [selectedGroup, setSelectedGroup] = useState(null); // ✅ أضف هنا
 
   // ✅ React Query - useInfiniteQuery
-  const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
-    useInfiniteQuery({
-      queryKey: ["alerts", filter],
-      queryFn: async ({ pageParam = 1 }) => {
-        const res = await api.get(
-          `/erp/alerts?page=${pageParam}&filter=${filter}`,
-        );
-        return res.data;
-      },
-      getNextPageParam: (lastPage) => {
-        return lastPage.meta?.has_more
-          ? lastPage.meta.current_page + 1
-          : undefined;
-      },
-      staleTime: 1000 * 60 * 5, // 5 دقائق
-    });
+  const {
+    data: alertsData,
+    fetchNextPage,
+    hasNextPage,
+    isLoading,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["alerts", filter],
+    queryFn: async ({ pageParam = 1 }) => {
+      const res = await api.get(
+        `/erp/alerts?page=${pageParam}&filter=${filter}`,
+      );
+      return res.data;
+    },
+    staleTime: 1000 * 60 * 5,
+    getNextPageParam: (lastPage) =>
+      lastPage.meta?.has_more ? lastPage.meta.current_page + 1 : undefined,
+  });
 
-  const displayAlerts = data?.pages.flatMap((page) => page.data) || [];
+  const { data: insightsData } = useQuery({
+    queryKey: ["insights"],
+    queryFn: async () => {
+      const res = await api.get("/erp/dashboard");
+      return res.data?.data?.insights || [];
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const alerts = alertsData?.pages.flatMap((page) => page.data) || [];
+  const insights = insightsData || [];
+
+  // ✅ دمج Alerts + Insights
+  const allNotifications = [
+    ...alerts.map((alert) => ({ ...alert, notificationType: "alert" })),
+    ...insights.map((insight) => ({
+      ...insight,
+      notificationType: "insight",
+      id: `insight-${insight.category}-${Date.now()}`, // ID مؤقت للـ insights
+      read: false, // Insights مش بتتقرأ
+    })),
+  ];
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -63,6 +86,9 @@ const NotificationsPage = () => {
   );
 
   const handleAcknowledge = async (alertId) => {
+    // ✅ Insights مش بتتأكد
+    if (typeof alertId === "string" && alertId.startsWith("insight-")) return;
+
     try {
       await markAsRead(alertId);
       setSelectedAlert((prev) => (prev ? { ...prev, read: true } : null));
@@ -110,18 +136,24 @@ const NotificationsPage = () => {
         return "type-default";
     }
   };
-
   const PRIORITY_ORDER = { high: 3, medium: 2, low: 1 };
 
-  const groupAlerts = (alerts) => {
+  const groupAlerts = (items) => {
     const groups = {};
-    alerts.forEach((alert) => {
-      const key = `${alert.type}-${alert.priority}-${alert.message}`;
+    items.forEach((item) => {
+      // ✅ نستخدم category للـ insights، و type للـ alerts
+      const category =
+        item.notificationType === "insight"
+          ? `insight-${item.category}`
+          : `${item.type}-${item.priority}-${item.message}`;
+
+      const key = category;
+
       if (!groups[key]) {
-        groups[key] = { ...alert, count: 1, items: [alert] };
+        groups[key] = { ...item, count: 1, items: [item] };
       } else {
         groups[key].count += 1;
-        groups[key].items.push(alert);
+        groups[key].items.push(item);
       }
     });
     return Object.values(groups);
@@ -132,9 +164,12 @@ const NotificationsPage = () => {
       (a, b) => PRIORITY_ORDER[b.priority] - PRIORITY_ORDER[a.priority],
     );
 
-  const categorize = (alert) => {
-    if (alert.type === "danger" || alert.priority === "high") return "critical";
-    if (alert.type === "warning" || alert.priority === "medium")
+  const categorize = (item) => {
+    if (item.notificationType === "insight") {
+      return item.priority === "high" ? "critical" : "attention";
+    }
+    if (item.type === "danger" || item.priority === "high") return "critical";
+    if (item.type === "warning" || item.priority === "medium")
       return "attention";
     return "info";
   };
@@ -166,7 +201,7 @@ const NotificationsPage = () => {
     });
   };
 
-  const filteredAlerts = displayAlerts.filter((a) => {
+  const filteredAlerts = allNotifications.filter((a) => {
     if (filter === "unread") return !a.read;
     if (filter === "high") return a.priority === "high";
     return true;
@@ -176,10 +211,21 @@ const NotificationsPage = () => {
     return sortGroups(groupAlerts(filteredAlerts));
   }, [filteredAlerts]);
 
-  // const sortedAlerts = [...filteredAlerts].sort(
-  //   (a, b) => new Date(b.time) - new Date(a.time),
-  // );
-  // const groupedAlerts = Object.entries(groupAlertsByDate(sortedAlerts));
+  const getNotificationIcon = (item) => {
+    if (item.notificationType === "insight") {
+      const iconMap = {
+        revenue: "💰",
+        appointments: "📅",
+        invoices: "🧾",
+        patients: "👥",
+      };
+      return iconMap[item.category] || "📊";
+    }
+
+    if (item.type === "danger") return "🔴";
+    if (item.type === "warning") return "🟡";
+    return "🔵";
+  };
 
   if (isLoading) {
     return (
@@ -290,14 +336,31 @@ const NotificationsPage = () => {
                   className={`smart-alert-card ${categorize(group)}`}
                 >
                   <div className="alert-header">
-                    <span className="alert-category-badge">
-                      {t(categorize(group))}
+                    {/* ✅ رقم 9: أيقونة مخصصة لكل نوع */}
+                    <span className="alert-icon-large">
+                      {getNotificationIcon(group)}
                     </span>
-                    <strong>{t(group.message)}</strong>
+                    <div className="alert-header-content">
+                      <span className="alert-category-badge">
+                        {group.notificationType === "insight"
+                          ? t(group.category)
+                          : t(categorize(group))}
+                      </span>
+                      <strong>{t(group.message)}</strong>
+                    </div>
                     {group.count > 1 && (
                       <span className="alert-count">({group.count})</span>
                     )}
                   </div>
+
+                  {/* ✅ رقم 9: Metadata (الوقت للـ Alerts فقط) */}
+                  {group.notificationType !== "insight" && group.time && (
+                    <div className="alert-time">
+                      <i className="fas fa-clock"></i>
+                      {formatDateTime(group.time)}
+                    </div>
+                  )}
+
                   <div className="alert-actions">
                     <button
                       className="btn-view-group"
@@ -305,12 +368,16 @@ const NotificationsPage = () => {
                     >
                       {t("View Details")}
                     </button>
-                    <button
-                      className="btn-ack-group"
-                      onClick={() => acknowledgeGroup(group)}
-                    >
-                      {t("Acknowledge All")}
-                    </button>
+
+                    {/* ✅ رقم 10: زر Acknowledge للـ Alerts فقط */}
+                    {group.notificationType !== "insight" && (
+                      <button
+                        className="btn-ack-group"
+                        onClick={() => acknowledgeGroup(group)}
+                      >
+                        {t("Acknowledge All")}
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -356,17 +423,28 @@ const NotificationsPage = () => {
             <div className="modal-body">
               {selectedGroup.items.map((item) => (
                 <div key={item.id} className="group-item">
-                  <span>{formatDateTime(item.time)}</span>
+                  {/* ✅ أيقونة للـ Insight في Modal */}
+                  <span className="group-item-icon">
+                    {getNotificationIcon(item)}
+                  </span>
+                  <span className="group-item-text">
+                    {item.notificationType === "insight"
+                      ? `${t(item.category)} - ${t(item.message)}`
+                      : formatDateTime(item.time)}
+                  </span>
                 </div>
               ))}
             </div>
             <div className="modal-footer">
-              <button
-                className="btn-acknowledge"
-                onClick={() => acknowledgeGroup(selectedGroup)}
-              >
-                {t("Acknowledge All")} ({selectedGroup.count})
-              </button>
+              {/* ✅ رقم 10: زر Acknowledge للـ Alerts فقط */}
+              {selectedGroup.notificationType !== "insight" && (
+                <button
+                  className="btn-acknowledge"
+                  onClick={() => acknowledgeGroup(selectedGroup)}
+                >
+                  {t("Acknowledge All")} ({selectedGroup.count})
+                </button>
+              )}
               <button
                 className="btn-close-modal"
                 onClick={() => setSelectedGroup(null)}

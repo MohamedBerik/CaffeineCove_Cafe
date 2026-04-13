@@ -218,6 +218,7 @@ const NotificationsPage = () => {
         appointments: "📅",
         invoices: "🧾",
         patients: "👥",
+        doctors: "👨‍⚕️", // ✅ أضف
       };
       return iconMap[item.category] || "📊";
     }

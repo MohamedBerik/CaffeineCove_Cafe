@@ -1266,9 +1266,13 @@ function RevenueChart({
           <XAxis dataKey="label" />
           <YAxis />
           <Tooltip
-            content={
-              <CustomTooltipWrapper formatCurrency={formatCurrency} t={t} />
-            }
+            content={(props) => (
+              <CustomTooltipWrapper
+                {...props}
+                formatCurrency={formatCurrency}
+                t={t}
+              />
+            )}
           />
           {/* ✅ Current Line - Solid */}
           <Line
@@ -1338,7 +1342,7 @@ function AppointmentsChart({ data, t, CustomTooltip }) {
         <BarChart data={data}>
           <XAxis dataKey="label" />
           <YAxis />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip />
           <Bar dataKey="total" fill="#1a237e" radius={[8, 8, 0, 0]} />
           <Bar dataKey="completed" fill="#4caf50" radius={[8, 8, 0, 0]} />
           <Bar dataKey="cancelled" fill="#ef4444" radius={[8, 8, 0, 0]} />

@@ -419,6 +419,7 @@ export default function ErpDashboardHome() {
       total: item.current, // current = total appointments
       completed: item.completed || 0, // لو موجود
       cancelled: item.cancelled || 0, // لو موجود
+      previous: item.previous || 0,
       anomaly: null,
     }));
   }, [dashboard]);
@@ -1330,28 +1331,29 @@ function RevenueChart({
   );
 }
 
-function AppointmentsChart({ data, t, CustomTooltip }) {
+function AppointmentsChart({ data, t }) {
   if (!data || data.length === 0) {
     return (
       <div className="chart-card">
         <div className="chart-header">
           <i className="fas fa-calendar-check"></i>
-          <h4>{t("Appointments Today")}</h4>
+          <h4>{t("Appointments Overview")}</h4>
         </div>
         <div className="chart-empty">No data available</div>
       </div>
     );
   }
+
   return (
     <div className="chart-card">
       <div className="chart-header">
         <i className="fas fa-calendar-check"></i>
-        <h4>{t("Appointments Today")}</h4>
+        <h4>{t("Appointments Overview")}</h4>
       </div>
       <div className="chart-legend">
         <div className="legend-item">
           <span className="legend-color total"></span>
-          <span>{t("Total")}</span>
+          <span>{t("Total Appointments")}</span>
         </div>
         <div className="legend-item">
           <span className="legend-color completed"></span>
@@ -1366,7 +1368,7 @@ function AppointmentsChart({ data, t, CustomTooltip }) {
         <BarChart data={data}>
           <XAxis dataKey="label" />
           <YAxis />
-          <Tooltip />
+          <Tooltip content={<AppointmentsTooltip t={t} />} />
           <Bar dataKey="total" fill="#1a237e" radius={[8, 8, 0, 0]} />
           <Bar dataKey="completed" fill="#4caf50" radius={[8, 8, 0, 0]} />
           <Bar dataKey="cancelled" fill="#ef4444" radius={[8, 8, 0, 0]} />
@@ -1375,6 +1377,32 @@ function AppointmentsChart({ data, t, CustomTooltip }) {
     </div>
   );
 }
+
+// Tooltip مخصص لـ Appointments
+const AppointmentsTooltip = ({ active, payload, t }) => {
+  if (!active || !payload?.length) return null;
+
+  return (
+    <div className="custom-tooltip">
+      <div className="tooltip-current">
+        <span className="tooltip-label">{t("Total")}:</span>
+        <span className="tooltip-value">{payload[0]?.value || 0}</span>
+      </div>
+      <div className="tooltip-current">
+        <span className="tooltip-label">{t("Completed")}:</span>
+        <span className="tooltip-value" style={{ color: "#4caf50" }}>
+          {payload[1]?.value || 0}
+        </span>
+      </div>
+      <div className="tooltip-current">
+        <span className="tooltip-label">{t("Cancelled")}:</span>
+        <span className="tooltip-value" style={{ color: "#ef4444" }}>
+          {payload[2]?.value || 0}
+        </span>
+      </div>
+    </div>
+  );
+};
 
 function KpiCard({
   title,

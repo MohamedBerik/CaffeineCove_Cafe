@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import axios from "../../services/axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -35,6 +35,7 @@ export default function ErpDashboardHome() {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const { addAlert, markAllAsRead } = useAlertActions();
+  const navigate = useNavigate();
 
   // ========================= State =========================
   const [greeting, setGreeting] = useState("");
@@ -792,18 +793,33 @@ export default function ErpDashboardHome() {
             <h4>{t("Smart Insights")}</h4>
           </div>
           {insights.map((insight, i) => (
-            <div key={i} className={`insight-card ${insight.priority}`}>
+            <div
+              key={i}
+              className={`insight-card ${insight.priority} ${insight.action?.url ? "clickable" : ""}`}
+              onClick={() => {
+                if (insight.action?.url) {
+                  navigate(insight.action.url);
+                }
+              }}
+              style={{ cursor: insight.action?.url ? "pointer" : "default" }}
+            >
               <div className="insight-icon">
                 {insightIconMap[insight.category] || "📊"}
               </div>
               <div className="insight-content">
                 <span className="insight-category">{t(insight.category)}</span>
                 <p>{t(insight.message)}</p>
+                {insight.action?.label && (
+                  <span className="insight-action">
+                    {t(insight.action.label)} →
+                  </span>
+                )}
               </div>
             </div>
           ))}
         </div>
       )}
+
       <SummaryCard messages={summaryMessages} t={t} />
 
       {/* Quick Stats */}

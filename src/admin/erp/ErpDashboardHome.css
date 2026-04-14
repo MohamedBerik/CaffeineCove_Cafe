@@ -1539,3 +1539,45 @@
     justify-content: center;
   }
 }
+
+/* Clickable Insights */
+.insight-card.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.insight-card.clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.insight-card.clickable:active {
+  transform: translateY(-1px);
+}
+
+/* Insight Action Button */
+.insight-action {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #1a237e;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.insight-card.clickable:hover .insight-action {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+/* RTL Support for Insight Action */
+[dir="rtl"] .insight-card.clickable:hover .insight-action {
+  transform: translateX(-4px);
+}
+
+[dir="rtl"] .insight-action {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  gap: 0.25rem;
+}

@@ -898,7 +898,7 @@ export default function ErpDashboardHome() {
           data={visibleRevenueData}
           t={t}
           formatCurrency={formatCurrency}
-          CustomTooltip={CustomTooltip}
+          // CustomTooltip={CustomTooltip}
           AnimatedDot={AnimatedDot}
           chartRef={chartRef}
           focusRange={focusRange}

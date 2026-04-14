@@ -1353,3 +1353,118 @@
 [dir="rtl"] .summary-item.warning {
   border-right-color: #f59e0b;
 }
+
+/* Legend Styles */
+.chart-legend {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.legend-color {
+  width: 20px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.legend-color.current {
+  background: #1a237e;
+  height: 3px;
+}
+
+.legend-color.previous {
+  background: #9ca3af;
+  width: 20px;
+  height: 2px;
+  background-image: linear-gradient(to right, #9ca3af 50%, transparent 50%);
+  background-size: 8px 100%;
+  background-repeat: repeat-x;
+}
+
+.range-btn.active {
+  background: #1a237e;
+  color: white;
+  box-shadow: 0 2px 8px rgba(26, 35, 126, 0.3);
+}
+
+.legend-color.anomaly {
+  background: #ef4444;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+/* Updated Tooltip */
+.custom-tooltip {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e0e0;
+}
+
+.tooltip-current,
+.tooltip-previous,
+.tooltip-change {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.tooltip-current .tooltip-value {
+  color: #1a237e;
+  font-weight: bold;
+}
+
+.tooltip-previous .tooltip-value {
+  color: #9ca3af;
+}
+
+.tooltip-change.positive .tooltip-value {
+  color: #4caf50;
+}
+
+.tooltip-change.negative .tooltip-value {
+  color: #f44336;
+}
+
+.tooltip-label {
+  color: #666;
+}
+
+/* أضف في الـ CSS */
+.appointments-tooltip {
+  background: white;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.appointments-tooltip p {
+  margin: 4px 0;
+  font-size: 12px;
+}
+
+.appointments-tooltip .total {
+  color: #1a237e;
+}
+.appointments-tooltip .completed {
+  color: #4caf50;
+}
+.appointments-tooltip .cancelled {
+  color: #ef4444;
+}

@@ -20,6 +20,16 @@ import {
 
 // ثوابت خارج المكون
 const PRIORITY_MAP = { high: 3, medium: 2, low: 1 };
+const getAnomalyColor = (priority) => {
+  switch (priority) {
+    case "high":
+      return "#ef4444";
+    case "medium":
+      return "#f59e0b";
+    default:
+      return "#eab308";
+  }
+};
 
 export default function ErpDashboardHome() {
   const { t, i18n } = useTranslation();
@@ -45,9 +55,9 @@ export default function ErpDashboardHome() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["dashboard", range],
+    queryKey: ["dashboard", range, "compare"], // ✅ إضافة compare للـ queryKey
     queryFn: async () => {
-      const res = await axios.get(`/erp/dashboard?range=${range}`); // ✅ أضف ?range=${range}
+      const res = await axios.get(`/erp/dashboard?range=${range}&compare=true`);
       let newData = res.data?.data ?? null;
 
       if (newData?.reminders?.alerts) {
@@ -336,20 +346,52 @@ export default function ErpDashboardHome() {
       .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
   }, [dashboard]);
 
+  // ========================= Memoized Values =========================
+
   const revenueChartData = useMemo(() => {
-    return dashboard?.charts?.revenue || [];
+    return dashboard?.charts?.revenue?.current || [];
   }, [dashboard]);
+
+  const previousRevenueData = useMemo(() => {
+    return dashboard?.charts?.revenue?.previous || [];
+  }, [dashboard]);
+
+  const mergedRevenueData = useMemo(() => {
+    if (!revenueChartData.length && !previousRevenueData.length) return [];
+
+    const maxLength = Math.max(
+      revenueChartData.length,
+      previousRevenueData.length,
+    );
+    const merged = [];
+
+    for (let i = 0; i < maxLength; i++) {
+      const currentPoint = revenueChartData[i];
+      const previousPoint = previousRevenueData[i];
+
+      merged.push({
+        label: currentPoint?.label || previousPoint?.label || `#${i + 1}`,
+        date: currentPoint?.date || previousPoint?.date,
+        current: currentPoint?.value || 0,
+        previous: previousPoint?.value || 0,
+        // الحفاظ على anomaly من current إذا وجد
+        anomaly: currentPoint?.anomaly || null,
+      });
+    }
+
+    return merged;
+  }, [revenueChartData, previousRevenueData]);
 
   const appointmentsChartData = useMemo(() => {
     return dashboard?.charts?.appointments || [];
   }, [dashboard]);
 
   const revenueDataWithAnomalies = useMemo(() => {
-    return revenueChartData.map((point) => {
+    return mergedRevenueData.map((point) => {
       const anomaly = revenueAnomalyPoints.find((a) => a.date === point.date);
       return { ...point, anomaly: anomaly || null };
     });
-  }, [revenueChartData, revenueAnomalyPoints]);
+  }, [mergedRevenueData, revenueAnomalyPoints]);
 
   const visibleRevenueData = useMemo(() => {
     return focusRange
@@ -366,18 +408,21 @@ export default function ErpDashboardHome() {
     });
   }, [appointmentsChartData, appointmentsAnomalyPoints]);
 
+  // ========================= Update focusRange effect =========================
+
   useEffect(() => {
     if (!revenueAnomalyPoints.length) {
       setFocusRange(null);
       return;
     }
     const latest = revenueAnomalyPoints[0];
-    const index = revenueChartData.findIndex((d) => d.date === latest.date);
+    // ✅ تعديل البحث في mergedRevenueData بدل revenueChartData
+    const index = mergedRevenueData.findIndex((d) => d.date === latest.date);
     if (index === -1) return;
     const start = Math.max(index - 3, 0);
-    const end = Math.min(index + 4, revenueChartData.length);
+    const end = Math.min(index + 4, mergedRevenueData.length);
     setFocusRange([start, end]);
-  }, [revenueAnomalyPoints, revenueChartData]);
+  }, [revenueAnomalyPoints, mergedRevenueData]);
 
   // ========================= Helpers =========================
   const formatLog = (log) => {
@@ -397,20 +442,9 @@ export default function ErpDashboardHome() {
     return `${type} ${action}`;
   };
 
-  const getAnomalyColor = (priority) => {
-    switch (priority) {
-      case "high":
-        return "#ef4444";
-      case "medium":
-        return "#f59e0b";
-      default:
-        return "#eab308";
-    }
-  };
-
   const AnimatedDot = (props) => {
     const { cx, cy, payload } = props;
-    if (!payload.anomaly) return null;
+    if (!payload?.anomaly) return null;
     return (
       <g>
         <circle
@@ -433,29 +467,29 @@ export default function ErpDashboardHome() {
     );
   };
 
-  const CustomTooltip = ({ active, payload }) => {
-    if (!active || !payload?.length) return null;
-    const data = payload[0].payload;
-    return (
-      <div className="custom-tooltip">
-        <p className="tooltip-value">
-          {new Intl.NumberFormat(i18n.language === "ar" ? "ar-EG" : "en-US", {
-            style: "currency",
-            currency: "EGP",
-          }).format(data.value || 0)}
-        </p>
-        {data.anomaly && (
-          <div
-            className="tooltip-anomaly"
-            style={{ borderColor: getAnomalyColor(data.anomaly.priority) }}
-          >
-            <span className="anomaly-icon">⚠️</span>
-            <span className="anomaly-message">{t(data.anomaly.message)}</span>
-          </div>
-        )}
-      </div>
-    );
-  };
+  // const CustomTooltip = ({ active, payload }) => {
+  //   if (!active || !payload?.length) return null;
+  //   const data = payload[0].payload;
+  //   return (
+  //     <div className="custom-tooltip">
+  //       <p className="tooltip-value">
+  //         {new Intl.NumberFormat(i18n.language === "ar" ? "ar-EG" : "en-US", {
+  //           style: "currency",
+  //           currency: "EGP",
+  //         }).format(data.value || 0)}
+  //       </p>
+  //       {data.anomaly && (
+  //         <div
+  //           className="tooltip-anomaly"
+  //           style={{ borderColor: getAnomalyColor(data.anomaly.priority) }}
+  //         >
+  //           <span className="anomaly-icon">⚠️</span>
+  //           <span className="anomaly-message">{t(data.anomaly.message)}</span>
+  //         </div>
+  //       )}
+  //     </div>
+  //   );
+  // };
 
   const formatCurrency = (value) => {
     const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
@@ -873,7 +907,7 @@ export default function ErpDashboardHome() {
         <AppointmentsChart
           data={appointmentsDataWithAnomalies}
           t={t}
-          CustomTooltip={CustomTooltip}
+          // CustomTooltip={CustomTooltip}
         />
       </div>
 
@@ -1136,6 +1170,53 @@ export default function ErpDashboardHome() {
 }
 
 // ========================= Sub-Components =========================
+const CustomTooltipWrapper = ({ active, payload, formatCurrency, t }) => {
+  if (!active || !payload?.length) return null;
+
+  const currentValue = payload.find((p) => p.dataKey === "current")?.value || 0;
+  const previousValue =
+    payload.find((p) => p.dataKey === "previous")?.value || 0;
+  const anomaly = payload[0]?.payload?.anomaly;
+
+  // حساب التغير
+  const change =
+    previousValue !== 0
+      ? ((currentValue - previousValue) / previousValue) * 100
+      : 0;
+
+  return (
+    <div className="custom-tooltip">
+      <div className="tooltip-current">
+        <span className="tooltip-label">{t("Current")}:</span>
+        <span className="tooltip-value">{formatCurrency(currentValue)}</span>
+      </div>
+      <div className="tooltip-previous">
+        <span className="tooltip-label">{t("Previous")}:</span>
+        <span className="tooltip-value">{formatCurrency(previousValue)}</span>
+      </div>
+      {previousValue > 0 && (
+        <div
+          className={`tooltip-change ${change >= 0 ? "positive" : "negative"}`}
+        >
+          <span className="tooltip-label">{t("Change")}:</span>
+          <span className="tooltip-value">
+            {change >= 0 ? "↑" : "↓"} {Math.abs(change).toFixed(1)}%
+          </span>
+        </div>
+      )}
+      {anomaly && (
+        <div
+          className="tooltip-anomaly"
+          style={{ borderColor: getAnomalyColor(anomaly.priority) }}
+        >
+          <span className="anomaly-icon">⚠️</span>
+          <span className="anomaly-message">{t(anomaly.message)}</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 function RevenueChart({
   data,
   t,
@@ -1163,29 +1244,50 @@ function RevenueChart({
         <i className="fas fa-chart-line"></i>
         <h4>{t("Revenue Overview")}</h4>
       </div>
-      {data.some((d) => d.anomaly) && (
-        <div className="chart-legend">
-          <div className="legend-item">
-            <span className="legend-color revenue"></span>
-            <span>{t("Revenue")}</span>
-          </div>
+      {/* ✅ Legend محدث */}
+      <div className="chart-legend">
+        <div className="legend-item">
+          <span className="legend-color current"></span>
+          <span>{t("Current Period")}</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-color previous"></span>
+          <span>{t("Previous Period")}</span>
+        </div>
+        {data.some((d) => d.anomaly) && (
           <div className="legend-item">
             <span className="legend-color anomaly"></span>
-            <span>{t("Anomaly")}</span>
+            <span>{t("Anomaly Detected")}</span>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={data}>
           <XAxis dataKey="label" />
           <YAxis />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip
+            content={
+              <CustomTooltipWrapper formatCurrency={formatCurrency} t={t} />
+            }
+          />
+          {/* ✅ Current Line - Solid */}
           <Line
             type="monotone"
-            dataKey="value"
+            dataKey="current"
             stroke="#1a237e"
-            strokeWidth={2}
+            strokeWidth={3}
             dot={<AnimatedDot />}
+            isAnimationActive={true}
+            animationDuration={500}
+          />
+          {/* ✅ Previous Line - Dashed */}
+          <Line
+            type="monotone"
+            dataKey="previous"
+            stroke="#9ca3af"
+            strokeDasharray="5 5"
+            strokeWidth={2}
+            dot={false}
             isAnimationActive={true}
             animationDuration={500}
           />

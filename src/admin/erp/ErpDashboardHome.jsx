@@ -712,20 +712,6 @@ export default function ErpDashboardHome() {
         </div>
       </div>
 
-      <div className="range-toggle-container">
-        <div className="range-toggle">
-          {["day", "week", "month"].map((r) => (
-            <button
-              key={r}
-              className={`range-btn ${range === r ? "active" : ""}`}
-              onClick={() => setRange(r)}
-            >
-              {t(r)}
-            </button>
-          ))}
-        </div>
-      </div>
-
       <div className="comparison-toggle-container">
         <div className="range-toggle">
           {["day", "week", "month"].map((r) => (

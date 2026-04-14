@@ -1123,14 +1123,6 @@
 }
 
 /* ==================== Chart Legend ==================== */
-.chart-legend {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-}
 
 .legend-item {
   display: flex;
@@ -1363,6 +1355,7 @@
   padding: 0.5rem;
   background: rgba(0, 0, 0, 0.02);
   border-radius: 8px;
+  flex-wrap: wrap;
 }
 
 .legend-item {

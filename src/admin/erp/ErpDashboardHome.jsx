@@ -631,6 +631,15 @@ export default function ErpDashboardHome() {
     return generateSummary(kpis);
   }, [dashboard?.kpis, t]);
 
+  useEffect(() => {
+    const insights = dashboard?.insights || [];
+    if (insights.length > 0) {
+      const highIndex = insights.findIndex((i) => i.priority === "high");
+      if (highIndex !== -1) {
+        setExpandedInsight(highIndex);
+      }
+    }
+  }, [dashboard?.insights]);
   // ========================= Early Returns =========================
   if (isLoading) {
     return (
@@ -684,15 +693,6 @@ export default function ErpDashboardHome() {
     invoices: "🧾",
     patients: "👥",
   };
-
-  useEffect(() => {
-    if (insights.length > 0) {
-      const highIndex = insights.findIndex((i) => i.priority === "high");
-      if (highIndex !== -1) {
-        setExpandedInsight(highIndex);
-      }
-    }
-  }, [insights]);
 
   const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
   const totalRevenue = kpis.revenue?.current || 0;

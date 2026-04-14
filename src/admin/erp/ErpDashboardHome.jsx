@@ -21,255 +21,6 @@ import {
 // ثوابت خارج المكون
 const PRIORITY_MAP = { high: 3, medium: 2, low: 1 };
 
-// ========================= Sub-Components =========================
-function RevenueChart({
-  data,
-  t,
-  formatCurrency,
-  CustomTooltip,
-  AnimatedDot,
-  chartRef,
-  focusRange,
-  setFocusRange,
-}) {
-  if (!data || data.length === 0) {
-    return (
-      <div className="chart-card">
-        <div className="chart-header">
-          <i className="fas fa-chart-line"></i>
-          <h4>{t("Revenue Overview")}</h4>
-        </div>
-        <div className="chart-empty">No data available</div>
-      </div>
-    );
-  }
-  return (
-    <div className="chart-card" ref={chartRef}>
-      <div className="chart-header">
-        <i className="fas fa-chart-line"></i>
-        <h4>{t("Revenue Overview")}</h4>
-      </div>
-      {data.some((d) => d.anomaly) && (
-        <div className="chart-legend">
-          <div className="legend-item">
-            <span className="legend-color revenue"></span>
-            <span>{t("Revenue")}</span>
-          </div>
-          <div className="legend-item">
-            <span className="legend-color anomaly"></span>
-            <span>{t("Anomaly")}</span>
-          </div>
-        </div>
-      )}
-      <ResponsiveContainer width="100%" height={250}>
-        <LineChart data={data}>
-          <XAxis dataKey="label" />
-          <YAxis />
-          <Tooltip content={<CustomTooltip />} />
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke="#1a237e"
-            strokeWidth={2}
-            dot={<AnimatedDot />}
-            isAnimationActive={true}
-            animationDuration={500}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-      {focusRange && (
-        <button className="reset-view-btn" onClick={() => setFocusRange(null)}>
-          <i className="fas fa-expand"></i> {t("Reset View")}
-        </button>
-      )}
-    </div>
-  );
-}
-
-function AppointmentsChart({ data, t, CustomTooltip }) {
-  if (!data || data.length === 0) {
-    return (
-      <div className="chart-card">
-        <div className="chart-header">
-          <i className="fas fa-calendar-check"></i>
-          <h4>{t("Appointments Today")}</h4>
-        </div>
-        <div className="chart-empty">No data available</div>
-      </div>
-    );
-  }
-  return (
-    <div className="chart-card">
-      <div className="chart-header">
-        <i className="fas fa-calendar-check"></i>
-        <h4>{t("Appointments Today")}</h4>
-      </div>
-      <div className="chart-legend">
-        <div className="legend-item">
-          <span className="legend-color total"></span>
-          <span>{t("Total")}</span>
-        </div>
-        <div className="legend-item">
-          <span className="legend-color completed"></span>
-          <span>{t("Completed")}</span>
-        </div>
-        <div className="legend-item">
-          <span className="legend-color cancelled"></span>
-          <span>{t("Cancelled")}</span>
-        </div>
-      </div>
-      <ResponsiveContainer width="100%" height={250}>
-        <BarChart data={data}>
-          <XAxis dataKey="label" />
-          <YAxis />
-          <Tooltip content={<CustomTooltip />} />
-          <Bar dataKey="total" fill="#1a237e" radius={[8, 8, 0, 0]} />
-          <Bar dataKey="completed" fill="#4caf50" radius={[8, 8, 0, 0]} />
-          <Bar dataKey="cancelled" fill="#ef4444" radius={[8, 8, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-
-function KpiCard({
-  title,
-  value,
-  icon,
-  color = "primary",
-  link,
-  trend,
-  delta,
-  deltaLabel,
-}) {
-  const colorMap = {
-    primary: {
-      bg: "rgba(26, 35, 126, 0.1)",
-      text: "#1a237e",
-      border: "#1a237e",
-    },
-    info: { bg: "rgba(3, 169, 244, 0.1)", text: "#03a9f4", border: "#03a9f4" },
-    success: {
-      bg: "rgba(76, 175, 80, 0.1)",
-      text: "#4caf50",
-      border: "#4caf50",
-    },
-    danger: {
-      bg: "rgba(244, 67, 54, 0.1)",
-      text: "#f44336",
-      border: "#f44336",
-    },
-    warning: {
-      bg: "rgba(255, 152, 0, 0.1)",
-      text: "#ff9800",
-      border: "#ff9800",
-    },
-    secondary: {
-      bg: "rgba(108, 117, 125, 0.1)",
-      text: "#6c757d",
-      border: "#6c757d",
-    },
-    dark: { bg: "rgba(33, 37, 41, 0.1)", text: "#212529", border: "#212529" },
-  };
-  const colors = colorMap[color] || colorMap.primary;
-  const cardContent = (
-    <div className={`kpi-card premium-card ${link ? "clickable" : ""}`}>
-      <div className="kpi-card-header">
-        <div
-          className="kpi-icon-wrapper"
-          style={{ backgroundColor: colors.bg }}
-        >
-          <i className={icon} style={{ color: colors.text }}></i>
-        </div>
-        {trend && (
-          <div
-            className={`kpi-trend ${trend.includes("+") ? "positive" : "negative"}`}
-          >
-            <i
-              className={`fas fa-arrow-${trend.includes("+") ? "up" : "down"}`}
-            ></i>
-            <span>{trend}</span>
-          </div>
-        )}
-      </div>
-      <div className="kpi-card-body">
-        <span className="kpi-value">{value}</span>
-        <span className="kpi-title">{title}</span>
-        {delta !== undefined && (
-          <div className={`kpi-delta ${delta >= 0 ? "positive" : "negative"}`}>
-            <i className={`fas fa-arrow-${delta >= 0 ? "up" : "down"}`}></i>
-            <span>
-              {Math.abs(delta).toFixed(1)}% {deltaLabel}
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-  if (!link) return cardContent;
-  return (
-    <Link to={link} className="kpi-link-wrapper">
-      {cardContent}
-    </Link>
-  );
-}
-
-function EmptyState({ text }) {
-  return (
-    <div className="empty-state">
-      <i className="fas fa-inbox empty-icon"></i>
-      <p className="empty-text">{text}</p>
-    </div>
-  );
-}
-
-function StatusBadge({ status }) {
-  const { t } = useTranslation();
-  const statusMap = {
-    paid: { label: "Paid", class: "success" },
-    completed: { label: "Completed", class: "success" },
-    unpaid: { label: "Unpaid", class: "danger" },
-    cancelled: { label: "Cancelled", class: "danger" },
-    no_show: { label: "No Show", class: "danger" },
-    partially_paid: { label: "Partially Paid", class: "warning" },
-    scheduled: { label: "Scheduled", class: "warning" },
-    in_progress: { label: "In Progress", class: "info" },
-    pending: { label: "Pending", class: "secondary" },
-  };
-  const value = String(status || "").toLowerCase();
-  const statusInfo = statusMap[value] || { label: status, class: "secondary" };
-  return (
-    <span className={`status-badge status-${statusInfo.class}`}>
-      <span className="status-dot"></span>
-      {t(statusInfo.label)}
-    </span>
-  );
-}
-
-function SummaryCard({ messages, t }) {
-  if (!messages.length) return null;
-
-  return (
-    <div className="summary-card">
-      <div className="summary-header">
-        <span>🧠 {t("Smart Summary")}</span>
-      </div>
-      <div className="summary-body">
-        {messages.map((msg, i) => (
-          <div key={i} className={`summary-item ${msg.type}`}>
-            <span className="icon">
-              {msg.type === "positive" && "📈"}
-              {msg.type === "negative" && "📉"}
-              {msg.type === "warning" && "⚠️"}
-            </span>
-            <span>{msg.message}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export default function ErpDashboardHome() {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
@@ -585,11 +336,6 @@ export default function ErpDashboardHome() {
       .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
   }, [dashboard]);
 
-  const summaryMessages = useMemo(() => {
-    if (!dashboard?.kpis) return [];
-    return generateSummary(kpis);
-  }, [kpis]);
-
   const revenueChartData = useMemo(() => {
     return dashboard?.charts?.revenue || [];
   }, [dashboard]);
@@ -862,6 +608,11 @@ export default function ErpDashboardHome() {
       .sort((a, b) => priorityOrder[b.type] - priorityOrder[a.type])
       .slice(0, 3);
   };
+
+  const summaryMessages = useMemo(() => {
+    if (!dashboard?.kpis) return [];
+    return generateSummary(kpis);
+  }, [kpis]);
 
   const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
   const totalRevenue = kpis.revenue?.current || 0;
@@ -1378,6 +1129,255 @@ export default function ErpDashboardHome() {
             </div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ========================= Sub-Components =========================
+function RevenueChart({
+  data,
+  t,
+  formatCurrency,
+  CustomTooltip,
+  AnimatedDot,
+  chartRef,
+  focusRange,
+  setFocusRange,
+}) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="chart-card">
+        <div className="chart-header">
+          <i className="fas fa-chart-line"></i>
+          <h4>{t("Revenue Overview")}</h4>
+        </div>
+        <div className="chart-empty">No data available</div>
+      </div>
+    );
+  }
+  return (
+    <div className="chart-card" ref={chartRef}>
+      <div className="chart-header">
+        <i className="fas fa-chart-line"></i>
+        <h4>{t("Revenue Overview")}</h4>
+      </div>
+      {data.some((d) => d.anomaly) && (
+        <div className="chart-legend">
+          <div className="legend-item">
+            <span className="legend-color revenue"></span>
+            <span>{t("Revenue")}</span>
+          </div>
+          <div className="legend-item">
+            <span className="legend-color anomaly"></span>
+            <span>{t("Anomaly")}</span>
+          </div>
+        </div>
+      )}
+      <ResponsiveContainer width="100%" height={250}>
+        <LineChart data={data}>
+          <XAxis dataKey="label" />
+          <YAxis />
+          <Tooltip content={<CustomTooltip />} />
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke="#1a237e"
+            strokeWidth={2}
+            dot={<AnimatedDot />}
+            isAnimationActive={true}
+            animationDuration={500}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+      {focusRange && (
+        <button className="reset-view-btn" onClick={() => setFocusRange(null)}>
+          <i className="fas fa-expand"></i> {t("Reset View")}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function AppointmentsChart({ data, t, CustomTooltip }) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="chart-card">
+        <div className="chart-header">
+          <i className="fas fa-calendar-check"></i>
+          <h4>{t("Appointments Today")}</h4>
+        </div>
+        <div className="chart-empty">No data available</div>
+      </div>
+    );
+  }
+  return (
+    <div className="chart-card">
+      <div className="chart-header">
+        <i className="fas fa-calendar-check"></i>
+        <h4>{t("Appointments Today")}</h4>
+      </div>
+      <div className="chart-legend">
+        <div className="legend-item">
+          <span className="legend-color total"></span>
+          <span>{t("Total")}</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-color completed"></span>
+          <span>{t("Completed")}</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-color cancelled"></span>
+          <span>{t("Cancelled")}</span>
+        </div>
+      </div>
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart data={data}>
+          <XAxis dataKey="label" />
+          <YAxis />
+          <Tooltip content={<CustomTooltip />} />
+          <Bar dataKey="total" fill="#1a237e" radius={[8, 8, 0, 0]} />
+          <Bar dataKey="completed" fill="#4caf50" radius={[8, 8, 0, 0]} />
+          <Bar dataKey="cancelled" fill="#ef4444" radius={[8, 8, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function KpiCard({
+  title,
+  value,
+  icon,
+  color = "primary",
+  link,
+  trend,
+  delta,
+  deltaLabel,
+}) {
+  const colorMap = {
+    primary: {
+      bg: "rgba(26, 35, 126, 0.1)",
+      text: "#1a237e",
+      border: "#1a237e",
+    },
+    info: { bg: "rgba(3, 169, 244, 0.1)", text: "#03a9f4", border: "#03a9f4" },
+    success: {
+      bg: "rgba(76, 175, 80, 0.1)",
+      text: "#4caf50",
+      border: "#4caf50",
+    },
+    danger: {
+      bg: "rgba(244, 67, 54, 0.1)",
+      text: "#f44336",
+      border: "#f44336",
+    },
+    warning: {
+      bg: "rgba(255, 152, 0, 0.1)",
+      text: "#ff9800",
+      border: "#ff9800",
+    },
+    secondary: {
+      bg: "rgba(108, 117, 125, 0.1)",
+      text: "#6c757d",
+      border: "#6c757d",
+    },
+    dark: { bg: "rgba(33, 37, 41, 0.1)", text: "#212529", border: "#212529" },
+  };
+  const colors = colorMap[color] || colorMap.primary;
+  const cardContent = (
+    <div className={`kpi-card premium-card ${link ? "clickable" : ""}`}>
+      <div className="kpi-card-header">
+        <div
+          className="kpi-icon-wrapper"
+          style={{ backgroundColor: colors.bg }}
+        >
+          <i className={icon} style={{ color: colors.text }}></i>
+        </div>
+        {trend && (
+          <div
+            className={`kpi-trend ${trend.includes("+") ? "positive" : "negative"}`}
+          >
+            <i
+              className={`fas fa-arrow-${trend.includes("+") ? "up" : "down"}`}
+            ></i>
+            <span>{trend}</span>
+          </div>
+        )}
+      </div>
+      <div className="kpi-card-body">
+        <span className="kpi-value">{value}</span>
+        <span className="kpi-title">{title}</span>
+        {delta !== undefined && (
+          <div className={`kpi-delta ${delta >= 0 ? "positive" : "negative"}`}>
+            <i className={`fas fa-arrow-${delta >= 0 ? "up" : "down"}`}></i>
+            <span>
+              {Math.abs(delta).toFixed(1)}% {deltaLabel}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+  if (!link) return cardContent;
+  return (
+    <Link to={link} className="kpi-link-wrapper">
+      {cardContent}
+    </Link>
+  );
+}
+
+function EmptyState({ text }) {
+  return (
+    <div className="empty-state">
+      <i className="fas fa-inbox empty-icon"></i>
+      <p className="empty-text">{text}</p>
+    </div>
+  );
+}
+
+function StatusBadge({ status }) {
+  const { t } = useTranslation();
+  const statusMap = {
+    paid: { label: "Paid", class: "success" },
+    completed: { label: "Completed", class: "success" },
+    unpaid: { label: "Unpaid", class: "danger" },
+    cancelled: { label: "Cancelled", class: "danger" },
+    no_show: { label: "No Show", class: "danger" },
+    partially_paid: { label: "Partially Paid", class: "warning" },
+    scheduled: { label: "Scheduled", class: "warning" },
+    in_progress: { label: "In Progress", class: "info" },
+    pending: { label: "Pending", class: "secondary" },
+  };
+  const value = String(status || "").toLowerCase();
+  const statusInfo = statusMap[value] || { label: status, class: "secondary" };
+  return (
+    <span className={`status-badge status-${statusInfo.class}`}>
+      <span className="status-dot"></span>
+      {t(statusInfo.label)}
+    </span>
+  );
+}
+
+function SummaryCard({ messages, t }) {
+  if (!messages.length) return null;
+
+  return (
+    <div className="summary-card">
+      <div className="summary-header">
+        <span>🧠 {t("Smart Summary")}</span>
+      </div>
+      <div className="summary-body">
+        {messages.map((msg, i) => (
+          <div key={i} className={`summary-item ${msg.type}`}>
+            <span className="icon">
+              {msg.type === "positive" && "📈"}
+              {msg.type === "negative" && "📉"}
+              {msg.type === "warning" && "⚠️"}
+            </span>
+            <span>{msg.message}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

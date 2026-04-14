@@ -349,11 +349,27 @@ export default function ErpDashboardHome() {
   // ========================= Memoized Values =========================
 
   const revenueChartData = useMemo(() => {
-    return dashboard?.charts?.revenue?.current || [];
+    // الـ API بيرجع array فيها current و previous جاهزة
+    const revenueData = dashboard?.charts?.revenue || [];
+
+    // حولها للشكل المطلوب للـ chart
+    return revenueData.map((item) => ({
+      label: item.label,
+      value: item.current, // current هو اللي يظهر كـ value
+      date: item.label,
+      anomaly: null,
+    }));
   }, [dashboard]);
 
   const previousRevenueData = useMemo(() => {
-    return dashboard?.charts?.revenue?.previous || [];
+    const revenueData = dashboard?.charts?.revenue || [];
+
+    return revenueData.map((item) => ({
+      label: item.label,
+      value: item.previous,
+      date: item.label,
+      anomaly: null,
+    }));
   }, [dashboard]);
 
   const mergedRevenueData = useMemo(() => {
@@ -382,10 +398,6 @@ export default function ErpDashboardHome() {
     return merged;
   }, [revenueChartData, previousRevenueData]);
 
-  const appointmentsChartData = useMemo(() => {
-    return dashboard?.charts?.appointments || [];
-  }, [dashboard]);
-
   const revenueDataWithAnomalies = useMemo(() => {
     return mergedRevenueData.map((point) => {
       const anomaly = revenueAnomalyPoints.find((a) => a.date === point.date);
@@ -398,6 +410,18 @@ export default function ErpDashboardHome() {
       ? revenueDataWithAnomalies.slice(focusRange[0], focusRange[1])
       : revenueDataWithAnomalies;
   }, [focusRange, revenueDataWithAnomalies]);
+
+  const appointmentsChartData = useMemo(() => {
+    const appointmentsData = dashboard?.charts?.appointments || [];
+
+    return appointmentsData.map((item) => ({
+      label: item.label,
+      total: item.current, // current = total appointments
+      completed: item.completed || 0, // لو موجود
+      cancelled: item.cancelled || 0, // لو موجود
+      anomaly: null,
+    }));
+  }, [dashboard]);
 
   const appointmentsDataWithAnomalies = useMemo(() => {
     return appointmentsChartData.map((point) => {

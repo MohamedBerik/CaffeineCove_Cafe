@@ -298,15 +298,6 @@ export default function ErpDashboardHome() {
   }, [queryClient]);
 
   // ========================= Effects =========================
-  useEffect(() => {
-    if (insights.length > 0) {
-      // تلقائياً افتح أول insight فيه priority = high
-      const highIndex = insights.findIndex((i) => i.priority === "high");
-      if (highIndex !== -1) {
-        setExpandedInsight(highIndex);
-      }
-    }
-  }, [insights]);
 
   useEffect(() => {
     if (focusRange && chartRef.current) {
@@ -693,6 +684,15 @@ export default function ErpDashboardHome() {
     invoices: "🧾",
     patients: "👥",
   };
+
+  useEffect(() => {
+    if (insights.length > 0) {
+      const highIndex = insights.findIndex((i) => i.priority === "high");
+      if (highIndex !== -1) {
+        setExpandedInsight(highIndex);
+      }
+    }
+  }, [insights]);
 
   const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
   const totalRevenue = kpis.revenue?.current || 0;

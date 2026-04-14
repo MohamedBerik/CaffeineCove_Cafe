@@ -299,6 +299,16 @@ export default function ErpDashboardHome() {
 
   // ========================= Effects =========================
   useEffect(() => {
+    if (insights.length > 0) {
+      // تلقائياً افتح أول insight فيه priority = high
+      const highIndex = insights.findIndex((i) => i.priority === "high");
+      if (highIndex !== -1) {
+        setExpandedInsight(highIndex);
+      }
+    }
+  }, [insights]);
+
+  useEffect(() => {
     if (focusRange && chartRef.current) {
       chartRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
     }
@@ -321,15 +331,6 @@ export default function ErpDashboardHome() {
     localStorage.setItem("showComparison", showComparison);
   }, [showComparison]);
 
-  useEffect(() => {
-    if (insights.length > 0) {
-      // تلقائياً افتح أول insight فيه priority = high
-      const highIndex = insights.findIndex((i) => i.priority === "high");
-      if (highIndex !== -1) {
-        setExpandedInsight(highIndex);
-      }
-    }
-  }, [insights]);
   // ========================= Socket =========================
   useAlertsSocket((payload) => {
     if (payload.type === "insight" || payload.insight) {

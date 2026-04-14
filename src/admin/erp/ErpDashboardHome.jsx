@@ -48,6 +48,7 @@ export default function ErpDashboardHome() {
     const saved = localStorage.getItem("showComparison");
     return saved === "true";
   });
+  const [expandedInsight, setExpandedInsight] = useState(null);
   // ========================= Refs =========================
   const acknowledgingRef = useRef(new Set());
   const buffer = useRef([]);
@@ -320,6 +321,15 @@ export default function ErpDashboardHome() {
     localStorage.setItem("showComparison", showComparison);
   }, [showComparison]);
 
+  useEffect(() => {
+    if (insights.length > 0) {
+      // تلقائياً افتح أول insight فيه priority = high
+      const highIndex = insights.findIndex((i) => i.priority === "high");
+      if (highIndex !== -1) {
+        setExpandedInsight(highIndex);
+      }
+    }
+  }, [insights]);
   // ========================= Socket =========================
   useAlertsSocket((payload) => {
     if (payload.type === "insight" || payload.insight) {
@@ -795,13 +805,23 @@ export default function ErpDashboardHome() {
           {insights.map((insight, i) => (
             <div
               key={i}
-              className={`insight-card ${insight.priority} ${insight.action?.url ? "clickable" : ""}`}
+              className={`insight-card ${insight.priority} ${insight.explanation ? "expandable" : ""} ${insight.action?.url ? "clickable" : ""}`}
               onClick={() => {
-                if (insight.action?.url) {
+                // إذا كان في explanation، نوسع الكارد
+                if (insight.explanation) {
+                  setExpandedInsight(expandedInsight === i ? null : i);
+                }
+                // إذا كان في action، نتنقل
+                if (insight.action?.url && !insight.explanation) {
                   navigate(insight.action.url);
                 }
               }}
-              style={{ cursor: insight.action?.url ? "pointer" : "default" }}
+              style={{
+                cursor:
+                  insight.explanation || insight.action?.url
+                    ? "pointer"
+                    : "default",
+              }}
             >
               <div className="insight-icon">
                 {insightIconMap[insight.category] || "📊"}
@@ -809,9 +829,37 @@ export default function ErpDashboardHome() {
               <div className="insight-content">
                 <span className="insight-category">{t(insight.category)}</span>
                 <p>{t(insight.message)}</p>
-                {insight.action?.label && (
+
+                {/* 🔥 Explanation Section - Expandable */}
+                {expandedInsight === i && insight.explanation && (
+                  <div className="insight-explanation">
+                    <p className="explanation-summary">
+                      {t(insight.explanation.summary)}
+                    </p>
+                    <ul className="explanation-factors">
+                      {insight.explanation.factors.map((factor, idx) => (
+                        <li key={idx}>
+                          <span>{t(factor.label)}</span>
+                          <strong className={factor.value > 10 ? "high" : ""}>
+                            {factor.value}
+                          </strong>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Action Button */}
+                {insight.action?.label && !insight.explanation && (
                   <span className="insight-action">
                     {t(insight.action.label)} →
+                  </span>
+                )}
+
+                {/* Expand Indicator */}
+                {insight.explanation && (
+                  <span className="expand-indicator">
+                    {expandedInsight === i ? "▲" : "▼"} {t("Show details")}
                   </span>
                 )}
               </div>

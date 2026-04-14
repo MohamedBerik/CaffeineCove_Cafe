@@ -1581,3 +1581,105 @@
   flex-direction: row-reverse;
   gap: 0.25rem;
 }
+
+/* Expandable Insight Card */
+.insight-card.expandable {
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.insight-card.expandable:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Explanation Section */
+.insight-explanation {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.03);
+  border-left: 3px solid #1a237e;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.explanation-summary {
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: #555;
+  font-weight: 500;
+}
+
+.explanation-factors {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.explanation-factors li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 13px;
+}
+
+.explanation-factors li:last-child {
+  border-bottom: none;
+}
+
+.explanation-factors li span {
+  color: #666;
+}
+
+.explanation-factors li strong {
+  color: #1a237e;
+  font-weight: 600;
+}
+
+.explanation-factors li strong.high {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+/* Expand Indicator */
+.expand-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: #1a237e;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.insight-card.expandable:hover .expand-indicator {
+  opacity: 1;
+}
+
+/* RTL Support */
+[dir="rtl"] .insight-explanation {
+  border-left: none;
+  border-right: 3px solid #1a237e;
+}
+
+[dir="rtl"] .explanation-factors li span {
+  order: 2;
+}
+
+[dir="rtl"] .explanation-factors li strong {
+  order: 1;
+}

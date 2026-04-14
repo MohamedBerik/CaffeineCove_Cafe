@@ -1468,3 +1468,81 @@
 .appointments-tooltip .cancelled {
   color: #ef4444;
 }
+
+/* Comparison Toggle Container */
+.comparison-toggle-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Comparison Toggle */
+.comparison-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #4b5563;
+  padding: 0.5rem 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.comparison-toggle:hover {
+  background: #f8f9ff;
+  border-color: #1a237e;
+}
+
+.comparison-toggle input {
+  width: 40px;
+  height: 20px;
+  appearance: none;
+  background: #e5e7eb;
+  border-radius: 20px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.comparison-toggle input:checked {
+  background: #1a237e;
+}
+
+.comparison-toggle input::before {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+}
+
+.comparison-toggle input:checked::before {
+  transform: translateX(20px);
+}
+
+/* RTL Support */
+[dir="rtl"] .comparison-toggle input:checked::before {
+  transform: translateX(-20px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .comparison-toggle-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .comparison-toggle {
+    justify-content: center;
+  }
+}

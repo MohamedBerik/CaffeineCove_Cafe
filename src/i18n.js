@@ -2263,6 +2263,8 @@ const resources = {
       day: "Day",
       week: "Week",
       month: "Month",
+
+      "Compare with previous period": "Compare with previous period",
     },
   },
   ar: {
@@ -4510,6 +4512,7 @@ const resources = {
       day: "يوم",
       week: "أسبوع",
       month: "شهر",
+      "Compare with previous period": "مقارنة بالفترة السابقة",
     },
   },
 };

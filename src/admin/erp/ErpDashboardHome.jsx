@@ -42,7 +42,11 @@ export default function ErpDashboardHome() {
   const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
   const [focusRange, setFocusRange] = useState(null);
   const [range, setRange] = useState("day");
-
+  const [showComparison, setShowComparison] = useState(() => {
+    // Load from localStorage (optional)
+    const saved = localStorage.getItem("showComparison");
+    return saved === "true";
+  });
   // ========================= Refs =========================
   const acknowledgingRef = useRef(new Set());
   const buffer = useRef([]);
@@ -310,6 +314,10 @@ export default function ErpDashboardHome() {
     }, 60000);
     return () => clearInterval(greetingInterval);
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("showComparison", showComparison);
+  }, [showComparison]);
 
   // ========================= Socket =========================
   useAlertsSocket((payload) => {
@@ -718,6 +726,30 @@ export default function ErpDashboardHome() {
         </div>
       </div>
 
+      <div className="comparison-toggle-container">
+        <div className="range-toggle">
+          {["day", "week", "month"].map((r) => (
+            <button
+              key={r}
+              className={`range-btn ${range === r ? "active" : ""}`}
+              onClick={() => setRange(r)}
+            >
+              {t(r)}
+            </button>
+          ))}
+        </div>
+
+        {/* ✅ Toggle Component */}
+        <label className="comparison-toggle">
+          <input
+            type="checkbox"
+            checked={showComparison}
+            onChange={() => setShowComparison((prev) => !prev)}
+          />
+          <span>{t("Compare with previous period")}</span>
+        </label>
+      </div>
+
       {/* Alerts Section */}
       {alerts.length > 0 && (
         <div className="alerts-container" onClick={markAllAsRead}>
@@ -928,6 +960,7 @@ export default function ErpDashboardHome() {
           chartRef={chartRef}
           focusRange={focusRange}
           setFocusRange={setFocusRange}
+          showComparison={showComparison} // ✅ أضف هذا
         />
         <AppointmentsChart
           data={appointmentsDataWithAnomalies}
@@ -1246,11 +1279,11 @@ function RevenueChart({
   data,
   t,
   formatCurrency,
-  CustomTooltip,
   AnimatedDot,
   chartRef,
   focusRange,
   setFocusRange,
+  showComparison, // ✅ أضف هذا
 }) {
   if (!data || data.length === 0) {
     return (
@@ -1263,22 +1296,26 @@ function RevenueChart({
       </div>
     );
   }
+
   return (
     <div className="chart-card" ref={chartRef}>
       <div className="chart-header">
         <i className="fas fa-chart-line"></i>
         <h4>{t("Revenue Overview")}</h4>
       </div>
-      {/* ✅ Legend محدث */}
+
+      {/* ✅ Legend متغير حسب showComparison */}
       <div className="chart-legend">
         <div className="legend-item">
           <span className="legend-color current"></span>
           <span>{t("Current Period")}</span>
         </div>
-        <div className="legend-item">
-          <span className="legend-color previous"></span>
-          <span>{t("Previous Period")}</span>
-        </div>
+        {showComparison && (
+          <div className="legend-item">
+            <span className="legend-color previous"></span>
+            <span>{t("Previous Period")}</span>
+          </div>
+        )}
         {data.some((d) => d.anomaly) && (
           <div className="legend-item">
             <span className="legend-color anomaly"></span>
@@ -1286,6 +1323,7 @@ function RevenueChart({
           </div>
         )}
       </div>
+
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={data}>
           <XAxis dataKey="label" />
@@ -1299,7 +1337,7 @@ function RevenueChart({
               />
             )}
           />
-          {/* ✅ Current Line - Solid */}
+          {/* ✅ Current Line - Solid (دائماً موجود) */}
           <Line
             type="monotone"
             dataKey="current"
@@ -1309,19 +1347,22 @@ function RevenueChart({
             isAnimationActive={true}
             animationDuration={500}
           />
-          {/* ✅ Previous Line - Dashed */}
-          <Line
-            type="monotone"
-            dataKey="previous"
-            stroke="#9ca3af"
-            strokeDasharray="5 5"
-            strokeWidth={2}
-            dot={false}
-            isAnimationActive={true}
-            animationDuration={500}
-          />
+          {/* ✅ Previous Line - Dashed (يظهر فقط عند تفعيل toggle) */}
+          {showComparison && (
+            <Line
+              type="monotone"
+              dataKey="previous"
+              stroke="#9ca3af"
+              strokeDasharray="5 5"
+              strokeWidth={2}
+              dot={false}
+              isAnimationActive={true}
+              animationDuration={400}
+            />
+          )}
         </LineChart>
       </ResponsiveContainer>
+
       {focusRange && (
         <button className="reset-view-btn" onClick={() => setFocusRange(null)}>
           <i className="fas fa-expand"></i> {t("Reset View")}

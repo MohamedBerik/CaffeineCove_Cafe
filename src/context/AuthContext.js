@@ -1,4 +1,3 @@
-// src/context/AuthContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../services/axios";
 
@@ -9,28 +8,31 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const logoutLocal = () => {
-    localStorage.clear();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
   };
 
-  const loadUser = async (token) => {
+  const loadUser = async () => {
     try {
-      // ✅ استخدم الـ interceptor بدل ما تبعت header يدوي
       const res = await api.get("/me");
 
-      const userData = res.data;
+      // ✅ البيانات اللي بترجع من /me
+      const userData = res.data.user || res.data;
 
+      // ✅ خزن البيانات كاملة
       localStorage.setItem("user", JSON.stringify(userData));
 
-      setUser({
-        ...userData,
-        token,
-      });
+      setUser(userData);
+      return true;
     } catch (err) {
       console.error("Failed to load user", err);
-      logoutLocal();
-    } finally {
-      setLoading(false);
+
+      // ✅ لو 401، يبقى التوكين مش صالح
+      if (err.response?.status === 401) {
+        logoutLocal();
+      }
+      return false;
     }
   };
 
@@ -38,19 +40,23 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem("token");
 
     if (token) {
-      // ✅ ضبط التوكين في axios قبل ما نعمل request
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      loadUser(token);
+      loadUser().finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
   }, []);
 
-  const login = async (_userData, token) => {
+  const login = async (userData, token) => {
+    // ✅ خزن التوكين
     localStorage.setItem("token", token);
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    setLoading(true);
-    await loadUser(token);
+
+    // ✅ خزن بيانات المستخدم
+    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData);
+
+    setLoading(false);
   };
 
   const logout = async () => {

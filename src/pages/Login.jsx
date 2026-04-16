@@ -22,17 +22,13 @@ function Login() {
     setError("");
 
     try {
-      // ✅ تأكد من المسار الصحيح
       const res = await api.post("/login", { email, password });
 
-      // ✅ تخزين بيانات المستخدم والتوكين
+      // ✅ استخدم البيانات اللي رجعت من الـ API
       login(res.data.user, res.data.token);
 
-      // ✅ توجيه المستخدم حسب الـ role
-      const userRole = res.data.user.role;
-      const isSuperAdmin = res.data.user.is_super_admin;
-
-      if (isSuperAdmin || userRole === "super_admin" || userRole === "admin") {
+      // ✅ توجيه مباشر
+      if (res.data.user.is_super_admin || res.data.user.role === "admin") {
         navigate("/admin/erp");
       } else {
         navigate("/");

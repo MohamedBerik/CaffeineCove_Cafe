@@ -22,16 +22,20 @@ function Login() {
     setError("");
 
     try {
+      // ✅ تأكد من المسار الصحيح
       const res = await api.post("/login", { email, password });
 
-      // ✅ تخزين بيانات المستخدم بما فيها role
+      // ✅ تخزين بيانات المستخدم والتوكين
       login(res.data.user, res.data.token);
 
-      // توجيه المستخدم حسب الـ role
-      if (res.data.user.role === "admin") {
-        navigate("/admin/erp"); // Admin يدخل لوحة التحكم
+      // ✅ توجيه المستخدم حسب الـ role
+      const userRole = res.data.user.role;
+      const isSuperAdmin = res.data.user.is_super_admin;
+
+      if (isSuperAdmin || userRole === "super_admin" || userRole === "admin") {
+        navigate("/admin/erp");
       } else {
-        navigate("/"); // المستخدم العادي يدخل الصفحة الرئيسية
+        navigate("/");
       }
     } catch (err) {
       console.error(err);

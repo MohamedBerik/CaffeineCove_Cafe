@@ -1,3 +1,4 @@
+// src/context/AuthContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../services/axios";
 
@@ -14,9 +15,8 @@ export function AuthProvider({ children }) {
 
   const loadUser = async (token) => {
     try {
-      const res = await api.get("/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // ✅ استخدم الـ interceptor بدل ما تبعت header يدوي
+      const res = await api.get("/me");
 
       const userData = res.data;
 
@@ -38,6 +38,8 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem("token");
 
     if (token) {
+      // ✅ ضبط التوكين في axios قبل ما نعمل request
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       loadUser(token);
     } else {
       setLoading(false);
@@ -46,20 +48,20 @@ export function AuthProvider({ children }) {
 
   const login = async (_userData, token) => {
     localStorage.setItem("token", token);
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     setLoading(true);
     await loadUser(token);
   };
 
   const logout = async () => {
     try {
-      await api.post(
-        "/logout",
-        {},
-        { headers: { Authorization: `Bearer ${user?.token}` } },
-      );
-    } catch (e) {}
+      await api.post("/logout");
+    } catch (e) {
+      // فشل logout - عادي
+    }
 
     logoutLocal();
+    delete api.defaults.headers.common["Authorization"];
   };
 
   return (

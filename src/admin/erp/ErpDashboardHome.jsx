@@ -44,6 +44,7 @@ export default function ErpDashboardHome() {
   const [focusRange, setFocusRange] = useState(null);
   const [range, setRange] = useState("day");
   const [showComparison, setShowComparison] = useState(() => {
+    // Load from localStorage (optional)
     const saved = localStorage.getItem("showComparison");
     return saved === "true";
   });
@@ -60,44 +61,32 @@ export default function ErpDashboardHome() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["dashboard", range, "compare"],
+    queryKey: ["dashboard", range, "compare"], // ✅ إضافة compare للـ queryKey
     queryFn: async () => {
-      try {
-        const res = await axios.get(
-          `/erp/dashboard?range=${range}&compare=true`,
-        );
-        let newData = res.data?.data ?? null;
+      const res = await axios.get(`/erp/dashboard?range=${range}&compare=true`);
+      let newData = res.data?.data ?? null;
 
-        if (newData?.reminders?.alerts) {
-          const processedAlerts = newData.reminders.alerts
-            .filter(
-              (a, index, self) =>
-                index === self.findIndex((x) => x.id === a.id),
-            )
-            .sort(
-              (a, b) =>
-                (PRIORITY_MAP[b.priority] || 0) -
-                (PRIORITY_MAP[a.priority] || 0),
-            )
-            .slice(0, 10);
+      if (newData?.reminders?.alerts) {
+        const processedAlerts = newData.reminders.alerts
+          .filter(
+            (a, index, self) => index === self.findIndex((x) => x.id === a.id),
+          )
+          .sort(
+            (a, b) =>
+              (PRIORITY_MAP[b.priority] || 0) - (PRIORITY_MAP[a.priority] || 0),
+          )
+          .slice(0, 10);
 
-          newData = {
-            ...newData,
-            reminders: {
-              ...(newData.reminders || {}),
-              alerts: processedAlerts,
-            },
-          };
-        }
-
-        return newData;
-      } catch (error) {
-        console.error("Dashboard fetch error:", error);
-        console.error("Error response:", error.response?.data);
-        console.error("Error status:", error.response?.status);
-        console.error("Error headers:", error.response?.headers);
-        throw error;
+        newData = {
+          ...newData,
+          reminders: {
+            ...(newData.reminders || {}),
+            alerts: processedAlerts,
+          },
+        };
       }
+
+      return newData;
     },
     staleTime: 10000,
     refetchOnWindowFocus: true,
@@ -107,16 +96,8 @@ export default function ErpDashboardHome() {
   const { data: activityLogs = [] } = useQuery({
     queryKey: ["activityLogs"],
     queryFn: async () => {
-      try {
-        const res = await axios.get("/erp/activity-logs?limit=5");
-        return res.data?.data || [];
-      } catch (error) {
-        console.error("Activity logs fetch error:", error);
-        console.error("Error response:", error.response?.data);
-        console.error("Error status:", error.response?.status);
-        console.error("Error headers:", error.response?.headers);
-        throw error;
-      }
+      const res = await axios.get("/erp/activity-logs?limit=5");
+      return res.data?.data || [];
     },
     refetchInterval: 30000,
   });
@@ -271,7 +252,7 @@ export default function ErpDashboardHome() {
         return { ...old, kpis };
       });
     },
-    [queryClient, range],
+    [queryClient, range], // ✅ أضف range هنا
   );
 
   const handleNewInsight = useCallback(
@@ -361,7 +342,7 @@ export default function ErpDashboardHome() {
     }
   });
 
-  // ========================= Memoized Values =========================
+  // ========================= Memoized Values (قبل الـ early returns) =========================
   const revenueAnomalyPoints = useMemo(() => {
     const insights = dashboard?.insights || [];
     return insights
@@ -376,11 +357,16 @@ export default function ErpDashboardHome() {
       .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
   }, [dashboard]);
 
+  // ========================= Memoized Values =========================
+
   const revenueChartData = useMemo(() => {
+    // الـ API بيرجع array فيها current و previous جاهزة
     const revenueData = dashboard?.charts?.revenue || [];
+
+    // حولها للشكل المطلوب للـ chart
     return revenueData.map((item) => ({
       label: item.label,
-      value: item.current,
+      value: item.current, // current هو اللي يظهر كـ value
       date: item.label,
       anomaly: null,
     }));
@@ -388,6 +374,7 @@ export default function ErpDashboardHome() {
 
   const previousRevenueData = useMemo(() => {
     const revenueData = dashboard?.charts?.revenue || [];
+
     return revenueData.map((item) => ({
       label: item.label,
       value: item.previous,
@@ -398,22 +385,27 @@ export default function ErpDashboardHome() {
 
   const mergedRevenueData = useMemo(() => {
     if (!revenueChartData.length && !previousRevenueData.length) return [];
+
     const maxLength = Math.max(
       revenueChartData.length,
       previousRevenueData.length,
     );
     const merged = [];
+
     for (let i = 0; i < maxLength; i++) {
       const currentPoint = revenueChartData[i];
       const previousPoint = previousRevenueData[i];
+
       merged.push({
         label: currentPoint?.label || previousPoint?.label || `#${i + 1}`,
         date: currentPoint?.date || previousPoint?.date,
         current: currentPoint?.value || 0,
         previous: previousPoint?.value || 0,
+        // الحفاظ على anomaly من current إذا وجد
         anomaly: currentPoint?.anomaly || null,
       });
     }
+
     return merged;
   }, [revenueChartData, previousRevenueData]);
 
@@ -432,11 +424,12 @@ export default function ErpDashboardHome() {
 
   const appointmentsChartData = useMemo(() => {
     const appointmentsData = dashboard?.charts?.appointments || [];
+
     return appointmentsData.map((item) => ({
       label: item.label,
-      total: item.current,
-      completed: item.completed || 0,
-      cancelled: item.cancelled || 0,
+      total: item.current, // current = total appointments
+      completed: item.completed || 0, // لو موجود
+      cancelled: item.cancelled || 0, // لو موجود
       previous: item.previous || 0,
       anomaly: null,
     }));
@@ -452,12 +445,14 @@ export default function ErpDashboardHome() {
   }, [appointmentsChartData, appointmentsAnomalyPoints]);
 
   // ========================= Update focusRange effect =========================
+
   useEffect(() => {
     if (!revenueAnomalyPoints.length) {
       setFocusRange(null);
       return;
     }
     const latest = revenueAnomalyPoints[0];
+    // ✅ تعديل البحث في mergedRevenueData بدل revenueChartData
     const index = mergedRevenueData.findIndex((d) => d.date === latest.date);
     if (index === -1) return;
     const start = Math.max(index - 3, 0);
@@ -507,6 +502,30 @@ export default function ErpDashboardHome() {
       </g>
     );
   };
+
+  // const CustomTooltip = ({ active, payload }) => {
+  //   if (!active || !payload?.length) return null;
+  //   const data = payload[0].payload;
+  //   return (
+  //     <div className="custom-tooltip">
+  //       <p className="tooltip-value">
+  //         {new Intl.NumberFormat(i18n.language === "ar" ? "ar-EG" : "en-US", {
+  //           style: "currency",
+  //           currency: "EGP",
+  //         }).format(data.value || 0)}
+  //       </p>
+  //       {data.anomaly && (
+  //         <div
+  //           className="tooltip-anomaly"
+  //           style={{ borderColor: getAnomalyColor(data.anomaly.priority) }}
+  //         >
+  //           <span className="anomaly-icon">⚠️</span>
+  //           <span className="anomaly-message">{t(data.anomaly.message)}</span>
+  //         </div>
+  //       )}
+  //     </div>
+  //   );
+  // };
 
   const formatCurrency = (value) => {
     const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
@@ -566,6 +585,7 @@ export default function ErpDashboardHome() {
     const messages = [];
     const priorityOrder = { negative: 3, warning: 2, positive: 1 };
 
+    // Revenue Rules
     const revenueDelta = kpis.revenue?.delta || 0;
     if (revenueDelta > 10) {
       messages.push({ type: "positive", message: t("summary_revenue_up") });
@@ -573,6 +593,7 @@ export default function ErpDashboardHome() {
       messages.push({ type: "negative", message: t("summary_revenue_down") });
     }
 
+    // Appointments Rules
     const appointmentsDelta = kpis.appointments?.delta || 0;
     if (appointmentsDelta > 15) {
       messages.push({
@@ -581,16 +602,19 @@ export default function ErpDashboardHome() {
       });
     }
 
+    // No-show Rules
     const noShowCount = kpis.no_show_appointments?.current || 0;
     if (noShowCount > 5) {
       messages.push({ type: "warning", message: t("summary_no_show_high") });
     }
 
+    // Unpaid Invoices Rules
     const unpaidCount = kpis.unpaid_invoices?.current || 0;
     if (unpaidCount > 10) {
       messages.push({ type: "warning", message: t("summary_unpaid_high") });
     }
 
+    // Cancellation Rules
     const cancelledDelta = kpis.cancelled_appointments?.delta || 0;
     if (cancelledDelta > 20) {
       messages.push({ type: "warning", message: t("summary_cancelled_up") });
@@ -616,7 +640,6 @@ export default function ErpDashboardHome() {
       }
     }
   }, [dashboard?.insights]);
-
   // ========================= Early Returns =========================
   if (isLoading) {
     return (
@@ -655,7 +678,7 @@ export default function ErpDashboardHome() {
     );
   }
 
-  // ========================= Data Extraction =========================
+  // ========================= Data Extraction (بعد الـ early returns) =========================
   const kpis = dashboard.kpis || {};
   const recentAppointments = dashboard.recent_appointments || [];
   const recentInvoices = dashboard.recent_invoices || [];
@@ -714,6 +737,7 @@ export default function ErpDashboardHome() {
           ))}
         </div>
 
+        {/* ✅ Toggle Component */}
         <label className="comparison-toggle">
           <input
             type="checkbox"
@@ -784,9 +808,11 @@ export default function ErpDashboardHome() {
               key={i}
               className={`insight-card ${insight.priority} ${insight.explanation ? "expandable" : ""} ${insight.action?.url ? "clickable" : ""}`}
               onClick={() => {
+                // إذا كان في explanation، نوسع الكارد
                 if (insight.explanation) {
                   setExpandedInsight(expandedInsight === i ? null : i);
                 }
+                // إذا كان في action، نتنقل
                 if (insight.action?.url && !insight.explanation) {
                   navigate(insight.action.url);
                 }
@@ -805,6 +831,7 @@ export default function ErpDashboardHome() {
                 <span className="insight-category">{t(insight.category)}</span>
                 <p>{t(insight.message)}</p>
 
+                {/* 🔥 Explanation Section - Expandable */}
                 {expandedInsight === i && insight.explanation && (
                   <div className="insight-explanation">
                     <p className="explanation-summary">
@@ -823,12 +850,14 @@ export default function ErpDashboardHome() {
                   </div>
                 )}
 
+                {/* Action Button */}
                 {insight.action?.label && !insight.explanation && (
                   <span className="insight-action">
                     {t(insight.action.label)} →
                   </span>
                 )}
 
+                {/* Expand Indicator */}
                 {insight.explanation && (
                   <span className="expand-indicator">
                     {expandedInsight === i ? "▲" : "▼"} {t("Show details")}
@@ -896,6 +925,7 @@ export default function ErpDashboardHome() {
         <p>{t("Monitor your clinic's performance at a glance")}</p>
       </div>
 
+      {/* ✅ استبدل كل اللي جوه kpis-grid ده */}
       <div className="kpis-grid">
         <KpiCard
           title={t("Revenue")}
@@ -976,13 +1006,18 @@ export default function ErpDashboardHome() {
           data={visibleRevenueData}
           t={t}
           formatCurrency={formatCurrency}
+          // CustomTooltip={CustomTooltip}
           AnimatedDot={AnimatedDot}
           chartRef={chartRef}
           focusRange={focusRange}
           setFocusRange={setFocusRange}
-          showComparison={showComparison}
+          showComparison={showComparison} // ✅ أضف هذا
         />
-        <AppointmentsChart data={appointmentsDataWithAnomalies} t={t} />
+        <AppointmentsChart
+          data={appointmentsDataWithAnomalies}
+          t={t}
+          // CustomTooltip={CustomTooltip}
+        />
       </div>
 
       {/* Recent Activity */}
@@ -1252,6 +1287,7 @@ const CustomTooltipWrapper = ({ active, payload, formatCurrency, t }) => {
     payload.find((p) => p.dataKey === "previous")?.value || 0;
   const anomaly = payload[0]?.payload?.anomaly;
 
+  // حساب التغير
   const change =
     previousValue !== 0
       ? ((currentValue - previousValue) / previousValue) * 100
@@ -1298,7 +1334,7 @@ function RevenueChart({
   chartRef,
   focusRange,
   setFocusRange,
-  showComparison,
+  showComparison, // ✅ أضف هذا
 }) {
   if (!data || data.length === 0) {
     return (
@@ -1319,6 +1355,7 @@ function RevenueChart({
         <h4>{t("Revenue Overview")}</h4>
       </div>
 
+      {/* ✅ Legend متغير حسب showComparison */}
       <div className="chart-legend">
         <div className="legend-item">
           <span className="legend-color current"></span>
@@ -1351,6 +1388,7 @@ function RevenueChart({
               />
             )}
           />
+          {/* ✅ Current Line - Solid (دائماً موجود) */}
           <Line
             type="monotone"
             dataKey="current"
@@ -1360,6 +1398,7 @@ function RevenueChart({
             isAnimationActive={true}
             animationDuration={500}
           />
+          {/* ✅ Previous Line - Dashed (يظهر فقط عند تفعيل toggle) */}
           {showComparison && (
             <Line
               type="monotone"
@@ -1431,6 +1470,7 @@ function AppointmentsChart({ data, t }) {
   );
 }
 
+// Tooltip مخصص لـ Appointments
 const AppointmentsTooltip = ({ active, payload, t }) => {
   if (!active || !payload?.length) return null;
 

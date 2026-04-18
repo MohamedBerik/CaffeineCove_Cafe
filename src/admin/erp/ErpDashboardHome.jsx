@@ -101,7 +101,8 @@ export default function ErpDashboardHome() {
     },
     staleTime: 10000,
     refetchOnWindowFocus: true,
-    refetchInterval: 60000,
+    // refetchInterval: 60000,
+    refetchInterval: false, //مؤقت
   });
 
   const { data: activityLogs = [] } = useQuery({

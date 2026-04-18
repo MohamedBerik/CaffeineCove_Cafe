@@ -34,25 +34,20 @@ api.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// ✅ إضافة Response Interceptor للتعامل مع 401 (انتهاء الصلاحية)
+// ✅ إضافة Response Interceptor للتعامل مع 401 (للتشخيص فقط - بدون توجيه)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     // ✅ لو السيرفر رجع 401 (Unauthorized)
     if (error.response?.status === 401) {
-      console.error(
-        "🚫 Unauthorized - Token expired or invalid. Logging out...",
-      );
+      console.error("🚫 401 Unauthorized detected!");
+      console.error("📋 Error details:", error.response?.data);
+      console.error("🔑 Token that was sent:", localStorage.getItem("token"));
 
-      // ✅ مسح التوكن من localStorage
-      localStorage.removeItem("token");
-
-      // ✅ مسح أي بيانات مستخدم أخرى
-      localStorage.removeItem("user");
-
-      // ✅ توجيه المستخدم لصفحة تسجيل الدخول
-      // استخدام window.location لتجنب مشاكل React Router
-      window.location.href = "/login";
+      // ❌ تم تعليق سطر التوجيه لمنع اختفاء الصفحة
+      // localStorage.removeItem("token");
+      // localStorage.removeItem("user");
+      // window.location.href = "/login";
     }
 
     // ✅ تمرير الخطأ لبقية التطبيق

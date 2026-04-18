@@ -43,6 +43,8 @@ api.interceptors.response.use(
       console.error("🚫 401 Unauthorized detected!");
       console.error("📋 Error details:", error.response?.data);
       console.error("🔑 Token that was sent:", localStorage.getItem("token"));
+      console.log("❌ Status:", error.response.status);
+      console.log("❌ Data:", error.response.data);
 
       // ❌ تم تعليق سطر التوجيه لمنع اختفاء الصفحة
       // localStorage.removeItem("token");

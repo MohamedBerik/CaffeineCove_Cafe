@@ -1074,8 +1074,9 @@
     gap: 3px;
   }
 
+  /* ✅ حذف أيقونة الشركة في الشاشات الصغيرة */
   .company-switcher-icon {
-    font-size: 0.95rem;
+    display: none;
   }
 
   .company-switcher {
@@ -1095,9 +1096,18 @@
     font-size: 0.7rem;
   }
 
-  /* إخفاء Language Switcher لإفساح مجال لـ Logout */
+  /* ✅ إظهار زر اللغة مع AR/EN */
+  .lang-switch-btn span {
+    display: inline-block; /* نظهر النص */
+  }
+
   .lang-switch-btn {
-    display: none;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .lang-switch-btn i {
+    font-size: 0.85rem;
   }
 
   /* ضبط الـ Navbar Actions */
@@ -1134,10 +1144,6 @@
     margin-right: 3px;
   }
 
-  .company-switcher-icon {
-    font-size: 0.9rem;
-  }
-
   .company-switcher {
     min-width: 80px;
     max-width: 90px;
@@ -1153,6 +1159,15 @@
 
   .company-switcher optgroup {
     font-size: 0.65rem;
+  }
+
+  .lang-switch-btn {
+    padding: 0.35rem 0.45rem;
+    font-size: 0.7rem;
+  }
+
+  .lang-switch-btn i {
+    font-size: 0.8rem;
   }
 
   .navbar-actions {
@@ -1178,10 +1193,6 @@
     margin-right: 2px;
   }
 
-  .company-switcher-icon {
-    font-size: 0.85rem;
-  }
-
   .company-switcher {
     min-width: 65px;
     max-width: 75px;
@@ -1192,6 +1203,15 @@
   .company-switcher option {
     font-size: 0.6rem;
     padding: 4px 2px;
+  }
+
+  .lang-switch-btn {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.65rem;
+  }
+
+  .lang-switch-btn i {
+    font-size: 0.75rem;
   }
 
   .navbar-actions {

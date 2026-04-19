@@ -969,6 +969,18 @@
   animation: spin 1s linear infinite;
 }
 
+.company-switcher option {
+  padding: 8px;
+  background: white;
+  color: #2c3e50;
+}
+
+/* ✅ تحديد أقصى ارتفاع للقائمة المنسدلة */
+.company-switcher {
+  max-height: 300px; /* يظهر حوالي 8-10 شركات قبل التمرير */
+  overflow-y: auto;
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);

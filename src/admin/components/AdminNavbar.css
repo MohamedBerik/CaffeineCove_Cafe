@@ -1136,8 +1136,23 @@
   [dir="rtl"] .company-switcher-wrapper {
     margin-left: 5px;
   }
-}
 
+  /* ✅ إخفاء أيقونة اللغة - إظهار النص فقط */
+  .lang-switch-btn i {
+    display: none;
+  }
+
+  .lang-switch-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+    gap: 0;
+  }
+
+  .lang-switch-btn span {
+    display: inline-block;
+    margin: 0;
+  }
+}
 /* ==================== Extra Small Mobile (max-width: 480px) ==================== */
 @media (max-width: 480px) {
   .company-switcher-wrapper {
@@ -1184,6 +1199,24 @@
 
   [dir="rtl"] .company-switcher-wrapper {
     margin-left: 3px;
+  }
+
+  .lang-switch-btn i {
+    display: none;
+  }
+
+  .lang-switch-btn {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .lang-switch-btn i {
+    display: none;
+  }
+
+  .lang-switch-btn {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.7rem;
   }
 }
 
@@ -1237,5 +1270,14 @@
 
   [dir="rtl"] .company-switcher-wrapper {
     margin-left: 2px;
+  }
+
+  .lang-switch-btn i {
+    display: none;
+  }
+
+  .lang-switch-btn {
+    padding: 0.3rem 0.45rem;
+    font-size: 0.65rem;
   }
 }

@@ -1037,3 +1037,44 @@
     margin-left: 10px;
   }
 }
+
+/* للشاشات الصغيرة (Mobile) */
+@media (max-width: 576px) {
+  .company-switcher-wrapper {
+    margin-right: 5px;
+  }
+
+  .company-switcher-icon {
+    display: none; /* نخفي الأيقونة لتوفير مساحة */
+  }
+
+  .company-switcher {
+    min-width: 100px;
+    max-width: 110px;
+    padding: 6px 4px;
+    font-size: 0.75rem;
+  }
+
+  /* نخلي النص يظهر مختصر */
+  .company-switcher option {
+    font-size: 0.75rem;
+  }
+}
+
+/* للشاشات الصغيرة جدًا */
+@media (max-width: 480px) {
+  .company-switcher {
+    min-width: 85px;
+    max-width: 95px;
+    padding: 5px 2px;
+    font-size: 0.7rem;
+  }
+}
+
+/* للشاشات فائقة الصغر */
+@media (max-width: 380px) {
+  .company-switcher {
+    min-width: 70px;
+    max-width: 80px;
+  }
+}

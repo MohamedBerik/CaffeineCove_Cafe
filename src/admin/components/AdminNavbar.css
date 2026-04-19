@@ -1021,3 +1021,25 @@
     min-width: 120px;
   }
 }
+
+/* RTL Support for Company Switcher */
+[dir="rtl"] .company-switcher-wrapper {
+  margin-right: 0;
+  margin-left: 15px;
+}
+
+[dir="rtl"] .company-switcher {
+  text-align: right;
+}
+
+[dir="rtl"] .company-switcher option {
+  direction: rtl;
+  text-align: right;
+}
+
+/* للشاشات المتوسطة - RTL */
+@media (max-width: 992px) {
+  [dir="rtl"] .company-switcher-wrapper {
+    margin-left: 10px;
+  }
+}

@@ -915,17 +915,20 @@
   }
 }
 
-/* Company Switcher */
+/* ==================== Company Switcher - Base Styles ==================== */
 .company-switcher-wrapper {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-right: 15px;
+  gap: 6px;
+  margin-right: 12px;
 }
 
 .company-switcher-icon {
-  font-size: 1.2rem;
-  opacity: 0.8;
+  font-size: 1.1rem;
+  opacity: 0.9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .company-switcher {
@@ -937,9 +940,13 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  min-width: 200px;
+  min-width: 180px;
+  max-width: 220px;
   outline: none;
   transition: all 0.25s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .company-switcher:hover {
@@ -952,27 +959,36 @@
   cursor: not-allowed;
 }
 
+/* تنسيق المجموعات داخل القائمة */
 .company-switcher optgroup {
   font-weight: 600;
   color: #1a237e;
   background: #f8f9ff;
+  font-size: 0.9rem;
+  padding: 6px 0;
 }
 
+/* تنسيق العناصر داخل القائمة */
 .company-switcher option {
-  padding: 8px;
+  padding: 10px 12px;
   background: white;
   color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+/* تحديد أقصى ارتفاع للقائمة المنسدلة */
+.company-switcher {
+  max-height: 40px; /* الارتفاع العادي للـ select */
+}
+
+/* القائمة المنسدلة نفسها (المتصفح بيتحكم فيها) */
+.company-switcher option {
+  min-height: 40px;
 }
 
 .company-switcher-spinner {
   font-size: 1rem;
   animation: spin 1s linear infinite;
-}
-
-/* ✅ تحديد أقصى ارتفاع للقائمة المنسدلة */
-.company-switcher {
-  max-height: 300px; /* يظهر حوالي 8-10 شركات قبل التمرير */
-  overflow-y: auto;
 }
 
 @keyframes spin {
@@ -984,46 +1000,15 @@
   }
 }
 
-/* ✅ للشاشات المتوسطة (Tablet) */
-@media (max-width: 992px) {
-  .company-switcher {
-    min-width: 160px;
-    font-size: 0.85rem;
-  }
-
-  .company-switcher-wrapper {
-    margin-right: 10px;
-  }
-}
-
-/* ✅ للشاشات الصغيرة (Mobile) */
-@media (max-width: 768px) {
-  .company-switcher {
-    min-width: 140px;
-    padding: 6px 8px;
-    font-size: 0.8rem;
-  }
-
-  .company-switcher-icon {
-    display: none; /* نخفي الأيقونة في الموبايل لتوفير مساحة */
-  }
-}
-
-/* ✅ للشاشات الصغيرة جدًا */
-@media (max-width: 480px) {
-  .company-switcher {
-    min-width: 120px;
-  }
-}
-
-/* RTL Support for Company Switcher */
+/* ==================== RTL Support ==================== */
 [dir="rtl"] .company-switcher-wrapper {
   margin-right: 0;
-  margin-left: 15px;
+  margin-left: 12px;
 }
 
 [dir="rtl"] .company-switcher {
   text-align: right;
+  direction: rtl;
 }
 
 [dir="rtl"] .company-switcher option {
@@ -1031,92 +1016,206 @@
   text-align: right;
 }
 
-/* للشاشات المتوسطة - RTL */
+/* ==================== Tablet (max-width: 992px) ==================== */
 @media (max-width: 992px) {
+  .company-switcher {
+    min-width: 150px;
+    max-width: 180px;
+    font-size: 0.85rem;
+    padding: 7px 10px;
+  }
+
+  .company-switcher option {
+    font-size: 0.85rem;
+    padding: 8px 10px;
+  }
+
   [dir="rtl"] .company-switcher-wrapper {
     margin-left: 10px;
   }
 }
 
-/* للشاشات الصغيرة (Mobile) */
-@media (max-width: 576px) {
+/* ==================== Mobile (max-width: 768px) ==================== */
+@media (max-width: 768px) {
   .company-switcher-wrapper {
-    margin-right: 5px;
+    margin-right: 8px;
+    gap: 4px;
   }
 
   .company-switcher-icon {
-    display: none; /* نخفي الأيقونة لتوفير مساحة */
+    font-size: 1rem;
   }
 
   .company-switcher {
-    min-width: 100px;
-    max-width: 110px;
-    padding: 6px 4px;
-    font-size: 0.75rem;
-  }
-
-  /* نخلي النص يظهر مختصر */
-  .company-switcher option {
-    font-size: 0.75rem;
-  }
-}
-
-/* للشاشات الصغيرة جدًا */
-@media (max-width: 480px) {
-  .company-switcher {
-    min-width: 85px;
-    max-width: 95px;
-    padding: 5px 2px;
-    font-size: 0.7rem;
-  }
-}
-
-/* للشاشات فائقة الصغر */
-@media (max-width: 380px) {
-  .company-switcher {
-    min-width: 70px;
-    max-width: 80px;
-  }
-}
-
-/* تنسيق القائمة المنسدلة للشركات */
-.company-switcher {
-  max-height: 300px;
-  overflow-y: auto;
-  font-size: 0.9rem;
-}
-
-/* تنسيق العناصر داخل القائمة */
-.company-switcher option {
-  padding: 10px 12px;
-  font-size: 0.9rem;
-  background: white;
-  color: #2c3e50;
-}
-
-/* تنسيق المجموعات */
-.company-switcher optgroup {
-  font-weight: 600;
-  color: #1a237e;
-  background: #f8f9ff;
-  font-size: 0.85rem;
-  padding: 8px 0;
-}
-
-/* للشاشات الصغيرة (Mobile) */
-@media (max-width: 480px) {
-  .company-switcher {
-    min-width: 100px;
-    max-width: 110px;
-    font-size: 0.75rem;
+    min-width: 120px;
+    max-width: 140px;
+    font-size: 0.8rem;
+    padding: 6px 8px;
   }
 
   .company-switcher option {
+    font-size: 0.8rem;
     padding: 8px 8px;
-    font-size: 0.75rem;
+  }
+
+  .company-switcher optgroup {
+    font-size: 0.8rem;
+  }
+
+  [dir="rtl"] .company-switcher-wrapper {
+    margin-left: 8px;
+  }
+}
+
+/* ==================== Small Mobile (max-width: 576px) ==================== */
+@media (max-width: 576px) {
+  .company-switcher-wrapper {
+    margin-right: 5px;
+    gap: 3px;
+  }
+
+  .company-switcher-icon {
+    font-size: 0.95rem;
+  }
+
+  .company-switcher {
+    min-width: 95px;
+    max-width: 105px;
+    font-size: 0.7rem;
+    padding: 5px 4px;
+  }
+
+  .company-switcher option {
+    font-size: 0.7rem;
+    padding: 6px 6px;
+    min-height: 32px;
   }
 
   .company-switcher optgroup {
     font-size: 0.7rem;
+  }
+
+  /* إخفاء Language Switcher لإفساح مجال لـ Logout */
+  .lang-switch-btn {
+    display: none;
+  }
+
+  /* ضبط الـ Navbar Actions */
+  .navbar-actions {
+    gap: 0.4rem;
+  }
+
+  .navbar-user {
+    gap: 0.4rem;
+  }
+
+  /* إظهار أيقونة Logout فقط */
+  .logout-btn span {
+    display: none;
+  }
+
+  .logout-btn {
+    padding: 0.45rem;
+  }
+
+  .logout-btn i {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  [dir="rtl"] .company-switcher-wrapper {
+    margin-left: 5px;
+  }
+}
+
+/* ==================== Extra Small Mobile (max-width: 480px) ==================== */
+@media (max-width: 480px) {
+  .company-switcher-wrapper {
+    margin-right: 3px;
+  }
+
+  .company-switcher-icon {
+    font-size: 0.9rem;
+  }
+
+  .company-switcher {
+    min-width: 80px;
+    max-width: 90px;
+    font-size: 0.65rem;
+    padding: 4px 2px;
+  }
+
+  .company-switcher option {
+    font-size: 0.65rem;
+    padding: 5px 4px;
+    min-height: 30px;
+  }
+
+  .company-switcher optgroup {
+    font-size: 0.65rem;
+  }
+
+  .navbar-actions {
+    gap: 0.3rem;
+  }
+
+  .notification-bell {
+    padding: 4px;
+  }
+
+  .notification-bell i {
+    font-size: 1.1rem;
+  }
+
+  [dir="rtl"] .company-switcher-wrapper {
+    margin-left: 3px;
+  }
+}
+
+/* ==================== Tiny Mobile (max-width: 380px) ==================== */
+@media (max-width: 380px) {
+  .company-switcher-wrapper {
+    margin-right: 2px;
+  }
+
+  .company-switcher-icon {
+    font-size: 0.85rem;
+  }
+
+  .company-switcher {
+    min-width: 65px;
+    max-width: 75px;
+    font-size: 0.6rem;
+    padding: 3px 1px;
+  }
+
+  .company-switcher option {
+    font-size: 0.6rem;
+    padding: 4px 2px;
+  }
+
+  .navbar-actions {
+    gap: 0.2rem;
+  }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .user-avatar i {
+    font-size: 1rem;
+  }
+
+  .logout-btn {
+    padding: 0.35rem;
+  }
+
+  .logout-btn i {
+    font-size: 0.9rem;
+  }
+
+  [dir="rtl"] .company-switcher-wrapper {
+    margin-left: 2px;
   }
 }

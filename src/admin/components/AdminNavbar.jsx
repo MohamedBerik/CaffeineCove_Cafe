@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAlertState, useAlertActions } from "../../context/AlertContext";
-import api from "../services/axios";
+import api from "../../services/axios";
 import { useQueryClient } from "@tanstack/react-query";
 import "./AdminNavbar.css";
 

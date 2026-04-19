@@ -32,7 +32,9 @@ const AdminNavbar = () => {
     try {
       await api.post("/switch-company", { company_id: companyId || null });
       setSelectedCompany(companyId);
-      queryClient.invalidateQueries();
+
+      // ✅ اعمل Reload للصفحة عشان الداشبورد يتحدث
+      window.location.reload();
     } catch (error) {
       console.error("Failed to switch company", error);
     }

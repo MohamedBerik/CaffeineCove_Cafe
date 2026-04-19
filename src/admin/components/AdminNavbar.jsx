@@ -32,16 +32,11 @@ const AdminNavbar = () => {
     try {
       await api.post("/switch-company", { company_id: companyId || null });
       setSelectedCompany(companyId);
-
-      // ✅ تحديث كل البيانات في التطبيق
       queryClient.invalidateQueries();
     } catch (error) {
       console.error("Failed to switch company", error);
     }
   };
-
-  // ✅ لو مش Super Admin، متعرضش حاجة
-  if (!user?.is_super_admin) return null;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -95,11 +90,9 @@ const AdminNavbar = () => {
   const handleBellClick = () => {
     setShowDropdown((prev) => {
       const next = !prev;
-
       if (next && unreadCount > 0) {
         markAllAsRead();
       }
-
       return next;
     });
   };
@@ -110,7 +103,6 @@ const AdminNavbar = () => {
     navigate("/admin/erp/notifications");
   };
 
-  // ✅ getAlertIcon مع useCallback
   const getAlertIcon = useCallback((code) => {
     switch (code) {
       case "LOW_STOCK":
@@ -145,26 +137,29 @@ const AdminNavbar = () => {
           </button>
 
           <div className="navbar-actions">
-            <select
-              value={selectedCompany || ""}
-              onChange={(e) => handleSwitch(e.target.value || null)}
-              className="company-switcher"
-              style={{
-                padding: "8px 12px",
-                borderRadius: "8px",
-                border: "1px solid #ddd",
-                marginRight: "15px",
-                background: "white",
-              }}
-            >
-              <option value="">🌍 Global (All Companies)</option>
-              {companies.map((company) => (
-                <option key={company.id} value={company.id}>
-                  {company.name}
-                </option>
-              ))}
-            </select>
-            );
+            {/* ✅ Company Switcher (يظهر فقط لـ Super Admin) */}
+            {user?.is_super_admin && (
+              <select
+                value={selectedCompany || ""}
+                onChange={(e) => handleSwitch(e.target.value || null)}
+                className="company-switcher"
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #ddd",
+                  marginRight: "15px",
+                  background: "white",
+                }}
+              >
+                <option value="">🌍 Global (All Companies)</option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
+            )}
+
             <button
               type="button"
               className="lang-switch-btn"
@@ -175,6 +170,7 @@ const AdminNavbar = () => {
               ></i>
               <span>{i18n.language === "en" ? "AR" : "EN"}</span>
             </button>
+
             <div ref={dropdownRef}>
               <button
                 type="button"
@@ -266,6 +262,7 @@ const AdminNavbar = () => {
                 </>
               )}
             </div>
+
             <div className="navbar-user">
               <div className="user-info">
                 <div className="user-avatar">

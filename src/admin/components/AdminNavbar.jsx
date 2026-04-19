@@ -16,9 +16,11 @@ const AdminNavbar = () => {
   const { t, i18n } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
-  const [companies, setCompanies] = useState([]);
-  const [selectedCompany, setSelectedCompany] = useState(null);
   const queryClient = useQueryClient();
+  const [selectedCompany, setSelectedCompany] = useState(() => {
+    return localStorage.getItem("selectedCompany") || "";
+  });
+  const [companies, setCompanies] = useState([]);
 
   // ✅ جلب قائمة الشركات (لـ Super Admin فقط)
   useEffect(() => {
@@ -31,7 +33,9 @@ const AdminNavbar = () => {
   const handleSwitch = async (companyId) => {
     try {
       await api.post("/switch-company", { company_id: companyId || null });
-      setSelectedCompany(companyId);
+
+      setSelectedCompany(companyId || "");
+      localStorage.setItem("selectedCompany", companyId || "");
 
       // ✅ اعمل Reload للصفحة عشان الداشبورد يتحدث
       window.location.reload();

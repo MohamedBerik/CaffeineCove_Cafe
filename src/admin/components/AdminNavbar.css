@@ -1069,9 +1069,6 @@
     padding: 5px 2px;
     font-size: 0.7rem;
   }
-  .company-switcher-wrapper {
-    margin-right: 2px;
-  }
 }
 
 /* للشاشات فائقة الصغر */
@@ -1079,5 +1076,47 @@
   .company-switcher {
     min-width: 70px;
     max-width: 80px;
+  }
+}
+
+/* تنسيق القائمة المنسدلة للشركات */
+.company-switcher {
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+}
+
+/* تنسيق العناصر داخل القائمة */
+.company-switcher option {
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  background: white;
+  color: #2c3e50;
+}
+
+/* تنسيق المجموعات */
+.company-switcher optgroup {
+  font-weight: 600;
+  color: #1a237e;
+  background: #f8f9ff;
+  font-size: 0.85rem;
+  padding: 8px 0;
+}
+
+/* للشاشات الصغيرة (Mobile) */
+@media (max-width: 576px) {
+  .company-switcher {
+    min-width: 100px;
+    max-width: 110px;
+    font-size: 0.75rem;
+  }
+
+  .company-switcher option {
+    padding: 8px 8px;
+    font-size: 0.75rem;
+  }
+
+  .company-switcher optgroup {
+    font-size: 0.7rem;
   }
 }

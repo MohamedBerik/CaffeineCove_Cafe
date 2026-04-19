@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAlertState, useAlertActions } from "../../context/AlertContext";
+import api from "../services/axios";
+import { useQueryClient } from "@tanstack/react-query";
 import "./AdminNavbar.css";
 
 const AdminNavbar = () => {
@@ -14,6 +16,32 @@ const AdminNavbar = () => {
   const { t, i18n } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const [companies, setCompanies] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const queryClient = useQueryClient();
+
+  // ✅ جلب قائمة الشركات (لـ Super Admin فقط)
+  useEffect(() => {
+    if (user?.is_super_admin) {
+      api.get("/companies").then((res) => setCompanies(res.data));
+    }
+  }, [user]);
+
+  // ✅ تبديل الشركة
+  const handleSwitch = async (companyId) => {
+    try {
+      await api.post("/switch-company", { company_id: companyId || null });
+      setSelectedCompany(companyId);
+
+      // ✅ تحديث كل البيانات في التطبيق
+      queryClient.invalidateQueries();
+    } catch (error) {
+      console.error("Failed to switch company", error);
+    }
+  };
+
+  // ✅ لو مش Super Admin، متعرضش حاجة
+  if (!user?.is_super_admin) return null;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -117,6 +145,26 @@ const AdminNavbar = () => {
           </button>
 
           <div className="navbar-actions">
+            <select
+              value={selectedCompany || ""}
+              onChange={(e) => handleSwitch(e.target.value || null)}
+              className="company-switcher"
+              style={{
+                padding: "8px 12px",
+                borderRadius: "8px",
+                border: "1px solid #ddd",
+                marginRight: "15px",
+                background: "white",
+              }}
+            >
+              <option value="">🌍 Global (All Companies)</option>
+              {companies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.name}
+                </option>
+              ))}
+            </select>
+            );
             <button
               type="button"
               className="lang-switch-btn"
@@ -127,7 +175,6 @@ const AdminNavbar = () => {
               ></i>
               <span>{i18n.language === "en" ? "AR" : "EN"}</span>
             </button>
-
             <div ref={dropdownRef}>
               <button
                 type="button"
@@ -219,7 +266,6 @@ const AdminNavbar = () => {
                 </>
               )}
             </div>
-
             <div className="navbar-user">
               <div className="user-info">
                 <div className="user-avatar">

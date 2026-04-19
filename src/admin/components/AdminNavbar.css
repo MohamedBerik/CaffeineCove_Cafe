@@ -914,3 +914,66 @@
     padding: 10px 14px;
   }
 }
+
+/* Company Switcher */
+.company-switcher-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 15px;
+}
+
+.company-switcher-icon {
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.company-switcher {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(100, 181, 246, 0.35);
+  background: rgba(100, 181, 246, 0.08);
+  color: #64b5f6;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-width: 200px;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.company-switcher:hover {
+  background: rgba(100, 181, 246, 0.15);
+  border-color: rgba(100, 181, 246, 0.55);
+}
+
+.company-switcher:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.company-switcher optgroup {
+  font-weight: 600;
+  color: #1a237e;
+  background: #f8f9ff;
+}
+
+.company-switcher option {
+  padding: 8px;
+  background: white;
+  color: #2c3e50;
+}
+
+.company-switcher-spinner {
+  font-size: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

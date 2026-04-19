@@ -2265,6 +2265,12 @@ const resources = {
       month: "Month",
 
       "Compare with previous period": "Compare with previous period",
+
+      Global: "Global",
+      "All Companies": "All Companies",
+      Active: "Active",
+      Trial: "Trial",
+      Suspended: "Suspended",
     },
   },
   ar: {
@@ -4513,6 +4519,12 @@ const resources = {
       week: "أسبوع",
       month: "شهر",
       "Compare with previous period": "مقارنة بالفترة السابقة",
+
+      Global: "عالمي",
+      "All Companies": "كل الشركات",
+      Active: "نشط",
+      Trial: "تجريبي",
+      Suspended: "موقوف",
     },
   },
 };

@@ -21,6 +21,7 @@ const AdminNavbar = () => {
     return localStorage.getItem("selectedCompany") || "";
   });
   const [companies, setCompanies] = useState([]);
+  const [switching, setSwitching] = useState(false);
 
   // ✅ جلب قائمة الشركات (لـ Super Admin فقط)
   useEffect(() => {
@@ -31,6 +32,9 @@ const AdminNavbar = () => {
 
   // ✅ تبديل الشركة
   const handleSwitch = async (companyId) => {
+    if (switching) return;
+
+    setSwitching(true);
     try {
       await api.post("/switch-company", { company_id: companyId || null });
 
@@ -41,7 +45,16 @@ const AdminNavbar = () => {
       queryClient.invalidateQueries();
     } catch (error) {
       console.error("Failed to switch company", error);
+    } finally {
+      setSwitching(false);
     }
+  };
+
+  // ✅ تجميع الشركات حسب الحالة
+  const groupedCompanies = {
+    active: companies.filter((c) => c.status === "active"),
+    trial: companies.filter((c) => c.status === "trial"),
+    suspended: companies.filter((c) => c.status === "suspended"),
   };
 
   useEffect(() => {
@@ -143,27 +156,54 @@ const AdminNavbar = () => {
           </button>
 
           <div className="navbar-actions">
-            {/* ✅ Company Switcher (يظهر فقط لـ Super Admin) */}
+            {/* ✅ Company Switcher (يظهر فقط لـ Super Admin) - نسخة محسنة */}
             {user?.is_super_admin && (
-              <select
-                value={selectedCompany || ""}
-                onChange={(e) => handleSwitch(e.target.value || null)}
-                className="company-switcher"
-                style={{
-                  padding: "8px 12px",
-                  borderRadius: "8px",
-                  border: "1px solid #ddd",
-                  marginRight: "15px",
-                  background: "white",
-                }}
-              >
-                <option value="">🌍 Global (All Companies)</option>
-                {companies.map((company) => (
-                  <option key={company.id} value={company.id}>
-                    {company.name}
+              <div className="company-switcher-wrapper">
+                <span className="company-switcher-icon">🏢</span>
+                <select
+                  value={selectedCompany || ""}
+                  onChange={(e) => handleSwitch(e.target.value || null)}
+                  className="company-switcher"
+                  disabled={switching}
+                >
+                  <option value="">
+                    🌍 {t("Global")} ({t("All Companies")})
                   </option>
-                ))}
-              </select>
+
+                  {groupedCompanies.active.length > 0 && (
+                    <optgroup label={`✅ ${t("Active")}`}>
+                      {groupedCompanies.active.map((company) => (
+                        <option key={company.id} value={company.id}>
+                          {company.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+
+                  {groupedCompanies.trial.length > 0 && (
+                    <optgroup label={`⏳ ${t("Trial")}`}>
+                      {groupedCompanies.trial.map((company) => (
+                        <option key={company.id} value={company.id}>
+                          {company.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+
+                  {groupedCompanies.suspended.length > 0 && (
+                    <optgroup label={`🚫 ${t("Suspended")}`}>
+                      {groupedCompanies.suspended.map((company) => (
+                        <option key={company.id} value={company.id}>
+                          {company.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                </select>
+                {switching && (
+                  <span className="company-switcher-spinner">⏳</span>
+                )}
+              </div>
             )}
 
             <button

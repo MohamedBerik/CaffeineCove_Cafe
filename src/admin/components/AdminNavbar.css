@@ -1104,7 +1104,7 @@
 }
 
 /* للشاشات الصغيرة (Mobile) */
-@media (max-width: 576px) {
+@media (max-width: 480px) {
   .company-switcher {
     min-width: 100px;
     max-width: 110px;

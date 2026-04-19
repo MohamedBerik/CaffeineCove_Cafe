@@ -989,3 +989,35 @@
     transform: rotate(360deg);
   }
 }
+
+/* ✅ للشاشات المتوسطة (Tablet) */
+@media (max-width: 992px) {
+  .company-switcher {
+    min-width: 160px;
+    font-size: 0.85rem;
+  }
+
+  .company-switcher-wrapper {
+    margin-right: 10px;
+  }
+}
+
+/* ✅ للشاشات الصغيرة (Mobile) */
+@media (max-width: 768px) {
+  .company-switcher {
+    min-width: 140px;
+    padding: 6px 8px;
+    font-size: 0.8rem;
+  }
+
+  .company-switcher-icon {
+    display: none; /* نخفي الأيقونة في الموبايل لتوفير مساحة */
+  }
+}
+
+/* ✅ للشاشات الصغيرة جدًا */
+@media (max-width: 480px) {
+  .company-switcher {
+    min-width: 120px;
+  }
+}

@@ -9,13 +9,15 @@ const api = axios.create({
   },
 });
 
-// ✅ إضافة التوكن تلقائيًا مع Debug log
+// ✅ إضافة التوكن و Tenant ID تلقائيًا مع Debug log
 api.interceptors.request.use(
   (config) => {
     let token = localStorage.getItem("token");
+    const tenantId = localStorage.getItem("selectedCompany");
 
     // ✅ Debug: التحقق من وجود التوكن وشكله
     console.log("🔑 TOKEN from localStorage:", token);
+    console.log("🏢 Tenant ID from localStorage:", tenantId);
 
     if (token) {
       // ✅ إصلاح مشكلة quotes: لو التوكن متخزن كـ JSON string
@@ -27,6 +29,11 @@ api.interceptors.request.use(
         // التوكن مش JSON، نستخدمه كما هو
       }
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // ✅ إرسال Tenant ID في Header
+    if (tenantId) {
+      config.headers["X-Tenant-ID"] = tenantId;
     }
 
     return config;
@@ -43,6 +50,10 @@ api.interceptors.response.use(
       console.error("🚫 401 Unauthorized detected!");
       console.error("📋 Error details:", error.response?.data);
       console.error("🔑 Token that was sent:", localStorage.getItem("token"));
+      console.error(
+        "🏢 Tenant that was sent:",
+        localStorage.getItem("selectedCompany"),
+      );
       console.log("❌ Status:", error.response.status);
       console.log("❌ Data:", error.response.data);
 

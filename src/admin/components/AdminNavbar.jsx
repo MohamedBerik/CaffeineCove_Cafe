@@ -37,8 +37,8 @@ const AdminNavbar = () => {
       setSelectedCompany(companyId || "");
       localStorage.setItem("selectedCompany", companyId || "");
 
-      // ✅ اعمل Reload للصفحة عشان الداشبورد يتحدث
-      window.location.reload();
+      // ✅ تحديث البيانات بدون Reload
+      queryClient.invalidateQueries();
     } catch (error) {
       console.error("Failed to switch company", error);
     }

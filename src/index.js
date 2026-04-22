@@ -74,7 +74,16 @@ import ProceduresListPage from "./admin/erp/procedures/ProceduresListPage";
 import ProcedureFormPage from "./admin/erp/procedures/ProcedureFormPage";
 import StartVisitPage from "./admin/erp/visits/StartVisitPage";
 import NotificationsPage from "./admin/erp/notifications/NotificationsPage";
+
+// ================= SaaS Routes =================
 import SaaSDashboard from "./admin/saas/SaaSDashboard";
+import CompaniesList from "./admin/saas/CompaniesList";
+import CompanyForm from "./admin/saas/CompanyForm";
+import CompanyDetails from "./admin/saas/CompanyDetails";
+import PlansList from "./admin/saas/PlansList";
+import SubscriptionsList from "./admin/saas/SubscriptionsList";
+import SaaSReports from "./admin/saas/SaaSReports";
+import PlatformSettings from "./admin/saas/PlatformSettings";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -109,12 +118,10 @@ createRoot(document.getElementById("root")).render(
             <Route path="/testimonials" element={<AllTestimonials />} />
             <Route path="/booking" element={<AllBooking />} />
             <Route path="/contact" element={<AllContact />} />
-
             {/* ================= Auth ================= */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/logout" element={<Logout />} />
-
             {/* ================= ERP Dashboard (NEW SYSTEM) ================= */}
             <Route
               path="/admin/erp/*"
@@ -230,8 +237,8 @@ createRoot(document.getElementById("root")).render(
               <Route path="visits/start" element={<StartVisitPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
             </Route>
-
             {/* ================= SaaS Dashboard (NEW) ================= */}
+            // ================= SaaS Dashboard Routes =================
             <Route
               path="/admin/saas"
               element={
@@ -241,6 +248,64 @@ createRoot(document.getElementById("root")).render(
               }
             >
               <Route index element={<SaaSDashboard />} />
+            </Route>
+            {/* ================= Companies Routes ================= */}
+            <Route
+              path="/admin/companies"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<CompaniesList />} />
+              <Route path="create" element={<CompanyForm />} />
+              <Route path=":id/edit" element={<CompanyForm />} />
+              <Route path=":id" element={<CompanyDetails />} />
+            </Route>
+            {/* ================= Plans Routes ================= */}
+            <Route
+              path="/admin/plans"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<PlansList />} />
+            </Route>
+            {/* ================= Subscriptions Routes ================= */}
+            <Route
+              path="/admin/subscriptions"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<SubscriptionsList />} />
+            </Route>
+            {/* ================= SaaS Reports Routes ================= */}
+            <Route
+              path="/admin/reports/saas"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<SaaSReports />} />
+            </Route>
+            {/* ================= Platform Settings Routes ================= */}
+            <Route
+              path="/admin/settings/saas"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<PlatformSettings />} />
             </Route>
             {/* ================= Generic admin CRUD ================= */}
             <Route
@@ -275,7 +340,6 @@ createRoot(document.getElementById("root")).render(
                 </AdminRoute>
               }
             />
-
             {/* ================= Old Admin Dashboard ================= */}
             <Route
               path="/admin/dashboard/*"
@@ -293,7 +357,6 @@ createRoot(document.getElementById("root")).render(
                 </AdminRoute>
               }
             />
-
             {/* ================= 404 ================= */}
             <Route
               path="*"

@@ -1,8 +1,10 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 export function AdminRoute({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
+  const tenantId = localStorage.getItem("selectedCompany");
 
   if (loading) return <p>Loading...</p>;
 
@@ -16,6 +18,16 @@ export function AdminRoute({ children }) {
 
   if (!isAdmin) {
     return <Navigate to="/" replace />;
+  }
+
+  // ✅ منع Super Admin من دخول ERP بدون Company
+  if (user?.is_super_admin && location.pathname.startsWith("/admin/erp")) {
+    if (!tenantId || tenantId === "") {
+      alert(
+        "Global Mode is for SaaS Management only. Please select a clinic to access ERP features.",
+      );
+      return <Navigate to="/admin/dashboard" replace />;
+    }
   }
 
   return children;

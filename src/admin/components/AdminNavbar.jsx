@@ -43,6 +43,15 @@ const AdminNavbar = () => {
 
       // ✅ تحديث البيانات بدون Reload
       queryClient.invalidateQueries();
+
+      // ✅ لو Super Admin اختار Global Mode وموجود في ERP Route
+      if (!companyId && location.pathname.startsWith("/admin/erp")) {
+        // منع الدخول - توجيه لـ SaaS Dashboard
+        navigate("/admin/saas");
+        alert(
+          "Global Mode is for SaaS Management only. Please select a clinic to access ERP features.",
+        );
+      }
     } catch (error) {
       console.error("Failed to switch company", error);
     } finally {

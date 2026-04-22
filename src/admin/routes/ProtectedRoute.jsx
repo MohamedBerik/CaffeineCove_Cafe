@@ -20,13 +20,22 @@ export function AdminRoute({ children }) {
     return <Navigate to="/" replace />;
   }
 
-  // ✅ منع Super Admin من دخول ERP بدون Company
-  if (user?.is_super_admin && location.pathname.startsWith("/admin/erp")) {
+  // في AdminRoute - أضف redirect ذكي بعد Login
+  if (user?.is_super_admin) {
+    const tenantId = localStorage.getItem("selectedCompany");
+
+    // لو Super Admin بدون Company → SaaS Dashboard
     if (!tenantId || tenantId === "") {
-      alert(
-        "Global Mode is for SaaS Management only. Please select a clinic to access ERP features.",
-      );
-      return <Navigate to="/admin/dashboard" replace />;
+      if (!location.pathname.startsWith("/admin/saas")) {
+        return <Navigate to="/admin/saas" replace />;
+      }
+    }
+
+    // لو Super Admin مع Company → ERP Dashboard
+    if (tenantId && tenantId !== "") {
+      if (location.pathname.startsWith("/admin/saas")) {
+        return <Navigate to="/admin/erp" replace />;
+      }
     }
   }
 

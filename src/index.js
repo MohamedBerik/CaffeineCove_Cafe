@@ -84,6 +84,7 @@ import PlansList from "./admin/saas/PlansList";
 import SubscriptionsList from "./admin/saas/SubscriptionsList";
 import SaaSReports from "./admin/saas/SaaSReports";
 import PlatformSettings from "./admin/saas/PlatformSettings";
+import ActivityLogs from "./admin/erp/activity-logs/ActivityLogs";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -306,6 +307,17 @@ createRoot(document.getElementById("root")).render(
               }
             >
               <Route index element={<PlatformSettings />} />
+            </Route>
+            {/* ================= Activity Logs Route ================= */}
+            <Route
+              path="/admin/activity-logs"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<ActivityLogs />} />
             </Route>
             {/* ================= Generic admin CRUD ================= */}
             <Route

@@ -74,6 +74,7 @@ import ProceduresListPage from "./admin/erp/procedures/ProceduresListPage";
 import ProcedureFormPage from "./admin/erp/procedures/ProcedureFormPage";
 import StartVisitPage from "./admin/erp/visits/StartVisitPage";
 import NotificationsPage from "./admin/erp/notifications/NotificationsPage";
+import SaaSDashboard from "./admin/saas/SaaSDashboard";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({

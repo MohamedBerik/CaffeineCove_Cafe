@@ -138,7 +138,9 @@ export default function ErpNav() {
     location.pathname.startsWith("/admin/saas") ||
     location.pathname.startsWith("/admin/companies") ||
     location.pathname.startsWith("/admin/plans") ||
-    location.pathname.startsWith("/admin/subscriptions");
+    location.pathname.startsWith("/admin/subscriptions") ||
+    location.pathname.startsWith("/admin/reports/saas") ||
+    location.pathname.startsWith("/admin/settings/saas");
 
   const hasPermission = (permission) => {
     if (user?.is_super_admin) return true;

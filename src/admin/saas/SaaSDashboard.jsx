@@ -32,7 +32,7 @@ const GROWTH_COLORS = {
   neutral: "#6c757d",
 };
 
-export default function SaaSDashboard() {
+function SaaSDashboard() {
   const { t, i18n } = useTranslation();
   const [greeting, setGreeting] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState("month");
@@ -95,9 +95,9 @@ export default function SaaSDashboard() {
   };
 
   const formatNumber = (value) => {
-    return new Intl.NumberFormat(i18n.language === "ar" ? "ar-EG" : "en-US").format(
-      Number(value || 0),
-    );
+    return new Intl.NumberFormat(
+      i18n.language === "ar" ? "ar-EG" : "en-US",
+    ).format(Number(value || 0));
   };
 
   const formatDate = (value) => {
@@ -175,7 +175,9 @@ export default function SaaSDashboard() {
             <i className="fas fa-crown"></i>
             <span>{greeting}, Super Admin</span>
           </div>
-          <h1 className="saas-welcome-title">{t("SaaS Management Dashboard")}</h1>
+          <h1 className="saas-welcome-title">
+            {t("SaaS Management Dashboard")}
+          </h1>
           <p className="saas-welcome-subtitle">
             {t("Monitor and manage all clinics from one place")}
           </p>
@@ -269,7 +271,11 @@ export default function SaaSDashboard() {
                   <YAxis />
                   <Tooltip
                     content={(props) => (
-                      <MRRTooltip {...props} formatCurrency={formatCurrency} t={t} />
+                      <MRRTooltip
+                        {...props}
+                        formatCurrency={formatCurrency}
+                        t={t}
+                      />
                     )}
                   />
                   <Line
@@ -301,11 +307,25 @@ export default function SaaSDashboard() {
                   <YAxis />
                   <Tooltip
                     content={(props) => (
-                      <GrowthTooltip {...props} formatNumber={formatNumber} t={t} />
+                      <GrowthTooltip
+                        {...props}
+                        formatNumber={formatNumber}
+                        t={t}
+                      />
                     )}
                   />
-                  <Bar dataKey="new" fill="#4caf50" radius={[8, 8, 0, 0]} name={t("New")} />
-                  <Bar dataKey="churned" fill="#f44336" radius={[8, 8, 0, 0]} name={t("Churned")} />
+                  <Bar
+                    dataKey="new"
+                    fill="#4caf50"
+                    radius={[8, 8, 0, 0]}
+                    name={t("New")}
+                  />
+                  <Bar
+                    dataKey="churned"
+                    fill="#f44336"
+                    radius={[8, 8, 0, 0]}
+                    name={t("Churned")}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -344,13 +364,17 @@ export default function SaaSDashboard() {
                     outerRadius={90}
                     paddingAngle={2}
                     dataKey="value"
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    label={({ name, percent }) =>
+                      `${name} (${(percent * 100).toFixed(0)}%)`
+                    }
                   >
                     {companiesByStatus.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip content={(props) => <PieTooltip {...props} t={t} />} />
+                  <Tooltip
+                    content={(props) => <PieTooltip {...props} t={t} />}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
@@ -371,13 +395,21 @@ export default function SaaSDashboard() {
                   <div key={clinic.id} className="saas-top-clinic-item">
                     <div className="saas-top-clinic-rank">#{index + 1}</div>
                     <div className="saas-top-clinic-info">
-                      <span className="saas-top-clinic-name">{clinic.name}</span>
+                      <span className="saas-top-clinic-name">
+                        {clinic.name}
+                      </span>
                       <span className="saas-top-clinic-meta">
-                        {formatCurrency(clinic.revenue)} • {clinic.appointments} {t("appts")}
+                        {formatCurrency(clinic.revenue)} • {clinic.appointments}{" "}
+                        {t("appts")}
                       </span>
                     </div>
-                    <div className="saas-top-clinic-growth" style={{ color: getGrowthColor(clinic.growth) }}>
-                      <i className={`fas fa-arrow-${clinic.growth >= 0 ? "up" : "down"}`}></i>
+                    <div
+                      className="saas-top-clinic-growth"
+                      style={{ color: getGrowthColor(clinic.growth) }}
+                    >
+                      <i
+                        className={`fas fa-arrow-${clinic.growth >= 0 ? "up" : "down"}`}
+                      ></i>
                       {Math.abs(clinic.growth).toFixed(1)}%
                     </div>
                   </div>
@@ -441,7 +473,10 @@ export default function SaaSDashboard() {
                   {recentCompanies.map((company) => (
                     <tr key={company.id}>
                       <td>
-                        <Link to={`/admin/companies/${company.id}`} className="saas-company-link">
+                        <Link
+                          to={`/admin/companies/${company.id}`}
+                          className="saas-company-link"
+                        >
                           {company.name}
                         </Link>
                         <div className="saas-company-slug">{company.slug}</div>
@@ -450,7 +485,11 @@ export default function SaaSDashboard() {
                         <StatusBadge status={company.status} t={t} />
                       </td>
                       <td>{formatDate(company.created_at)}</td>
-                      <td>{company.trial_ends_at ? formatDate(company.trial_ends_at) : "-"}</td>
+                      <td>
+                        {company.trial_ends_at
+                          ? formatDate(company.trial_ends_at)
+                          : "-"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -474,11 +513,17 @@ export default function SaaSDashboard() {
                 {recentActivities.map((activity, index) => (
                   <div key={index} className="saas-activity-item">
                     <div className="saas-activity-icon">
-                      <i className={`fas fa-${getActivityIcon(activity.type)}`}></i>
+                      <i
+                        className={`fas fa-${getActivityIcon(activity.type)}`}
+                      ></i>
                     </div>
                     <div className="saas-activity-content">
-                      <span className="saas-activity-text">{t(activity.message)}</span>
-                      <span className="saas-activity-time">{formatDateTime(activity.created_at)}</span>
+                      <span className="saas-activity-text">
+                        {t(activity.message)}
+                      </span>
+                      <span className="saas-activity-time">
+                        {formatDateTime(activity.created_at)}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -495,7 +540,16 @@ export default function SaaSDashboard() {
 
 // ========================= Sub-Components =========================
 
-function MetricCard({ title, value, icon, color, trend, trendLabel, percentage, t }) {
+function MetricCard({
+  title,
+  value,
+  icon,
+  color,
+  trend,
+  trendLabel,
+  percentage,
+  t,
+}) {
   const colorMap = {
     primary: { bg: "rgba(26, 35, 126, 0.1)", text: "#1a237e" },
     success: { bg: "rgba(76, 175, 80, 0.1)", text: "#4caf50" },
@@ -515,7 +569,9 @@ function MetricCard({ title, value, icon, color, trend, trendLabel, percentage, 
         <span className="saas-metric-value">{value}</span>
         <span className="saas-metric-title">{title}</span>
         {trend !== undefined && (
-          <div className={`saas-metric-trend ${trend >= 0 ? "positive" : "negative"}`}>
+          <div
+            className={`saas-metric-trend ${trend >= 0 ? "positive" : "negative"}`}
+          >
             <i className={`fas fa-arrow-${trend >= 0 ? "up" : "down"}`}></i>
             <span>
               {Math.abs(trend).toFixed(1)}% {trendLabel}
@@ -524,7 +580,9 @@ function MetricCard({ title, value, icon, color, trend, trendLabel, percentage, 
         )}
         {percentage !== undefined && (
           <div className="saas-metric-percentage">
-            <span>{percentage.toFixed(1)}% {t("of total")}</span>
+            <span>
+              {percentage.toFixed(1)}% {t("of total")}
+            </span>
           </div>
         )}
       </div>
@@ -563,7 +621,9 @@ function MRRTooltip({ active, payload, formatCurrency, t }) {
     <div className="saas-custom-tooltip">
       <div className="saas-tooltip-item">
         <span className="saas-tooltip-label">{t("MRR")}:</span>
-        <span className="saas-tooltip-value">{formatCurrency(payload[0].value)}</span>
+        <span className="saas-tooltip-value">
+          {formatCurrency(payload[0].value)}
+        </span>
       </div>
       <div className="saas-tooltip-item">
         <span className="saas-tooltip-label">{t("Month")}:</span>
@@ -593,7 +653,12 @@ function GrowthTooltip({ active, payload, formatNumber, t }) {
         <span className="saas-tooltip-label">{t("Net")}:</span>
         <span
           className="saas-tooltip-value"
-          style={{ color: (payload[0]?.value || 0) - (payload[1]?.value || 0) >= 0 ? "#4caf50" : "#f44336" }}
+          style={{
+            color:
+              (payload[0]?.value || 0) - (payload[1]?.value || 0) >= 0
+                ? "#4caf50"
+                : "#f44336",
+          }}
         >
           {formatNumber((payload[0]?.value || 0) - (payload[1]?.value || 0))}
         </span>

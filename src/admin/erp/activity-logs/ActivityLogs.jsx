@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import axios from "../../services/axios";
+import axios from "../services/axios";
 import "./ActivityLogs.css";
 
 export default function ActivityLogs() {

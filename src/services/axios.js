@@ -15,12 +15,10 @@ api.interceptors.request.use(
     let token = localStorage.getItem("token");
     const tenantId = localStorage.getItem("selectedCompany");
 
-    // ✅ Debug: التحقق من وجود التوكن وشكله
     console.log("🔑 TOKEN from localStorage:", token);
     console.log("🏢 Tenant ID from localStorage:", tenantId);
 
     if (token) {
-      // ✅ إصلاح مشكلة quotes: لو التوكن متخزن كـ JSON string
       try {
         if (token.startsWith('"') && token.endsWith('"')) {
           token = JSON.parse(token);
@@ -31,8 +29,8 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // ✅ إرسال Tenant ID في Header
-    if (tenantId) {
+    // ✅ إرسال Tenant ID في Header فقط لو مش "global" أو فاضي
+    if (tenantId && tenantId !== "global" && tenantId !== "") {
       config.headers["X-Tenant-ID"] = tenantId;
     }
 

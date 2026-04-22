@@ -39,14 +39,15 @@ const AdminNavbar = () => {
       await api.post("/switch-company", { company_id: companyId || null });
 
       setSelectedCompany(companyId || "");
-      localStorage.setItem("selectedCompany", companyId || "");
+
+      // ✅ خزن "global" بدل "" عشان نعرف إن المستخدم في Global Mode
+      localStorage.setItem("selectedCompany", companyId || "global");
 
       // ✅ تحديث البيانات بدون Reload
       queryClient.invalidateQueries();
 
       // ✅ لو Super Admin اختار Global Mode وموجود في ERP Route
       if (!companyId && location.pathname.startsWith("/admin/erp")) {
-        // منع الدخول - توجيه لـ SaaS Dashboard
         navigate("/admin/saas");
         alert(
           "Global Mode is for SaaS Management only. Please select a clinic to access ERP features.",

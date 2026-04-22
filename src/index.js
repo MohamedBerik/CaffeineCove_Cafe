@@ -236,10 +236,12 @@ createRoot(document.getElementById("root")).render(
               path="/admin/saas"
               element={
                 <AdminRoute>
-                  <SaaSDashboard />
+                  <ERPDashboard />
                 </AdminRoute>
               }
-            />
+            >
+              <Route index element={<SaaSDashboard />} />
+            </Route>
             {/* ================= Generic admin CRUD ================= */}
             <Route
               path="/admin/:table"

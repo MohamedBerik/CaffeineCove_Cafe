@@ -1,8 +1,8 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { useTranslation } from "react-i18next";
 
-const navItems = [
+const erpNavItems = [
   {
     to: "/admin/erp",
     labelKey: "Dashboard",
@@ -84,41 +84,91 @@ const navItems = [
   },
 ];
 
+const saasNavItems = [
+  {
+    to: "/admin/saas",
+    labelKey: "SaaS Dashboard",
+    icon: "fas fa-chart-pie",
+    end: true,
+  },
+  {
+    to: "/admin/companies",
+    labelKey: "Companies",
+    icon: "fas fa-building",
+  },
+  {
+    to: "/admin/companies/create",
+    labelKey: "Add Company",
+    icon: "fas fa-plus-circle",
+  },
+  {
+    to: "/admin/plans",
+    labelKey: "Plans & Pricing",
+    icon: "fas fa-tags",
+  },
+  {
+    to: "/admin/subscriptions",
+    labelKey: "Subscriptions",
+    icon: "fas fa-credit-card",
+  },
+  {
+    to: "/admin/reports/saas",
+    labelKey: "SaaS Reports",
+    icon: "fas fa-chart-line",
+  },
+  {
+    to: "/admin/activity-logs",
+    labelKey: "Activity Logs",
+    icon: "fas fa-history",
+  },
+  {
+    to: "/admin/settings/saas",
+    labelKey: "Platform Settings",
+    icon: "fas fa-cog",
+  },
+];
+
 export default function ErpNav() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const location = useLocation();
+
+  // ✅ تحديد إذا كنا في SaaS Mode ولا ERP Mode
+  const isSaaSMode = location.pathname.startsWith("/admin/saas") || 
+                      location.pathname.startsWith("/admin/companies") ||
+                      location.pathname.startsWith("/admin/plans") ||
+                      location.pathname.startsWith("/admin/subscriptions");
 
   const hasPermission = (permission) => {
-    // Super admin يشوف الكل
     if (user?.is_super_admin) return true;
-
     const permissions = user?.permissions;
-
-    // لو مفيش permissions في الـ user حاليًا، ما نكسرش الواجهة
     if (!permissions) return true;
-
-    // Array format
     if (Array.isArray(permissions)) {
       return permissions.includes(permission);
     }
-
-    // Object format
     if (typeof permissions === "object") {
       return Boolean(permissions[permission]);
     }
-
     return true;
   };
 
-  const visibleItems = navItems.filter((item) =>
-    hasPermission(item.permission),
-  );
+  // ✅ اختيار العناصر حسب الوضع
+  const items = isSaaS Mode ? saasNavItems : erpNavItems;
+  
+  // ✅ لو ERP Mode، فلترة حسب الصلاحيات
+  const visibleItems = isSaaS Mode 
+    ? items 
+    : items.filter((item) => hasPermission(item.permission));
+
+  // ✅ العنوان يتغير حسب الوضع
+  const headerTitle = isSaaS Mode ? t("SaaS Platform") : t("ERP Navigation");
+  const headerIcon = isSaaS Mode ? "fas fa-cloud" : "fas fa-compass";
 
   return (
     <div className="erp-nav-card">
       <div className="erp-nav-header">
-        <i className="fas fa-compass"></i>
-        <span>{t("ERP Navigation")}</span>
+        <i className={headerIcon}></i>
+        <span>{headerTitle}</span>
       </div>
 
       <div className="erp-nav-menu">

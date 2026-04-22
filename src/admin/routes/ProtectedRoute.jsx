@@ -20,22 +20,19 @@ export function AdminRoute({ children }) {
     return <Navigate to="/" replace />;
   }
 
-  // في AdminRoute - أضف redirect ذكي بعد Login
-  if (user?.is_super_admin) {
-    const tenantId = localStorage.getItem("selectedCompany");
-
-    // لو Super Admin بدون Company → SaaS Dashboard
-    if (!tenantId || tenantId === "") {
-      if (!location.pathname.startsWith("/admin/saas")) {
-        return <Navigate to="/admin/saas" replace />;
-      }
+  // ✅ لو Super Admin وبيحاول يدخل ERP بدون Company
+  if (user?.is_super_admin && location.pathname.startsWith("/admin/erp")) {
+    if (!tenantId || tenantId === "" || tenantId === "global") {
+      // ✅ توجيه ذكي لـ SaaS Dashboard بدل ما يرجع Error
+      return <Navigate to="/admin/saas" replace />;
     }
+  }
 
-    // لو Super Admin مع Company → ERP Dashboard
-    if (tenantId && tenantId !== "") {
-      if (location.pathname.startsWith("/admin/saas")) {
-        return <Navigate to="/admin/erp" replace />;
-      }
+  // ✅ لو Super Admin وعنده Company وبيحاول يدخل SaaS
+  if (user?.is_super_admin && location.pathname.startsWith("/admin/saas")) {
+    if (tenantId && tenantId !== "" && tenantId !== "global") {
+      // ✅ عنده Company مختارة → يروح لـ ERP Dashboard
+      return <Navigate to="/admin/erp" replace />;
     }
   }
 

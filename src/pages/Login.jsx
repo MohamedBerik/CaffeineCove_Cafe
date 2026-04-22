@@ -27,10 +27,22 @@ function Login() {
       // ✅ استخدم البيانات اللي رجعت من الـ API
       login(res.data.user, res.data.token);
 
-      // ✅ توجيه مباشر
-      if (res.data.user.is_super_admin || res.data.user.role === "admin") {
+      // ✅ توجيه ذكي بناءً على نوع المستخدم والـ Tenant
+      if (res.data.user.is_super_admin) {
+        const savedCompany = localStorage.getItem("selectedCompany");
+
+        // لو أول مرة أو Global Mode → SaaS Dashboard
+        if (!savedCompany || savedCompany === "" || savedCompany === "global") {
+          navigate("/admin/saas");
+        } else {
+          // عنده Company مختارة → ERP Dashboard
+          navigate("/admin/erp");
+        }
+      } else if (res.data.user.role === "admin") {
+        // Company Admin → ERP Dashboard مباشرة
         navigate("/admin/erp");
       } else {
+        // Regular User → الصفحة الرئيسية
         navigate("/");
       }
     } catch (err) {

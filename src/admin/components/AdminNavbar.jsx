@@ -38,20 +38,19 @@ const AdminNavbar = () => {
     try {
       await api.post("/switch-company", { company_id: companyId || null });
 
-      setSelectedCompany(companyId || "");
+      const valueToStore = companyId || "global";
+      setSelectedCompany(valueToStore);
+      localStorage.setItem("selectedCompany", valueToStore);
 
-      // ✅ خزن "global" بدل "" عشان نعرف إن المستخدم في Global Mode
-      localStorage.setItem("selectedCompany", companyId || "global");
-
-      // ✅ تحديث البيانات بدون Reload
       queryClient.invalidateQueries();
 
-      // ✅ لو Super Admin اختار Global Mode وموجود في ERP Route
-      if (!companyId && location.pathname.startsWith("/admin/erp")) {
+      // ✅ توجيه ذكي بعد تبديل الشركة
+      if (!companyId || companyId === "") {
+        // اختار Global → SaaS Dashboard
         navigate("/admin/saas");
-        alert(
-          "Global Mode is for SaaS Management only. Please select a clinic to access ERP features.",
-        );
+      } else {
+        // اختار شركة → ERP Dashboard
+        navigate("/admin/erp");
       }
     } catch (error) {
       console.error("Failed to switch company", error);

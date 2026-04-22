@@ -134,10 +134,11 @@ export default function ErpNav() {
   const location = useLocation();
 
   // ✅ تحديد إذا كنا في SaaS Mode ولا ERP Mode
-  const isSaaSMode = location.pathname.startsWith("/admin/saas") || 
-                      location.pathname.startsWith("/admin/companies") ||
-                      location.pathname.startsWith("/admin/plans") ||
-                      location.pathname.startsWith("/admin/subscriptions");
+  const isSaaSMode =
+    location.pathname.startsWith("/admin/saas") ||
+    location.pathname.startsWith("/admin/companies") ||
+    location.pathname.startsWith("/admin/plans") ||
+    location.pathname.startsWith("/admin/subscriptions");
 
   const hasPermission = (permission) => {
     if (user?.is_super_admin) return true;
@@ -153,16 +154,16 @@ export default function ErpNav() {
   };
 
   // ✅ اختيار العناصر حسب الوضع
-  const items = isSaaS Mode ? saasNavItems : erpNavItems;
-  
+  const items = isSaaSMode ? saasNavItems : erpNavItems;
+
   // ✅ لو ERP Mode، فلترة حسب الصلاحيات
-  const visibleItems = isSaaS Mode 
-    ? items 
+  const visibleItems = isSaaSMode
+    ? items
     : items.filter((item) => hasPermission(item.permission));
 
   // ✅ العنوان يتغير حسب الوضع
-  const headerTitle = isSaaS Mode ? t("SaaS Platform") : t("ERP Navigation");
-  const headerIcon = isSaaS Mode ? "fas fa-cloud" : "fas fa-compass";
+  const headerTitle = isSaaSMode ? t("SaaS Platform") : t("ERP Navigation");
+  const headerIcon = isSaaSMode ? "fas fa-cloud" : "fas fa-compass";
 
   return (
     <div className="erp-nav-card">

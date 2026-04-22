@@ -140,6 +140,7 @@ export default function ErpNav() {
     location.pathname.startsWith("/admin/plans") ||
     location.pathname.startsWith("/admin/subscriptions") ||
     location.pathname.startsWith("/admin/reports/saas") ||
+    location.pathname.startsWith("/admin/activity-logs") ||
     location.pathname.startsWith("/admin/settings/saas");
 
   const hasPermission = (permission) => {

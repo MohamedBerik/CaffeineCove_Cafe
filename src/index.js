@@ -85,6 +85,7 @@ import SubscriptionsList from "./admin/saas/SubscriptionsList";
 import SaaSReports from "./admin/saas/SaaSReports";
 import PlatformSettings from "./admin/saas/PlatformSettings";
 import ActivityLogs from "./admin/erp/activity-logs/ActivityLogs";
+import BillingPage from "./admin/erp/billing/BillingPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -237,9 +238,10 @@ createRoot(document.getElementById("root")).render(
               />
               <Route path="visits/start" element={<StartVisitPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="billing" element={<BillingPage />} />
             </Route>
+
             {/* ================= SaaS Dashboard (NEW) ================= */}
-            // ================= SaaS Dashboard Routes =================
             <Route
               path="/admin/saas"
               element={

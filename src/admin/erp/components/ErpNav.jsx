@@ -82,6 +82,12 @@ const erpNavItems = [
     icon: "fas fa-hospital",
     permission: "appointments.manage",
   },
+  {
+    to: "/admin/erp/billing",
+    labelKey: "Billing",
+    icon: "fas fa-credit-card",
+    permission: "finance.view",
+  },
 ];
 
 const saasNavItems = [

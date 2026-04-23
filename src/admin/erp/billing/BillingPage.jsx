@@ -96,6 +96,24 @@ export default function BillingPage() {
     },
   });
 
+  const changeMutation = useMutation({
+    mutationFn: ({ planId, cycle }) =>
+      axios.post("/erp/billing/change", {
+        plan_id: planId,
+        billing_cycle: cycle,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["current-subscription"]);
+      queryClient.invalidateQueries(["billing-invoices"]);
+      toast.success(t("Plan changed successfully"));
+      setShowPlansModal(false);
+      setSelectedPlan(null);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || t("Failed to change plan"));
+    },
+  });
+
   const addPaymentMethodMutation = useMutation({
     mutationFn: (data) => axios.post("/erp/billing/payment-methods", data),
     onSuccess: () => {
@@ -133,10 +151,20 @@ export default function BillingPage() {
 
   const handleSubscribe = () => {
     if (!selectedPlan) return;
-    subscribeMutation.mutate({
-      planId: selectedPlan.id,
-      cycle: billingCycle,
-    });
+
+    // ✅ لو فيه اشتراك حالي → change
+    if (subscription && subscription.status === "active") {
+      changeMutation.mutate({
+        planId: selectedPlan.id,
+        cycle: billingCycle,
+      });
+    } else {
+      // ✅ لو مفيش → subscribe جديد
+      subscribeMutation.mutate({
+        planId: selectedPlan.id,
+        cycle: billingCycle,
+      });
+    }
   };
 
   const handleCancel = () => {

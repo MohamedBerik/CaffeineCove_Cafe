@@ -199,7 +199,8 @@ export default function BillingPage() {
                   <StatusBadge status={subscription.status} t={t} />
                 </div>
                 <p className="plan-price">
-                  {formatCurrency(subscription.amount)} / {t("month")}
+                  {formatCurrency(subscription.amount)} /{" "}
+                  {t(subscription.billing_cycle || "month")}
                 </p>
                 <p className="plan-period">
                   {t("Started")}: {formatDate(subscription.starts_at)}

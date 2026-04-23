@@ -247,6 +247,20 @@ export default function BillingPage() {
     return diff;
   };
 
+  useEffect(() => {
+    const handleMessage = (event) => {
+      // PayMob بتبعت رسالة لما الدفع ينجح
+      if (event.data?.type === "payment_success") {
+        handlePaymentSuccess();
+      }
+      if (event.data?.type === "payment_failed") {
+        handlePaymentCancel();
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
   // ========================= Loading State =========================
   if (loadingSub) {
     return (

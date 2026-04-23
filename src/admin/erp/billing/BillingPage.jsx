@@ -126,6 +126,16 @@ export default function BillingPage() {
     }
   };
 
+  const handleAddPaymentMethod = () => {
+    // ✅ مؤقتًا - هنستخدم بيانات وهمية
+    const paymentData = {
+      stripe_token: "tok_" + Math.random().toString(36).substr(2, 9),
+      is_default: true,
+    };
+
+    addPaymentMethodMutation.mutate(paymentData);
+  };
+
   const formatCurrency = (value) => {
     const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
     return new Intl.NumberFormat(lang, {
@@ -268,7 +278,7 @@ export default function BillingPage() {
               </button>
             </div>
           ))}
-          <button className="btn-add-payment">
+          <button className="btn-add-payment" onClick={handleAddPaymentMethod}>
             <i className="fas fa-plus"></i>
             {t("Add Payment Method")}
           </button>

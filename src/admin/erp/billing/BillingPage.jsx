@@ -694,12 +694,14 @@ function PlansModal({
                   </span>
                 </div>
                 <ul className="plan-features">
-                  {plan.features?.slice(0, 5).map((feature, idx) => (
-                    <li key={idx}>
-                      <i className="fas fa-check"></i>
-                      {feature}
-                    </li>
-                  ))}
+                  {plan.features &&
+                    Array.isArray(plan.features) &&
+                    plan.features.slice(0, 5).map((feature, idx) => (
+                      <li key={idx}>
+                        <i className="fas fa-check"></i>
+                        {feature}
+                      </li>
+                    ))}
                 </ul>
               </div>
             );

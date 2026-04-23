@@ -254,6 +254,31 @@ function SaaSDashboard() {
           color="danger"
           t={t}
         />
+
+        {/* Key Metrics - أضف بعد Suspended Companies */}
+        <MetricCard
+          title={t("Active Subscriptions")}
+          value={formatNumber(stats.active_subscriptions || 0)}
+          icon="fas fa-sync-alt"
+          color="info"
+          t={t}
+        />
+        <MetricCard
+          title={t("Churn Rate")}
+          value={`${(stats.churn_rate || 0).toFixed(1)}%`}
+          icon="fas fa-user-slash"
+          color="danger"
+          trend={-(stats.churn_rate || 0)}
+          trendLabel={t("this month")}
+          t={t}
+        />
+        <MetricCard
+          title={t("Avg Revenue/Company")}
+          value={formatCurrency(stats.avg_revenue_per_company || 0)}
+          icon="fas fa-chart-bar"
+          color="success"
+          t={t}
+        />
       </div>
 
       {/* Charts Row 1 - MRR & Growth */}
@@ -428,19 +453,19 @@ function SaaSDashboard() {
         <p>{t("Manage your platform efficiently")}</p>
       </div>
       <div className="saas-quick-actions">
-        <Link to="/admin/companies/create" className="saas-action-card">
+        <Link to="/saas/companies/create" className="saas-action-card">
           <i className="fas fa-plus-circle"></i>
           <span>{t("Add New Company")}</span>
         </Link>
-        <Link to="/admin/companies" className="saas-action-card">
+        <Link to="/saas/companies" className="saas-action-card">
           <i className="fas fa-list"></i>
           <span>{t("Manage Companies")}</span>
         </Link>
-        <Link to="/admin/plans" className="saas-action-card">
+        <Link to="/saas/plans" className="saas-action-card">
           <i className="fas fa-tags"></i>
           <span>{t("Manage Plans")}</span>
         </Link>
-        <Link to="/admin/reports/saas" className="saas-action-card">
+        <Link to="/saas/reports" className="saas-action-card">
           <i className="fas fa-file-alt"></i>
           <span>{t("SaaS Reports")}</span>
         </Link>
@@ -532,6 +557,42 @@ function SaaSDashboard() {
               <EmptyState text={t("No recent activities")} />
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Recent Transactions */}
+      <div className="saas-table-card">
+        <div className="saas-table-header">
+          <div className="saas-table-title">
+            <i className="fas fa-credit-card"></i>
+            <h5>{t("Recent Transactions")}</h5>
+          </div>
+        </div>
+        <div className="saas-table-body">
+          {(dashboard?.recent_transactions || []).length > 0 ? (
+            <table className="saas-table">
+              <thead>
+                <tr>
+                  <th>{t("Invoice")}</th>
+                  <th>{t("Company")}</th>
+                  <th>{t("Amount")}</th>
+                  <th>{t("Date")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(dashboard?.recent_transactions || []).map((txn) => (
+                  <tr key={txn.id}>
+                    <td>{txn.number}</td>
+                    <td>#{txn.company_id}</td>
+                    <td>{formatCurrency(txn.amount)}</td>
+                    <td>{formatDate(txn.created_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <EmptyState text={t("No recent transactions")} />
+          )}
         </div>
       </div>
     </div>

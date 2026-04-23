@@ -101,6 +101,15 @@ export default function BillingPage() {
     setSelectedPlan(plan);
   };
 
+  // ✅ أضف الـ Handler ده
+  const handleChangePlan = () => {
+    // اختيار الخطة الحالية تلقائيًا لما تفتح الـ Modal
+    if (subscription?.plan) {
+      setSelectedPlan(subscription.plan);
+    }
+    setShowPlansModal(true);
+  };
+
   const handleSubscribe = () => {
     if (!selectedPlan) return;
     subscribeMutation.mutate({
@@ -207,10 +216,7 @@ export default function BillingPage() {
                 )}
               </div>
               <div className="plan-actions">
-                <button
-                  className="btn-change-plan"
-                  onClick={() => setShowPlansModal(true)}
-                >
+                <button className="btn-change-plan" onClick={handleChangePlan}>
                   {t("Change Plan")}
                 </button>
                 {subscription.status === "active" && (

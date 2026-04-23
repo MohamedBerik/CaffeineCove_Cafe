@@ -20,6 +20,9 @@ export default function BillingPage() {
     card_name: "",
     is_default: true,
   });
+  const [showPaymentIframe, setShowPaymentIframe] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState("");
+  const [pendingSubscriptionId, setPendingSubscriptionId] = useState(null);
 
   // ========================= Queries =========================
   const { data: subscription, isLoading: loadingSub } = useQuery({
@@ -62,16 +65,20 @@ export default function BillingPage() {
         plan_id: planId,
         billing_cycle: cycle,
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["current-subscription"]);
-      queryClient.invalidateQueries(["billing-invoices"]);
-      toast.success(t("Subscription updated successfully"));
+    onSuccess: (response) => {
+      const { payment_url, subscription_id } = response.data;
+
+      // ✅ افتح iframe PayMob
+      setPaymentUrl(payment_url);
+      setPendingSubscriptionId(subscription_id);
+      setShowPaymentIframe(true);
       setShowPlansModal(false);
-      setSelectedPlan(null);
+
+      toast.success(t("Redirecting to payment gateway..."));
     },
     onError: (error) => {
       toast.error(
-        error.response?.data?.message || t("Failed to update subscription"),
+        error.response?.data?.message || t("Failed to initiate payment"),
       );
     },
   });
@@ -142,6 +149,33 @@ export default function BillingPage() {
 
   const handleAddPaymentMethod = () => {
     setShowPaymentModal(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    setShowPaymentIframe(false);
+    setPaymentUrl("");
+    setPendingSubscriptionId(null);
+
+    // تحديث بيانات الاشتراك
+    queryClient.invalidateQueries(["current-subscription"]);
+    queryClient.invalidateQueries(["billing-invoices"]);
+
+    toast.success(t("Payment successful! Your subscription is now active."));
+  };
+
+  const handlePaymentCancel = () => {
+    setShowPaymentIframe(false);
+    setPaymentUrl("");
+
+    // إلغاء الاشتراك المعلق
+    if (pendingSubscriptionId) {
+      axios
+        .post(`/erp/billing/cancel-pending/${pendingSubscriptionId}`)
+        .catch(console.error);
+      setPendingSubscriptionId(null);
+    }
+
+    toast.error(t("Payment was cancelled."));
   };
 
   const resetCardForm = () => {
@@ -528,6 +562,37 @@ export default function BillingPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Iframe Modal */}
+      {showPaymentIframe && paymentUrl && (
+        <div className="modal-overlay">
+          <div
+            className="payment-modal"
+            style={{ maxWidth: "600px", padding: 0 }}
+          >
+            <div className="modal-header">
+              <h2>{t("Complete Your Payment")}</h2>
+              <button className="modal-close" onClick={handlePaymentCancel}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div style={{ padding: "1rem" }}>
+              <iframe
+                src={paymentUrl}
+                width="100%"
+                height="600"
+                frameBorder="0"
+                style={{ borderRadius: "12px" }}
+                title="PayMob Payment"
+              />
+              <p className="iframe-note">
+                <i className="fas fa-shield-alt"></i>{" "}
+                {t("Your payment is secure and encrypted by PayMob")}
+              </p>
+            </div>
           </div>
         </div>
       )}

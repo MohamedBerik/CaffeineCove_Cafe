@@ -476,3 +476,15 @@
     gap: 0.5rem;
   }
 }
+
+.iframe-note {
+  text-align: center;
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.iframe-note i {
+  color: #4caf50;
+  margin-right: 0.25rem;
+}

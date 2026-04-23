@@ -370,7 +370,7 @@ function SaaSDashboard() {
         </div>
       </div>
 
-      {/* Charts Row 2 - Status Distribution & Top Clinics */}
+      {/* Charts Row 2 - Status Distribution & Top Clinics*/}
       <div className="saas-charts-row">
         <div className="saas-chart-card">
           <div className="saas-chart-header">

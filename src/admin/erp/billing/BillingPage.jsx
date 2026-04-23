@@ -9,8 +9,17 @@ export default function BillingPage() {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const [showPlansModal, setShowPlansModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [billingCycle, setBillingCycle] = useState("monthly");
+  const [cardData, setCardData] = useState({
+    card_number: "",
+    card_exp_month: "",
+    card_exp_year: "",
+    card_cvc: "",
+    card_name: "",
+    is_default: true,
+  });
 
   // ========================= Queries =========================
   const { data: subscription, isLoading: loadingSub } = useQuery({
@@ -85,6 +94,13 @@ export default function BillingPage() {
     onSuccess: () => {
       queryClient.invalidateQueries(["payment-methods"]);
       toast.success(t("Payment method added successfully"));
+      setShowPaymentModal(false);
+      resetCardForm();
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message || t("Failed to add payment method"),
+      );
     },
   });
 
@@ -101,9 +117,7 @@ export default function BillingPage() {
     setSelectedPlan(plan);
   };
 
-  // ✅ أضف الـ Handler ده
   const handleChangePlan = () => {
-    // اختيار الخطة الحالية تلقائيًا لما تفتح الـ Modal
     if (subscription?.plan) {
       setSelectedPlan(subscription.plan);
     }
@@ -127,13 +141,45 @@ export default function BillingPage() {
   };
 
   const handleAddPaymentMethod = () => {
-    // ✅ مؤقتًا - هنستخدم بيانات وهمية
-    const paymentData = {
-      stripe_token: "tok_" + Math.random().toString(36).substr(2, 9),
-      is_default: true,
-    };
+    setShowPaymentModal(true);
+  };
 
-    addPaymentMethodMutation.mutate(paymentData);
+  const resetCardForm = () => {
+    setCardData({
+      card_number: "",
+      card_exp_month: "",
+      card_exp_year: "",
+      card_cvc: "",
+      card_name: "",
+      is_default: true,
+    });
+  };
+
+  const getCardBrand = (number) => {
+    const firstDigit = number.charAt(0);
+    const firstTwoDigits = number.substring(0, 2);
+
+    if (number.startsWith("4")) return "Visa";
+    if (number.startsWith("5")) return "Mastercard";
+    if (number.startsWith("34") || number.startsWith("37")) return "Amex";
+    if (number.startsWith("6")) return "Discover";
+    return "Card";
+  };
+
+  const handleSubmitPayment = (e) => {
+    e.preventDefault();
+
+    const brand = getCardBrand(cardData.card_number);
+    const last4 = cardData.card_number.slice(-4);
+
+    addPaymentMethodMutation.mutate({
+      stripe_token: "tok_" + Math.random().toString(36).substr(2, 9),
+      card_brand: brand,
+      card_last4: last4,
+      card_exp_month: parseInt(cardData.card_exp_month),
+      card_exp_year: parseInt(cardData.card_exp_year),
+      is_default: cardData.is_default,
+    });
   };
 
   const formatCurrency = (value) => {
@@ -157,17 +203,6 @@ export default function BillingPage() {
     } catch {
       return value;
     }
-  };
-
-  const getStatusColor = (status) => {
-    const colors = {
-      active: "success",
-      pending: "warning",
-      cancelled: "danger",
-      expired: "secondary",
-      trial: "info",
-    };
-    return colors[status] || "secondary";
   };
 
   const getDaysLeft = (endsAt) => {
@@ -344,6 +379,157 @@ export default function BillingPage() {
           formatCurrency={formatCurrency}
           t={t}
         />
+      )}
+
+      {/* Payment Method Modal */}
+      {showPaymentModal && (
+        <div
+          className="modal-overlay"
+          onClick={() => setShowPaymentModal(false)}
+        >
+          <div className="payment-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{t("Add Payment Method")}</h2>
+              <button
+                className="modal-close"
+                onClick={() => setShowPaymentModal(false)}
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitPayment} className="payment-form">
+              <div className="form-group">
+                <label>{t("Cardholder Name")}</label>
+                <input
+                  type="text"
+                  value={cardData.card_name}
+                  onChange={(e) =>
+                    setCardData({ ...cardData, card_name: e.target.value })
+                  }
+                  placeholder={t("John Doe")}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>{t("Card Number")}</label>
+                <div className="card-input-wrapper">
+                  <input
+                    type="text"
+                    value={cardData.card_number}
+                    onChange={(e) =>
+                      setCardData({
+                        ...cardData,
+                        card_number: e.target.value.replace(/\D/g, ""),
+                      })
+                    }
+                    placeholder="4242 4242 4242 4242"
+                    maxLength="16"
+                    required
+                  />
+                  {cardData.card_number && (
+                    <span className="card-brand-icon">
+                      <i
+                        className={getCardIcon(
+                          getCardBrand(cardData.card_number),
+                        )}
+                      ></i>
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="form-row three-columns">
+                <div className="form-group">
+                  <label>{t("Expiry Month")}</label>
+                  <input
+                    type="text"
+                    value={cardData.card_exp_month}
+                    onChange={(e) =>
+                      setCardData({
+                        ...cardData,
+                        card_exp_month: e.target.value.replace(/\D/g, ""),
+                      })
+                    }
+                    placeholder="MM"
+                    maxLength="2"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t("Expiry Year")}</label>
+                  <input
+                    type="text"
+                    value={cardData.card_exp_year}
+                    onChange={(e) =>
+                      setCardData({
+                        ...cardData,
+                        card_exp_year: e.target.value.replace(/\D/g, ""),
+                      })
+                    }
+                    placeholder="YYYY"
+                    maxLength="4"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t("CVC")}</label>
+                  <input
+                    type="text"
+                    value={cardData.card_cvc}
+                    onChange={(e) =>
+                      setCardData({
+                        ...cardData,
+                        card_cvc: e.target.value.replace(/\D/g, ""),
+                      })
+                    }
+                    placeholder="123"
+                    maxLength="4"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group checkbox">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={cardData.is_default}
+                    onChange={(e) =>
+                      setCardData({ ...cardData, is_default: e.target.checked })
+                    }
+                  />
+                  {t("Set as default payment method")}
+                </label>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => setShowPaymentModal(false)}
+                >
+                  {t("Cancel")}
+                </button>
+                <button
+                  type="submit"
+                  className="btn-submit"
+                  disabled={addPaymentMethodMutation.isPending}
+                >
+                  {addPaymentMethodMutation.isPending ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin"></i>
+                      {t("Processing...")}
+                    </>
+                  ) : (
+                    t("Add Card")
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

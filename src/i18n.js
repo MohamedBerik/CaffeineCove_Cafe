@@ -2729,6 +2729,19 @@ const resources = {
       "Payment method removed": "Payment method removed",
       "Are you sure you want to cancel your subscription?":
         "Are you sure you want to cancel your subscription?",
+
+      "Cardholder Name": "Cardholder Name",
+      "John Doe": "John Doe",
+      "Card Number": "Card Number",
+      "Expiry Month": "Expiry Month",
+      "Expiry Year": "Expiry Year",
+      CVC: "CVC",
+      "Set as default payment method": "Set as default payment method",
+      "Add Card": "Add Card",
+      "Processing...": "Processing...",
+      "Payment method added successfully": "Payment method added successfully",
+      "Failed to add payment method": "Failed to add payment method",
+      Cancel: "Cancel",
     },
   },
   ar: {
@@ -5433,6 +5446,19 @@ const resources = {
       "Payment method removed": "تمت إزالة وسيلة الدفع",
       "Are you sure you want to cancel your subscription?":
         "هل أنت متأكد من إلغاء اشتراكك؟",
+
+      "Cardholder Name": "اسم حامل البطاقة",
+      "John Doe": "محمد أحمد",
+      "Card Number": "رقم البطاقة",
+      "Expiry Month": "شهر الانتهاء",
+      "Expiry Year": "سنة الانتهاء",
+      CVC: "رمز الأمان",
+      "Set as default payment method": "تعيين كوسيلة دفع افتراضية",
+      "Add Card": "إضافة البطاقة",
+      "Processing...": "جاري المعالجة...",
+      "Payment method added successfully": "تمت إضافة وسيلة الدفع بنجاح",
+      "Failed to add payment method": "فشل إضافة وسيلة الدفع",
+      Cancel: "إلغاء",
     },
   },
 };

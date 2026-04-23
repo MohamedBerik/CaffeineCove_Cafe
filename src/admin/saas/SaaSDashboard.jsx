@@ -309,7 +309,7 @@ function SaaSDashboard() {
                     stroke="#1a237e"
                     strokeWidth={3}
                     dot={{ fill: "#1a237e", r: 4 }}
-                    activeDot={{ r: 5 }}
+                    activeDot={{ r: 6 }}
                   />
                 </LineChart>
               </ResponsiveContainer>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import axios from "../../../services/axios";
+import api from "../../../services/axios";
 import "./ActivityLogs.css";
 
 export default function ActivityLogs() {
@@ -19,7 +19,7 @@ export default function ActivityLogs() {
   } = useQuery({
     queryKey: ["activity-logs", page, search, actionFilter],
     queryFn: async () => {
-      const res = await axios.get("/admin/activity-logs", {
+      const res = await api.get("/admin/activity-logs", {
         params: {
           page,
           search,

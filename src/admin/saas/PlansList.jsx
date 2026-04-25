@@ -34,14 +34,14 @@ export default function PlansList() {
   } = useQuery({
     queryKey: ["plans"],
     queryFn: async () => {
-      const res = await api.get("/saas/plans");
+      const res = await api.get("/admin/plans");
       return res.data.data;
     },
   });
 
   // ========================= Mutations =========================
   const createMutation = useMutation({
-    mutationFn: (data) => api.post("/saas/plans", data),
+    mutationFn: (data) => api.post("/admin/plans", data),
     onSuccess: () => {
       queryClient.invalidateQueries(["plans"]);
       toast.success(t("Plan created successfully"));
@@ -54,7 +54,7 @@ export default function PlansList() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => api.put(`/saas/plans/${id}`, data),
+    mutationFn: ({ id, data }) => api.put(`/admin/plans/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries(["plans"]);
       toast.success(t("Plan updated successfully"));
@@ -67,7 +67,7 @@ export default function PlansList() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => api.delete(`/saas/plans/${id}`),
+    mutationFn: (id) => api.delete(`/admin/plans/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries(["plans"]);
       toast.success(t("Plan deleted successfully"));
@@ -76,7 +76,7 @@ export default function PlansList() {
 
   const toggleStatusMutation = useMutation({
     mutationFn: ({ id, is_active }) =>
-      api.put(`/saas/plans/${id}/toggle`, { is_active }),
+      api.put(`/admin/plans/${id}/toggle`, { is_active }),
     onSuccess: () => {
       queryClient.invalidateQueries(["plans"]);
       toast.success(t("Plan status updated"));

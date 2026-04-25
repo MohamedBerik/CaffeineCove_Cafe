@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "../../services/axios";
+import api from "../../services/axios";
 import toast from "react-hot-toast";
 import "./CompanyForm.css";
 
@@ -37,7 +37,7 @@ export default function CompanyForm() {
   const { data: companyData, isLoading: loadingCompany } = useQuery({
     queryKey: ["company", id],
     queryFn: async () => {
-      const res = await axios.get(`/admin/companies/${id}`);
+      const res = await api.get(`/saas/companies/${id}`);
       return res.data.data;
     },
     enabled: isEditMode,
@@ -45,11 +45,11 @@ export default function CompanyForm() {
 
   // ========================= Mutations =========================
   const createMutation = useMutation({
-    mutationFn: (data) => axios.post("/admin/companies", data),
+    mutationFn: (data) => api.post("/saas/companies", data),
     onSuccess: () => {
       queryClient.invalidateQueries(["companies"]);
       toast.success(t("Company created successfully"));
-      navigate("/admin/companies");
+      navigate("/saas/companies");
     },
     onError: (error) => {
       if (error.response?.data?.errors) {
@@ -62,12 +62,12 @@ export default function CompanyForm() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data) => axios.put(`/admin/companies/${id}`, data),
+    mutationFn: (data) => api.put(`/saas/companies/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries(["companies"]);
       queryClient.invalidateQueries(["company", id]);
       toast.success(t("Company updated successfully"));
-      navigate("/admin/companies");
+      navigate("/saas/companies");
     },
     onError: (error) => {
       if (error.response?.data?.errors) {
@@ -132,7 +132,7 @@ export default function CompanyForm() {
 
     setCheckingSlug(true);
     try {
-      const res = await axios.get(`/check-slug?slug=${formData.slug}`);
+      const res = await api.get(`/check-slug?slug=${formData.slug}`);
       setSlugAvailable(res.data.available);
     } catch (error) {
       setSlugAvailable(false);
@@ -197,7 +197,7 @@ export default function CompanyForm() {
         <div className="header-title">
           <button
             className="btn-back"
-            onClick={() => navigate("/admin/companies")}
+            onClick={() => navigate("/saas/companies")}
           >
             <i className="fas fa-arrow-left"></i>
           </button>
@@ -448,7 +448,7 @@ export default function CompanyForm() {
           <button
             type="button"
             className="btn-cancel"
-            onClick={() => navigate("/admin/companies")}
+            onClick={() => navigate("/saas/companies")}
             disabled={isSubmitting}
           >
             {t("Cancel")}

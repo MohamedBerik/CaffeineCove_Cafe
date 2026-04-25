@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import axios from "../../services/axios";
+import api from "../../services/axios";
 import {
   LineChart,
   Line,
@@ -44,7 +44,7 @@ export default function SaaSReports() {
   const { data: reportData, isLoading } = useQuery({
     queryKey: ["saas-reports", period],
     queryFn: async () => {
-      const res = await axios.get(`/saas/reports?period=${period}`);
+      const res = await api.get(`/saas/reports?period=${period}`);
       return res.data.data;
     },
     staleTime: 60000,

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "../../services/axios";
+import api from "../../services/axios";
 import toast from "react-hot-toast";
 import "./PlatformSettings.css";
 
@@ -80,14 +80,14 @@ export default function PlatformSettings() {
   const { data: settings, isLoading } = useQuery({
     queryKey: ["platform-settings"],
     queryFn: async () => {
-      const res = await axios.get("/admin/settings/platform");
+      const res = await api.get("/saas/settings/platform");
       return res.data.data;
     },
   });
 
   // ========================= Mutations =========================
   const saveMutation = useMutation({
-    mutationFn: (data) => axios.post("/admin/settings/platform", data),
+    mutationFn: (data) => api.post("/saas/settings/platform", data),
     onSuccess: () => {
       queryClient.invalidateQueries(["platform-settings"]);
       toast.success(t("Settings saved successfully"));

@@ -49,7 +49,7 @@ export default function CompanyForm() {
     onSuccess: () => {
       queryClient.invalidateQueries(["companies"]);
       toast.success(t("Company created successfully"));
-      navigate("/saas/companies");
+      navigate("/admin/companies");
     },
     onError: (error) => {
       if (error.response?.data?.errors) {
@@ -67,7 +67,7 @@ export default function CompanyForm() {
       queryClient.invalidateQueries(["companies"]);
       queryClient.invalidateQueries(["company", id]);
       toast.success(t("Company updated successfully"));
-      navigate("/saas/companies");
+      navigate("/admin/companies");
     },
     onError: (error) => {
       if (error.response?.data?.errors) {
@@ -197,7 +197,7 @@ export default function CompanyForm() {
         <div className="header-title">
           <button
             className="btn-back"
-            onClick={() => navigate("/saas/companies")}
+            onClick={() => navigate("/admin/companies")}
           >
             <i className="fas fa-arrow-left"></i>
           </button>
@@ -448,7 +448,7 @@ export default function CompanyForm() {
           <button
             type="button"
             className="btn-cancel"
-            onClick={() => navigate("/saas/companies")}
+            onClick={() => navigate("/admin/companies")}
             disabled={isSubmitting}
           >
             {t("Cancel")}

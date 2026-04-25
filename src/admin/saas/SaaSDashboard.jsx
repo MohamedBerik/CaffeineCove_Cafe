@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import axios from "../../services/axios";
+import api from "../../services/axios";
 import "./SaaSDashboard.css";
 import {
   LineChart,
@@ -46,7 +46,7 @@ function SaaSDashboard() {
   } = useQuery({
     queryKey: ["saas-dashboard", selectedPeriod],
     queryFn: async () => {
-      const res = await axios.get(`/saas/dashboard?period=${selectedPeriod}`);
+      const res = await api.get(`/saas/dashboard?period=${selectedPeriod}`);
       return res.data?.data || null;
     },
     staleTime: 30000,

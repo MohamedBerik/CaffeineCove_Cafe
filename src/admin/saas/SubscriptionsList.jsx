@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import axios from "../../services/axios";
+import api from "../../services/axios";
 import toast from "react-hot-toast";
 import "./SubscriptionsList.css";
 
@@ -35,7 +35,7 @@ export default function SubscriptionsList() {
   } = useQuery({
     queryKey: ["subscriptions", page, search, statusFilter],
     queryFn: async () => {
-      const res = await axios.get("/admin/subscriptions", {
+      const res = await api.get("/saas/subscriptions", {
         params: {
           page,
           search,
@@ -51,7 +51,7 @@ export default function SubscriptionsList() {
   const { data: companies } = useQuery({
     queryKey: ["companies-list"],
     queryFn: async () => {
-      const res = await axios.get("/admin/companies?per_page=100");
+      const res = await api.get("/saas/companies?per_page=100");
       return res.data.data;
     },
   });
@@ -59,14 +59,14 @@ export default function SubscriptionsList() {
   const { data: plans } = useQuery({
     queryKey: ["plans-list"],
     queryFn: async () => {
-      const res = await axios.get("/admin/plans?per_page=100");
+      const res = await api.get("/saas/plans?per_page=100");
       return res.data.data;
     },
   });
 
   // ========================= Mutations =========================
   const createMutation = useMutation({
-    mutationFn: (data) => axios.post("/admin/subscriptions", data),
+    mutationFn: (data) => api.post("/saas/subscriptions", data),
     onSuccess: () => {
       queryClient.invalidateQueries(["subscriptions"]);
       toast.success(t("Subscription created successfully"));
@@ -81,7 +81,7 @@ export default function SubscriptionsList() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => axios.put(`/admin/subscriptions/${id}`, data),
+    mutationFn: ({ id, data }) => api.put(`/saas/subscriptions/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries(["subscriptions"]);
       toast.success(t("Subscription updated successfully"));
@@ -96,7 +96,7 @@ export default function SubscriptionsList() {
   });
 
   const cancelMutation = useMutation({
-    mutationFn: (id) => axios.post(`/admin/subscriptions/${id}/cancel`),
+    mutationFn: (id) => api.post(`/saas/subscriptions/${id}/cancel`),
     onSuccess: () => {
       queryClient.invalidateQueries(["subscriptions"]);
       toast.success(t("Subscription cancelled successfully"));
@@ -104,7 +104,7 @@ export default function SubscriptionsList() {
   });
 
   const renewMutation = useMutation({
-    mutationFn: (id) => axios.post(`/admin/subscriptions/${id}/renew`),
+    mutationFn: (id) => api.post(`/saas/subscriptions/${id}/renew`),
     onSuccess: () => {
       queryClient.invalidateQueries(["subscriptions"]);
       toast.success(t("Subscription renewed successfully"));

@@ -19,7 +19,7 @@ export default function ActivityLogs() {
   } = useQuery({
     queryKey: ["activity-logs", page, search, actionFilter],
     queryFn: async () => {
-      const res = await api.get("/admin/activity-logs", {
+      const res = await api.get("/saas/activity-logs", {
         params: {
           page,
           search,

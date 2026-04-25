@@ -1,8 +1,9 @@
-import { useAuth } from "../../context/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { useAlertState, useAlertActions } from "../../context/AlertContext";
+import { useAuth } from "../../context/AuthContext";
 import api from "../../services/axios";
 import { useQueryClient } from "@tanstack/react-query";
 import "./AdminNavbar.css";
@@ -148,8 +149,49 @@ const AdminNavbar = () => {
     }
   }, []);
 
+  const { data: subStatus } = useQuery({
+    queryKey: ["subscription-status"],
+    queryFn: async () => {
+      const res = await api.get("/erp/billing/status");
+      return res.data.data;
+    },
+    refetchInterval: 300000, // كل 5 دقائق
+  });
+
   return (
     <>
+      {/* ✅ Banner: الخطة هتنتهي قريبًا */}
+      {subStatus?.is_expiring_soon && (
+        <div className="subscription-banner warning">
+          <i className="fas fa-clock"></i>
+          {t(
+            "Your plan expires in {{days}} days. Please renew to avoid interruption.",
+            { days: subStatus.days_left },
+          )}
+          <Link to="/admin/erp/billing">{t("Renew Now")}</Link>
+        </div>
+      )}
+
+      {/* ✅ Banner: الدفع متأخر */}
+      {subStatus?.is_past_due && (
+        <div className="subscription-banner danger">
+          <i className="fas fa-exclamation-triangle"></i>
+          {t("Your payment is past due. Please update your payment method.")}
+          <Link to="/admin/erp/billing">{t("Update Payment")}</Link>
+        </div>
+      )}
+
+      {/* ✅ Banner: لا يوجد اشتراك */}
+      {subStatus?.subscription_status === "no_subscription" && (
+        <div className="subscription-banner info">
+          <i className="fas fa-info-circle"></i>
+          {t(
+            "You don't have an active subscription. Please subscribe to access all features.",
+          )}
+          <Link to="/admin/erp/billing">{t("Subscribe Now")}</Link>
+        </div>
+      )}
+
       <nav className="admin-navbar" dir="ltr">
         <div className="navbar-container">
           <button

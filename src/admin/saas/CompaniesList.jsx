@@ -48,7 +48,7 @@ export default function CompaniesList() {
 
   // ========================= Mutations =========================
   const suspendMutation = useMutation({
-    mutationFn: (id) => axios.post(`/admin/companies/${id}/suspend`),
+    mutationFn: (id) => api.post(`/admin/companies/${id}/suspend`),
     onSuccess: () => {
       queryClient.invalidateQueries(["companies"]);
       toast.success(t("Company suspended successfully"));
@@ -56,7 +56,7 @@ export default function CompaniesList() {
   });
 
   const activateMutation = useMutation({
-    mutationFn: (id) => axios.post(`/admin/companies/${id}/activate`),
+    mutationFn: (id) => api.post(`/admin/companies/${id}/activate`),
     onSuccess: () => {
       queryClient.invalidateQueries(["companies"]);
       toast.success(t("Company activated successfully"));
@@ -64,7 +64,7 @@ export default function CompaniesList() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => axios.delete(`/admin/companies/${id}`),
+    mutationFn: (id) => api.delete(`/admin/companies/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries(["companies"]);
       toast.success(t("Company deleted successfully"));

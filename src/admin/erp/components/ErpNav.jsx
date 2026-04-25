@@ -108,7 +108,7 @@ const saasNavItems = [
     icon: "fas fa-plus-circle",
   },
   {
-    to: "/admin/plans",
+    to: "/admin/saas/plans",
     labelKey: "Plans & Pricing",
     icon: "fas fa-tags",
   },

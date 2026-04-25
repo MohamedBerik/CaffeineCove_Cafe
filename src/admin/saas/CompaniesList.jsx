@@ -31,7 +31,7 @@ export default function CompaniesList() {
       sortDirection,
     ],
     queryFn: async () => {
-      const res = await axios.get("/admin/companies", {
+      const res = await axios.get("/saas/companies", {
         params: {
           page,
           search,

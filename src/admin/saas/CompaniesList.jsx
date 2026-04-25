@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import axios from "../../services/axios";
+import api from "../../services/axios";
 import toast from "react-hot-toast";
 import "./CompaniesList.css";
 
@@ -31,7 +31,7 @@ export default function CompaniesList() {
       sortDirection,
     ],
     queryFn: async () => {
-      const res = await axios.get("/saas/companies", {
+      const res = await api.get("/saas/companies", {
         params: {
           page,
           search,

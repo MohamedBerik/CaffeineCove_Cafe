@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import axios from "../../services/axios";
+import api from "../../services/axios";
 import toast from "react-hot-toast";
 import "./PlansList.css";
 
@@ -34,14 +34,14 @@ export default function PlansList() {
   } = useQuery({
     queryKey: ["plans"],
     queryFn: async () => {
-      const res = await axios.get("/admin/plans");
+      const res = await api.get("/saas/plans");
       return res.data.data;
     },
   });
 
   // ========================= Mutations =========================
   const createMutation = useMutation({
-    mutationFn: (data) => axios.post("/admin/plans", data),
+    mutationFn: (data) => api.post("/saas/plans", data),
     onSuccess: () => {
       queryClient.invalidateQueries(["plans"]);
       toast.success(t("Plan created successfully"));
@@ -54,7 +54,7 @@ export default function PlansList() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => axios.put(`/admin/plans/${id}`, data),
+    mutationFn: ({ id, data }) => api.put(`/saas/plans/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries(["plans"]);
       toast.success(t("Plan updated successfully"));
@@ -67,7 +67,7 @@ export default function PlansList() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => axios.delete(`/admin/plans/${id}`),
+    mutationFn: (id) => api.delete(`/saas/plans/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries(["plans"]);
       toast.success(t("Plan deleted successfully"));
@@ -76,7 +76,7 @@ export default function PlansList() {
 
   const toggleStatusMutation = useMutation({
     mutationFn: ({ id, is_active }) =>
-      axios.put(`/admin/plans/${id}/toggle`, { is_active }),
+      api.put(`/saas/plans/${id}/toggle`, { is_active }),
     onSuccess: () => {
       queryClient.invalidateQueries(["plans"]);
       toast.success(t("Plan status updated"));

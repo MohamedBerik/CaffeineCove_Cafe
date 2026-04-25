@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "../../services/axios";
+import api from "../../services/axios";
 import toast from "react-hot-toast";
 import "./CompanyDetails.css";
 
@@ -22,7 +22,7 @@ export default function CompanyDetails() {
   } = useQuery({
     queryKey: ["company", id],
     queryFn: async () => {
-      const res = await axios.get(`/admin/companies/${id}`);
+      const res = await api.get(`/saas/companies/${id}`);
       return res.data.data;
     },
   });
@@ -30,7 +30,7 @@ export default function CompanyDetails() {
   const { data: stats } = useQuery({
     queryKey: ["company-stats", id],
     queryFn: async () => {
-      const res = await axios.get(`/admin/companies/${id}/stats`);
+      const res = await api.get(`/saas/companies/${id}/stats`);
       return res.data.data;
     },
     enabled: Boolean(id),
@@ -39,7 +39,7 @@ export default function CompanyDetails() {
   const { data: users } = useQuery({
     queryKey: ["company-users", id],
     queryFn: async () => {
-      const res = await axios.get(`/admin/companies/${id}/users`);
+      const res = await api.get(`/saas/companies/${id}/users`);
       return res.data.data;
     },
     enabled: Boolean(id) && activeTab === "users",
@@ -48,7 +48,7 @@ export default function CompanyDetails() {
   const { data: subscriptions } = useQuery({
     queryKey: ["company-subscriptions", id],
     queryFn: async () => {
-      const res = await axios.get(`/admin/companies/${id}/subscriptions`);
+      const res = await api.get(`/saas/companies/${id}/subscriptions`);
       return res.data.data;
     },
     enabled: Boolean(id) && activeTab === "subscriptions",
@@ -57,8 +57,8 @@ export default function CompanyDetails() {
   const { data: activityLogs } = useQuery({
     queryKey: ["company-activity", id],
     queryFn: async () => {
-      const res = await axios.get(
-        `/admin/activity-logs?company_id=${id}&limit=20`,
+      const res = await api.get(
+        `/saas/activity-logs?company_id=${id}&limit=20`,
       );
       return res.data.data;
     },
@@ -67,7 +67,7 @@ export default function CompanyDetails() {
 
   // ========================= Mutations =========================
   const suspendMutation = useMutation({
-    mutationFn: () => axios.post(`/admin/companies/${id}/suspend`),
+    mutationFn: () => api.post(`/saas/companies/${id}/suspend`),
     onSuccess: () => {
       queryClient.invalidateQueries(["company", id]);
       queryClient.invalidateQueries(["companies"]);
@@ -76,7 +76,7 @@ export default function CompanyDetails() {
   });
 
   const activateMutation = useMutation({
-    mutationFn: () => axios.post(`/admin/companies/${id}/activate`),
+    mutationFn: () => api.post(`/saas/companies/${id}/activate`),
     onSuccess: () => {
       queryClient.invalidateQueries(["company", id]);
       queryClient.invalidateQueries(["companies"]);
@@ -85,10 +85,10 @@ export default function CompanyDetails() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => axios.delete(`/admin/companies/${id}`),
+    mutationFn: () => api.delete(`/saas/companies/${id}`),
     onSuccess: () => {
       toast.success(t("Company deleted successfully"));
-      navigate("/admin/companies");
+      navigate("/saas/companies");
     },
   });
 
@@ -191,7 +191,7 @@ export default function CompanyDetails() {
         <div className="header-left">
           <button
             className="btn-back"
-            onClick={() => navigate("/admin/companies")}
+            onClick={() => navigate("/saas/companies")}
           >
             <i className="fas fa-arrow-left"></i>
           </button>
@@ -202,7 +202,7 @@ export default function CompanyDetails() {
           <StatusBadge status={company.status} t={t} />
         </div>
         <div className="header-actions">
-          <Link to={`/admin/companies/${id}/edit`} className="btn-edit">
+          <Link to={`/saas/companies/${id}/edit`} className="btn-edit">
             <i className="fas fa-edit"></i>
             {t("Edit")}
           </Link>

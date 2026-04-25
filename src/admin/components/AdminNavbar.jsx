@@ -152,10 +152,15 @@ const AdminNavbar = () => {
   const { data: subStatus } = useQuery({
     queryKey: ["subscription-status"],
     queryFn: async () => {
+      // ✅ لو في Global Mode، متطلبش Status
+      const tenantId = localStorage.getItem("selectedCompany");
+      if (!tenantId || tenantId === "global" || tenantId === "") {
+        return null;
+      }
       const res = await api.get("/erp/billing/status");
       return res.data.data;
     },
-    refetchInterval: 300000, // كل 5 دقائق
+    refetchInterval: 300000,
   });
 
   return (

@@ -14,24 +14,15 @@ function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [errorDetails, setErrorDetails] = useState(""); // ✅ تفاصيل الخطأ
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setErrorDetails("");
 
     try {
-      console.log("🚀 Starting Login Request...");
-      console.log("📧 Email:", email);
-      console.log("🔗 URL:", api.defaults.baseURL + "/login");
-      console.log("📋 Headers:", JSON.stringify(api.defaults.headers));
-
       const res = await api.post("/login", { email, password });
-
-      console.log("✅ Login Success:", res.data);
 
       // ✅ استخدم البيانات اللي رجعت من الـ API
       login(res.data.user, res.data.token);
@@ -39,52 +30,27 @@ function Login() {
       // ✅ توجيه ذكي بناءً على نوع المستخدم والـ Tenant
       if (res.data.user.is_super_admin) {
         const savedCompany = localStorage.getItem("selectedCompany");
+
+        // لو أول مرة أو Global Mode → SaaS Dashboard
         if (!savedCompany || savedCompany === "" || savedCompany === "global") {
           navigate("/admin/saas");
         } else {
+          // عنده Company مختارة → ERP Dashboard
           navigate("/admin/erp");
         }
       } else if (res.data.user.role === "admin") {
+        // Company Admin → ERP Dashboard مباشرة
         navigate("/admin/erp");
       } else {
+        // Regular User → الصفحة الرئيسية
         navigate("/");
       }
     } catch (err) {
-      console.error("❌ Login Error Details:");
-      console.error("  - Type:", err.constructor.name);
-      console.error("  - Message:", err.message);
-      console.error("  - Code:", err.code);
-      console.error("  - Status:", err.response?.status);
-      console.error("  - Status Text:", err.response?.statusText);
-      console.error("  - Response Data:", err.response?.data);
-      console.error("  - Response Headers:", err.response?.headers);
-      console.error("  - Request:", err.request);
-      console.error("  - Config:", err.config);
-      console.error("  - Full Error:", err);
-
-      // ✅ عرض تفاصيل الخطأ للمستخدم
-      if (err.response) {
-        // السيرفر رد بخطأ
-        setError(
-          err.response.data?.message ||
-            `Server Error (${err.response.status}): ${err.response.statusText}`,
-        );
-        setErrorDetails(
-          `Status: ${err.response.status}\nData: ${JSON.stringify(err.response.data, null, 2)}`,
-        );
-      } else if (err.request) {
-        // الطلب اتبعت لكن مفيش رد
-        setError(
-          "Network Error: No response from server. The server may be down.",
-        );
-        setErrorDetails(
-          `Request was sent but no response received.\nURL: ${err.config?.url}\nMethod: ${err.config?.method}`,
-        );
-      } else {
-        // خطأ في إعداد الطلب
-        setError(`Request Error: ${err.message}`);
-        setErrorDetails(`Error setting up request: ${err.message}`);
-      }
+      console.error(err);
+      setError(
+        err.response?.data?.message ||
+          t("Login failed. Please check your email and password."),
+      );
     } finally {
       setLoading(false);
     }
@@ -188,21 +154,7 @@ function Login() {
               {error && (
                 <div className="error-message">
                   <i className="fas fa-exclamation-circle"></i>
-                  <div>
-                    <strong>{error}</strong>
-                    {errorDetails && (
-                      <pre
-                        style={{
-                          fontSize: "11px",
-                          marginTop: "5px",
-                          whiteSpace: "pre-wrap",
-                          wordBreak: "break-all",
-                        }}
-                      >
-                        {errorDetails}
-                      </pre>
-                    )}
-                  </div>
+                  {error}
                 </div>
               )}
 

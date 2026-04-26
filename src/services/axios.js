@@ -12,26 +12,30 @@ const api = axios.create({
 // ✅ إضافة التوكن و Tenant ID تلقائيًا مع Debug log
 api.interceptors.request.use(
   (config) => {
+    const isAuthRoute =
+      config.url.includes("/login") || config.url.includes("/register");
+
     let token = localStorage.getItem("token");
     const tenantId = localStorage.getItem("selectedCompany");
 
     console.log("🔑 TOKEN from localStorage:", token);
     console.log("🏢 Tenant ID from localStorage:", tenantId);
 
-    if (token) {
-      try {
-        if (token.startsWith('"') && token.endsWith('"')) {
-          token = JSON.parse(token);
-        }
-      } catch (e) {
-        // التوكن مش JSON، نستخدمه كما هو
-      }
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // ❌ مهم جدًا: متبعتش headers في auth routes
+    if (!isAuthRoute) {
+      if (token) {
+        try {
+          if (token.startsWith('"') && token.endsWith('"')) {
+            token = JSON.parse(token);
+          }
+        } catch (e) {}
 
-    // ✅ إرسال Tenant ID في Header فقط لو مش "global" أو فاضي
-    if (tenantId && tenantId !== "global" && tenantId !== "") {
-      config.headers["X-Tenant-ID"] = tenantId;
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      if (tenantId && tenantId !== "global" && tenantId !== "") {
+        config.headers["X-Tenant-ID"] = tenantId;
+      }
     }
 
     return config;

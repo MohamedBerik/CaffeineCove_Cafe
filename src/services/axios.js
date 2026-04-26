@@ -1,10 +1,77 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api", // ✅ مفيش Cross-Origin
+  baseURL: "https://caffeinecoveapi-production-a107.up.railway.app/api",
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
+
+// ✅ Request Interceptor
+api.interceptors.request.use(
+  (config) => {
+    const isAuthRoute =
+      config.url.includes("/login") || config.url.includes("/register");
+
+    let token = localStorage.getItem("token");
+    const tenantId = localStorage.getItem("selectedCompany");
+
+    console.log("🔑 TOKEN from localStorage:", token);
+    console.log("🏢 Tenant ID from localStorage:", tenantId);
+    console.log("📡 Request URL:", config.url);
+    console.log("🔐 isAuthRoute:", isAuthRoute);
+
+    // ❌ مهم جدًا: متبعتش headers في auth routes
+    if (!isAuthRoute) {
+      if (token) {
+        try {
+          if (token.startsWith('"') && token.endsWith('"')) {
+            token = JSON.parse(token);
+          }
+        } catch (e) {
+          console.error("❌ Error parsing token:", e);
+        }
+
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      if (tenantId && tenantId !== "global" && tenantId !== "") {
+        config.headers["X-Tenant-ID"] = tenantId;
+      }
+    } else {
+      // ✅ مسح أي headers في auth routes
+      delete config.headers.Authorization;
+      delete config.headers["X-Tenant-ID"];
+    }
+
+    console.log("📋 Final Headers:", JSON.stringify(config.headers));
+    return config;
+  },
+  (error) => {
+    console.error("❌ Request Error:", error);
+    return Promise.reject(error);
+  },
+);
+
+// ✅ Response Interceptor
+api.interceptors.response.use(
+  (response) => {
+    console.log("✅ Response:", response.status, response.config.url);
+    return response;
+  },
+  (error) => {
+    console.error("❌ Response Error:");
+    console.error("  - URL:", error.config?.url);
+    console.error("  - Status:", error.response?.status);
+    console.error(
+      "  - Message:",
+      error.response?.data?.message || error.message,
+    );
+    console.error("  - Full Error:", error);
+
+    return Promise.reject(error);
+  },
+);
+
 export default api;

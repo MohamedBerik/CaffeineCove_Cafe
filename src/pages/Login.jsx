@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import api from "../../services/axios";
+import api from "../services/axios";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";

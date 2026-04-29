@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://caffeinecoveapi-production-a107.up.railway.app/api",
+  baseURL: "/api", // ✅ صح (سيتم توجيهه عبر وكيل Vercel)
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",

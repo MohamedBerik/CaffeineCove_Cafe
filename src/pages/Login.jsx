@@ -38,7 +38,11 @@ function Login() {
           // عنده Company مختارة → ERP Dashboard
           navigate("/admin/erp");
         }
-      } else if (res.data.user.role === "admin") {
+      } else if (
+        res.data.user.role === "admin" ||
+        res.data.user.role === "doctor" ||
+        res.data.user.role === "receptionist"
+      ) {
         // Company Admin → ERP Dashboard مباشرة
         navigate("/admin/erp");
       } else {

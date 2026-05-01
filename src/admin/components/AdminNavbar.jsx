@@ -298,25 +298,27 @@ const AdminNavbar = () => {
             )}
 
             {/* === Branch Selector (جديد) - يظهر للشركات التي لديها فروع === */}
-            {!user?.is_super_admin && branches.length > 0 && (
-              <div className="company-switcher-wrapper">
-                <span className="company-switcher-icon branch-switcher-icon">
-                  <i className="fas fa-building"></i>
-                </span>
-                <select
-                  value={selectedBranch}
-                  onChange={handleBranchChange}
-                  className="company-switcher"
-                >
-                  <option value="all">🔍 {t("All Branches")}</option>
-                  {branches.map((branch) => (
-                    <option key={branch.id} value={branch.id}>
-                      {branch.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+            {!user?.is_super_admin &&
+              user?.branch_id === null &&
+              branches.length > 0 && (
+                <div className="company-switcher-wrapper">
+                  <span className="company-switcher-icon branch-switcher-icon">
+                    <i className="fas fa-building"></i>
+                  </span>
+                  <select
+                    value={selectedBranch}
+                    onChange={handleBranchChange}
+                    className="company-switcher"
+                  >
+                    <option value="all">🔍 {t("All Branches")}</option>
+                    {branches.map((branch) => (
+                      <option key={branch.id} value={branch.id}>
+                        {branch.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
             <button
               type="button"

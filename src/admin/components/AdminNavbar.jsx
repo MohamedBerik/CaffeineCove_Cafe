@@ -195,6 +195,11 @@ const AdminNavbar = () => {
       const res = await api.get("/erp/billing/status");
       return res.data.data;
     },
+    // ✅ تجاهل الفشل (403) ولا تعد المحاولة
+    retry: (failureCount, error) => {
+      if (error.response?.status === 403) return false;
+      return failureCount < 3;
+    },
     refetchInterval: 300000,
   });
 

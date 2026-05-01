@@ -74,7 +74,12 @@ api.interceptors.response.use(
       error.response?.data?.message || error.message,
     );
     console.error("  - Full Error:", error);
-
+    if (error.response?.status === 403) {
+      console.warn(
+        `⛔ Permission denied for ${error.config.url}. Returning null.`,
+      );
+      return Promise.resolve(null); // أو return null;
+    }
     return Promise.reject(error);
   },
 );

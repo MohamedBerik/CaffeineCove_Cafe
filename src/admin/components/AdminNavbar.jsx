@@ -40,6 +40,18 @@ const AdminNavbar = () => {
     }
   }, [user]);
 
+  // ✅ جلب قائمة الفروع (لغير الـ Super Admin)
+  useEffect(() => {
+    if (!user?.is_super_admin) {
+      api
+        .get("/branches")
+        .then((res) => {
+          setBranches(Array.isArray(res.data) ? res.data : []);
+        })
+        .catch(() => setBranches([]));
+    }
+  }, [user, selectedCompany]);
+
   // ✅ تبديل الشركة
   const handleSwitch = async (companyId) => {
     if (switching) return;

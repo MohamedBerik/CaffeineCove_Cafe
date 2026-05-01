@@ -35,7 +35,7 @@ const AdminNavbar = () => {
 
   // ✅ جلب قائمة الشركات (لـ Super Admin فقط)
   useEffect(() => {
-    if (user?.is_super_admin) {
+    if (user?.is_super_admin || user?.role === "admin") {
       api.get("/companies").then((res) => setCompanies(res.data));
     }
   }, [user]);

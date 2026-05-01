@@ -78,7 +78,7 @@ api.interceptors.response.use(
       console.warn(
         `⛔ Permission denied for ${error.config.url}. Returning null.`,
       );
-      return Promise.resolve(null); // أو return null;
+      return Promise.resolve(null);
     }
     return Promise.reject(error);
   },

@@ -1281,3 +1281,24 @@
     font-size: 0.65rem;
   }
 }
+
+/* ==================== Branch Selector (يشبه Company Switcher) ==================== */
+.branch-switcher-icon {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* أيقونة الفرع تكون بلون مختلف قليلاً (أزرق فاتح) */
+.branch-switcher-icon i {
+  color: #90caf9;
+}
+
+/* في الشاشات الصغيرة، نخفي الأيقونة مثل ما حدث مع company-switcher-icon */
+@media (max-width: 576px) {
+  .branch-switcher-icon {
+    display: none;
+  }
+}

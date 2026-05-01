@@ -16,6 +16,11 @@ api.interceptors.request.use(
 
     let token = localStorage.getItem("token");
     const tenantId = localStorage.getItem("selectedCompany");
+    const branchId = localStorage.getItem("selectedBranchId");
+    // ✅ إضافة branch_id تلقائياً من localStorage
+    if (branchId && branchId !== "all" && branchId !== "") {
+      config.headers["X-Branch-ID"] = branchId;
+    }
 
     console.log("🔑 TOKEN from localStorage:", token);
     console.log("🏢 Tenant ID from localStorage:", tenantId);

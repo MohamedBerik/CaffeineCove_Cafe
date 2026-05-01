@@ -2757,6 +2757,9 @@ const resources = {
       "subscription.cancelled": "Subscription Cancelled",
       "subscription.changed": "Subscription Changed",
       "payment.received": "Payment Received",
+
+      "All Branches": "All Branches",
+      Branches: "Branches",
     },
   },
   ar: {
@@ -5489,6 +5492,9 @@ const resources = {
       "subscription.cancelled": "إلغاء اشتراك",
       "subscription.changed": "تغيير الاشتراك",
       "payment.received": "استلام دفعة",
+
+      "All Branches": "كل الفروع",
+      Branches: "الفروع",
     },
   },
 };

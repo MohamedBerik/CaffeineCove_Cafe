@@ -38,13 +38,15 @@ function Login() {
           // عنده Company مختارة → ERP Dashboard
           navigate("/admin/erp");
         }
+      } else if (res.data.user.role === "admin") {
+        // Company Admin → ERP Dashboard مباشرة
+        navigate("/admin/erp");
       } else if (
-        res.data.user.role === "admin" ||
         res.data.user.role === "doctor" ||
         res.data.user.role === "receptionist"
       ) {
-        // Company Admin → ERP Dashboard مباشرة
-        navigate("/admin/erp");
+        // Doctor و Receptionist → صفحة المواعيد
+        navigate("/admin/erp/appointments");
       } else {
         // Regular User → الصفحة الرئيسية
         navigate("/");

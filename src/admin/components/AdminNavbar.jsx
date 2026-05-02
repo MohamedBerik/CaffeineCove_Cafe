@@ -48,7 +48,10 @@ const AdminNavbar = () => {
         .then((res) => {
           setBranches(Array.isArray(res.data) ? res.data : []);
         })
-        .catch(() => setBranches([]));
+        .catch((err) => {
+          console.warn("Branches fetch failed, keeping previous list", err);
+          // لا نمسح القائمة السابقة، نتركها كما هي
+        });
     }
   }, [user, selectedCompany]);
 

@@ -312,10 +312,11 @@ const AdminNavbar = () => {
               </div>
             )}
 
-            {/* === Branch Selector – يعتمد على selectedCompany وليس user === */}
+            {/* === Branch Selector – يظهر لمدير الشركة فقط (branch_id === null) === */}
             {!user?.is_super_admin &&
               selectedCompany &&
               selectedCompany !== "global" &&
+              user?.branch_id === null &&
               branches.length > 0 && (
                 <div className="company-switcher-wrapper">
                   <span className="company-switcher-icon branch-switcher-icon">

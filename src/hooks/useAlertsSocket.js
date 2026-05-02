@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useAuth } from "../../context/AuthContext";
 import echo from "../services/echo";
 import toast from "react-hot-toast";
 
@@ -30,6 +31,7 @@ const getAlertIcon = (code, type) => {
 
 export default function useAlertsSocket(onNewAlert, companyId) {
   const audioRef = useRef(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     audioRef.current = new Audio("/notification.mp3");
@@ -44,6 +46,7 @@ export default function useAlertsSocket(onNewAlert, companyId) {
 
   useEffect(() => {
     if (!companyId) return;
+    if (user?.role !== "admin" && !user?.is_super_admin) return;
 
     const channelName = `company.${companyId}`;
 
@@ -168,5 +171,5 @@ export default function useAlertsSocket(onNewAlert, companyId) {
     return () => {
       echo.leave(channelName);
     };
-  }, [companyId]); // ✅ غيرنا dependency array إلى [companyId] فقط
+  }, [companyId, user]); // ✅ غيرنا dependency array إلى [companyId] فقط
 }

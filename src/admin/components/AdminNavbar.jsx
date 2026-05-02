@@ -46,11 +46,17 @@ const AdminNavbar = () => {
       api
         .get("/branches")
         .then((res) => {
-          setBranches(Array.isArray(res.data) ? res.data : []);
+          const data = Array.isArray(res.data) ? res.data : [];
+          setBranches(data);
+          localStorage.setItem("cachedBranches", JSON.stringify(data));
         })
-        .catch((err) => {
-          console.warn("Branches fetch failed, keeping previous list", err);
-          // لا نمسح القائمة السابقة، نتركها كما هي
+        .catch(() => {
+          const cached = localStorage.getItem("cachedBranches");
+          if (cached) {
+            try {
+              setBranches(JSON.parse(cached));
+            } catch (e) {}
+          }
         });
     }
   }, [user, selectedCompany]);

@@ -161,12 +161,23 @@ export const AlertProvider = ({ children }) => {
   useEffect(() => {
     if (!user) return;
 
+    // ✅ لا تجلب التنبيهات إذا لم يكن المستخدم مشرفًا (admin)
+    if (user.role !== "admin" && !user.is_super_admin) {
+      return;
+    }
+
     const loadUnreadCount = async () => {
       try {
         const res = await api.get("/erp/alerts/unread-count");
+        // ✅ إذا كانت الاستجابة null (بسبب 403)، نرجع 0
+        if (res === null) {
+          setUnreadCount(0);
+          return;
+        }
         setUnreadCount(res.data?.count || 0);
       } catch (error) {
         console.error("❌ Error fetching unread count:", error);
+        setUnreadCount(0);
       }
     };
 

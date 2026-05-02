@@ -39,14 +39,11 @@ function Login() {
           navigate("/admin/erp");
         }
       } else if (res.data.user.role === "admin") {
-        // Company Admin → ERP Dashboard مباشرة
         navigate("/admin/erp");
-      } else if (
-        res.data.user.role === "doctor" ||
-        res.data.user.role === "receptionist"
-      ) {
-        // Doctor و Receptionist → صفحة المواعيد
+      } else if (res.data.user.role === "doctor") {
         navigate("/admin/erp/appointments");
+      } else if (res.data.user.role === "receptionist") {
+        navigate("/admin/erp/visits/start");
       } else {
         // Regular User → الصفحة الرئيسية
         navigate("/");

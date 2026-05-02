@@ -38,23 +38,6 @@ export default function AppointmentsListPage() {
     loadAll();
   }, []);
 
-  useEffect(() => {
-    if (
-      !user?.hasPermissionTo?.("appointments.manage") &&
-      !user?.is_super_admin
-    ) {
-      navigate("/admin/erp/appointments");
-    }
-  }, [user, navigate]);
-
-  // لا تُكمل تحميل الصفحة إذا كان المستخدم غير مصرح له
-  if (
-    !user?.hasPermissionTo?.("appointments.manage") &&
-    !user?.is_super_admin
-  ) {
-    return null;
-  }
-
   const loadAll = async () => {
     try {
       setLoading(true);
@@ -443,6 +426,16 @@ export default function AppointmentsListPage() {
       setLoading(false);
     }
   };
+
+  // ✅ نقلنا الحماية هنا (بعد كل الـ Hooks)
+  if (
+    !user?.hasPermissionTo?.("appointments.manage") &&
+    !user?.is_super_admin
+  ) {
+    // توجيه للصفحة الرئيسية للمواعيد
+    navigate("/admin/erp/appointments");
+    return null;
+  }
 
   if (loading) {
     return (

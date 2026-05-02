@@ -42,17 +42,13 @@ const AdminNavbar = () => {
 
   // ✅ جلب قائمة الفروع (لغير الـ Super Admin)
   useEffect(() => {
-    const tenantId = localStorage.getItem("selectedCompany");
-
-    if (!user?.is_super_admin && tenantId && tenantId !== "global") {
+    if (!user?.is_super_admin) {
       api
         .get("/branches")
         .then((res) => {
           setBranches(Array.isArray(res.data) ? res.data : []);
         })
         .catch(() => setBranches([]));
-    } else {
-      setBranches([]);
     }
   }, [user, selectedCompany]);
 
@@ -63,7 +59,6 @@ const AdminNavbar = () => {
     setSwitching(true);
     try {
       await api.post("/switch-company", { company_id: companyId || null });
-      await queryClient.refetchQueries(["me"]);
 
       const valueToStore = companyId || "global";
       setSelectedCompany(valueToStore);
@@ -95,7 +90,7 @@ const AdminNavbar = () => {
     setSelectedBranch(value);
     localStorage.setItem("selectedBranchId", value);
     // إعادة تحميل الصفحة لتفعيل الفلترة بالفرع الجديد
-    queryClient.invalidateQueries(["branches"]);
+    window.location.reload();
     // أو يمكن استخدام queryClient.invalidateQueries() بدلاً من الـ reload
     // لكن reload أضمن لتحديث كل شيء
   };

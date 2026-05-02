@@ -48,7 +48,9 @@ export default function AppointmentsListPage() {
       const [appointmentsRes, doctorsRes] = await Promise.all([
         axios.get("/erp/appointments", { params: search ? { search } : {} }),
         // ✅ لو دكتور أو موظف استقبال، ما تجبش doctors
-        user?.role === "admin" || user?.is_super_admin
+        user?.role === "admin" ||
+        user?.role === "receptionist" ||
+        user?.is_super_admin
           ? axios.get("/erp/doctors")
           : Promise.resolve(null),
       ]);

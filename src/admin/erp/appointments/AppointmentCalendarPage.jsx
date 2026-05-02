@@ -38,8 +38,10 @@ export default function AppointmentCalendarPage() {
 
       const [appointmentsRes, doctorsRes] = await Promise.all([
         axios.get("/erp/appointments"),
-        // ✅ لو دكتور أو موظف استقبال، لا تجلب الأطباء
-        user?.role === "admin" || user?.is_super_admin
+
+        user?.role === "admin" ||
+        user?.role === "receptionist" ||
+        user?.is_super_admin
           ? axios.get("/erp/doctors")
           : Promise.resolve(null),
       ]);

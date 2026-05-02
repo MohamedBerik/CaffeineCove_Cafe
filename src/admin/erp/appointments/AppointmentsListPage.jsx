@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
 import axios from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import "./AppointmentListPage.css";
 
 export default function AppointmentsListPage() {
+  const { user } = useAuth();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -44,10 +46,11 @@ export default function AppointmentsListPage() {
       setActionSuccess("");
 
       const [appointmentsRes, doctorsRes] = await Promise.all([
-        axios.get("/erp/appointments", {
-          params: search ? { search } : {},
-        }),
-        axios.get("/erp/doctors"),
+        axios.get("/erp/appointments", { params: search ? { search } : {} }),
+        // ✅ لو دكتور أو موظف استقبال، ما تجبش doctors
+        user?.role === "admin" || user?.is_super_admin
+          ? axios.get("/erp/doctors")
+          : Promise.resolve(null),
       ]);
 
       const appointmentsPayload = appointmentsRes.data || {};
@@ -390,8 +393,11 @@ export default function AppointmentsListPage() {
     try {
       setLoading(true);
       const [appointmentsRes, doctorsRes] = await Promise.all([
-        axios.get("/erp/appointments"),
-        axios.get("/erp/doctors"),
+        axios.get("/erp/appointments", { params: search ? { search } : {} }),
+        // ✅ لو دكتور أو موظف استقبال، ما تجبش doctors
+        user?.role === "admin" || user?.is_super_admin
+          ? axios.get("/erp/doctors")
+          : Promise.resolve(null),
       ]);
 
       const appointmentsPayload = appointmentsRes.data || {};

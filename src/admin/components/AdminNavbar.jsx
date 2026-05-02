@@ -26,7 +26,7 @@ const AdminNavbar = () => {
   const [companies, setCompanies] = useState([]);
   const [switching, setSwitching] = useState(false);
 
-  // --- Branch Selector State (جديد) ---
+  // --- Branch Selector State ---
   const [branches, setBranches] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState(() => {
     const stored = localStorage.getItem("selectedBranchId");
@@ -40,15 +40,18 @@ const AdminNavbar = () => {
     }
   }, [user]);
 
-  // ✅ جلب قائمة الفروع (لغير الـ Super Admin)
+  // ✅ جلب قائمة الفروع (يعتمد على tenant وليس user)
   useEffect(() => {
-    if (!user?.is_super_admin) {
+    const tenantId = localStorage.getItem("selectedCompany");
+    if (!user?.is_super_admin && tenantId && tenantId !== "global") {
       api
         .get("/branches")
         .then((res) => {
           setBranches(Array.isArray(res.data) ? res.data : []);
         })
         .catch(() => setBranches([]));
+    } else {
+      setBranches([]);
     }
   }, [user, selectedCompany]);
 
@@ -63,18 +66,18 @@ const AdminNavbar = () => {
       const valueToStore = companyId || "global";
       setSelectedCompany(valueToStore);
       localStorage.setItem("selectedCompany", valueToStore);
-      // عند تبديل الشركة، نفرغ الفرع المختار
       setSelectedBranch("all");
       localStorage.removeItem("selectedBranchId");
 
+      // 🔄 Refresh user data after switching company
+      await queryClient.invalidateQueries(["me"]);
+      await queryClient.refetchQueries(["me"]);
+
       queryClient.invalidateQueries();
 
-      // ✅ توجيه ذكي بعد تبديل الشركة
       if (!companyId || companyId === "") {
-        // اختار Global → SaaS Dashboard
         navigate("/admin/saas");
       } else {
-        // اختار شركة → ERP Dashboard
         navigate("/admin/erp");
       }
     } catch (error) {
@@ -84,15 +87,13 @@ const AdminNavbar = () => {
     }
   };
 
-  // ✅ تبديل الفرع
+  // ✅ تبديل الفرع (بدون إعادة تحميل كاملة)
   const handleBranchChange = (e) => {
     const value = e.target.value;
     setSelectedBranch(value);
     localStorage.setItem("selectedBranchId", value);
-    // إعادة تحميل الصفحة لتفعيل الفلترة بالفرع الجديد
-    window.location.reload();
-    // أو يمكن استخدام queryClient.invalidateQueries() بدلاً من الـ reload
-    // لكن reload أضمن لتحديث كل شيء
+    queryClient.invalidateQueries();
+    navigate(0); // إعادة تحميل المسار الحالي دون فقدان Context
   };
 
   // ✅ تجميع الشركات حسب الحالة
@@ -187,7 +188,6 @@ const AdminNavbar = () => {
   const { data: subStatus } = useQuery({
     queryKey: ["subscription-status"],
     queryFn: async () => {
-      // ✅ لو في Global Mode، متطلبش Status
       const tenantId = localStorage.getItem("selectedCompany");
       if (!tenantId || tenantId === "global" || tenantId === "") {
         return null;
@@ -195,7 +195,6 @@ const AdminNavbar = () => {
       const res = await api.get("/erp/billing/status");
       return res.data.data;
     },
-    // ✅ تجاهل الفشل (403) ولا تعد المحاولة
     retry: (failureCount, error) => {
       if (error.response?.status === 403) return false;
       return failureCount < 3;
@@ -205,7 +204,6 @@ const AdminNavbar = () => {
 
   return (
     <>
-      {/* ✅ Banner: الخطة هتنتهي قريبًا */}
       {subStatus?.is_expiring_soon && (
         <div className="subscription-banner warning">
           <i className="fas fa-clock"></i>
@@ -217,7 +215,6 @@ const AdminNavbar = () => {
         </div>
       )}
 
-      {/* ✅ Banner: الدفع متأخر */}
       {subStatus?.is_past_due && (
         <div className="subscription-banner danger">
           <i className="fas fa-exclamation-triangle"></i>
@@ -226,7 +223,6 @@ const AdminNavbar = () => {
         </div>
       )}
 
-      {/* ✅ Banner: لا يوجد اشتراك */}
       {subStatus?.subscription_status === "no_subscription" && (
         <div className="subscription-banner info">
           <i className="fas fa-info-circle"></i>
@@ -252,7 +248,6 @@ const AdminNavbar = () => {
           </button>
 
           <div className="navbar-actions">
-            {/* ✅ Company Switcher (يظهر فقط لـ Super Admin) - نسخة محسنة */}
             {user?.is_super_admin && (
               <div className="company-switcher-wrapper">
                 <span className="company-switcher-icon">🏢</span>
@@ -302,9 +297,10 @@ const AdminNavbar = () => {
               </div>
             )}
 
-            {/* === Branch Selector (جديد) - يظهر للشركات التي لديها فروع === */}
+            {/* === Branch Selector – يعتمد على tenant وليس user === */}
             {!user?.is_super_admin &&
-              user?.branch_id === null &&
+              selectedCompany &&
+              selectedCompany !== "global" &&
               branches.length > 0 && (
                 <div className="company-switcher-wrapper">
                   <span className="company-switcher-icon branch-switcher-icon">

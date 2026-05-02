@@ -427,15 +427,14 @@ export default function AppointmentsListPage() {
     }
   };
 
-  // ✅ نقلنا الحماية هنا (بعد كل الـ Hooks)
-  if (
-    !user?.hasPermissionTo?.("appointments.manage") &&
-    !user?.is_super_admin
-  ) {
-    // توجيه للصفحة الرئيسية للمواعيد
-    navigate("/admin/erp/appointments");
-    return null;
-  }
+  useEffect(() => {
+    if (
+      !user?.hasPermissionTo?.("appointments.manage") &&
+      !user?.is_super_admin
+    ) {
+      navigate("/admin/erp/appointments", { replace: true });
+    }
+  }, [user, navigate]);
 
   if (loading) {
     return (

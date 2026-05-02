@@ -41,8 +41,9 @@ const AdminNavbar = () => {
   }, [user]);
 
   // ✅ جلب قائمة الفروع (لغير الـ Super Admin)
+  // ✅ جلب قائمة الفروع (لغير الـ Super Admin) - بشرط user موجود
   useEffect(() => {
-    if (!user?.is_super_admin) {
+    if (user && !user.is_super_admin) {
       api
         .get("/branches")
         .then((res) => {
@@ -60,6 +61,17 @@ const AdminNavbar = () => {
         });
     }
   }, [user, selectedCompany]);
+
+  // ✅ تبديل الفرع - بدون إعادة تحميل الصفحة
+  const handleBranchChange = (e) => {
+    const value = e.target.value;
+    setSelectedBranch(value);
+    localStorage.setItem("selectedBranchId", value);
+    // تحديث البيانات بالكامل دون فقدان حالة Auth
+    queryClient.invalidateQueries();
+    // إعادة تحميل المسار الحالي (يحافظ على Context)
+    navigate(0);
+  };
 
   // ✅ تبديل الشركة
   const handleSwitch = async (companyId) => {
@@ -91,17 +103,6 @@ const AdminNavbar = () => {
     } finally {
       setSwitching(false);
     }
-  };
-
-  // ✅ تبديل الفرع
-  const handleBranchChange = (e) => {
-    const value = e.target.value;
-    setSelectedBranch(value);
-    localStorage.setItem("selectedBranchId", value);
-    // إعادة تحميل الصفحة لتفعيل الفلترة بالفرع الجديد
-    window.location.reload();
-    // أو يمكن استخدام queryClient.invalidateQueries() بدلاً من الـ reload
-    // لكن reload أضمن لتحديث كل شيء
   };
 
   // ✅ تجميع الشركات حسب الحالة

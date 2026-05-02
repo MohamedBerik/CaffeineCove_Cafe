@@ -10,9 +10,12 @@ export function AdminRoute({ children }) {
 
   if (!user) return <Navigate to="/login" replace />;
 
+  // ✅ السماح للأدمن، السوبر أدمن، الدكتور، وموظف الاستقبال
   const isAdmin =
     user?.role === "admin" ||
     user?.role === "super_admin" ||
+    user?.role === "doctor" ||
+    user?.role === "receptionist" ||
     user?.is_super_admin === 1 ||
     user?.is_super_admin === true;
 

@@ -38,6 +38,23 @@ export default function AppointmentsListPage() {
     loadAll();
   }, []);
 
+  useEffect(() => {
+    if (
+      !user?.hasPermissionTo?.("appointments.manage") &&
+      !user?.is_super_admin
+    ) {
+      navigate("/admin/erp/appointments");
+    }
+  }, [user, navigate]);
+
+  // لا تُكمل تحميل الصفحة إذا كان المستخدم غير مصرح له
+  if (
+    !user?.hasPermissionTo?.("appointments.manage") &&
+    !user?.is_super_admin
+  ) {
+    return null;
+  }
+
   const loadAll = async () => {
     try {
       setLoading(true);
@@ -460,13 +477,17 @@ export default function AppointmentsListPage() {
             {t("Calendar")}
           </Link>
 
-          <Link
-            to="/admin/erp/appointments/create"
-            className="btn btn-outline-primary"
-          >
-            <i className="fas fa-plus-circle me-2"></i>
-            {t("Book Appointment")}
-          </Link>
+          {/* ✅ لا يظهر زر الحجز إلا لمن يملك صلاحية 'appointments.manage' */}
+          {(user?.hasPermissionTo?.("appointments.manage") ||
+            user?.is_super_admin) && (
+            <Link
+              to="/admin/erp/appointments/create"
+              className="btn btn-outline-primary"
+            >
+              <i className="fas fa-plus-circle me-2"></i>
+              {t("Book Appointment")}
+            </Link>
+          )}
 
           <button className="btn btn-primary" onClick={loadAll}>
             <i className="fas fa-sync-alt me-2"></i>

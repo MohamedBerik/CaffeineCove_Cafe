@@ -474,7 +474,8 @@ export default function AppointmentsListPage() {
           </Link>
 
           {/* ✅ لا يظهر زر الحجز إلا لمن يملك صلاحية 'appointments.manage' */}
-          {(user?.hasPermissionTo?.("appointments.manage") ||
+          {(user?.role === "admin" ||
+            user?.role === "receptionist" ||
             user?.is_super_admin) && (
             <Link
               to="/admin/erp/appointments/create"

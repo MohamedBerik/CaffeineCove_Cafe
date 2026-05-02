@@ -198,13 +198,17 @@ export default function AppointmentCalendarPage() {
         </div>
 
         <div className="header-actions">
-          <Link
-            to="/admin/erp/appointments/create"
-            className="btn btn-outline-success"
-          >
-            <i className="fas fa-plus-circle me-2"></i>
-            {t("Book Appointment")}
-          </Link>
+          {/* ✅ إخفاء زر Book Appointment إذا لم يملك المستخدم صلاحية appointments.manage */}
+          {(user?.hasPermissionTo?.("appointments.manage") ||
+            user?.is_super_admin) && (
+            <Link
+              to="/admin/erp/appointments/create"
+              className="btn btn-outline-success"
+            >
+              <i className="fas fa-plus-circle me-2"></i>
+              {t("Book Appointment")}
+            </Link>
+          )}
 
           <button className="btn btn-primary" onClick={loadData}>
             <i className="fas fa-sync-alt me-2"></i>

@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import "./AppointmentCalendarPage.css";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function AppointmentCalendarPage() {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
 
   const getLocalDateString = () => {
     const now = new Date();
@@ -36,11 +38,14 @@ export default function AppointmentCalendarPage() {
 
       const [appointmentsRes, doctorsRes] = await Promise.all([
         axios.get("/erp/appointments"),
-        axios.get("/erp/doctors"),
+        // ✅ لو دكتور أو موظف استقبال، لا تجلب الأطباء
+        user?.role === "admin" || user?.is_super_admin
+          ? axios.get("/erp/doctors")
+          : Promise.resolve(null),
       ]);
 
       const appointmentsPayload = appointmentsRes.data || {};
-      const doctorsPayload = doctorsRes.data || {};
+      const doctorsPayload = doctorsRes?.data || {};
 
       const appointmentRows = Array.isArray(appointmentsPayload.data)
         ? appointmentsPayload.data

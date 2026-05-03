@@ -11,7 +11,7 @@ import "./AdminNavbar.css";
 const AdminNavbar = () => {
   const { alerts, unreadCount, loading } = useAlertState();
   const { markAsRead, markAllAsRead } = useAlertActions();
-  const { logout, user } = useAuth();
+  const { logout, user, refreshUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation();
@@ -118,13 +118,18 @@ const AdminNavbar = () => {
   };
 
   // ✅ تبديل الفرع (بدون إعادة تحميل كاملة – نعيد الجلب فقط)
-  const handleBranchChange = (e) => {
+  const handleBranchChange = async (e) => {
     const value = e.target.value;
     setSelectedBranch(value);
     localStorage.setItem("selectedBranchId", value);
-    // تجديد جميع البيانات دون فقدان الحالة
+
+    // تحديث بيانات المستخدم أولاً (ليعكس التغيير مباشرة)
+    await refreshUser();
+
+    // ثم تحديث الاستعلامات الأخرى
     queryClient.invalidateQueries();
-    // navigate(0);
+    // لو أردت إعادة تحميل الصفحة بلطف
+    navigate(0);
   };
 
   // ✅ تجميع الشركات حسب الحالة
@@ -235,18 +240,10 @@ const AdminNavbar = () => {
 
   // ✅ شروط عرض Branch Selector (مدير الشركة فقط + وجود فروع)
   const showBranchSelector =
-    !user?.is_super_admin &&
-    (user?.role === "admin" || user?.role === "owner") &&
+    user?.can_switch_branch &&
     selectedCompany &&
     selectedCompany !== "global" &&
     branches.length > 0;
-
-  //دالة بديله باستخدام الصلاحية
-  // const showBranchSelector =
-  //   user?.can_switch_branch &&
-  //   selectedCompany &&
-  //   selectedCompany !== "global" &&
-  //   branches.length > 0;
 
   console.log("📊 Debug Branch Selector:", {
     userLoaded: !!user,

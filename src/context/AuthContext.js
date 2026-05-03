@@ -24,7 +24,7 @@ export function AuthProvider({ children }) {
       localStorage.setItem("user", JSON.stringify(userData));
 
       setUser(userData);
-      return true;
+      return userData;
     } catch (err) {
       console.error("Failed to load user", err);
 
@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
       if (err.response?.status === 401) {
         logoutLocal();
       }
-      return false;
+      return null;
     }
   };
 
@@ -52,11 +52,16 @@ export function AuthProvider({ children }) {
     localStorage.setItem("token", token);
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    // ✅ خزن بيانات المستخدم
-    localStorage.setItem("user", JSON.stringify(userData));
-    setUser(userData);
-
+    // ✅ بدلاً من تخزين userData المؤقتة، نحمّل بيانات المستخدم الكاملة من /me
+    setLoading(true);
+    const fullUser = await loadUser();
     setLoading(false);
+
+    if (!fullUser) {
+      // إذا فشل loadUser، نخزن البيانات المؤقتة كحالة طوارئ
+      localStorage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
+    }
   };
 
   const logout = async () => {
@@ -70,8 +75,13 @@ export function AuthProvider({ children }) {
     delete api.defaults.headers.common["Authorization"];
   };
 
+  // ✅ دالة تحديث بيانات المستخدم (تستعمل بعد تبديل الفرع مثلاً)
+  const refreshUser = async () => {
+    return await loadUser();
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

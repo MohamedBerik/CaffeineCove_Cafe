@@ -152,7 +152,7 @@ export default function ErpNav() {
   const hasPermission = (permission) => {
     if (user?.is_super_admin) return true;
     const permissions = user?.permissions;
-    if (!permissions) return true;
+    if (!permissions) return false;
     if (Array.isArray(permissions)) {
       return permissions.includes(permission);
     }

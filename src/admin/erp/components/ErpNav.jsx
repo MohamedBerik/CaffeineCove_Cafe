@@ -14,19 +14,19 @@ const erpNavItems = [
     to: "/admin/erp/visits/start",
     labelKey: "Start Visit",
     icon: "fas fa-stethoscope",
-    permission: "appointments.manage", // كان appointments.view
+    permission: "appointments.manage",
   },
   {
     to: "/admin/erp/doctors",
     labelKey: "Doctors",
     icon: "fas fa-user-md",
-    permission: "doctors.view", // كان appointments.view
+    permission: "doctors.view",
   },
   {
     to: "/admin/erp/procedures",
     labelKey: "Procedures",
     icon: "fas fa-procedures",
-    permission: "procedures.view", // كان appointments.view
+    permission: "procedures.view",
   },
   {
     to: "/admin/erp/patients",
@@ -50,7 +50,7 @@ const erpNavItems = [
     to: "/admin/erp/dental-records",
     labelKey: "Dental Records",
     icon: "fas fa-tooth",
-    permission: "dental_records.view", // كان patients.view
+    permission: "dental_records.view",
   },
   {
     to: "/admin/erp/invoices",
@@ -68,19 +68,19 @@ const erpNavItems = [
     to: "/admin/erp/purchase-orders",
     labelKey: "Purchase Orders",
     icon: "fas fa-truck-loading",
-    permission: "purchases.manage", // كان finance.view
+    permission: "purchases.manage",
   },
   {
     to: "/admin/erp/reports",
     labelKey: "Reports",
     icon: "fas fa-chart-bar",
-    permission: "reports.view", // كان finance.view
+    permission: "reports.view",
   },
   {
     to: "/admin/erp/settings/clinic",
     labelKey: "Clinic Settings",
     icon: "fas fa-hospital",
-    permission: "settings.manage", // كان appointments.manage
+    permission: "settings.manage",
   },
   {
     to: "/admin/erp/billing",
@@ -96,41 +96,49 @@ const saasNavItems = [
     labelKey: "SaaS Dashboard",
     icon: "fas fa-chart-pie",
     end: true,
+    permission: "saas.dashboard",
   },
   {
     to: "/admin/companies",
     labelKey: "Companies",
     icon: "fas fa-building",
+    permission: "companies.manage",
   },
   {
     to: "/admin/companies/create",
     labelKey: "Add Company",
     icon: "fas fa-plus-circle",
+    permission: "companies.manage",
   },
   {
     to: "/admin/plans",
     labelKey: "Plans & Pricing",
     icon: "fas fa-tags",
+    permission: "plans.manage",
   },
   {
     to: "/admin/subscriptions",
     labelKey: "Subscriptions",
     icon: "fas fa-credit-card",
+    permission: "subscriptions.manage",
   },
   {
     to: "/admin/reports/saas",
     labelKey: "SaaS Reports",
     icon: "fas fa-chart-line",
+    permission: "reports.view",
   },
   {
     to: "/admin/activity-logs",
     labelKey: "Activity Logs",
     icon: "fas fa-history",
+    permission: "activity_logs.view",
   },
   {
     to: "/admin/settings/saas",
     labelKey: "Platform Settings",
     icon: "fas fa-cog",
+    permission: "settings.manage",
   },
 ];
 
@@ -139,7 +147,6 @@ export default function ErpNav() {
   const { t } = useTranslation();
   const location = useLocation();
 
-  // ✅ تحديد إذا كنا في SaaS Mode ولا ERP Mode
   const isSaaSMode =
     location.pathname.startsWith("/admin/saas") ||
     location.pathname.startsWith("/admin/companies") ||
@@ -152,25 +159,21 @@ export default function ErpNav() {
   const hasPermission = (permission) => {
     if (user?.is_super_admin) return true;
     const permissions = user?.permissions;
-    if (!permissions) return false;
+    if (!permissions) return false; // آمن
     if (Array.isArray(permissions)) {
       return permissions.includes(permission);
     }
     if (typeof permissions === "object") {
       return Boolean(permissions[permission]);
     }
-    return true;
+    return false;
   };
 
-  // ✅ اختيار العناصر حسب الوضع
   const items = isSaaSMode ? saasNavItems : erpNavItems;
-
-  // ✅ لو ERP Mode، فلترة حسب الصلاحيات
   const visibleItems = isSaaSMode
     ? items
     : items.filter((item) => hasPermission(item.permission));
 
-  // ✅ العنوان يتغير حسب الوضع
   const headerTitle = isSaaSMode ? t("SaaS Platform") : t("ERP Navigation");
   const headerIcon = isSaaSMode ? "fas fa-cloud" : "fas fa-compass";
 

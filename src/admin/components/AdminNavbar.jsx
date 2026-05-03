@@ -124,7 +124,7 @@ const AdminNavbar = () => {
     localStorage.setItem("selectedBranchId", value);
     // تجديد جميع البيانات دون فقدان الحالة
     queryClient.invalidateQueries();
-    navigate(0);
+    // navigate(0);
   };
 
   // ✅ تجميع الشركات حسب الحالة
@@ -238,7 +238,7 @@ const AdminNavbar = () => {
     !user?.is_super_admin &&
     selectedCompany &&
     selectedCompany !== "global" &&
-    user?.branch_id === null &&
+    // user?.branch_id === null &&
     branches.length > 0;
 
   console.log("📊 Debug Branch Selector:", {

@@ -235,10 +235,18 @@ const AdminNavbar = () => {
 
   // ✅ شروط عرض Branch Selector (مدير الشركة فقط + وجود فروع)
   const showBranchSelector =
-    user?.can_switch_branch &&
+    !user?.is_super_admin &&
+    (user?.role === "admin" || user?.role === "owner") &&
     selectedCompany &&
     selectedCompany !== "global" &&
     branches.length > 0;
+
+  //دالة بديله باستخدام الصلاحية
+  // const showBranchSelector =
+  //   user?.can_switch_branch &&
+  //   selectedCompany &&
+  //   selectedCompany !== "global" &&
+  //   branches.length > 0;
 
   console.log("📊 Debug Branch Selector:", {
     userLoaded: !!user,

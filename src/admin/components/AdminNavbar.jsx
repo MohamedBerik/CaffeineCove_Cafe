@@ -235,8 +235,7 @@ const AdminNavbar = () => {
 
   // ✅ شروط عرض Branch Selector (مدير الشركة فقط + وجود فروع)
   const showBranchSelector =
-    !user?.is_super_admin &&
-    (user?.role === "admin" || user?.role === "owner") &&
+    user?.can_switch_branch &&
     selectedCompany &&
     selectedCompany !== "global" &&
     branches.length > 0;

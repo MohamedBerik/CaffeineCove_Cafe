@@ -14,19 +14,19 @@ const erpNavItems = [
     to: "/admin/erp/visits/start",
     labelKey: "Start Visit",
     icon: "fas fa-stethoscope",
-    permission: "appointments.view",
+    permission: "appointments.manage", // كان appointments.view
   },
   {
     to: "/admin/erp/doctors",
     labelKey: "Doctors",
     icon: "fas fa-user-md",
-    permission: "appointments.view",
+    permission: "doctors.view", // كان appointments.view
   },
   {
     to: "/admin/erp/procedures",
     labelKey: "Procedures",
     icon: "fas fa-procedures",
-    permission: "appointments.view",
+    permission: "procedures.view", // كان appointments.view
   },
   {
     to: "/admin/erp/patients",
@@ -50,7 +50,7 @@ const erpNavItems = [
     to: "/admin/erp/dental-records",
     labelKey: "Dental Records",
     icon: "fas fa-tooth",
-    permission: "patients.view",
+    permission: "dental_records.view", // كان patients.view
   },
   {
     to: "/admin/erp/invoices",
@@ -68,19 +68,19 @@ const erpNavItems = [
     to: "/admin/erp/purchase-orders",
     labelKey: "Purchase Orders",
     icon: "fas fa-truck-loading",
-    permission: "finance.view",
+    permission: "purchases.manage", // كان finance.view
   },
   {
     to: "/admin/erp/reports",
     labelKey: "Reports",
     icon: "fas fa-chart-bar",
-    permission: "finance.view",
+    permission: "reports.view", // كان finance.view
   },
   {
     to: "/admin/erp/settings/clinic",
     labelKey: "Clinic Settings",
     icon: "fas fa-hospital",
-    permission: "appointments.manage",
+    permission: "settings.manage", // كان appointments.manage
   },
   {
     to: "/admin/erp/billing",

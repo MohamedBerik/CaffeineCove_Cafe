@@ -120,6 +120,7 @@ const AdminNavbar = () => {
   // ✅ تبديل الفرع (بدون إعادة تحميل كاملة – نعيد الجلب فقط)
   const handleBranchChange = async (e) => {
     const value = e.target.value;
+
     setSelectedBranch(value);
     localStorage.setItem("selectedBranchId", value);
 
@@ -129,7 +130,7 @@ const AdminNavbar = () => {
     // ثم تحديث الاستعلامات الأخرى
     queryClient.invalidateQueries();
     // لو أردت إعادة تحميل الصفحة بلطف
-    navigate(0);
+    // navigate(0);
   };
 
   // ✅ تجميع الشركات حسب الحالة

@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useAlertState, useAlertActions } from "../../context/AlertContext";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../services/axios";
+import { useQueryClient } from "@tanstack/react-query";
 import "./AdminNavbar.css";
 
 const AdminNavbar = () => {
@@ -25,7 +26,7 @@ const AdminNavbar = () => {
   const [companies, setCompanies] = useState([]);
   const [switching, setSwitching] = useState(false);
 
-  // --- Branch Selector State (جديد) ---
+  // --- Branch Selector State ---
   const [branches, setBranches] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState(() => {
     const stored = localStorage.getItem("selectedBranchId");
@@ -39,16 +40,49 @@ const AdminNavbar = () => {
     }
   }, [user]);
 
-  // ✅ جلب قائمة الفروع (لغير الـ Super Admin)
+  // ✅ تعيين selectedCompany تلقائيًا من user (مرة واحدة، بدون selectedCompany في التبعية)
   useEffect(() => {
-    if (!user?.is_super_admin) {
-      api
-        .get("/branches")
-        .then((res) => {
-          setBranches(Array.isArray(res.data) ? res.data : []);
-        })
-        .catch(() => setBranches([]));
+    if (
+      user?.company_id &&
+      (!selectedCompany ||
+        selectedCompany === "" ||
+        selectedCompany === "global")
+    ) {
+      const companyId = String(user.company_id);
+      console.log("🔧 Auto-setting selectedCompany from user:", companyId);
+      setSelectedCompany(companyId);
+      localStorage.setItem("selectedCompany", companyId);
     }
+  }, [user]);
+
+  // ✅ جلب قائمة الفروع (يعتمد على selectedCompany)
+  useEffect(() => {
+    console.log("🌿 Branch fetch check:", {
+      user: !!user,
+      isSuperAdmin: user?.is_super_admin,
+      selectedCompany,
+    });
+
+    if (!user || user.is_super_admin) {
+      setBranches([]);
+      return;
+    }
+
+    if (!selectedCompany || selectedCompany === "global") {
+      setBranches([]);
+      return;
+    }
+
+    api
+      .get("/branches")
+      .then((res) => {
+        console.log("Branches fetched:", res.data);
+        setBranches(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch((err) => {
+        console.error("Branches error:", err);
+        setBranches([]);
+      });
   }, [user, selectedCompany]);
 
   // ✅ تبديل الشركة
@@ -62,18 +96,18 @@ const AdminNavbar = () => {
       const valueToStore = companyId || "global";
       setSelectedCompany(valueToStore);
       localStorage.setItem("selectedCompany", valueToStore);
-      // عند تبديل الشركة، نفرغ الفرع المختار
       setSelectedBranch("all");
       localStorage.removeItem("selectedBranchId");
 
+      // 🔄 Refresh user data after switching company
+      await queryClient.invalidateQueries(["me"]);
+      await queryClient.refetchQueries(["me"]);
+
       queryClient.invalidateQueries();
 
-      // ✅ توجيه ذكي بعد تبديل الشركة
       if (!companyId || companyId === "") {
-        // اختار Global → SaaS Dashboard
         navigate("/admin/saas");
       } else {
-        // اختار شركة → ERP Dashboard
         navigate("/admin/erp");
       }
     } catch (error) {
@@ -83,15 +117,14 @@ const AdminNavbar = () => {
     }
   };
 
-  // ✅ تبديل الفرع
+  // ✅ تبديل الفرع (بدون إعادة تحميل كاملة – نعيد الجلب فقط)
   const handleBranchChange = (e) => {
     const value = e.target.value;
     setSelectedBranch(value);
     localStorage.setItem("selectedBranchId", value);
-    // إعادة تحميل الصفحة لتفعيل الفلترة بالفرع الجديد
-    window.location.reload();
-    // أو يمكن استخدام queryClient.invalidateQueries() بدلاً من الـ reload
-    // لكن reload أضمن لتحديث كل شيء
+    // تجديد جميع البيانات دون فقدان الحالة
+    queryClient.invalidateQueries();
+    navigate(0);
   };
 
   // ✅ تجميع الشركات حسب الحالة
@@ -186,7 +219,6 @@ const AdminNavbar = () => {
   const { data: subStatus } = useQuery({
     queryKey: ["subscription-status"],
     queryFn: async () => {
-      // ✅ لو في Global Mode، متطلبش Status
       const tenantId = localStorage.getItem("selectedCompany");
       if (!tenantId || tenantId === "global" || tenantId === "") {
         return null;
@@ -194,7 +226,6 @@ const AdminNavbar = () => {
       const res = await api.get("/erp/billing/status");
       return res.data.data;
     },
-    // ✅ تجاهل الفشل (403) ولا تعد المحاولة
     retry: (failureCount, error) => {
       if (error.response?.status === 403) return false;
       return failureCount < 3;
@@ -202,9 +233,25 @@ const AdminNavbar = () => {
     refetchInterval: 300000,
   });
 
+  // ✅ شروط عرض Branch Selector (مدير الشركة فقط + وجود فروع)
+  const showBranchSelector =
+    !user?.is_super_admin &&
+    selectedCompany &&
+    selectedCompany !== "global" &&
+    user?.branch_id === null &&
+    branches.length > 0;
+
+  console.log("📊 Debug Branch Selector:", {
+    userLoaded: !!user,
+    isSuperAdmin: user?.is_super_admin,
+    selectedCompany,
+    branch_id: user?.branch_id,
+    branchesLength: branches.length,
+    showBranchSelector,
+  });
+
   return (
     <>
-      {/* ✅ Banner: الخطة هتنتهي قريبًا */}
       {subStatus?.is_expiring_soon && (
         <div className="subscription-banner warning">
           <i className="fas fa-clock"></i>
@@ -216,7 +263,6 @@ const AdminNavbar = () => {
         </div>
       )}
 
-      {/* ✅ Banner: الدفع متأخر */}
       {subStatus?.is_past_due && (
         <div className="subscription-banner danger">
           <i className="fas fa-exclamation-triangle"></i>
@@ -225,7 +271,6 @@ const AdminNavbar = () => {
         </div>
       )}
 
-      {/* ✅ Banner: لا يوجد اشتراك */}
       {subStatus?.subscription_status === "no_subscription" && (
         <div className="subscription-banner info">
           <i className="fas fa-info-circle"></i>
@@ -251,7 +296,6 @@ const AdminNavbar = () => {
           </button>
 
           <div className="navbar-actions">
-            {/* ✅ Company Switcher (يظهر فقط لـ Super Admin) - نسخة محسنة */}
             {user?.is_super_admin && (
               <div className="company-switcher-wrapper">
                 <span className="company-switcher-icon">🏢</span>
@@ -301,28 +345,26 @@ const AdminNavbar = () => {
               </div>
             )}
 
-            {/* === Branch Selector (جديد) - يظهر للشركات التي لديها فروع === */}
-            {!user?.is_super_admin &&
-              user?.branch_id === null &&
-              branches.length > 0 && (
-                <div className="company-switcher-wrapper">
-                  <span className="company-switcher-icon branch-switcher-icon">
-                    <i className="fas fa-building"></i>
-                  </span>
-                  <select
-                    value={selectedBranch}
-                    onChange={handleBranchChange}
-                    className="company-switcher"
-                  >
-                    <option value="all">🔍 {t("All Branches")}</option>
-                    {branches.map((branch) => (
-                      <option key={branch.id} value={branch.id}>
-                        {branch.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+            {/* === Branch Selector – يظهر فقط لمدير الشركة (branch_id === null) === */}
+            {showBranchSelector && (
+              <div className="company-switcher-wrapper">
+                <span className="company-switcher-icon branch-switcher-icon">
+                  <i className="fas fa-building"></i>
+                </span>
+                <select
+                  value={selectedBranch}
+                  onChange={handleBranchChange}
+                  className="company-switcher"
+                >
+                  <option value="all">🔍 {t("All Branches")}</option>
+                  {branches.map((branch) => (
+                    <option key={branch.id} value={branch.id}>
+                      {branch.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <button
               type="button"

@@ -14,7 +14,7 @@ const erpNavItems = [
     to: "/admin/erp/visits/start",
     labelKey: "Start Visit",
     icon: "fas fa-stethoscope",
-    permission: "appointments.manage",
+    permission: "appointments.view", // تم التغيير إلى appointments.view
   },
   {
     to: "/admin/erp/doctors",
@@ -158,14 +158,25 @@ export default function ErpNav() {
 
   const hasPermission = (permission) => {
     if (user?.is_super_admin) return true;
-    const permissions = user?.permissions;
-    if (!permissions) return false; // آمن
-    if (Array.isArray(permissions)) {
-      return permissions.includes(permission);
+
+    // استخدام الكائن الجديد إن وُجد، وإلا العودة إلى المصفوفة
+    const permMap = user?.permissions_map || user?.permissions;
+
+    // طباعة لتشخيص المشكلة (يمكن حذفها لاحقًا)
+    console.log("Checking permission:", permission, "Permissions:", permMap);
+
+    if (!permMap) return false;
+
+    // إذا كان كائنًا
+    if (typeof permMap === "object" && !Array.isArray(permMap)) {
+      return permMap[permission] === true;
     }
-    if (typeof permissions === "object") {
-      return Boolean(permissions[permission]);
+
+    // إذا كانت مصفوفة (للتوافق مع النظام القديم)
+    if (Array.isArray(permMap)) {
+      return permMap.includes(permission);
     }
+
     return false;
   };
 

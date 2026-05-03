@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAlertState, useAlertActions } from "../../context/AlertContext";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../services/axios";
-import { useQueryClient } from "@tanstack/react-query";
 import "./AdminNavbar.css";
 
 const AdminNavbar = () => {
@@ -13,7 +12,6 @@ const AdminNavbar = () => {
   const { markAsRead, markAllAsRead } = useAlertActions();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const { t, i18n } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
@@ -26,8 +24,7 @@ const AdminNavbar = () => {
   const [companies, setCompanies] = useState([]);
   const [switching, setSwitching] = useState(false);
 
-  // --- Branch Selector State (جديد) ---
-  const [branches, setBranches] = useState([]);
+  // --- Branch Selector State ---
   const [selectedBranch, setSelectedBranch] = useState(() => {
     const stored = localStorage.getItem("selectedBranchId");
     return stored && stored !== "" ? stored : "all";
@@ -40,43 +37,67 @@ const AdminNavbar = () => {
     }
   }, [user]);
 
-  // ✅ جلب قائمة الفروع (لغير الـ Super Admin)
+  // ✅ تعيين selectedCompany تلقائيًا من بيانات المستخدم (لمدير الشركة)
   useEffect(() => {
-    if (!user?.is_super_admin) {
-      api
-        .get("/branches")
-        .then((res) => {
-          setBranches(Array.isArray(res.data) ? res.data : []);
-        })
-        .catch(() => setBranches([]));
+    if (
+      user &&
+      user.company_id &&
+      (!selectedCompany ||
+        selectedCompany === "" ||
+        selectedCompany === "global")
+    ) {
+      const companyId = String(user.company_id);
+      setSelectedCompany(companyId);
+      localStorage.setItem("selectedCompany", companyId);
     }
   }, [user, selectedCompany]);
+
+  // ✅ جلب الفروع باستخدام React Query (مع كاش دائم)
+  const { data: branches = [] } = useQuery({
+    queryKey: ["branches", selectedCompany],
+    queryFn: async () => {
+      // لا نجلب إلا إذا كان لدينا شركة صالحة
+      if (!selectedCompany || selectedCompany === "global") {
+        return [];
+      }
+      const res = await api.get("/branches");
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    enabled:
+      !!selectedCompany &&
+      selectedCompany !== "global" &&
+      !user?.is_super_admin,
+    staleTime: 10 * 60 * 1000, // تعتبر البيانات حديثة لمدة 10 دقائق
+    cacheTime: 30 * 60 * 1000, // تحفظ في الكاش لمدة نصف ساعة
+  });
+
+  // ✅ شرط عرض Branch Selector (مع التحقق من تحميل user)
+  const showBranchSelector =
+    user &&
+    !user.is_super_admin &&
+    selectedCompany &&
+    selectedCompany !== "global" &&
+    user.branch_id === null && // القيمة الفعلية null وليست undefined
+    branches.length > 0;
 
   // ✅ تبديل الشركة
   const handleSwitch = async (companyId) => {
     if (switching) return;
-
     setSwitching(true);
     try {
       await api.post("/switch-company", { company_id: companyId || null });
-
       const valueToStore = companyId || "global";
       setSelectedCompany(valueToStore);
       localStorage.setItem("selectedCompany", valueToStore);
-      // عند تبديل الشركة، نفرغ الفرع المختار
       setSelectedBranch("all");
       localStorage.removeItem("selectedBranchId");
 
+      await queryClient.invalidateQueries(["me"]);
+      await queryClient.refetchQueries(["me"]);
+
       queryClient.invalidateQueries();
 
-      // ✅ توجيه ذكي بعد تبديل الشركة
-      if (!companyId || companyId === "") {
-        // اختار Global → SaaS Dashboard
-        navigate("/admin/saas");
-      } else {
-        // اختار شركة → ERP Dashboard
-        navigate("/admin/erp");
-      }
+      navigate(!companyId || companyId === "" ? "/admin/saas" : "/admin/erp");
     } catch (error) {
       console.error("Failed to switch company", error);
     } finally {
@@ -84,15 +105,15 @@ const AdminNavbar = () => {
     }
   };
 
-  // ✅ تبديل الفرع
+  // ✅ تبديل الفرع (بدون reload – نعيد جلب البيانات فقط)
   const handleBranchChange = (e) => {
     const value = e.target.value;
     setSelectedBranch(value);
     localStorage.setItem("selectedBranchId", value);
-    // إعادة تحميل الصفحة لتفعيل الفلترة بالفرع الجديد
-    window.location.reload();
-    // أو يمكن استخدام queryClient.invalidateQueries() بدلاً من الـ reload
-    // لكن reload أضمن لتحديث كل شيء
+    // إلغاء صلاحية جميع الاستعلامات بدون إعادة تحميل
+    queryClient.invalidateQueries();
+    // لو أردت إعادة التوجيه إلى نفس الصفحة لتطبيق الفرع فوراً
+    navigate(0);
   };
 
   // ✅ تجميع الشركات حسب الحالة

@@ -17,10 +17,8 @@ api.interceptors.request.use(
     let token = localStorage.getItem("token");
     const tenantId = localStorage.getItem("selectedCompany");
     const branchId = localStorage.getItem("selectedBranchId");
-    // ✅ إضافة branch_id تلقائياً من localStorage
-    const isAuthRoute =
-      config.url.includes("/login") || config.url.includes("/register");
 
+    // ✅ إضافة branch_id تلقائياً من localStorage
     if (!isAuthRoute && branchId && branchId !== "all" && branchId !== "") {
       config.headers["X-Branch-ID"] = branchId;
     }

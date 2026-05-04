@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api", // ✅ صح (سيتم توجيهه عبر وكيل Vercel)
+  baseURL: "/api",
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -18,7 +18,7 @@ api.interceptors.request.use(
     const tenantId = localStorage.getItem("selectedCompany");
     const branchId = localStorage.getItem("selectedBranchId");
 
-    // ✅ إضافة branch_id تلقائياً من localStorage
+    // ✅ إضافة branch_id تلقائياً من localStorage (فقط لغير مسارات المصادقة)
     if (!isAuthRoute && branchId && branchId !== "all" && branchId !== "") {
       config.headers["X-Branch-ID"] = branchId;
     }
@@ -28,7 +28,6 @@ api.interceptors.request.use(
     console.log("📡 Request URL:", config.url);
     console.log("🔐 isAuthRoute:", isAuthRoute);
 
-    // ❌ مهم جدًا: متبعتش headers في auth routes
     if (!isAuthRoute) {
       if (token) {
         try {
@@ -38,7 +37,6 @@ api.interceptors.request.use(
         } catch (e) {
           console.error("❌ Error parsing token:", e);
         }
-
         config.headers.Authorization = `Bearer ${token}`;
       }
 
@@ -46,9 +44,10 @@ api.interceptors.request.use(
         config.headers["X-Tenant-ID"] = tenantId;
       }
     } else {
-      // ✅ مسح أي headers في auth routes
+      // ✅ حذف أي هيدرات قد تكون عالقة في مسارات المصادقة
       delete config.headers.Authorization;
       delete config.headers["X-Tenant-ID"];
+      delete config.headers["X-Branch-ID"]; // ← السطر المُضاف
     }
 
     console.log("📋 Final Headers:", JSON.stringify(config.headers));

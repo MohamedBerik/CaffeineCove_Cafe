@@ -297,8 +297,16 @@ export default function AppointmentsListPage() {
       await loadAll();
 
       if (result?.invoice_id) {
-        navigate(`/admin/erp/invoices/${result.invoice_id}`);
-        return;
+        const canViewInvoice =
+          user?.is_super_admin ||
+          user?.role === "admin" ||
+          user?.permissions?.includes("finance.view") ||
+          user?.permissions?.includes("invoices.pay");
+
+        if (canViewInvoice) {
+          navigate(`/admin/erp/invoices/${result.invoice_id}`);
+          return;
+        }
       }
 
       if (result?.treatment_plan_id) {
@@ -323,7 +331,15 @@ export default function AppointmentsListPage() {
       }
 
       if (responseData?.invoice_id) {
-        navigate(`/admin/erp/invoices/${responseData.invoice_id}`);
+        // حتى في حالة الخطأ نتحقق من الصلاحية قبل الانتقال
+        const canViewInvoice =
+          user?.is_super_admin ||
+          user?.role === "admin" ||
+          user?.permissions?.includes("finance.view") ||
+          user?.permissions?.includes("invoices.pay");
+        if (canViewInvoice) {
+          navigate(`/admin/erp/invoices/${responseData.invoice_id}`);
+        }
       }
     } finally {
       setActingId(null);

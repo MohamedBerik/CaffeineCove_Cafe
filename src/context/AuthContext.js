@@ -48,17 +48,17 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (userData, token) => {
-    // ✅ خزن التوكين
     localStorage.setItem("token", token);
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    // ✅ بدلاً من تخزين userData المؤقتة، نحمّل بيانات المستخدم الكاملة من /me
     setLoading(true);
     const fullUser = await loadUser();
     setLoading(false);
 
-    if (!fullUser) {
-      // إذا فشل loadUser، نخزن البيانات المؤقتة كحالة طوارئ
+    if (fullUser) {
+      // ✅ ضبط الفرع الافتراضي للمستخدم فور تسجيل الدخول
+      localStorage.setItem("selectedBranchId", fullUser.branch_id ?? "all");
+    } else {
       localStorage.setItem("user", JSON.stringify(userData));
       setUser(userData);
     }

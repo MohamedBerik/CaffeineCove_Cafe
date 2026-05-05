@@ -234,6 +234,7 @@ export default function DoctorsListPage() {
                         <div className="action-buttons">
                           <Link
                             to={`/admin/erp/doctors/${doctor.id}/availability`}
+                            state={{ doctor }}
                             className="btn btn-sm btn-outline-primary"
                             title={t("Manage Availability")}
                           >

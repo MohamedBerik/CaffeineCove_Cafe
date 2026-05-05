@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom"; // ✅ أضف useLocation
 import axios from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import "./DoctorAvailabilityPage.css";
@@ -7,17 +7,18 @@ import "./DoctorAvailabilityPage.css";
 export default function DoctorAvailabilityPage() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
+  const { state } = useLocation(); // ✅ يستقبل البيانات من الرابط السابق
 
-  const [doctor, setDoctor] = useState(null);
+  // ✅ استخدم بيانات الطبيب المنقولة من صفحة القائمة
+  const doctorFromList = state?.doctor || null;
+
   const [rows, setRows] = useState([]);
   const [date, setDate] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // ✅ لم نعد بحاجة لتحميل الطبيب
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    loadDoctor();
-  }, [id]);
+  // ✅ حذف useEffect الذي كان يستدعي loadDoctor بالكامل
 
   const formatDate = (value) => {
     if (!value) return "-";
@@ -33,25 +34,7 @@ export default function DoctorAvailabilityPage() {
     }
   };
 
-  const loadDoctor = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const res = await axios.get(`/erp/doctors/${id}`);
-      const payload = res.data || {};
-
-      setDoctor(payload.data || payload);
-    } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-          err?.response?.data?.msg ||
-          t("Failed to load doctor details."),
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  // ✅ حذف دالة loadDoctor بالكامل
 
   const loadAvailability = async () => {
     try {
@@ -96,15 +79,13 @@ export default function DoctorAvailabilityPage() {
     };
   };
 
-  if (loading) {
+  // ✅ لم نعد بحاجة لحالة تحميل الطبيب، لذا يمكن إظهار المحتوى مباشرة
+  if (!doctorFromList) {
     return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ minHeight: "320px" }}
-      >
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">{t("Loading...")}</span>
-        </div>
+      <div className="alert alert-warning m-4">
+        {t(
+          "Doctor information is missing. Please go back and select a doctor.",
+        )}
       </div>
     );
   }
@@ -149,7 +130,7 @@ export default function DoctorAvailabilityPage() {
         </div>
       )}
 
-      {/* Doctor Info Card */}
+      {/* Doctor Info Card – يستخدم doctorFromList */}
       <div className="info-card">
         <div className="info-card-header">
           <i className="fas fa-user-md me-2"></i>
@@ -157,23 +138,26 @@ export default function DoctorAvailabilityPage() {
         </div>
         <div className="info-card-body">
           <div className="info-grid">
-            <InfoItem label={t("Doctor Name")} value={doctor?.name} />
-            <InfoItem label={t("Email")} value={doctor?.email} />
-            <InfoItem label={t("Phone")} value={doctor?.phone} />
-            <InfoItem label={t("Specialty")} value={doctor?.specialty} />
+            <InfoItem label={t("Doctor Name")} value={doctorFromList?.name} />
+            <InfoItem label={t("Email")} value={doctorFromList?.email} />
+            <InfoItem label={t("Phone")} value={doctorFromList?.phone} />
+            <InfoItem
+              label={t("Specialty")}
+              value={doctorFromList?.specialty}
+            />
             <InfoItem
               label={t("Working Hours")}
               value={
-                doctor?.work_start && doctor?.work_end
-                  ? `${doctor.work_start} → ${doctor.work_end}`
+                doctorFromList?.work_start && doctorFromList?.work_end
+                  ? `${doctorFromList.work_start} → ${doctorFromList.work_end}`
                   : "-"
               }
             />
             <InfoItem
               label={t("Slot Duration")}
               value={
-                doctor?.slot_minutes
-                  ? `${doctor.slot_minutes} ${t("minutes")}`
+                doctorFromList?.slot_minutes
+                  ? `${doctorFromList.slot_minutes} ${t("minutes")}`
                   : "-"
               }
             />

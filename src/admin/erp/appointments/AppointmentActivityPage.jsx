@@ -3,11 +3,13 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import axios from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import "./AppointmentActivityPage.css";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function AppointmentActivityPage() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [appointment, setAppointment] = useState(null);
   const [rows, setRows] = useState([]);

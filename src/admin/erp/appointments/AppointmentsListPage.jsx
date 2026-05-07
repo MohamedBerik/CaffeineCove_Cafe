@@ -447,14 +447,14 @@ export default function AppointmentsListPage() {
     }
   };
 
-  useEffect(() => {
-    if (
-      !user?.hasPermissionTo?.("appointments.manage") &&
-      !user?.is_super_admin
-    ) {
-      navigate("/admin/erp/appointments", { replace: true });
-    }
-  }, [user, navigate]);
+  // useEffect(() => {
+  //   if (
+  //     !user?.hasPermissionTo?.("appointments.manage") &&
+  //     !user?.is_super_admin
+  //   ) {
+  //     navigate("/admin/erp/appointments", { replace: true });
+  //   }
+  // }, [user, navigate]);
 
   if (loading) {
     return (

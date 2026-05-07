@@ -56,7 +56,12 @@ export function AuthProvider({ children }) {
     setLoading(false);
 
     if (fullUser) {
-      // ✅ ضبط الفرع الافتراضي للمستخدم فور تسجيل الدخول
+      // إزالة أي قيم قديمة لتجنب إرسالها في الطلبات التالية
+      localStorage.removeItem("selectedCompany");
+      localStorage.removeItem("selectedBranchId");
+
+      // تعيين القيم الجديدة
+      localStorage.setItem("selectedCompany", fullUser.company_id);
       localStorage.setItem("selectedBranchId", fullUser.branch_id ?? "all");
     } else {
       localStorage.setItem("user", JSON.stringify(userData));

@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../../context/AuthContext";
 import "./ProceduresListPage.css";
 
 export default function ProceduresListPage() {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const [rows, setRows] = useState([]);
   const [meta, setMeta] = useState(null);
 
@@ -345,56 +347,63 @@ export default function ProceduresListPage() {
                       </td>
                       <td data-label={t("Actions")}>
                         <div className="action-buttons">
-                          <Link
-                            to={`/admin/erp/procedures/${item.id}/edit`}
-                            className="btn btn-sm btn-outline-primary"
-                            title={t("Edit Procedure")}
-                          >
-                            <i className="fas fa-edit"></i>
-                            {/* <span>{t("Edit")}</span> */}
-                          </Link>
+                          {/* ✅ إخفاء زر Edit إذا لم يملك الصلاحية */}
+                          {(user?.is_super_admin ||
+                            user?.role === "admin" ||
+                            user?.permissions?.includes(
+                              "procedures.manage",
+                            )) && (
+                            <Link
+                              to={`/admin/erp/procedures/${item.id}/edit`}
+                              className="btn btn-sm btn-outline-primary"
+                              title={t("Edit Procedure")}
+                            >
+                              <i className="fas fa-edit"></i>
+                            </Link>
+                          )}
 
-                          <button
-                            type="button"
-                            className={`btn btn-sm ${
-                              Number(item.is_active) === 1 ||
-                              item.is_active === true
-                                ? "btn-outline-warning"
-                                : "btn-outline-success"
-                            }`}
-                            onClick={() => toggleProcedureStatus(item)}
-                            disabled={actingId === item.id}
-                            title={
-                              Number(item.is_active) === 1 ||
-                              item.is_active === true
-                                ? t("Deactivate")
-                                : t("Activate")
-                            }
-                          >
-                            {actingId === item.id ? (
-                              <>
-                                <span className="spinner-border spinner-border-sm me-1"></span>
-                                {t("Saving...")}
-                              </>
-                            ) : (
-                              <>
-                                <i
-                                  className={`fas ${
-                                    Number(item.is_active) === 1 ||
-                                    item.is_active === true
-                                      ? "fa-ban"
-                                      : "fa-check-circle"
-                                  } me-1`}
-                                ></i>
-                                {/* <span>
-                                  {Number(item.is_active) === 1 ||
-                                  item.is_active === true
-                                    ? t("Deactivate")
-                                    : t("Activate")}
-                                </span> */}
-                              </>
-                            )}
-                          </button>
+                          {/* ✅ إخفاء زر Deactivate/Activate إذا لم يملك الصلاحية */}
+                          {(user?.is_super_admin ||
+                            user?.role === "admin" ||
+                            user?.permissions?.includes(
+                              "procedures.manage",
+                            )) && (
+                            <button
+                              type="button"
+                              className={`btn btn-sm ${
+                                Number(item.is_active) === 1 ||
+                                item.is_active === true
+                                  ? "btn-outline-warning"
+                                  : "btn-outline-success"
+                              }`}
+                              onClick={() => toggleProcedureStatus(item)}
+                              disabled={actingId === item.id}
+                              title={
+                                Number(item.is_active) === 1 ||
+                                item.is_active === true
+                                  ? t("Deactivate")
+                                  : t("Activate")
+                              }
+                            >
+                              {actingId === item.id ? (
+                                <>
+                                  <span className="spinner-border spinner-border-sm me-1"></span>
+                                  {t("Saving...")}
+                                </>
+                              ) : (
+                                <>
+                                  <i
+                                    className={`fas ${
+                                      Number(item.is_active) === 1 ||
+                                      item.is_active === true
+                                        ? "fa-ban"
+                                        : "fa-check-circle"
+                                    } me-1`}
+                                  ></i>
+                                </>
+                              )}
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

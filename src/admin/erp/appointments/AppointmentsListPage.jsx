@@ -58,10 +58,15 @@ export default function AppointmentsListPage() {
       const appointmentsPayload = appointmentsRes.data || {};
       const doctorsPayload = doctorsRes.data || {};
 
-      const rowsData = Array.isArray(appointmentsPayload.data)
-        ? appointmentsPayload.data
-        : appointmentsPayload.data?.data || [];
-
+      let rowsData = [];
+      if (Array.isArray(appointmentsPayload.data)) {
+        rowsData = appointmentsPayload.data;
+      } else if (
+        appointmentsPayload.data &&
+        Array.isArray(appointmentsPayload.data.data)
+      ) {
+        rowsData = appointmentsPayload.data.data;
+      }
       const doctorRows = Array.isArray(doctorsPayload.data)
         ? doctorsPayload.data
         : doctorsPayload.data?.data || [];

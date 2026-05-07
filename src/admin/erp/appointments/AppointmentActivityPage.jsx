@@ -336,6 +336,8 @@ export default function AppointmentActivityPage() {
     (appointment?.diagnosis || "") !== notesForm.diagnosis ||
     (appointment?.next_step || "") !== notesForm.next_step;
 
+  console.log("Current rows:", rows);
+
   if (loading) {
     return (
       <div

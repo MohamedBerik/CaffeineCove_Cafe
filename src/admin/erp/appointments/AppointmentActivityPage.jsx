@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import axios from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import "./AppointmentActivityPage.css";
@@ -7,6 +7,7 @@ import "./AppointmentActivityPage.css";
 export default function AppointmentActivityPage() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [appointment, setAppointment] = useState(null);
   const [rows, setRows] = useState([]);
@@ -254,6 +255,18 @@ export default function AppointmentActivityPage() {
         result?.msg || t("Appointment completed successfully."),
       );
 
+      // ✅ التحويل التلقائي إلى صفحة الفاتورة
+      const canViewInvoice =
+        user?.is_super_admin ||
+        user?.role === "admin" ||
+        user?.permissions?.includes("finance.view") ||
+        user?.permissions?.includes("invoices.pay");
+
+      if (result?.invoice_id && canViewInvoice) {
+        navigate(`/admin/erp/invoices/${result.invoice_id}`);
+        return;
+      }
+
       await loadPage();
     } catch (err) {
       const responseData = err?.response?.data || {};
@@ -270,8 +283,17 @@ export default function AppointmentActivityPage() {
         );
       }
 
+      // حتى في حالة الخطأ، يمكن الانتقال للفاتورة لو موجودة
       if (responseData?.invoice_id) {
         setCompleteResult(responseData);
+        const canViewInvoice =
+          user?.is_super_admin ||
+          user?.role === "admin" ||
+          user?.permissions?.includes("finance.view") ||
+          user?.permissions?.includes("invoices.pay");
+        if (responseData?.invoice_id && canViewInvoice) {
+          navigate(`/admin/erp/invoices/${responseData.invoice_id}`);
+        }
       }
     } finally {
       setCompleting(false);

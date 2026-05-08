@@ -56,7 +56,7 @@ export default function AppointmentsListPage() {
       ]);
 
       const appointmentsPayload = appointmentsRes.data || {};
-      const doctorsPayload = doctorsRes.data || {};
+      const doctorsPayload = doctorsRes?.data || {};
 
       const rowsData = Array.isArray(appointmentsPayload.data)
         ? appointmentsPayload.data
@@ -421,7 +421,7 @@ export default function AppointmentsListPage() {
       ]);
 
       const appointmentsPayload = appointmentsRes.data || {};
-      const doctorsPayload = doctorsRes ? doctorsRes.data || {} : {};
+      const doctorsPayload = doctorsRes?.data || {};
 
       const rowsData = Array.isArray(appointmentsPayload.data)
         ? appointmentsPayload.data
@@ -429,9 +429,7 @@ export default function AppointmentsListPage() {
 
       const doctorRows = Array.isArray(doctorsPayload.data)
         ? doctorsPayload.data
-        : Array.isArray(doctorsPayload?.data?.data)
-          ? doctorsPayload.data.data
-          : [];
+        : doctorsPayload.data?.data || [];
 
       setRows(rowsData);
       setMeta(

@@ -55,38 +55,22 @@ export default function AppointmentsListPage() {
           : Promise.resolve(null),
       ]);
 
-      try {
-        const appointmentsPayload = appointmentsRes.data || {};
+      const appointmentsPayload = appointmentsRes.data || {};
+      const doctorsPayload = doctorsRes?.data || {};
 
-        let rowsData = [];
-        if (Array.isArray(appointmentsPayload.data)) {
-          rowsData = appointmentsPayload.data;
-        } else if (
-          appointmentsPayload.data &&
-          Array.isArray(appointmentsPayload.data.data)
-        ) {
-          rowsData = appointmentsPayload.data.data;
-        } else if (Array.isArray(appointmentsPayload)) {
-          rowsData = appointmentsPayload;
-        }
+      const rowsData = Array.isArray(appointmentsPayload.data)
+        ? appointmentsPayload.data
+        : appointmentsPayload.data?.data || [];
 
-        let doctorRows = [];
-        if (doctorsRes && doctorsRes.data) {
-          const doctorsPayload = doctorsRes.data;
-          doctorRows = Array.isArray(doctorsPayload.data)
-            ? doctorsPayload.data
-            : doctorsPayload.data?.data || [];
-        }
+      const doctorRows = Array.isArray(doctorsPayload.data)
+        ? doctorsPayload.data
+        : doctorsPayload.data?.data || [];
 
-        setRows(rowsData);
-        setMeta(
-          appointmentsPayload.meta || appointmentsPayload.data?.meta || null,
-        );
-        setDoctors(doctorRows);
-      } catch (parseError) {
-        console.error("Data extraction error:", parseError);
-        setError(t("Failed to parse appointments data."));
-      }
+      setRows(rowsData);
+      setMeta(
+        appointmentsPayload.meta || appointmentsPayload.data?.meta || null,
+      );
+      setDoctors(doctorRows);
     } catch (err) {
       setError(
         err?.response?.data?.message ||

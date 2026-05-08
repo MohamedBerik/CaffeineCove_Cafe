@@ -55,14 +55,13 @@ export default function AppointmentsListPage() {
           : Promise.resolve(null),
       ]);
 
-      // استخراج بيانات المواعيد
       const appointmentsPayload = appointmentsRes.data || {};
+      const doctorsPayload = doctorsRes?.data || {};
+
       const rowsData = Array.isArray(appointmentsPayload.data)
         ? appointmentsPayload.data
         : appointmentsPayload.data?.data || [];
 
-      // استخراج بيانات الأطباء (قد تكون null)
-      const doctorsPayload = doctorsRes?.data || {};
       const doctorRows = Array.isArray(doctorsPayload.data)
         ? doctorsPayload.data
         : doctorsPayload.data?.data || [];

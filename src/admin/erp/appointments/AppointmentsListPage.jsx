@@ -55,41 +55,22 @@ export default function AppointmentsListPage() {
           : Promise.resolve(null),
       ]);
 
-      try {
-        const appointmentsPayload = appointmentsRes.data || {};
-        const doctorsPayload = doctorsRes.data || {};
+      const appointmentsPayload = appointmentsRes.data || {};
+      const doctorsPayload = doctorsRes.data || {};
 
-        let rowsData = [];
+      const rowsData = Array.isArray(appointmentsPayload.data)
+        ? appointmentsPayload.data
+        : appointmentsPayload.data?.data || [];
 
-        if (Array.isArray(appointmentsPayload.data)) {
-          // الحالة المثالية: البيانات في data مباشرة كمصفوفة
-          rowsData = appointmentsPayload.data;
-        } else if (
-          appointmentsPayload.data &&
-          Array.isArray(appointmentsPayload.data.data)
-        ) {
-          // حالة متداخلة: البيانات داخل data.data
-          rowsData = appointmentsPayload.data.data;
-        } else if (Array.isArray(appointmentsPayload)) {
-          // حالة نادرة: الرد نفسه مصفوفة
-          rowsData = appointmentsPayload;
-        } else {
-          console.warn("Unexpected appointments payload:", appointmentsPayload);
-        }
+      const doctorRows = Array.isArray(doctorsPayload.data)
+        ? doctorsPayload.data
+        : doctorsPayload.data?.data || [];
 
-        const doctorRows = Array.isArray(doctorsPayload.data)
-          ? doctorsPayload.data
-          : doctorsPayload.data?.data || [];
-
-        setRows(rowsData);
-        setMeta(
-          appointmentsPayload.meta || appointmentsPayload.data?.meta || null,
-        );
-        setDoctors(doctorRows);
-      } catch (parseError) {
-        console.error("Data extraction error:", parseError);
-        setError(t("Failed to parse appointments data."));
-      }
+      setRows(rowsData);
+      setMeta(
+        appointmentsPayload.meta || appointmentsPayload.data?.meta || null,
+      );
+      setDoctors(doctorRows);
     } catch (err) {
       setError(
         err?.response?.data?.message ||
@@ -440,7 +421,7 @@ export default function AppointmentsListPage() {
       ]);
 
       const appointmentsPayload = appointmentsRes.data || {};
-      const doctorsPayload = doctorsRes.data || {};
+      const doctorsPayload = doctorsRes ? doctorsRes.data || {} : {};
 
       const rowsData = Array.isArray(appointmentsPayload.data)
         ? appointmentsPayload.data
@@ -448,7 +429,9 @@ export default function AppointmentsListPage() {
 
       const doctorRows = Array.isArray(doctorsPayload.data)
         ? doctorsPayload.data
-        : doctorsPayload.data?.data || [];
+        : Array.isArray(doctorsPayload?.data?.data)
+          ? doctorsPayload.data.data
+          : [];
 
       setRows(rowsData);
       setMeta(

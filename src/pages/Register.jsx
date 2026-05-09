@@ -16,6 +16,7 @@ function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [clinicName, setClinicName] = useState("");
 
   const navigate = useNavigate();
 
@@ -43,6 +44,7 @@ function Register() {
         email,
         password,
         password_confirmation: passwordConfirmation,
+        clinic_name: clinicName,
       });
 
       localStorage.setItem("token", res.data.token);
@@ -136,6 +138,21 @@ function Register() {
                   onChange={(e) => setName(e.target.value)}
                   required
                   autoComplete="name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="clinic_name">
+                  <i className="fas fa-clinic-medical"></i>
+                  {t("Clinic Name")}
+                </label>
+                <input
+                  type="text"
+                  id="clinic_name"
+                  placeholder={t("Enter your clinic name")}
+                  value={clinicName}
+                  onChange={(e) => setClinicName(e.target.value)}
+                  required
                 />
               </div>
 

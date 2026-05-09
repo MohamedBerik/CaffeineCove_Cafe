@@ -80,14 +80,14 @@ export default function PlatformSettings() {
   const { data: settings, isLoading } = useQuery({
     queryKey: ["platform-settings"],
     queryFn: async () => {
-      const res = await api.get("/saas/settings/platform");
+      const res = await api.get("/saas/settings");
       return res.data.data;
     },
   });
 
   // ========================= Mutations =========================
   const saveMutation = useMutation({
-    mutationFn: (data) => api.post("/saas/settings/platform", data),
+    mutationFn: (data) => api.post("/saas/settings", data),
     onSuccess: () => {
       queryClient.invalidateQueries(["platform-settings"]);
       toast.success(t("Settings saved successfully"));

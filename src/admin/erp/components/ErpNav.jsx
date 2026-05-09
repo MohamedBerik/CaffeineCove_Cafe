@@ -23,6 +23,12 @@ const erpNavItems = [
     permission: "doctors.view",
   },
   {
+    to: "/admin/erp/employees",
+    labelKey: "Employees",
+    icon: "fas fa-user-tie",
+    permission: "employees.view",
+  },
+  {
     to: "/admin/erp/procedures",
     labelKey: "Procedures",
     icon: "fas fa-procedures",

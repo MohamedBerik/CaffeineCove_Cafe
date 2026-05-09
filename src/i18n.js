@@ -2760,6 +2760,12 @@ const resources = {
 
       "All Branches": "All Branches",
       Branches: "Branches",
+
+      "Full Name": "Full Name",
+      "Email Address": "Email Address",
+      "Create Employee": "Create Employee",
+      "Edit Employee": "Edit Employee",
+      "Failed to load employee.": "Failed to load employee.",
     },
   },
   ar: {
@@ -5495,6 +5501,12 @@ const resources = {
 
       "All Branches": "كل الفروع",
       Branches: "الفروع",
+
+      "Full Name": "الاسم الكامل",
+      "Email Address": "البريد الإلكتروني",
+      "Create Employee": "إضافة موظف",
+      "Edit Employee": "تعديل موظف",
+      "Failed to load employee.": "فشل تحميل بيانات الموظف.",
     },
   },
 };

@@ -872,12 +872,13 @@ function PatientStatusBadge({ status, t }) {
   );
 }
 
-function AppointmentStatusBadge({ appointment, t }) {
-  // القيمة القادمة من السيرفر بفضل الـ appends التي أضفناها
-  const label = appointment.status_label || appointment.status;
-  const variant = appointment.status_color || "secondary";
-
-  return <span className={`badge badge-${variant}`}>{t(label)}</span>;
+function AppointmentStatusBadge({ status, t }) {
+  const value = String(status || "").toLowerCase();
+  let variant = "secondary";
+  if (value === "completed") variant = "success";
+  else if (value === "scheduled") variant = "warning";
+  else if (["cancelled", "no_show"].includes(value)) variant = "danger";
+  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
 }
 
 function RecordStatusBadge({ status, t }) {

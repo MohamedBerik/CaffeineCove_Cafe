@@ -11,6 +11,7 @@ export default function DoctorFormPage() {
 
   const isEdit = Boolean(id);
 
+  // ✅ أضفنا branch_id و password للحالة الأولية
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -20,13 +21,24 @@ export default function DoctorFormPage() {
     work_end: "",
     slot_minutes: "30",
     is_active: true,
+    password: "",
+    branch_id: "",
   });
 
+  const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // ✅ جلب قائمة الفروع
+    axios
+      .get("/branches")
+      .then((res) => {
+        setBranches(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch(() => setBranches([]));
+
     if (isEdit) {
       loadDoctor();
     }
@@ -46,6 +58,8 @@ export default function DoctorFormPage() {
         data?.is_active === true ||
         data?.is_active === 1 ||
         String(data?.is_active) === "1",
+      password: "", // لا نملأ كلمة المرور في التعديل
+      branch_id: data?.branch_id ? String(data.branch_id) : "",
     };
   };
 
@@ -95,6 +109,9 @@ export default function DoctorFormPage() {
         work_end: form.work_end || null,
         slot_minutes: Number(form.slot_minutes || 30),
         is_active: form.is_active ? 1 : 0,
+        // ✅ الحقول الجديدة
+        password: form.password || undefined,
+        branch_id: form.branch_id || undefined,
       };
 
       if (isEdit) {
@@ -244,6 +261,45 @@ export default function DoctorFormPage() {
                   onChange={handleChange}
                   placeholder={t("+1234567890")}
                 />
+              </div>
+
+              {/* Password */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-lock me-2"></i>
+                  {t("Password")}
+                  {!isEdit && <span className="required-star">*</span>}
+                </label>
+                <input
+                  type="password"
+                  className="form-control"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder={t("Min. 6 characters")}
+                  required={!isEdit}
+                />
+              </div>
+
+              {/* Branch */}
+              <div className="form-group">
+                <label className="form-label">
+                  <i className="fas fa-building me-2"></i>
+                  {t("Branch")}
+                </label>
+                <select
+                  className="form-select"
+                  name="branch_id"
+                  value={form.branch_id}
+                  onChange={handleChange}
+                >
+                  <option value="">{t("Select branch")}</option>
+                  {branches.map((branch) => (
+                    <option key={branch.id} value={branch.id}>
+                      {branch.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Work Start */}

@@ -73,24 +73,24 @@ function Register() {
             <div className="brand-icon">
               <i className="fas fa-tooth"></i>
             </div>
-            <h1>{t("Join Our Dental Family")}</h1>
+            <h1>{t("Start Managing Your Clinic")}</h1>
             <p>
               {t(
-                "Create an account to book appointments, view your dental records, and receive personalized care.",
+                "Create your clinic account to manage appointments, doctors, patients, invoices, and more.",
               )}
             </p>
             <div className="brand-features">
               <div className="feature">
                 <i className="fas fa-check-circle"></i>
-                <span>{t("Easy Appointment Booking")}</span>
+                <span>{t("Full Clinic Management")}</span>
               </div>
               <div className="feature">
                 <i className="fas fa-check-circle"></i>
-                <span>{t("Access Dental Records")}</span>
+                <span>{t("Multi-Branch Support")}</span>
               </div>
               <div className="feature">
                 <i className="fas fa-check-circle"></i>
-                <span>{t("Treatment Reminders")}</span>
+                <span>{t("Financial Reports")}</span>
               </div>
               <div className="feature">
                 <i className="fas fa-check-circle"></i>
@@ -104,8 +104,8 @@ function Register() {
         <div className="register-form-container">
           <div className="register-form-wrapper">
             <div className="form-header">
-              <h2>{t("Create Account")}</h2>
-              <p>{t("Sign up to get started with your dental care journey")}</p>
+              <h2>{t("Create Your Clinic")}</h2>
+              <p>{t("Get started with a 14-day free trial")}</p>
             </div>
 
             {error && (

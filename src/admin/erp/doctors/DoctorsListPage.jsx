@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../services/axios";
 import { useTranslation } from "react-i18next";
-import "../../DoctorsListPage.css";
+import "./DoctorsListPage.css";
 
 export default function DoctorsListPage() {
   const { t, i18n } = useTranslation();

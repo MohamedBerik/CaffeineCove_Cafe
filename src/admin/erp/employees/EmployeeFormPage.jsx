@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "../../../services/axios";
 import { useTranslation } from "react-i18next";
-import "./DoctorFormPage.css"; // يمكن إعادة استخدام نفس التنسيقات
+import "../../DoctorFormPage.css"; // يمكن إعادة استخدام نفس التنسيقات
 
 export default function EmployeeFormPage() {
   const { t, i18n } = useTranslation();

@@ -191,7 +191,7 @@ export default function CompanyDetails() {
         <div className="header-left">
           <button
             className="btn-back"
-            onClick={() => navigate("/saas/companies")}
+            onClick={() => navigate("/admin/companies")}
           >
             <i className="fas fa-arrow-left"></i>
           </button>
@@ -202,7 +202,7 @@ export default function CompanyDetails() {
           <StatusBadge status={company.status} t={t} />
         </div>
         <div className="header-actions">
-          <Link to={`/saas/companies/${id}/edit`} className="btn-edit">
+          <Link to={`/admin/companies/${id}/edit`} className="btn-edit">
             <i className="fas fa-edit"></i>
             {t("Edit")}
           </Link>

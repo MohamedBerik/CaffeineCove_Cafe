@@ -560,19 +560,7 @@ export default function PatientProfilePage() {
                       {formatAppointmentType(a.appointment_type, t)}
                     </td>
                     <td data-label={t("Status")}>
-                      {(() => {
-                        try {
-                          return (
-                            <AppointmentStatusBadge status={a.status} t={t} />
-                          );
-                        } catch (err) {
-                          console.error(
-                            "Error rendering appointment status badge:",
-                            err,
-                          );
-                          return <span style={{ color: "red" }}>Error</span>;
-                        }
-                      })()}
+                      <AppointmentStatusBadge status={a.status} t={t} />
                     </td>
                   </tr>
                 ))}
@@ -659,19 +647,7 @@ export default function PatientProfilePage() {
                         {r.procedure?.name || "-"}
                       </td>
                       <td data-label={t("Status")}>
-                        {(() => {
-                          try {
-                            return (
-                              <RecordStatusBadge status={r.status} t={t} />
-                            );
-                          } catch (err) {
-                            console.error(
-                              "Error rendering record status badge:",
-                              err,
-                            );
-                            return <span style={{ color: "red" }}>Error</span>;
-                          }
-                        })()}
+                        <RecordStatusBadge status={r.status} t={t} />
                       </td>
                       <td data-label={t("Actions")}>
                         <div className="action-group">
@@ -761,17 +737,7 @@ export default function PatientProfilePage() {
                       {formatCurrency(p.total_cost)}
                     </td>
                     <td data-label={t("Status")}>
-                      {(() => {
-                        try {
-                          return <PlanStatusBadge status={p.status} t={t} />;
-                        } catch (err) {
-                          console.error(
-                            "Error rendering plan status badge:",
-                            err,
-                          );
-                          return <span style={{ color: "red" }}>Error</span>;
-                        }
-                      })()}
+                      <PlanStatusBadge status={p.status} t={t} />
                     </td>
                   </tr>
                 ))}
@@ -808,17 +774,7 @@ export default function PatientProfilePage() {
                     </td>
                     <td data-label={t("Total")}>{formatCurrency(i.total)}</td>
                     <td data-label={t("Status")}>
-                      {(() => {
-                        try {
-                          return <InvoiceStatusBadge status={i.status} t={t} />;
-                        } catch (err) {
-                          console.error(
-                            "Error rendering invoice status badge:",
-                            err,
-                          );
-                          return <span style={{ color: "red" }}>Error</span>;
-                        }
-                      })()}
+                      <InvoiceStatusBadge status={i.status} t={t} />
                     </td>
                   </tr>
                 ))}

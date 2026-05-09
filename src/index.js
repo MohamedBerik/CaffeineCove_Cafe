@@ -74,6 +74,8 @@ import ProceduresListPage from "./admin/erp/procedures/ProceduresListPage";
 import ProcedureFormPage from "./admin/erp/procedures/ProcedureFormPage";
 import StartVisitPage from "./admin/erp/visits/StartVisitPage";
 import NotificationsPage from "./admin/erp/notifications/NotificationsPage";
+import EmployeeListPage from "./admin/erp/employees/EmployeeListPage";
+import EmployeeFormPage from "./admin/erp/employees/EmployeeFormPage";
 
 // ================= SaaS Routes =================
 import SaaSDashboard from "./admin/saas/SaaSDashboard";
@@ -216,6 +218,11 @@ createRoot(document.getElementById("root")).render(
                 path="doctors/:id/availability"
                 element={<DoctorAvailabilityPage />}
               />
+
+              <Route path="employees" element={<EmployeeListPage />} />
+              <Route path="employees/create" element={<EmployeeFormPage />} />
+              <Route path="employees/:id/edit" element={<EmployeeFormPage />} />
+
               <Route path="reports" element={<ReportsDashboardPage />} />
               <Route path="reports/revenue" element={<RevenueReportPage />} />
               <Route

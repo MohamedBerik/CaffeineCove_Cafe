@@ -141,7 +141,7 @@ const saasNavItems = [
     permission: "activity_logs.view",
   },
   {
-    to: "/admin/settings/saas",
+    to: "/admin/settings",
     labelKey: "Platform Settings",
     icon: "fas fa-cog",
     permission: "settings.manage",

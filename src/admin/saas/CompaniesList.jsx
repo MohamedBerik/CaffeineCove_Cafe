@@ -304,13 +304,13 @@ export default function CompaniesList() {
                           <i className="fas fa-pause-circle"></i>
                         </button>
                       )}
-                      <button
+                      {/* <button
                         className="btn-action delete"
                         onClick={() => handleDelete(company.id, company.name)}
                         title={t("Delete")}
                       >
                         <i className="fas fa-trash"></i>
-                      </button>
+                      </button> */}
                     </div>
                   </td>
                 </tr>

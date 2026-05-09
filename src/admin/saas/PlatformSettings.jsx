@@ -87,7 +87,7 @@ export default function PlatformSettings() {
 
   // ========================= Mutations =========================
   const saveMutation = useMutation({
-    mutationFn: (data) => api.post("/saas/settings", data),
+    mutationFn: (data) => api.put("/saas/settings", data),
     onSuccess: () => {
       queryClient.invalidateQueries(["platform-settings"]);
       toast.success(t("Settings saved successfully"));

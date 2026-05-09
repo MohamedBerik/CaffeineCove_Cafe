@@ -45,7 +45,10 @@ export default function EmployeeFormPage() {
     email: data?.email || "",
     phone: data?.phone || "",
     salary: data?.salary != null ? String(data.salary) : "",
-    branch_id: data?.branch_id ? String(data.branch_id) : "",
+    branch_id:
+      data?.branch_id !== null && data?.branch_id !== undefined
+        ? String(data.branch_id)
+        : "",
     is_active:
       data?.is_active === true ||
       data?.is_active === 1 ||

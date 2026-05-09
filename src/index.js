@@ -308,7 +308,7 @@ createRoot(document.getElementById("root")).render(
             </Route>
             {/* ================= Platform Settings Routes ================= */}
             <Route
-              path="/admin/settings"
+              path="/admin/settings/saas"
               element={
                 <AdminRoute>
                   <ERPDashboard />

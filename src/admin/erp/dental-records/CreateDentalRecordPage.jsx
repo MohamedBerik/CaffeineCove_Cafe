@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "../../../services/axios";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../../context/AuthContext";
 import "./CreateDentalRecordPage";
 
 export default function CreateDentalRecordPage() {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -43,17 +45,41 @@ export default function CreateDentalRecordPage() {
       setLoadingRefs(true);
       setError("");
 
-      const [patientsRes, proceduresRes, doctorsRes] = await Promise.all([
+      // إذا كان المستخدم طبيبًا، نعين doctor_id من حسابه مباشرة ولا نطلب قائمة الأطباء
+      let doctorRows = [];
+      if (user?.role === "doctor") {
+        try {
+          const doctorRes = await axios.get(`/erp/doctors/by-user/${user.id}`);
+          const doctorData = doctorRes.data?.data || doctorRes.data;
+          if (doctorData) {
+            doctorRows = [doctorData];
+            // تعيين الطبيب تلقائياً في النموذج إذا لم يكن محددًا مسبقًا
+            if (!form.doctor_id && doctorData.id) {
+              setForm((prev) => ({
+                ...prev,
+                doctor_id: String(doctorData.id),
+              }));
+            }
+          }
+        } catch (err) {
+          console.warn("Could not load own doctor record:", err);
+        }
+      } else {
+        // لغير الأطباء، نطلب القائمة كالمعتاد
+        const doctorsRes = await axios.get("/erp/doctors");
+        const doctorsPayload = doctorsRes.data || {};
+        doctorRows = Array.isArray(doctorsPayload.data)
+          ? doctorsPayload.data
+          : doctorsPayload.data?.data || [];
+      }
+
+      const [patientsRes, proceduresRes] = await Promise.all([
         axios.get("/erp/customers"),
-        axios.get("/erp/procedures", {
-          params: { is_active: true },
-        }),
-        axios.get("/erp/doctors"),
+        axios.get("/erp/procedures", { params: { is_active: true } }),
       ]);
 
       const patientsPayload = patientsRes.data || {};
       const proceduresPayload = proceduresRes.data || {};
-      const doctorsPayload = doctorsRes.data || {};
 
       const patientRows = Array.isArray(patientsPayload.data)
         ? patientsPayload.data
@@ -62,10 +88,6 @@ export default function CreateDentalRecordPage() {
       const procedureRowsRaw = Array.isArray(proceduresPayload.data)
         ? proceduresPayload.data
         : proceduresPayload.data?.data || [];
-
-      const doctorRows = Array.isArray(doctorsPayload.data)
-        ? doctorsPayload.data
-        : doctorsPayload.data?.data || [];
 
       const activeProcedureRows = procedureRowsRaw.filter(
         (p) => Number(p.is_active) === 1 || p.is_active === true,
@@ -315,27 +337,29 @@ export default function CreateDentalRecordPage() {
                 </select>
               </div>
 
-              {/* Doctor Selection */}
-              <div className="form-group">
-                <label className="form-label">
-                  <i className="fas fa-user-md me-2"></i>
-                  {t("Doctor")}
-                </label>
-                <select
-                  className="form-select"
-                  name="doctor_id"
-                  value={form.doctor_id}
-                  onChange={handleChange}
-                  disabled={Boolean(createdRecord)}
-                >
-                  <option value="">{t("Select doctor")}</option>
-                  {doctors.map((doctor) => (
-                    <option key={doctor.id} value={doctor.id}>
-                      {doctor.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {/* Doctor Selection - يظهر فقط لغير الأطباء */}
+              {user?.role !== "doctor" && (
+                <div className="form-group">
+                  <label className="form-label">
+                    <i className="fas fa-user-md me-2"></i>
+                    {t("Doctor")}
+                  </label>
+                  <select
+                    className="form-select"
+                    name="doctor_id"
+                    value={form.doctor_id}
+                    onChange={handleChange}
+                    disabled={Boolean(createdRecord)}
+                  >
+                    <option value="">{t("Select doctor")}</option>
+                    {doctors.map((doctor) => (
+                      <option key={doctor.id} value={doctor.id}>
+                        {doctor.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               {/* Procedure Selection */}
               <div className="form-group">

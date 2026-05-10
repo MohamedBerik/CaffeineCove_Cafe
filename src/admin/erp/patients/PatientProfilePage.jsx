@@ -872,13 +872,35 @@ function PatientStatusBadge({ status, t }) {
   );
 }
 
+// function AppointmentStatusBadge({ status, t }) {
+//   const value = String(status || "").toLowerCase();
+//   let variant = "secondary";
+//   if (value === "completed") variant = "success";
+//   else if (value === "scheduled") variant = "warning";
+//   else if (["cancelled", "no_show"].includes(value)) variant = "danger";
+//   return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
+// }
+
 function AppointmentStatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
   let variant = "secondary";
-  if (value === "completed") variant = "success";
-  else if (value === "scheduled") variant = "warning";
-  else if (["cancelled", "no_show"].includes(value)) variant = "danger";
-  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
+  let label = status || "-";
+
+  if (value === "completed") {
+    variant = "success";
+    label = t("Completed");
+  } else if (value === "cancelled") {
+    variant = "danger";
+    label = t("Cancelled");
+  } else if (value === "no_show") {
+    variant = "danger";
+    label = t("No Show");
+  } else if (value === "scheduled") {
+    variant = "warning";
+    label = t("Scheduled");
+  }
+
+  return <span className={`status-badge status-${variant}`}>{label}</span>;
 }
 
 function RecordStatusBadge({ status, t }) {

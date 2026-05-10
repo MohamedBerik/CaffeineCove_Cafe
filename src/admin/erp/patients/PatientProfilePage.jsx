@@ -54,7 +54,6 @@ export default function PatientProfilePage() {
       setConvertSuccess("");
 
       const res = await axios.get(`/erp/customers/${id}/profile`);
-      console.log("full api response:", res.data);
       setData(res.data?.data || null);
     } catch (err) {
       setError(

@@ -2766,9 +2766,6 @@ const resources = {
       "Create Employee": "Create Employee",
       "Edit Employee": "Edit Employee",
       "Failed to load employee.": "Failed to load employee.",
-
-      Active: "Active",
-      Inactive: "Inactive",
     },
   },
   ar: {

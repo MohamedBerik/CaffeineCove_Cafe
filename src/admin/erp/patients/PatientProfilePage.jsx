@@ -448,8 +448,8 @@ export default function PatientProfilePage() {
           <InfoItem label={t("Email")} value={patient.email || "-"} />
           <InfoItem label={t("Phone")} value={patient.phone || "-"} />
           <InfoItem
-            label={t("Status")}
-            value={<PatientStatusBadge status={patient.status} t={t} />}
+            label="Status"
+            value={<PatientStatusBadge status={patient.status} />}
           />
           <InfoItem
             label={t("Created")}
@@ -860,16 +860,20 @@ function formatAppointmentType(value, t) {
 }
 
 // Badge Components
-function PatientStatusBadge({ status, t }) {
+function PatientStatusBadge({ status }) {
   const value = String(status || "").toLowerCase();
   let variant = "secondary";
-  if (["1", "active", "enabled"].includes(value)) variant = "success";
-  else if (["0", "inactive", "disabled"].includes(value)) variant = "danger";
-  return (
-    <span className={`badge badge-${variant}`}>
-      {t(value === "1" ? "Active" : value === "0" ? "Inactive" : status) || "-"}
-    </span>
-  );
+  let label = value;
+
+  if (value === "1" || value === "active") {
+    variant = "success";
+    label = "Active";
+  } else if (value === "0" || value === "inactive") {
+    variant = "danger";
+    label = "Inactive";
+  }
+
+  return <span className={`badge badge-${variant}`}>{label || "-"}</span>;
 }
 
 function AppointmentStatusBadge({ status, t }) {

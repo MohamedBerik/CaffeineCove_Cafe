@@ -449,7 +449,7 @@ export default function PatientProfilePage() {
           <InfoItem label={t("Phone")} value={patient.phone || "-"} />
           <InfoItem
             label={t("Status")}
-            value={<PatientStatusBadge status={patient.status} t={t} />}
+            value={<PatientStatusBadge status={customer.status} t={t} />}
           />
           <InfoItem
             label={t("Created")}
@@ -861,36 +861,15 @@ function formatAppointmentType(value, t) {
 
 // Badge Components
 function PatientStatusBadge({ status, t }) {
-  // تحويل القيمة لنص لضمان المقارنة الصحيحة سواء كانت رقم أو نص
-  const value = String(status !== undefined && status !== null ? status : "")
-    .toLowerCase()
-    .trim();
-
+  const value = String(status || "").toLowerCase();
   let variant = "secondary";
-  let label = status; // القيمة الافتراضية هي النص القادم من الـ API
-
-  // 1. التعامل مع الحالات (الأرقام والنصوص)
-  if (
-    ["1", "active", "enabled", "success", "completed", "paid"].includes(value)
-  ) {
-    variant = "success";
-    label = t("Active"); // إذا كانت 1 أو active نعرض كلمة "نشط" مترجمة
-  } else if (
-    ["0", "inactive", "disabled", "danger", "cancelled", "unpaid"].includes(
-      value,
-    )
-  ) {
-    variant = "danger";
-    label = t("Inactive"); // إذا كانت 0 أو inactive نعرض كلمة "غير نشط" مترجمة
-  } else if (["scheduled", "pending", "waiting", "warning"].includes(value)) {
-    variant = "warning";
-    label = t(status); // نترجم الكلمة نفسها (مثل "مجدول")
-  }
-
-  // 2. صمام أمان في حال كانت القيمة فارغة
-  if (!value) return <span className="badge badge-secondary">-</span>;
-
-  return <span className={`badge badge-${variant}`}>{label || status}</span>;
+  if (["1", "active", "enabled"].includes(value)) variant = "success";
+  else if (["0", "inactive", "disabled"].includes(value)) variant = "danger";
+  return (
+    <span className={`badge badge-${variant}`}>
+      {t(value === "1" ? "Active" : value === "0" ? "Inactive" : status) || "-"}
+    </span>
+  );
 }
 
 function AppointmentStatusBadge({ status, t }) {

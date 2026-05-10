@@ -16,6 +16,31 @@ export default function PatientProfilePage() {
   const [error, setError] = useState("");
   const [selectedTooth, setSelectedTooth] = useState(null);
 
+  const getRecordStatusColor = (status) => {
+    const map = {
+      completed: "green",
+      in_progress: "orange",
+      planned: "blue",
+      cancelled: "red",
+    };
+    return map[status] || "gray";
+  };
+
+  const getPlanStatusColor = (status) => {
+    const map = { active: "green", completed: "blue", cancelled: "red" };
+    return map[status] || "gray";
+  };
+
+  const getInvoiceStatusColor = (status) => {
+    const map = {
+      paid: "green",
+      partially_paid: "orange",
+      unpaid: "red",
+      cancelled: "red",
+    };
+    return map[status] || "gray";
+  };
+
   const [recordForm, setRecordForm] = useState({
     tooth_number: "",
     surface: "",
@@ -740,7 +765,10 @@ export default function PatientProfilePage() {
                       {formatCurrency(p.total_cost)}
                     </td>
                     <td data-label={t("Status")}>
-                      <PlanStatusBadge status={p.status} t={t} />
+                      <PlanStatusBadge
+                        label={p.status}
+                        color={getPlanStatusColor(p.status)}
+                      />{" "}
                     </td>
                   </tr>
                 ))}
@@ -777,7 +805,10 @@ export default function PatientProfilePage() {
                     </td>
                     <td data-label={t("Total")}>{formatCurrency(i.total)}</td>
                     <td data-label={t("Status")}>
-                      <InvoiceStatusBadge status={i.status} t={t} />
+                      <InvoiceStatusBadge
+                        label={i.status}
+                        color={getInvoiceStatusColor(i.status)}
+                      />{" "}
                     </td>
                   </tr>
                 ))}
@@ -1295,7 +1326,10 @@ function ToothDetails({
                         {r.procedure?.name || "-"}
                       </td>
                       <td data-label={t("Status")}>
-                        <RecordStatusBadge status={r.status} t={t} />
+                        <RecordStatusBadge
+                          label={r.status}
+                          color={getRecordStatusColor(r.status)}
+                        />{" "}
                       </td>
                       <td data-label={t("Notes")}>{r.notes || "-"}</td>
                       <td data-label={t("Actions")}>

@@ -449,7 +449,7 @@ export default function PatientProfilePage() {
           <InfoItem label={t("Phone")} value={patient.phone || "-"} />
           <InfoItem
             label={t("Status")}
-            value={<PatientStatusBadge status={customer.status} t={t} />}
+            value={<PatientsStatusBadge status={patient.status} t={t} />}
           />
           <InfoItem
             label={t("Created")}
@@ -860,7 +860,7 @@ function formatAppointmentType(value, t) {
 }
 
 // Badge Components
-function PatientStatusBadge({ status, t }) {
+function PatientsStatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
   let variant = "secondary";
   if (["1", "active", "enabled"].includes(value)) variant = "success";

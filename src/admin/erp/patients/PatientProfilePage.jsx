@@ -860,17 +860,16 @@ function formatAppointmentType(value, t) {
 }
 
 // Badge Components
-// تعديل مقترح لعرض الحالة حتى لو لم تكن 0 أو 1
 function PatientStatusBadge({ status, t }) {
-  if (!status) return <span>-</span>; // إذا كانت القيمة فارغة تماماً
-
-  const value = String(status).toLowerCase();
+  const value = String(status || "").toLowerCase();
   let variant = "secondary";
-
-  if (["1", "active"].includes(value)) variant = "success";
-  else if (["0", "inactive"].includes(value)) variant = "danger";
-
-  return <span className={`badge badge-${variant}`}>{t(status)}</span>;
+  if (["1", "active", "enabled"].includes(value)) variant = "success";
+  else if (["0", "inactive", "disabled"].includes(value)) variant = "danger";
+  return (
+    <span className={`badge badge-${variant}`}>
+      {t(value === "1" ? "Active" : value === "0" ? "Inactive" : status) || "-"}
+    </span>
+  );
 }
 
 function AppointmentStatusBadge({ status, t }) {
@@ -882,14 +881,26 @@ function AppointmentStatusBadge({ status, t }) {
   return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
 }
 
+// مثال لمكون الحالة العام بعد الإصلاح
 function RecordStatusBadge({ status, t }) {
-  const value = String(status || "").toLowerCase();
+  if (!status) return <span>-</span>;
+
+  const value = String(status).toLowerCase();
   let variant = "secondary";
-  if (value === "completed") variant = "success";
-  else if (value === "planned") variant = "warning";
+
+  if (value === "completed" || value === "active") variant = "success";
+  else if (value === "planned" || value === "scheduled") variant = "warning";
   else if (value === "in_progress") variant = "info";
-  else if (value === "cancelled") variant = "danger";
-  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
+  else if (["cancelled", "no_show", "danger"].includes(value))
+    variant = "danger";
+
+  // الحل هنا: إذا فشلت الترجمة، اعرض النص الأصلي
+  const translated = t(status);
+  return (
+    <span className={`badge badge-${variant}`}>
+      {translated && translated !== status ? translated : status}
+    </span>
+  );
 }
 
 function PlanStatusBadge({ status, t }) {

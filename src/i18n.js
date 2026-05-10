@@ -463,7 +463,6 @@ const resources = {
       Consultation: "Consultation",
       Treatment: "Treatment",
       "In Progress": "In Progress",
-      Active: "Active",
 
       // ==================== Dental Records   ====================
       "Dental Records": "Dental Records",
@@ -567,7 +566,6 @@ const resources = {
       "Failed to load treatment plans.": "Failed to load treatment plans.",
       Completed: "Completed",
       Cancelled: "Cancelled",
-      Active: "Active",
 
       // ==================== Treatment Plan Details  ====================
       "Treatment Plan Details": "Treatment Plan Details",
@@ -673,7 +671,6 @@ const resources = {
       "In Progress": "In Progress",
       Cancelled: "Cancelled",
       "Not Started": "Not Started",
-      Active: "Active",
       Planned: "Planned",
       "Partially Paid": "Partially Paid",
       Unpaid: "Unpaid",

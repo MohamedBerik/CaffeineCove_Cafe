@@ -1199,6 +1199,7 @@ function ToothDetails({
   convertingRecordId,
   convertError,
   convertSuccess,
+  getRecordStatusColor,
   getRecordPrimaryAction,
   getRecordMeta,
   t,

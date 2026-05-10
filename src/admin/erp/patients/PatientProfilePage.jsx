@@ -421,6 +421,20 @@ export default function PatientProfilePage() {
         </div>
 
         <div className="header-actions">
+          <Link
+            to={`/admin/erp/patients/${id}/timeline`}
+            className="btn btn-outline-info"
+          >
+            <i className="fas fa-history me-2"></i>
+            {t("Timeline")}
+          </Link>
+          <Link
+            to={`/admin/erp/patients/${id}/statement`}
+            className="btn btn-outline-success"
+          >
+            <i className="fas fa-file-invoice me-2"></i>
+            {t("Statement")}
+          </Link>
           <button className="btn btn-primary" onClick={loadProfile}>
             <i className="fas fa-sync-alt me-2"></i>
             {t("Refresh")}
@@ -435,7 +449,7 @@ export default function PatientProfilePage() {
           <InfoItem label={t("Phone")} value={patient.phone || "-"} />
           <InfoItem
             label={t("Status")}
-            value={<PatientStatusBadge status={patient.status} />}
+            value={<PatientStatusBadge status={patient.status} t={t} />}
           />
           <InfoItem
             label={t("Created")}
@@ -470,9 +484,51 @@ export default function PatientProfilePage() {
           icon="fas fa-file-invoice"
           color="secondary"
         />
+        <KpiCard
+          title={t("Invoices Total")}
+          value={formatCurrency(invoicesTotal)}
+          icon="fas fa-chart-line"
+          color="primary"
+          isMoney
+        />
+        <KpiCard
+          title={t("Direct Paid")}
+          value={formatCurrency(invoicesDirectPaid)}
+          icon="fas fa-money-bill-wave"
+          color="success"
+          isMoney
+        />
+        <KpiCard
+          title={t("Credit Applied")}
+          value={formatCurrency(invoicesCreditApplied)}
+          icon="fas fa-wallet"
+          color="secondary"
+          isMoney
+        />
+        <KpiCard
+          title={t("Net Paid")}
+          value={formatCurrency(invoicesPaid)}
+          icon="fas fa-check-circle"
+          color="info"
+          isMoney
+        />
+        <KpiCard
+          title={t("Remaining")}
+          value={formatCurrency(invoicesRemaining)}
+          icon="fas fa-hourglass-half"
+          color="warning"
+          isMoney
+        />
+        <KpiCard
+          title={t("Customer Credit Balance")}
+          value={formatCurrency(customerCreditBalance)}
+          icon="fas fa-credit-card"
+          color="secondary"
+          isMoney
+        />
       </div>
 
-      {/* Appointments Section – مع الشارات الجديدة بدون t */}
+      {/* Appointments Section */}
       <Section title={t("Appointments")} icon="fas fa-calendar-alt">
         {sortedAppointments.length === 0 ? (
           <Empty text={t("No appointments")} />
@@ -504,7 +560,7 @@ export default function PatientProfilePage() {
                       {formatAppointmentType(a.appointment_type, t)}
                     </td>
                     <td data-label={t("Status")}>
-                      <AppointmentStatusBadge status={a.status} />
+                      <AppointmentStatusBadge status={a.status} t={t} />
                     </td>
                   </tr>
                 ))}
@@ -514,12 +570,224 @@ export default function PatientProfilePage() {
         )}
       </Section>
 
-      {/* قم بتعليق جميع الأقسام الأخرى مؤقتًا */}
-      {/* <Section title={t("Dental Chart")} ...> ... </Section> */}
-      {/* <Section title={t("Dental Records")} ...> ... </Section> */}
-      {/* <Section title={t("Treatment Plans")} ...> ... </Section> */}
-      {/* <Section title={t("Invoices")} ...> ... </Section> */}
-      {/* <Section title={t("Radiology")} ...> ... </Section> */}
+      {/* Dental Chart */}
+      <Section title={t("Dental Chart")} icon="fas fa-tooth">
+        <DentalChart
+          toothSurfacesMap={toothSurfacesMap}
+          selectedTooth={selectedTooth}
+          onSelectTooth={setSelectedTooth}
+          t={t}
+        />
+      </Section>
+
+      {/* Tooth Details */}
+      {selectedTooth && (
+        <Section
+          title={`${t("Tooth")} #${selectedTooth} ${t("Details")}`}
+          icon="fas fa-teeth"
+        >
+          <ToothDetails
+            tooth={selectedTooth}
+            records={selectedToothRecords}
+            procedures={procedures}
+            treatmentPlans={treatmentPlans}
+            recordForm={recordForm}
+            editingRecordId={editingRecordId}
+            onRecordChange={handleRecordChange}
+            onSubmitRecord={saveDentalRecord}
+            onResetForm={() => resetRecordForm(String(selectedTooth))}
+            onStartEdit={startEditRecord}
+            onDelete={deleteDentalRecord}
+            deletingRecordId={deletingRecordId}
+            savingRecord={savingRecord}
+            recordError={recordError}
+            recordSuccess={recordSuccess}
+            convertRecordId={convertRecordId}
+            convertForm={convertForm}
+            onConvertChange={handleConvertChange}
+            onOpenConvert={openConvertForm}
+            onCloseConvert={closeConvertForm}
+            onSubmitConvert={submitConvertRecord}
+            convertingRecordId={convertingRecordId}
+            convertError={convertError}
+            convertSuccess={convertSuccess}
+            getRecordPrimaryAction={getRecordPrimaryAction}
+            getRecordMeta={getRecordMeta}
+            t={t}
+            formatCurrency={formatCurrency}
+          />
+        </Section>
+      )}
+
+      {/* Dental Records Table */}
+      <Section title={t("Dental Records")} icon="fas fa-list">
+        {dentalRecords.length === 0 ? (
+          <Empty text={t("No dental records")} />
+        ) : (
+          <div className="table-responsive">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>{t("Tooth")}</th>
+                  <th>{t("Surface")}</th>
+                  <th>{t("Procedure")}</th>
+                  <th>{t("Status")}</th>
+                  <th>{t("Actions")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dentalRecords.map((r) => {
+                  const isConvertOpen = convertRecordId === r.id;
+                  const primaryAction = getRecordPrimaryAction(r);
+                  return (
+                    <tr key={r.id}>
+                      <td data-label={t("Tooth")}>{r.tooth_number || "-"}</td>
+                      <td data-label={t("Surface")}>{r.surface || "-"}</td>
+                      <td data-label={t("Procedure")}>
+                        {r.procedure?.name || "-"}
+                      </td>
+                      <td data-label={t("Status")}>
+                        <RecordStatusBadge status={r.status} t={t} />
+                      </td>
+                      <td data-label={t("Actions")}>
+                        <div className="action-group">
+                          {primaryAction.key === "convert" ? (
+                            <button
+                              className={primaryAction.className}
+                              onClick={() => openConvertForm(r)}
+                            >
+                              {primaryAction.label}
+                            </button>
+                          ) : (
+                            <Link
+                              to={primaryAction.to}
+                              className={primaryAction.className}
+                            >
+                              {primaryAction.label}
+                            </Link>
+                          )}
+                          <button
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={() => {
+                              setSelectedTooth(String(r.tooth_number || ""));
+                              startEditRecord(r);
+                            }}
+                          >
+                            {t("Edit")}
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => deleteDentalRecord(r.id)}
+                            disabled={deletingRecordId === r.id}
+                          >
+                            {deletingRecordId === r.id
+                              ? t("Deleting...")
+                              : t("Delete")}
+                          </button>
+                        </div>
+                        <div className="record-meta">{getRecordMeta(r)}</div>
+                        {isConvertOpen && primaryAction.key === "convert" && (
+                          <ConvertForm
+                            convertForm={convertForm}
+                            treatmentPlans={treatmentPlans}
+                            onConvertChange={handleConvertChange}
+                            onSubmitConvert={() => submitConvertRecord(r.id)}
+                            onCloseConvert={closeConvertForm}
+                            convertingRecordId={convertingRecordId}
+                            recordId={r.id}
+                            t={t}
+                          />
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Section>
+
+      {/* Treatment Plans */}
+      <Section title={t("Treatment Plans")} icon="fas fa-notes-medical">
+        {treatmentPlans.length === 0 ? (
+          <Empty text={t("No treatment plans")} />
+        ) : (
+          <div className="table-responsive">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>{t("Title")}</th>
+                  <th>{t("Total")}</th>
+                  <th>{t("Status")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {treatmentPlans.map((p) => (
+                  <tr key={p.id}>
+                    <td data-label={t("Title")}>
+                      <Link
+                        to={`/admin/erp/treatment-plans/${p.id}`}
+                        className="data-link"
+                      >
+                        {p.title || "-"}
+                      </Link>
+                    </td>
+                    <td data-label={t("Total")}>
+                      {formatCurrency(p.total_cost)}
+                    </td>
+                    <td data-label={t("Status")}>
+                      <PlanStatusBadge status={p.status} t={t} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Section>
+
+      {/* Invoices */}
+      <Section title={t("Invoices")} icon="fas fa-file-invoice">
+        {sortedInvoices.length === 0 ? (
+          <Empty text={t("No invoices")} />
+        ) : (
+          <div className="table-responsive">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>{t("Number")}</th>
+                  <th>{t("Total")}</th>
+                  <th>{t("Status")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedInvoices.map((i) => (
+                  <tr key={i.id}>
+                    <td data-label={t("Number")}>
+                      <Link
+                        to={`/admin/erp/invoices/${i.id}`}
+                        className="data-link"
+                      >
+                        {i.number}
+                      </Link>
+                    </td>
+                    <td data-label={t("Total")}>{formatCurrency(i.total)}</td>
+                    <td data-label={t("Status")}>
+                      <InvoiceStatusBadge status={i.status} t={t} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Section>
+
+      {/* Radiology Section - New */}
+      <Section title={t("Radiology")} icon="fas fa-x-ray">
+        <RadiologyTabs patientId={id} />
+      </Section>
     </div>
   );
 }

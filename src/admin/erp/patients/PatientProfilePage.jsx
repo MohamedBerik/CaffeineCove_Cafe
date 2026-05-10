@@ -11,6 +11,36 @@ export default function PatientProfilePage() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
 
+  const StatusBadge = ({ status, t }) => {
+    // 1. إذا كانت الحالة فارغة تماماً، نعرض شرطة
+    if (status === undefined || status === null || status === "") {
+      return <span className="badge badge-secondary">-</span>;
+    }
+
+    const value = String(status).toLowerCase();
+    let variant = "secondary";
+
+    // 2. تحديد اللون بناءً على الكلمة (يدعم الأرقام والنصوص)
+    if (["1", "active", "completed", "paid"].includes(value)) {
+      variant = "success";
+    } else if (["scheduled", "planned", "pending"].includes(value)) {
+      variant = "warning";
+    } else if (
+      ["0", "inactive", "cancelled", "danger", "unpaid"].includes(value)
+    ) {
+      variant = "danger";
+    } else if (["in_progress", "partial"].includes(value)) {
+      variant = "info";
+    }
+
+    // 3. محاولة الترجمة، وإذا فشلت أو أعادت نصاً فارغاً، نعرض القيمة الأصلية
+    const translatedText = t(status);
+    const displayText =
+      translatedText && translatedText !== "" ? translatedText : status;
+
+    return <span className={`badge badge-${variant}`}>{displayText}</span>;
+  };
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -560,7 +590,7 @@ export default function PatientProfilePage() {
                       {formatAppointmentType(a.appointment_type, t)}
                     </td>
                     <td data-label={t("Status")}>
-                      <AppointmentStatusBadge status={a.status} t={t} />
+                      <StatusBadge status={appointment.status} t={t} />
                     </td>
                   </tr>
                 ))}
@@ -881,26 +911,14 @@ function AppointmentStatusBadge({ status, t }) {
   return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
 }
 
-// مثال لمكون الحالة العام بعد الإصلاح
 function RecordStatusBadge({ status, t }) {
-  if (!status) return <span>-</span>;
-
-  const value = String(status).toLowerCase();
+  const value = String(status || "").toLowerCase();
   let variant = "secondary";
-
-  if (value === "completed" || value === "active") variant = "success";
-  else if (value === "planned" || value === "scheduled") variant = "warning";
+  if (value === "completed") variant = "success";
+  else if (value === "planned") variant = "warning";
   else if (value === "in_progress") variant = "info";
-  else if (["cancelled", "no_show", "danger"].includes(value))
-    variant = "danger";
-
-  // الحل هنا: إذا فشلت الترجمة، اعرض النص الأصلي
-  const translated = t(status);
-  return (
-    <span className={`badge badge-${variant}`}>
-      {translated && translated !== status ? translated : status}
-    </span>
-  );
+  else if (value === "cancelled") variant = "danger";
+  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
 }
 
 function PlanStatusBadge({ status, t }) {

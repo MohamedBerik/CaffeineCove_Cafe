@@ -901,29 +901,64 @@ function AppointmentStatusBadge({ status, t }) {
 function RecordStatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
   let variant = "secondary";
-  if (value === "completed") variant = "success";
-  else if (value === "planned") variant = "warning";
-  else if (value === "in_progress") variant = "info";
-  else if (value === "cancelled") variant = "danger";
-  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
+  let label = status || "-";
+
+  if (value === "completed") {
+    variant = "success";
+    label = t("Completed");
+  } else if (value === "planned") {
+    variant = "warning";
+    label = t("Planned");
+  } else if (value === "in_progress") {
+    variant = "info";
+    label = t("In Progress");
+  } else if (value === "cancelled") {
+    variant = "danger";
+    label = t("Cancelled");
+  }
+
+  return <span className={`status-badge status-${variant}`}>{label}</span>;
 }
 
 function PlanStatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
   let variant = "secondary";
-  if (value === "active") variant = "warning";
-  else if (value === "completed") variant = "success";
-  else if (value === "cancelled") variant = "danger";
-  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
+  let label = status || "-";
+
+  if (value === "active") {
+    variant = "warning";
+    label = t("Active");
+  } else if (value === "completed") {
+    variant = "success";
+    label = t("Completed");
+  } else if (value === "cancelled") {
+    variant = "danger";
+    label = t("Cancelled");
+  }
+
+  return <span className={`status-badge status-${variant}`}>{label}</span>;
 }
 
 function InvoiceStatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
   let variant = "secondary";
-  if (value === "paid") variant = "success";
-  else if (value === "partially_paid") variant = "warning";
-  else if (["unpaid", "cancelled"].includes(value)) variant = "danger";
-  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
+  let label = status || "-";
+
+  if (value === "paid") {
+    variant = "success";
+    label = t("Paid");
+  } else if (value === "partially_paid") {
+    variant = "warning";
+    label = t("Partially Paid");
+  } else if (value === "unpaid") {
+    variant = "danger";
+    label = t("Unpaid");
+  } else if (value === "cancelled") {
+    variant = "danger";
+    label = t("Cancelled");
+  }
+
+  return <span className={`status-badge status-${variant}`}>{label}</span>;
 }
 
 // DentalChart Component

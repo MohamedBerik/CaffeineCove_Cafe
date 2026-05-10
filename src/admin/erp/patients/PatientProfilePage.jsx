@@ -560,7 +560,10 @@ export default function PatientProfilePage() {
                       {formatAppointmentType(a.appointment_type, t)}
                     </td>
                     <td data-label={t("Status")}>
-                      <AppointmentStatusBadge status={a.status} t={t} />
+                      <AppointmentStatusBadge
+                        label={a.status_label || a.status}
+                        color={a.status_color || "gray"}
+                      />{" "}
                     </td>
                   </tr>
                 ))}

@@ -11,36 +11,6 @@ export default function PatientProfilePage() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
 
-  const StatusBadge = ({ status, t }) => {
-    // 1. إذا كانت الحالة فارغة تماماً، نعرض شرطة
-    if (status === undefined || status === null || status === "") {
-      return <span className="badge badge-secondary">-</span>;
-    }
-
-    const value = String(status).toLowerCase();
-    let variant = "secondary";
-
-    // 2. تحديد اللون بناءً على الكلمة (يدعم الأرقام والنصوص)
-    if (["1", "active", "completed", "paid"].includes(value)) {
-      variant = "success";
-    } else if (["scheduled", "planned", "pending"].includes(value)) {
-      variant = "warning";
-    } else if (
-      ["0", "inactive", "cancelled", "danger", "unpaid"].includes(value)
-    ) {
-      variant = "danger";
-    } else if (["in_progress", "partial"].includes(value)) {
-      variant = "info";
-    }
-
-    // 3. محاولة الترجمة، وإذا فشلت أو أعادت نصاً فارغاً، نعرض القيمة الأصلية
-    const translatedText = t(status);
-    const displayText =
-      translatedText && translatedText !== "" ? translatedText : status;
-
-    return <span className={`badge badge-${variant}`}>{displayText}</span>;
-  };
-
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -84,6 +54,7 @@ export default function PatientProfilePage() {
       setConvertSuccess("");
 
       const res = await axios.get(`/erp/customers/${id}/profile`);
+      console.log("full api response:", res.data);
       setData(res.data?.data || null);
     } catch (err) {
       setError(
@@ -590,7 +561,7 @@ export default function PatientProfilePage() {
                       {formatAppointmentType(a.appointment_type, t)}
                     </td>
                     <td data-label={t("Status")}>
-                      <StatusBadge status={a.status} t={t} />
+                      <AppointmentStatusBadge status={a.status} t={t} />
                     </td>
                   </tr>
                 ))}

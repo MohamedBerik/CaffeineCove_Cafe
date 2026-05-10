@@ -447,10 +447,10 @@ export default function PatientProfilePage() {
         <div className="info-grid">
           <InfoItem label={t("Email")} value={patient.email || "-"} />
           <InfoItem label={t("Phone")} value={patient.phone || "-"} />
-          <InfoItem
+          {/* <InfoItem
             label={t("Status")}
             value={<PatientStatusBadge status={patient.status} t={t} />}
-          />
+          /> */}
           <InfoItem
             label={t("Created")}
             value={formatDate(patient.created_at)}
@@ -647,7 +647,7 @@ export default function PatientProfilePage() {
                         {r.procedure?.name || "-"}
                       </td>
                       <td data-label={t("Status")}>
-                        <RecordStatusBadge status={r.status || "-"} t={t} />
+                        <RecordStatusBadge status={r.status} t={t} />
                       </td>
                       <td data-label={t("Actions")}>
                         <div className="action-group">

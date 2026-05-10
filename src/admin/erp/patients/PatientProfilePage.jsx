@@ -448,7 +448,7 @@ export default function PatientProfilePage() {
           <InfoItem label={t("Email")} value={patient.email || "-"} />
           <InfoItem label={t("Phone")} value={patient.phone || "-"} />
           <InfoItem
-            label="Status"
+            label={t("Status")}
             value={<PatientStatusBadge status={patient.status} />}
           />
           <InfoItem
@@ -560,7 +560,7 @@ export default function PatientProfilePage() {
                       {formatAppointmentType(a.appointment_type, t)}
                     </td>
                     <td data-label={t("Status")}>
-                      <AppointmentStatusBadge status={a.status} t={t} />
+                      <AppointmentStatusBadge status={a.status} />
                     </td>
                   </tr>
                 ))}
@@ -647,7 +647,7 @@ export default function PatientProfilePage() {
                         {r.procedure?.name || "-"}
                       </td>
                       <td data-label={t("Status")}>
-                        <RecordStatusBadge status={r.status} t={t} />
+                        <RecordStatusBadge status={r.status} />
                       </td>
                       <td data-label={t("Actions")}>
                         <div className="action-group">
@@ -737,7 +737,7 @@ export default function PatientProfilePage() {
                       {formatCurrency(p.total_cost)}
                     </td>
                     <td data-label={t("Status")}>
-                      <PlanStatusBadge status={p.status} t={t} />
+                      <PlanStatusBadge status={p.status} />
                     </td>
                   </tr>
                 ))}
@@ -774,7 +774,7 @@ export default function PatientProfilePage() {
                     </td>
                     <td data-label={t("Total")}>{formatCurrency(i.total)}</td>
                     <td data-label={t("Status")}>
-                      <InvoiceStatusBadge status={i.status} t={t} />
+                      <InvoiceStatusBadge status={i.status} />
                     </td>
                   </tr>
                 ))}
@@ -860,57 +860,56 @@ function formatAppointmentType(value, t) {
 }
 
 // Badge Components
+// Badge Components (all independent of t)
 function PatientStatusBadge({ status }) {
   const value = String(status || "").toLowerCase();
   let variant = "secondary";
   let label = value;
-
-  if (value === "1" || value === "active") {
+  if (["1", "active", "enabled"].includes(value)) {
     variant = "success";
     label = "Active";
-  } else if (value === "0" || value === "inactive") {
+  } else if (["0", "inactive", "disabled"].includes(value)) {
     variant = "danger";
     label = "Inactive";
   }
-
   return <span className={`badge badge-${variant}`}>{label || "-"}</span>;
 }
 
-function AppointmentStatusBadge({ status, t }) {
+function AppointmentStatusBadge({ status }) {
   const value = String(status || "").toLowerCase();
   let variant = "secondary";
   if (value === "completed") variant = "success";
   else if (value === "scheduled") variant = "warning";
   else if (["cancelled", "no_show"].includes(value)) variant = "danger";
-  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
+  return <span className={`badge badge-${variant}`}>{value || "-"}</span>;
 }
 
-function RecordStatusBadge({ status, t }) {
+function RecordStatusBadge({ status }) {
   const value = String(status || "").toLowerCase();
   let variant = "secondary";
   if (value === "completed") variant = "success";
   else if (value === "planned") variant = "warning";
   else if (value === "in_progress") variant = "info";
   else if (value === "cancelled") variant = "danger";
-  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
+  return <span className={`badge badge-${variant}`}>{value || "-"}</span>;
 }
 
-function PlanStatusBadge({ status, t }) {
+function PlanStatusBadge({ status }) {
   const value = String(status || "").toLowerCase();
   let variant = "secondary";
   if (value === "active") variant = "warning";
   else if (value === "completed") variant = "success";
   else if (value === "cancelled") variant = "danger";
-  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
+  return <span className={`badge badge-${variant}`}>{value || "-"}</span>;
 }
 
-function InvoiceStatusBadge({ status, t }) {
+function InvoiceStatusBadge({ status }) {
   const value = String(status || "").toLowerCase();
   let variant = "secondary";
   if (value === "paid") variant = "success";
   else if (value === "partially_paid") variant = "warning";
   else if (["unpaid", "cancelled"].includes(value)) variant = "danger";
-  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
+  return <span className={`badge badge-${variant}`}>{value || "-"}</span>;
 }
 
 // DentalChart Component

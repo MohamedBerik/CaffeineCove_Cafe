@@ -16,31 +16,6 @@ export default function PatientProfilePage() {
   const [error, setError] = useState("");
   const [selectedTooth, setSelectedTooth] = useState(null);
 
-  const getRecordStatusColor = (status) => {
-    const map = {
-      completed: "green",
-      in_progress: "orange",
-      planned: "blue",
-      cancelled: "red",
-    };
-    return map[status] || "gray";
-  };
-
-  const getPlanStatusColor = (status) => {
-    const map = { active: "green", completed: "blue", cancelled: "red" };
-    return map[status] || "gray";
-  };
-
-  const getInvoiceStatusColor = (status) => {
-    const map = {
-      paid: "green",
-      partially_paid: "orange",
-      unpaid: "red",
-      cancelled: "red",
-    };
-    return map[status] || "gray";
-  };
-
   const [recordForm, setRecordForm] = useState({
     tooth_number: "",
     surface: "",
@@ -585,10 +560,7 @@ export default function PatientProfilePage() {
                       {formatAppointmentType(a.appointment_type, t)}
                     </td>
                     <td data-label={t("Status")}>
-                      <AppointmentStatusBadge
-                        label={a.status_label || a.status}
-                        color={a.status_color || "gray"}
-                      />
+                      <AppointmentStatusBadge status={a.status} t={t} />
                     </td>
                   </tr>
                 ))}
@@ -617,7 +589,6 @@ export default function PatientProfilePage() {
           <ToothDetails
             tooth={selectedTooth}
             records={selectedToothRecords}
-            getRecordStatusColor={getRecordStatusColor} // ✅ أضف هذا
             procedures={procedures}
             treatmentPlans={treatmentPlans}
             recordForm={recordForm}
@@ -676,10 +647,7 @@ export default function PatientProfilePage() {
                         {r.procedure?.name || "-"}
                       </td>
                       <td data-label={t("Status")}>
-                        <RecordStatusBadge
-                          label={r.status}
-                          color={getRecordStatusColor(r.status)}
-                        />
+                        <RecordStatusBadge status={r.status} t={t} />
                       </td>
                       <td data-label={t("Actions")}>
                         <div className="action-group">
@@ -769,10 +737,7 @@ export default function PatientProfilePage() {
                       {formatCurrency(p.total_cost)}
                     </td>
                     <td data-label={t("Status")}>
-                      <PlanStatusBadge
-                        label={p.status}
-                        color={getPlanStatusColor(p.status)}
-                      />
+                      <PlanStatusBadge status={p.status} t={t} />
                     </td>
                   </tr>
                 ))}
@@ -809,10 +774,7 @@ export default function PatientProfilePage() {
                     </td>
                     <td data-label={t("Total")}>{formatCurrency(i.total)}</td>
                     <td data-label={t("Status")}>
-                      <InvoiceStatusBadge
-                        label={i.status}
-                        color={getInvoiceStatusColor(i.status)}
-                      />
+                      <InvoiceStatusBadge status={i.status} t={t} />
                     </td>
                   </tr>
                 ))}
@@ -898,7 +860,6 @@ function formatAppointmentType(value, t) {
 }
 
 // Badge Components
-// Badge Components (Updated)
 function PatientStatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
   let variant = "secondary";
@@ -911,76 +872,41 @@ function PatientStatusBadge({ status, t }) {
   );
 }
 
-function AppointmentStatusBadge({ label, color }) {
-  return (
-    <span
-      className="badge"
-      style={{
-        backgroundColor: color,
-        color: color === "yellow" || color === "white" ? "#333" : "white",
-        fontWeight: 600,
-        padding: "0.25rem 0.625rem",
-        borderRadius: "20px",
-        fontSize: "0.75rem",
-      }}
-    >
-      {label || "-"}
-    </span>
-  );
+function AppointmentStatusBadge({ status, t }) {
+  const value = String(status || "").toLowerCase();
+  let variant = "secondary";
+  if (value === "completed") variant = "success";
+  else if (value === "scheduled") variant = "warning";
+  else if (["cancelled", "no_show"].includes(value)) variant = "danger";
+  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
 }
 
-function RecordStatusBadge({ label, color }) {
-  return (
-    <span
-      className="badge"
-      style={{
-        backgroundColor: color,
-        color: color === "yellow" || color === "white" ? "#333" : "white",
-        fontWeight: 600,
-        padding: "0.25rem 0.625rem",
-        borderRadius: "20px",
-        fontSize: "0.75rem",
-      }}
-    >
-      {label || "-"}
-    </span>
-  );
+function RecordStatusBadge({ status, t }) {
+  const value = String(status || "").toLowerCase();
+  let variant = "secondary";
+  if (value === "completed") variant = "success";
+  else if (value === "planned") variant = "warning";
+  else if (value === "in_progress") variant = "info";
+  else if (value === "cancelled") variant = "danger";
+  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
 }
 
-function PlanStatusBadge({ label, color }) {
-  return (
-    <span
-      className="badge"
-      style={{
-        backgroundColor: color,
-        color: color === "yellow" || color === "white" ? "#333" : "white",
-        fontWeight: 600,
-        padding: "0.25rem 0.625rem",
-        borderRadius: "20px",
-        fontSize: "0.75rem",
-      }}
-    >
-      {label || "-"}
-    </span>
-  );
+function PlanStatusBadge({ status, t }) {
+  const value = String(status || "").toLowerCase();
+  let variant = "secondary";
+  if (value === "active") variant = "warning";
+  else if (value === "completed") variant = "success";
+  else if (value === "cancelled") variant = "danger";
+  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
 }
 
-function InvoiceStatusBadge({ label, color }) {
-  return (
-    <span
-      className="badge"
-      style={{
-        backgroundColor: color,
-        color: color === "yellow" || color === "white" ? "#333" : "white",
-        fontWeight: 600,
-        padding: "0.25rem 0.625rem",
-        borderRadius: "20px",
-        fontSize: "0.75rem",
-      }}
-    >
-      {label || "-"}
-    </span>
-  );
+function InvoiceStatusBadge({ status, t }) {
+  const value = String(status || "").toLowerCase();
+  let variant = "secondary";
+  if (value === "paid") variant = "success";
+  else if (value === "partially_paid") variant = "warning";
+  else if (["unpaid", "cancelled"].includes(value)) variant = "danger";
+  return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
 }
 
 // DentalChart Component
@@ -1199,7 +1125,6 @@ function ToothDetails({
   convertingRecordId,
   convertError,
   convertSuccess,
-  getRecordStatusColor,
   getRecordPrimaryAction,
   getRecordMeta,
   t,
@@ -1367,10 +1292,7 @@ function ToothDetails({
                         {r.procedure?.name || "-"}
                       </td>
                       <td data-label={t("Status")}>
-                        <RecordStatusBadge
-                          label={r.status}
-                          color={getRecordStatusColor(r.status)}
-                        />
+                        <RecordStatusBadge status={r.status} t={t} />
                       </td>
                       <td data-label={t("Notes")}>{r.notes || "-"}</td>
                       <td data-label={t("Actions")}>

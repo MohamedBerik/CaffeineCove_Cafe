@@ -447,8 +447,10 @@ export default function PatientProfilePage() {
         <div className="info-grid">
           <InfoItem label={t("Email")} value={patient.email || "-"} />
           <InfoItem label={t("Phone")} value={patient.phone || "-"} />
-          <InfoItem label={t("Status")} value={patient.status || "-"} />
-
+          <InfoItem
+            label={t("Status")}
+            value={<PatientStatusBadge status={patient.status} t={t} />}
+          />
           <InfoItem
             label={t("Created")}
             value={formatDate(patient.created_at)}
@@ -861,13 +863,17 @@ function formatAppointmentType(value, t) {
 function PatientStatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
   let variant = "secondary";
-  if (["1", "active", "enabled"].includes(value)) variant = "success";
-  else if (["0", "inactive", "disabled"].includes(value)) variant = "danger";
-  return (
-    <span className={`badge badge-${variant}`}>
-      {t(value === "1" ? "Active" : value === "0" ? "Inactive" : status) || "-"}
-    </span>
-  );
+  let label = value;
+
+  if (value === "1") {
+    variant = "success";
+    label = t ? t("Active") : "Active";
+  } else if (value === "0") {
+    variant = "danger";
+    label = t ? t("Inactive") : "Inactive";
+  }
+
+  return <span className={`badge badge-${variant}`}>{label || "-"}</span>;
 }
 
 function AppointmentStatusBadge({ status, t }) {

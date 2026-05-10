@@ -863,23 +863,18 @@ function formatAppointmentType(value, t) {
 function PatientStatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();
   let variant = "secondary";
-  if (["1", "active", "enabled"].includes(value)) variant = "success";
-  else if (["0", "inactive", "disabled"].includes(value)) variant = "danger";
-  return (
-    <span className={`badge badge-${variant}`}>
-      {t(value === "1" ? "Active" : value === "0" ? "Inactive" : status) || "-"}
-    </span>
-  );
-}
+  let label = status || "-";
 
-// function AppointmentStatusBadge({ status, t }) {
-//   const value = String(status || "").toLowerCase();
-//   let variant = "secondary";
-//   if (value === "completed") variant = "success";
-//   else if (value === "scheduled") variant = "warning";
-//   else if (["cancelled", "no_show"].includes(value)) variant = "danger";
-//   return <span className={`badge badge-${variant}`}>{t(status || "-")}</span>;
-// }
+  if (value === "1" || value === "active") {
+    variant = "success";
+    label = t("Active");
+  } else if (value === "0" || value === "inactive") {
+    variant = "danger";
+    label = t("Inactive");
+  }
+
+  return <span className={`status-badge status-${variant}`}>{label}</span>;
+}
 
 function AppointmentStatusBadge({ status, t }) {
   const value = String(status || "").toLowerCase();

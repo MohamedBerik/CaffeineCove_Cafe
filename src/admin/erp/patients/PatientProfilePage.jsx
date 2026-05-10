@@ -617,6 +617,7 @@ export default function PatientProfilePage() {
           <ToothDetails
             tooth={selectedTooth}
             records={selectedToothRecords}
+            getRecordStatusColor={getRecordStatusColor} // ✅ أضف هذا
             procedures={procedures}
             treatmentPlans={treatmentPlans}
             recordForm={recordForm}

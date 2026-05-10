@@ -861,15 +861,29 @@ function formatAppointmentType(value, t) {
 
 // Badge Components
 function PatientStatusBadge({ status, t }) {
-  const value = String(status || "").toLowerCase();
+  // تحويل القيمة لنص لضمان المقارنة الصحيحة
+  const value = String(status !== undefined && status !== null ? status : "")
+    .toLowerCase()
+    .trim();
+
   let variant = "secondary";
-  if (["1", "active", "enabled"].includes(value)) variant = "success";
-  else if (["0", "inactive", "disabled"].includes(value)) variant = "danger";
-  return (
-    <span className={`badge badge-${variant}`}>
-      {t(value === "1" ? "Active" : value === "0" ? "Inactive" : status) || "-"}
-    </span>
-  );
+  let labelKey = "";
+
+  if (["1", "active", "enabled"].includes(value)) {
+    variant = "success";
+    labelKey = "Active";
+  } else if (["0", "inactive", "disabled"].includes(value)) {
+    variant = "danger";
+    labelKey = "Inactive";
+  } else {
+    // لأي حالة أخرى تأتي من الـ API (مثل scheduled)
+    labelKey = status;
+  }
+
+  // محاولة الترجمة، وإذا فشلت نستخدم القيمة الأصلية، وإذا كانت فارغة نضع شرطة
+  const displayText = t(labelKey) || labelKey || "-";
+
+  return <span className={`badge badge-${variant}`}>{displayText}</span>;
 }
 
 function AppointmentStatusBadge({ status, t }) {

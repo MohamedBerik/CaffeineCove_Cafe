@@ -647,7 +647,7 @@ export default function PatientProfilePage() {
                         {r.procedure?.name || "-"}
                       </td>
                       <td data-label={t("Status")}>
-                        <RecordStatusBadge status={r.status} t={t} />
+                        <RecordStatusBadge status={r.status || "-"} t={t} />
                       </td>
                       <td data-label={t("Actions")}>
                         <div className="action-group">

@@ -560,10 +560,7 @@ export default function PatientProfilePage() {
                       {formatAppointmentType(a.appointment_type, t)}
                     </td>
                     <td data-label={t("Status")}>
-                      <AppointmentStatusBadge
-                        label={a.status_label || a.status}
-                        color={a.status_color || "#6c757d"}
-                      />{" "}
+                      <AppointmentStatusBadge status={a.status} t={t} />
                     </td>
                   </tr>
                 ))}
@@ -650,20 +647,7 @@ export default function PatientProfilePage() {
                         {r.procedure?.name || "-"}
                       </td>
                       <td data-label={t("Status")}>
-                        <RecordStatusBadge
-                          label={r.status}
-                          color={
-                            r.status === "completed"
-                              ? "#28a745"
-                              : r.status === "in_progress"
-                                ? "#ffc107"
-                                : r.status === "planned"
-                                  ? "#007bff"
-                                  : r.status === "cancelled"
-                                    ? "#dc3545"
-                                    : "#6c757d"
-                          }
-                        />{" "}
+                        <RecordStatusBadge status={r.status} t={t} />
                       </td>
                       <td data-label={t("Actions")}>
                         <div className="action-group">

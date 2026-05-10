@@ -447,10 +447,8 @@ export default function PatientProfilePage() {
         <div className="info-grid">
           <InfoItem label={t("Email")} value={patient.email || "-"} />
           <InfoItem label={t("Phone")} value={patient.phone || "-"} />
-          {/* <InfoItem
-            label={t("Status")}
-            value={<PatientStatusBadge status={patient.status} t={t} />}
-          /> */}
+          <InfoItem label={t("Status")} value={patient.status || "-"} />
+
           <InfoItem
             label={t("Created")}
             value={formatDate(patient.created_at)}

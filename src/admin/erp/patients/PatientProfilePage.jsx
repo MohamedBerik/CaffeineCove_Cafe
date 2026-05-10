@@ -860,16 +860,17 @@ function formatAppointmentType(value, t) {
 }
 
 // Badge Components
+// تعديل مقترح لعرض الحالة حتى لو لم تكن 0 أو 1
 function PatientStatusBadge({ status, t }) {
-  const value = String(status || "").toLowerCase();
+  if (!status) return <span>-</span>; // إذا كانت القيمة فارغة تماماً
+
+  const value = String(status).toLowerCase();
   let variant = "secondary";
-  if (["1", "active", "enabled"].includes(value)) variant = "success";
-  else if (["0", "inactive", "disabled"].includes(value)) variant = "danger";
-  return (
-    <span className={`badge badge-${variant}`}>
-      {t(value === "1" ? "Active" : value === "0" ? "Inactive" : status) || "-"}
-    </span>
-  );
+
+  if (["1", "active"].includes(value)) variant = "success";
+  else if (["0", "inactive"].includes(value)) variant = "danger";
+
+  return <span className={`badge badge-${variant}`}>{t(status)}</span>;
 }
 
 function AppointmentStatusBadge({ status, t }) {

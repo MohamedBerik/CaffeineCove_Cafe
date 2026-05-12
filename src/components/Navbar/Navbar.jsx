@@ -154,22 +154,22 @@ function Navbar() {
                   </button>
                   {dropdownOpen && (
                     <div className="frontend-user-dropdown">
-                      <NavLink
+                      {/* <NavLink
                         to="/profile"
                         className="frontend-dropdown-item"
                         onClick={closeMenu}
                       >
                         <i className="fas fa-user"></i>
                         <span>{t("Profile")}</span>
-                      </NavLink>
-                      <NavLink
+                      </NavLink> */}
+                      {/* <NavLink
                         to="/appointments"
                         className="frontend-dropdown-item"
                         onClick={closeMenu}
                       >
                         <i className="fas fa-calendar-alt"></i>
                         <span>{t("My Appointments")}</span>
-                      </NavLink>
+                      </NavLink> */}
                       <hr className="frontend-dropdown-divider" />
                       <button
                         onClick={handleLogout}

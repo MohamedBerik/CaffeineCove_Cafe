@@ -768,7 +768,7 @@ function AppointmentRow({
                 item.patient?.name || "-"
               )}
             </div>
-            <div className="patient-phone">{item.patient?.phone || "-"}</div>
+            <div className="patient-email">{item.patient?.email || "-"}</div>
           </div>
         </td>
 

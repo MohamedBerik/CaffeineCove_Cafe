@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -159,6 +160,7 @@ export default function ErpNav() {
   const { user } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
 
   const isSaaSMode =
     location.pathname.startsWith("/admin/saas") ||

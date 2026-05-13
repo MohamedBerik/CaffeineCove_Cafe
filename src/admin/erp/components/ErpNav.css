@@ -5,6 +5,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: all 0.3s ease;
+  position: sticky;
+  top: 86px;
 }
 
 .erp-nav-header {

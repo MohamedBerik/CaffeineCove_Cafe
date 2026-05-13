@@ -37,7 +37,7 @@ const erpNavItems = [
   {
     to: "/admin/erp/products",
     labelKey: "Products",
-    icon: "fas fa-products",
+    icon: "fa-solid fa-industry",
     permission: "products.view",
   },
   {

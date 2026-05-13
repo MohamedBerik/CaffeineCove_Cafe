@@ -89,6 +89,7 @@ import SaaSReports from "./admin/saas/SaaSReports";
 import PlatformSettings from "./admin/saas/PlatformSettings";
 import ActivityLogs from "./admin/erp/activity-logs/ActivityLogs";
 import BillingPage from "./admin/erp/billing/BillingPage";
+import ProductFormPage from "./admin/erp/products/ProductFormPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -245,8 +246,8 @@ createRoot(document.getElementById("root")).render(
                 element={<ProcedureFormPage />}
               />
               <Route path="products" element={<ProductsListPage />} />
-              <Route path="products/create" element={<ProductsFormPage />} />
-              <Route path="products/:id/edit" element={<ProductsFormPage />} />
+              <Route path="products/create" element={<ProductFormPage />} />
+              <Route path="products/:id/edit" element={<ProductFormPage />} />
               <Route path="visits/start" element={<StartVisitPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="billing" element={<BillingPage />} />

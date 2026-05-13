@@ -313,7 +313,7 @@ export default function ProductFormPage() {
                   <option value="">{t("-- Select Category --")}</option>
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
-                      {cat.name || cat.title || `#${cat.id}`}
+                      {cat.title_en || cat.title_ar || `#${cat.id}`}
                     </option>
                   ))}
                 </select>

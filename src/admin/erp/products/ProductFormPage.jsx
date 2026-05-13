@@ -123,7 +123,10 @@ export default function ProductFormPage() {
       if (imageFile) {
         payload.append("product_image", imageFile);
       }
-
+      console.log("FormData entries:");
+      for (let pair of payload.entries()) {
+        console.log(pair[0] + ": " + pair[1]);
+      }
       // ✅ أضف هذا السطر لتشخيص القيم في الكونسول
       console.log("Sending update with unit_price:", form.unit_price);
 

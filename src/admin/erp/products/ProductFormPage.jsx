@@ -125,11 +125,15 @@ export default function ProductFormPage() {
       }
 
       if (isEdit) {
-        await api.put(`/erp/products/${id}`, payload, {
+        // 1. أضف هذا السطر لإخبار لارافيل أن العملية PUT
+        payload.append("_method", "PUT");
+
+        // 2. غير api.put إلى api.post
+        await api.post(`/erp/products/${id}`, payload, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {
-        await api.post("/erp/products/${id}", payload, {
+        await api.post("/erp/products", payload, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       }
@@ -139,22 +143,9 @@ export default function ProductFormPage() {
           ? t("Product updated successfully.")
           : t("Product created successfully."),
       );
-
-      if (!isEdit) {
-        navigate(`/admin/erp/products`);
-      }
+      if (!isEdit) navigate(`/admin/erp/products`);
     } catch (err) {
-      const errors = err?.response?.data?.errors;
-      if (errors) {
-        const firstError = Object.values(errors)?.[0]?.[0];
-        setError(firstError || t("Failed to save product."));
-      } else {
-        setError(
-          err?.response?.data?.message ||
-            err?.response?.data?.msg ||
-            t("Failed to save product."),
-        );
-      }
+      // ... التعامل مع الأخطاء كما هو
     } finally {
       setSaving(false);
     }

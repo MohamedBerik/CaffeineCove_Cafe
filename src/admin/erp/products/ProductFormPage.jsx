@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import axios from "../../../services/axios";
+import api from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import "./ProductFormPage.css";
 
@@ -43,7 +43,7 @@ export default function ProductFormPage() {
       setError("");
       setSuccess("");
 
-      const res = await axios.get(`/erp/products/${id}`);
+      const res = await api.get(`/erp/products/${id}`);
       const payload = res.data || {};
       const product = payload.data || payload || {};
 
@@ -75,7 +75,7 @@ export default function ProductFormPage() {
 
   const loadCategories = async () => {
     try {
-      const res = await axios.get("/erp/categories");
+      const res = await api.get("/erp/categories");
       const payload = res.data || {};
       setCategories(
         Array.isArray(payload.data) ? payload.data : payload.data?.data || [],
@@ -128,11 +128,11 @@ export default function ProductFormPage() {
       // قد نعدل الكنترولر ليكون RESTful أكثر لاحقًا
       if (isEdit) {
         payload.append("old_id", id);
-        await axios.put(`/erp/products/update`, payload, {
+        await api.put(`/erp/products/update`, payload, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {
-        await axios.post("/erp/products", payload, {
+        await api.post("/erp/products", payload, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       }

@@ -160,7 +160,6 @@ export default function ErpNav({ isOpen, closeSidebar }) {
   const { user } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
-  const [isOpen, setIsOpen] = useState(false);
 
   const isSaaSMode =
     location.pathname.startsWith("/admin/saas") ||

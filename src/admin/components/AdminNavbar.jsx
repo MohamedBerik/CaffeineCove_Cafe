@@ -9,7 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import "./AdminNavbar.css";
 
 const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
-  const { alerts, unreadCount, loading } = useAlertState();
+  const { alerts, loading } = useAlertState();
   const { markAsRead, markAllAsRead } = useAlertActions();
   const { logout, user, refreshUser } = useAuth();
   const navigate = useNavigate();

@@ -35,6 +35,12 @@ const erpNavItems = [
     permission: "procedures.view",
   },
   {
+    to: "/admin/erp/products",
+    labelKey: "Products",
+    icon: "fas fa-products",
+    permission: "products.view",
+  },
+  {
     to: "/admin/erp/patients",
     labelKey: "Patients",
     icon: "fas fa-users",

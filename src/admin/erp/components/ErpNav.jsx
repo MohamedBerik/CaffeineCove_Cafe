@@ -36,7 +36,7 @@ const erpNavItems = [
   },
   {
     to: "/admin/erp/products",
-    labelKey: "Consultaion Price",
+    labelKey: "Consultation Price",
     icon: "fa-solid fa-hand-holding-dollar",
     permission: "products.view",
   },

@@ -128,7 +128,7 @@ export default function ProductFormPage() {
       // قد نعدل الكنترولر ليكون RESTful أكثر لاحقًا
       if (isEdit) {
         payload.append("old_id", id);
-        await axios.post(`/erp/products/update`, payload, {
+        await axios.put(`/erp/products/update`, payload, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {

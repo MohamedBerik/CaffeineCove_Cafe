@@ -123,25 +123,15 @@ export default function ProductFormPage() {
       if (imageFile) {
         payload.append("product_image", imageFile);
       }
-      console.log("FormData entries:");
-      for (let pair of payload.entries()) {
-        console.log(pair[0] + ": " + pair[1]);
-      }
-      // ✅ أضف هذا السطر لتشخيص القيم في الكونسول
-      console.log("Sending update with unit_price:", form.unit_price);
 
       if (isEdit) {
         await api.put(`/erp/products/${id}`, payload, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        // ✅ أعد تحميل المنتج بعد التعديل لتحديث الواجهة
-        await loadProduct();
       } else {
-        await api.post("/erp/products", payload, {
+        await api.post("/erp/products/${id}", payload, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        navigate(`/admin/erp/products`);
-        return;
       }
 
       setSuccess(
@@ -149,8 +139,11 @@ export default function ProductFormPage() {
           ? t("Product updated successfully.")
           : t("Product created successfully."),
       );
+
+      if (!isEdit) {
+        navigate(`/admin/erp/products`);
+      }
     } catch (err) {
-      console.error("Update error:", err.response);
       const errors = err?.response?.data?.errors;
       if (errors) {
         const firstError = Object.values(errors)?.[0]?.[0];

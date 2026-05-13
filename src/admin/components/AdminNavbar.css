@@ -851,3 +851,36 @@
     font-size: 0.9rem;
   }
 }
+
+/* زر الهامبرغر - مخفي في الشاشات الكبيرة */
+.sidebar-toggle-btn {
+  display: none;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 1.3rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 0.75rem;
+  transition: background 0.2s;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* في الشاشات الصغيرة (أقل من 992px) يظهر الزر */
+@media (max-width: 991.98px) {
+  .sidebar-toggle-btn {
+    display: inline-flex;
+  }
+}
+
+/* RTL */
+[dir="rtl"] .sidebar-toggle-btn {
+  margin-right: 0;
+  margin-left: 0.75rem;
+}

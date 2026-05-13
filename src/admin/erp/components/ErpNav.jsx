@@ -156,7 +156,7 @@ const saasNavItems = [
   },
 ];
 
-export default function ErpNav() {
+export default function ErpNav({ isOpen, closeSidebar }) {
   const { user } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
@@ -207,15 +207,6 @@ export default function ErpNav() {
 
   return (
     <>
-      {/* زر الهامبرغر – يظهر فقط في الشاشات الصغيرة */}
-      <button
-        className="erp-sidebar-toggle"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label={t("Toggle navigation")}
-      >
-        <i className={`fas ${isOpen ? "fa-times" : "fa-bars"}`}></i>
-      </button>
-
       {/* Overlay الخلفية (يظهر فقط عند فتح القائمة في الجوال) */}
       {isOpen && (
         <div className="erp-sidebar-overlay" onClick={closeSidebar}></div>

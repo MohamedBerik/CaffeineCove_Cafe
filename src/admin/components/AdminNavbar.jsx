@@ -8,7 +8,7 @@ import api from "../../services/axios";
 import { useQueryClient } from "@tanstack/react-query";
 import "./AdminNavbar.css";
 
-const AdminNavbar = () => {
+const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   const { alerts, unreadCount, loading } = useAlertState();
   const { markAsRead, markAllAsRead } = useAlertActions();
   const { logout, user, refreshUser } = useAuth();
@@ -288,6 +288,14 @@ const AdminNavbar = () => {
 
       <nav className="admin-navbar" dir="ltr">
         <div className="navbar-container">
+          {/* زر الهامبرغر للأجهزة الصغيرة */}
+          <button
+            className="sidebar-toggle-btn"
+            onClick={onToggleSidebar}
+            aria-label={t("Toggle navigation")}
+          >
+            <i className={`fas ${sidebarOpen ? "fa-times" : "fa-bars"}`}></i>
+          </button>
           <button
             type="button"
             className="navbar-brand border-0 bg-transparent"

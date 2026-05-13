@@ -1,3 +1,4 @@
+/* ==================== Admin Navbar (Top Bar) ==================== */
 .admin-navbar {
   position: fixed;
   top: 0;
@@ -74,7 +75,11 @@
   gap: 1rem;
 }
 
-/* Language Switcher Button */
+.navbar-spacer {
+  height: 64px;
+}
+
+/* ==================== Language Switcher ==================== */
 .lang-switch-btn {
   display: inline-flex;
   align-items: center;
@@ -100,6 +105,7 @@
   font-size: 0.95rem;
 }
 
+/* ==================== User & Logout ==================== */
 .navbar-user {
   display: flex;
   align-items: center;
@@ -178,104 +184,7 @@
   font-size: 0.95rem;
 }
 
-.navbar-spacer {
-  height: 64px;
-}
-
-/* ==================== ERP Nav Styles ==================== */
-.erp-nav-card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.erp-nav-header {
-  padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
-  border-bottom: 1px solid rgba(26, 35, 126, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-weight: 600;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #1a237e;
-}
-
-.erp-nav-header i {
-  font-size: 1.1rem;
-  color: #283593;
-}
-
-.erp-nav-menu {
-  padding: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.erp-nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.7rem 1rem;
-  border-radius: 10px;
-  color: #2c3e50;
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.erp-nav-link i {
-  width: 20px;
-  font-size: 1rem;
-  color: #5f6b7a;
-  transition: all 0.2s ease;
-}
-
-.erp-nav-link:hover {
-  background: #f8f9ff;
-  color: #1a237e;
-  transform: translateX(4px);
-}
-
-.erp-nav-link:hover i {
-  color: #283593;
-}
-
-.erp-nav-link.active {
-  background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(26, 35, 126, 0.25);
-}
-
-.erp-nav-link.active i {
-  color: #fff;
-}
-
-/* ==================== RTL Support ==================== */
-[dir="rtl"] .admin-navbar,
-[dir="rtl"] .erp-nav-card {
-  font-family: "Segoe UI", "Cairo", Tahoma, Geneva, Verdana, sans-serif;
-}
-
-[dir="rtl"] .navbar-brand .brand-text {
-  text-align: right;
-}
-
-[dir="rtl"] .erp-nav-link:hover {
-  transform: translateX(-4px);
-}
-
-[dir="rtl"] .erp-nav-link {
-  direction: rtl;
-}
-
-/* Notification Bell Container */
+/* ==================== Notification Bell & Dropdown ==================== */
 .notification-bell {
   background: transparent;
   border: none;
@@ -310,7 +219,6 @@
   color: #90caf9;
 }
 
-/* Badge with Pulse Animation */
 .badge {
   position: absolute;
   top: -5px;
@@ -342,38 +250,52 @@
   }
 }
 
-/* ==================== Notification Dropdown - Desktop (min-width: 577px) ==================== */
-@media (min-width: 577px) {
-  .notification-dropdown {
-    position: absolute;
-    top: 45px;
-    right: 0;
-    width: 340px;
-    max-height: 400px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    z-index: 1000;
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    transition: all 0.25s ease;
-  }
-
-  .notification-bell.open .notification-dropdown {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
-
-  [dir="rtl"] .notification-dropdown {
-    right: auto;
-    left: 0;
-  }
+/* Notification Dropdown (shared global styles) */
+.notification-dropdown {
+  overflow-y: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.25s ease;
 }
 
-/* ==================== Notification Dropdown - Base Styles ==================== */
+.notification-dropdown.global {
+  position: absolute;
+  top: 65px;
+  right: 40px;
+  width: 340px;
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-dropdown.global .dropdown-list {
+  overflow-y: auto;
+  flex: 1;
+  max-height: 300px;
+}
+
+.notification-dropdown.global .dropdown-footer {
+  flex-shrink: 0;
+}
+
+.notification-dropdown.global.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.notification-bell.open .notification-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Dropdown inner components */
 .dropdown-header {
   padding: 12px 16px;
   background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
@@ -448,10 +370,7 @@
   color: #999;
 }
 
-.notification-dropdown {
-  overflow-y: auto;
-}
-
+/* Dropdown scrollbar */
 .notification-dropdown::-webkit-scrollbar {
   width: 4px;
 }
@@ -465,377 +384,7 @@
   border-radius: 4px;
 }
 
-[dir="rtl"] .notification-item {
-  border-left: none;
-  border-right: 3px solid;
-}
-
-[dir="rtl"] .notification-item.high {
-  border-right-color: #ef4444;
-}
-
-[dir="rtl"] .notification-item.medium {
-  border-right-color: #f59e0b;
-}
-
-[dir="rtl"] .notification-item.low {
-  border-right-color: #10b981;
-}
-
-/* ==================== Responsive Design - Unified Media Queries ==================== */
-
-/* ✅ تم دمج جميع media queries المتفرقة هنا */
-
-/* 1️⃣ Tablet & Small Laptops (max-width: 992px) */
-@media (max-width: 992px) {
-  .navbar-container {
-    padding: 0 1rem;
-  }
-
-  .brand-subtitle {
-    display: none;
-  }
-
-  .brand-title {
-    font-size: 1rem;
-  }
-
-  .user-details {
-    display: none;
-  }
-
-  .lang-switch-btn span {
-    display: none;
-  }
-
-  .lang-switch-btn {
-    padding: 0.55rem;
-  }
-
-  .lang-switch-btn i {
-    margin: 0;
-  }
-}
-
-/* ==================== Notification Dropdown - Desktop & Tablet ==================== */
-.notification-dropdown.global {
-  position: absolute;
-  top: 65px;
-  right: 40px;
-  width: 340px;
-  max-height: 400px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  overflow: hidden;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: all 0.25s ease;
-  display: flex;
-  flex-direction: column;
-}
-
-.notification-dropdown.global .dropdown-list {
-  overflow-y: auto;
-  flex: 1;
-  max-height: 300px;
-}
-
-.notification-dropdown.global .dropdown-footer {
-  flex-shrink: 0;
-}
-
-.notification-dropdown.global.open {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-[dir="rtl"] .notification-dropdown.global {
-  right: auto;
-  left: auto;
-}
-
-/* 2️⃣ Tablets (max-width: 768px) */
-@media (max-width: 768px) {
-  /* ERP Nav */
-  .erp-nav-card {
-    border-radius: 8px;
-  }
-
-  .erp-nav-header {
-    padding: 0.75rem 1rem;
-    font-size: 0.85rem;
-  }
-
-  .erp-nav-menu {
-    padding: 0.5rem;
-    max-height: 70vh;
-    overflow-y: auto;
-  }
-
-  .erp-nav-link {
-    padding: 0.6rem 0.85rem;
-    font-size: 0.85rem;
-  }
-
-  /* ERP Nav Scrollbar */
-  .erp-nav-menu::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .erp-nav-menu::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-  }
-
-  .erp-nav-menu::-webkit-scrollbar-thumb {
-    background: #1a237e;
-    border-radius: 4px;
-  }
-
-  /* Notifications */
-  .notification-dropdown {
-    width: 320px;
-    max-height: 380px;
-    right: -20px;
-  }
-
-  [dir="rtl"] .notification-dropdown {
-    right: auto;
-    left: -20px;
-  }
-
-  .dropdown-header {
-    padding: 10px 14px;
-    font-size: 13px;
-  }
-
-  .notification-item {
-    padding: 10px 14px;
-  }
-
-  .notification-title {
-    font-size: 12px;
-  }
-
-  .notification-time {
-    font-size: 10px;
-  }
-}
-
-/* 3️⃣ Mobile Phones (max-width: 576px) - All Mobile Styles Combined */
-@media (max-width: 576px) {
-  /* Navbar Mobile */
-  .navbar-container {
-    height: 56px;
-    padding: 0 0.85rem;
-  }
-
-  .navbar-brand i {
-    font-size: 1.45rem;
-  }
-
-  .brand-title {
-    font-size: 0.95rem;
-  }
-
-  .navbar-actions {
-    gap: 0.6rem;
-  }
-
-  .navbar-user {
-    gap: 0.6rem;
-  }
-
-  .user-info {
-    padding: 0.25rem;
-  }
-
-  .user-avatar {
-    width: 34px;
-    height: 34px;
-  }
-
-  .logout-btn {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
-  }
-
-  .logout-btn span {
-    display: none;
-  }
-
-  .lang-switch-btn {
-    padding: 0.5rem;
-  }
-
-  .navbar-spacer {
-    height: 56px;
-  }
-
-  .erp-nav-link i {
-    width: 18px;
-    font-size: 0.9rem;
-  }
-
-  /* ✅ Overlay - الخلفية الداكنة */
-  .notification-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 1040;
-    animation: fadeIn 0.3s ease;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  /* ✅ القائمة الجديدة - في المنتصف */
-  .notification-dropdown.global {
-    position: fixed !important;
-    top: 60px !important;
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%) !important;
-    width: calc(100vw - 20px) !important;
-    max-width: 400px !important;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    z-index: 1050 !important;
-    overflow: hidden;
-  }
-
-  .notification-dropdown.global .dropdown-list {
-    flex: 1;
-    overflow-y: auto;
-    max-height: 300px;
-  }
-
-  .notification-dropdown.global .dropdown-footer {
-    flex-shrink: 0;
-    margin-top: auto;
-  }
-
-  [dir="rtl"] .notification-dropdown.global {
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%) !important;
-  }
-
-  /* Mobile Inner Styles */
-  .dropdown-header {
-    padding: 14px 18px;
-    font-size: 15px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .dropdown-header i {
-    font-size: 15px;
-  }
-
-  .dropdown-empty {
-    padding: 40px 20px;
-  }
-
-  .dropdown-empty i {
-    font-size: 40px;
-  }
-
-  .dropdown-empty p {
-    font-size: 14px;
-    margin-top: 8px;
-  }
-
-  .notification-item {
-    padding: 14px 18px;
-    border-bottom: 1px solid #f0f0f0;
-  }
-
-  .notification-item:last-child {
-    border-bottom: none;
-  }
-
-  .notification-title {
-    font-size: 14px;
-    margin-bottom: 5px;
-  }
-
-  .notification-time {
-    font-size: 11px;
-    margin-top: 5px;
-  }
-
-  .dropdown-list {
-    max-height: 350px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .dropdown-list::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .dropdown-list::-webkit-scrollbar-track {
-    background: #f1f1f1;
-  }
-
-  .dropdown-list::-webkit-scrollbar-thumb {
-    background: #1a237e;
-    border-radius: 4px;
-  }
-}
-
-/* ==================== Toast Animations ==================== */
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-/* للغة العربية - يظهر من اليسار */
-@keyframes slideInRTL {
-  from {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-/* تنسيق إضافي للـ toast card */
-.toast-card {
-  animation: slideIn 0.3s ease;
-}
-
-[dir="rtl"] .toast-card {
-  animation: slideInRTL 0.3s ease;
-}
-
-/* ==================== Dropdown Footer & See All Button ==================== */
+/* Dropdown Footer & See All */
 .dropdown-footer {
   padding: 12px 16px;
   border-top: 1px solid #e0e0e0;
@@ -875,7 +424,6 @@
   transform: translateX(3px);
 }
 
-/* أيقونة السهم */
 .see-all-btn .arrow-icon {
   margin-left: 4px;
   font-size: 11px;
@@ -885,37 +433,7 @@
   transform: translateX(3px);
 }
 
-/* RTL Support */
-[dir="rtl"] .see-all-btn .arrow-icon {
-  margin-left: 0;
-  margin-right: 4px;
-  transform: rotate(180deg);
-}
-
-[dir="rtl"] .see-all-btn:hover .arrow-icon {
-  transform: rotate(180deg) translateX(3px);
-}
-
-/* Mobile adjustments */
-@media (max-width: 576px) {
-  .dropdown-footer {
-    padding: 14px 18px;
-  }
-
-  .see-all-btn {
-    font-size: 14px;
-    padding: 10px 14px;
-  }
-}
-
-/* Tablet adjustments */
-@media (max-width: 768px) {
-  .dropdown-footer {
-    padding: 10px 14px;
-  }
-}
-
-/* ==================== Company Switcher - Base Styles ==================== */
+/* ==================== Company Switcher & Branch Selector ==================== */
 .company-switcher-wrapper {
   display: flex;
   align-items: center;
@@ -959,7 +477,6 @@
   cursor: not-allowed;
 }
 
-/* تنسيق المجموعات داخل القائمة */
 .company-switcher optgroup {
   font-weight: 600;
   color: #1a237e;
@@ -968,22 +485,11 @@
   padding: 6px 0;
 }
 
-/* تنسيق العناصر داخل القائمة */
 .company-switcher option {
   padding: 10px 12px;
   background: white;
   color: #2c3e50;
   font-size: 0.9rem;
-}
-
-/* تحديد أقصى ارتفاع للقائمة المنسدلة */
-.company-switcher {
-  max-height: 40px; /* الارتفاع العادي للـ select */
-}
-
-/* القائمة المنسدلة نفسها (المتصفح بيتحكم فيها) */
-.company-switcher option {
-  min-height: 40px;
 }
 
 .company-switcher-spinner {
@@ -1000,7 +506,54 @@
   }
 }
 
-/* ==================== RTL Support ==================== */
+.branch-switcher-icon {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.branch-switcher-icon i {
+  color: #90caf9;
+}
+
+/* ==================== RTL for Top Bar ==================== */
+[dir="rtl"] .admin-navbar {
+  font-family: "Segoe UI", "Cairo", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+[dir="rtl"] .navbar-brand .brand-text {
+  text-align: right;
+}
+
+[dir="rtl"] .notification-item {
+  border-left: none;
+  border-right: 3px solid;
+}
+
+[dir="rtl"] .notification-item.high {
+  border-right-color: #ef4444;
+}
+
+[dir="rtl"] .notification-item.medium {
+  border-right-color: #f59e0b;
+}
+
+[dir="rtl"] .notification-item.low {
+  border-right-color: #10b981;
+}
+
+[dir="rtl"] .see-all-btn .arrow-icon {
+  margin-left: 0;
+  margin-right: 4px;
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] .see-all-btn:hover .arrow-icon {
+  transform: rotate(180deg) translateX(3px);
+}
+
 [dir="rtl"] .company-switcher-wrapper {
   margin-right: 0;
   margin-left: 12px;
@@ -1016,289 +569,285 @@
   text-align: right;
 }
 
-/* ==================== Tablet (max-width: 992px) ==================== */
+/* ==================== Responsive – Top Bar ==================== */
 @media (max-width: 992px) {
+  .navbar-container {
+    padding: 0 1rem;
+  }
+  .brand-subtitle {
+    display: none;
+  }
+  .brand-title {
+    font-size: 1rem;
+  }
+  .user-details {
+    display: none;
+  }
+  .lang-switch-btn span {
+    display: none;
+  }
+  .lang-switch-btn {
+    padding: 0.55rem;
+  }
+  .lang-switch-btn i {
+    margin: 0;
+  }
   .company-switcher {
     min-width: 150px;
     max-width: 180px;
     font-size: 0.85rem;
     padding: 7px 10px;
   }
-
   .company-switcher option {
     font-size: 0.85rem;
     padding: 8px 10px;
   }
-
   [dir="rtl"] .company-switcher-wrapper {
     margin-left: 10px;
   }
 }
 
-/* ==================== Mobile (max-width: 768px) ==================== */
 @media (max-width: 768px) {
+  .notification-dropdown {
+    width: 320px;
+    max-height: 380px;
+    right: -20px;
+  }
+  [dir="rtl"] .notification-dropdown {
+    right: auto;
+    left: -20px;
+  }
+  .dropdown-header {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  .notification-item {
+    padding: 10px 14px;
+  }
+  .notification-title {
+    font-size: 12px;
+  }
+  .notification-time {
+    font-size: 10px;
+  }
   .company-switcher-wrapper {
     margin-right: 8px;
     gap: 4px;
   }
-
   .company-switcher-icon {
     font-size: 1rem;
   }
-
   .company-switcher {
     min-width: 120px;
     max-width: 140px;
     font-size: 0.8rem;
     padding: 6px 8px;
   }
-
   .company-switcher option {
     font-size: 0.8rem;
     padding: 8px 8px;
   }
-
   .company-switcher optgroup {
     font-size: 0.8rem;
   }
-
   [dir="rtl"] .company-switcher-wrapper {
     margin-left: 8px;
   }
 }
 
-/* ==================== Small Mobile (max-width: 576px) ==================== */
 @media (max-width: 576px) {
+  .navbar-container {
+    height: 56px;
+    padding: 0 0.85rem;
+  }
+  .navbar-brand i {
+    font-size: 1.45rem;
+  }
+  .brand-title {
+    font-size: 0.95rem;
+  }
+  .navbar-actions {
+    gap: 0.6rem;
+  }
+  .navbar-user {
+    gap: 0.6rem;
+  }
+  .user-info {
+    padding: 0.25rem;
+  }
+  .user-avatar {
+    width: 34px;
+    height: 34px;
+  }
+  .logout-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  .logout-btn span {
+    display: none;
+  }
+  .lang-switch-btn {
+    padding: 0.5rem;
+  }
+  .navbar-spacer {
+    height: 56px;
+  }
+
+  .notification-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1040;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .notification-dropdown.global {
+    position: fixed !important;
+    top: 60px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: calc(100vw - 20px) !important;
+    max-width: 400px !important;
+    z-index: 1050 !important;
+  }
+  [dir="rtl"] .notification-dropdown.global {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+  }
+  .dropdown-header {
+    padding: 14px 18px;
+    font-size: 15px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .dropdown-empty {
+    padding: 40px 20px;
+  }
+  .dropdown-empty i {
+    font-size: 40px;
+  }
+  .dropdown-empty p {
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  .notification-item {
+    padding: 14px 18px;
+  }
+  .notification-title {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  .notification-time {
+    font-size: 11px;
+    margin-top: 5px;
+  }
+  .dropdown-list {
+    max-height: 350px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .company-switcher-wrapper {
     margin-right: 5px;
     gap: 3px;
   }
-
-  /* ✅ حذف أيقونة الشركة في الشاشات الصغيرة */
-  .company-switcher-icon {
+  .branch-switcher-icon {
     display: none;
   }
-
   .company-switcher {
     min-width: 95px;
     max-width: 105px;
     font-size: 0.7rem;
     padding: 5px 4px;
   }
-
   .company-switcher option {
     font-size: 0.7rem;
     padding: 6px 6px;
     min-height: 32px;
   }
-
-  .company-switcher optgroup {
-    font-size: 0.7rem;
-  }
-
-  /* ✅ إظهار زر اللغة مع AR/EN */
   .lang-switch-btn span {
-    display: inline-block; /* نظهر النص */
+    display: inline-block;
   }
-
-  .lang-switch-btn {
-    padding: 0.4rem 0.5rem;
-    font-size: 0.75rem;
-  }
-
-  .lang-switch-btn i {
-    font-size: 0.85rem;
-  }
-
-  /* ضبط الـ Navbar Actions */
-  .navbar-actions {
-    gap: 0.4rem;
-  }
-
-  .navbar-user {
-    gap: 0.4rem;
-  }
-
-  /* إظهار أيقونة Logout فقط */
-  .logout-btn span {
-    display: none;
-  }
-
-  .logout-btn {
-    padding: 0.45rem;
-  }
-
-  .logout-btn i {
-    margin: 0;
-    font-size: 1rem;
-  }
-
-  [dir="rtl"] .company-switcher-wrapper {
-    margin-left: 5px;
-  }
-
-  /* ✅ إخفاء أيقونة اللغة - إظهار النص فقط */
-  .lang-switch-btn i {
-    display: none;
-  }
-
   .lang-switch-btn {
     padding: 0.4rem 0.6rem;
     font-size: 0.75rem;
-    gap: 0;
   }
-
-  .lang-switch-btn span {
-    display: inline-block;
-    margin: 0;
+  .lang-switch-btn i {
+    display: none;
   }
 }
-/* ==================== Extra Small Mobile (max-width: 480px) ==================== */
+
 @media (max-width: 480px) {
   .company-switcher-wrapper {
     margin-right: 3px;
   }
-
   .company-switcher {
     min-width: 80px;
     max-width: 90px;
     font-size: 0.65rem;
     padding: 4px 2px;
   }
-
   .company-switcher option {
     font-size: 0.65rem;
     padding: 5px 4px;
     min-height: 30px;
   }
-
-  .company-switcher optgroup {
-    font-size: 0.65rem;
-  }
-
   .lang-switch-btn {
     padding: 0.35rem 0.45rem;
     font-size: 0.7rem;
   }
-
-  .lang-switch-btn i {
-    font-size: 0.8rem;
-  }
-
-  .navbar-actions {
-    gap: 0.3rem;
-  }
-
   .notification-bell {
     padding: 4px;
   }
-
   .notification-bell i {
     font-size: 1.1rem;
   }
-
-  [dir="rtl"] .company-switcher-wrapper {
-    margin-left: 3px;
-  }
-
-  .lang-switch-btn i {
-    display: none;
-  }
-
-  .lang-switch-btn {
-    padding: 0.35rem 0.5rem;
-    font-size: 0.7rem;
-  }
-
-  .lang-switch-btn i {
-    display: none;
-  }
-
-  .lang-switch-btn {
-    padding: 0.35rem 0.5rem;
-    font-size: 0.7rem;
-  }
 }
 
-/* ==================== Tiny Mobile (max-width: 380px) ==================== */
 @media (max-width: 380px) {
   .company-switcher-wrapper {
     margin-right: 2px;
   }
-
   .company-switcher {
     min-width: 65px;
     max-width: 75px;
     font-size: 0.6rem;
     padding: 3px 1px;
   }
-
   .company-switcher option {
     font-size: 0.6rem;
     padding: 4px 2px;
   }
-
   .lang-switch-btn {
     padding: 0.3rem 0.4rem;
     font-size: 0.65rem;
   }
-
-  .lang-switch-btn i {
-    font-size: 0.75rem;
-  }
-
-  .navbar-actions {
-    gap: 0.2rem;
-  }
-
   .user-avatar {
     width: 28px;
     height: 28px;
   }
-
   .user-avatar i {
     font-size: 1rem;
   }
-
   .logout-btn {
     padding: 0.35rem;
   }
-
   .logout-btn i {
     font-size: 0.9rem;
-  }
-
-  [dir="rtl"] .company-switcher-wrapper {
-    margin-left: 2px;
-  }
-
-  .lang-switch-btn i {
-    display: none;
-  }
-
-  .lang-switch-btn {
-    padding: 0.3rem 0.45rem;
-    font-size: 0.65rem;
-  }
-}
-
-/* ==================== Branch Selector (يشبه Company Switcher) ==================== */
-.branch-switcher-icon {
-  font-size: 1.1rem;
-  opacity: 0.9;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* أيقونة الفرع تكون بلون مختلف قليلاً (أزرق فاتح) */
-.branch-switcher-icon i {
-  color: #90caf9;
-}
-
-/* في الشاشات الصغيرة، نخفي الأيقونة مثل ما حدث مع company-switcher-icon */
-@media (max-width: 576px) {
-  .branch-switcher-icon {
-    display: none;
   }
 }

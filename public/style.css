@@ -59,7 +59,7 @@ a {
 .btn {
   display: inline-block;
   padding: 12px 24px;
-  background: #6f4e37;
+  /* background: #6f4e37; */
   color: #fff;
   border-radius: 6px;
   transition: 0.3s;

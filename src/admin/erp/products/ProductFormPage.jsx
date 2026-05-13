@@ -125,7 +125,7 @@ export default function ProductFormPage() {
       }
 
       if (isEdit) {
-        await api.put(`/erp/products/${id}/update`, payload, {
+        await api.put(`/erp/products/${id}`, payload, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {

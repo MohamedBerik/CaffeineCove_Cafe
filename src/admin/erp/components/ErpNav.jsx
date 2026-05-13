@@ -202,7 +202,7 @@ export default function ErpNav({ isOpen, closeSidebar }) {
   const headerTitle = isSaaSMode ? t("SaaS Platform") : t("ERP Navigation");
   const headerIcon = isSaaSMode ? "fas fa-cloud" : "fas fa-compass";
 
-  const closeSidebar = () => setIsOpen(false);
+  // const closeSidebar = () => setIsOpen(false);
 
   return (
     <>

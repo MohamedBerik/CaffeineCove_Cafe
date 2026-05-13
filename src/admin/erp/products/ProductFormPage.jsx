@@ -124,10 +124,8 @@ export default function ProductFormPage() {
         payload.append("product_image", imageFile);
       }
 
-      // لاحظ أن الـ API للـ update يطلب old_id في البودي (حسب الكنترولر الحالي)
-      // قد نعدل الكنترولر ليكون RESTful أكثر لاحقًا
       if (isEdit) {
-        await api.put(`/erp/products/update`, payload, {
+        await api.put(`/erp/products/${id}`, payload, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {

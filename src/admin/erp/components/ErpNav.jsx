@@ -201,28 +201,48 @@ export default function ErpNav() {
   const headerTitle = isSaaSMode ? t("SaaS Platform") : t("ERP Navigation");
   const headerIcon = isSaaSMode ? "fas fa-cloud" : "fas fa-compass";
 
-  return (
-    <div className="erp-nav-card">
-      <div className="erp-nav-header">
-        <i className={headerIcon}></i>
-        <span>{headerTitle}</span>
-      </div>
+  const closeSidebar = () => setIsOpen(false);
 
-      <div className="erp-nav-menu">
-        {visibleItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            className={({ isActive }) =>
-              `erp-nav-link ${isActive ? "active" : ""}`
-            }
-          >
-            <i className={item.icon}></i>
-            <span>{t(item.labelKey)}</span>
-          </NavLink>
-        ))}
+  return (
+    <>
+      {/* زر الهامبرغر – يظهر فقط في الشاشات الصغيرة */}
+      <button
+        className="erp-sidebar-toggle"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label={t("Toggle navigation")}
+      >
+        <i className={`fas ${isOpen ? "fa-times" : "fa-bars"}`}></i>
+      </button>
+
+      {/* Overlay الخلفية (يظهر فقط عند فتح القائمة في الجوال) */}
+      {isOpen && (
+        <div className="erp-sidebar-overlay" onClick={closeSidebar}></div>
+      )}
+
+      {/* محتوى الشريط الجانبي */}
+      <div className={`erp-nav-card ${isOpen ? "open" : ""}`}>
+        <div className="erp-nav-header">
+          <i className={headerIcon}></i>
+          <span>{headerTitle}</span>
+        </div>
+
+        <div className="erp-nav-menu">
+          {visibleItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) =>
+                `erp-nav-link ${isActive ? "active" : ""}`
+              }
+              onClick={closeSidebar} // إغلاق القائمة بعد النقر على رابط
+            >
+              <i className={item.icon}></i>
+              <span>{t(item.labelKey)}</span>
+            </NavLink>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -91,6 +91,12 @@ const erpNavItems = [
     permission: "inventory.manage",
   },
   {
+    to: "/admin/erp/supplies",
+    labelKey: "Supplies",
+    icon: "fas fa-boxes",
+    permission: "supplies.view",
+  },
+  {
     to: "/admin/erp/reports",
     labelKey: "Reports",
     icon: "fas fa-chart-bar",

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
 import { useTranslation } from "react-i18next";
@@ -8,12 +8,14 @@ import "./PurchaseOrderCreate.css";
 const PurchaseOrderCreate = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const preselectedSupplierId = searchParams.get("supplier_id") || "";
 
   const [suppliers, setSuppliers] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [supplierId, setSupplierId] = useState("");
+  const [supplies, setSupplies] = useState([]); // ✅ استبدال products بـ supplies
+  const [supplierId, setSupplierId] = useState(preselectedSupplierId);
   const [items, setItems] = useState([
-    { product_id: "", quantity: 1, unit_cost: "" },
+    { supply_id: "", quantity: 1, unit_cost: "" },
   ]);
   const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -40,16 +42,16 @@ const PurchaseOrderCreate = () => {
 
   const fetchInitialData = async () => {
     try {
-      const [supRes, prodRes] = await Promise.all([
-        api.get("/erp/suppliers"),
-        api.get("/erp/products"),
+      const [supRes, supRes2] = await Promise.all([
+        api.get("/erp/suppliers"), // ✅ الموردين من ERP
+        api.get("/erp/supplies"), // ✅ المستلزمات
       ]);
 
       setSuppliers(supRes.data.data ?? supRes.data);
-      setProducts(prodRes.data.data ?? prodRes.data);
+      setSupplies(supRes2.data.data ?? supRes2.data);
     } catch (e) {
       console.error(e);
-      notifyError(t("Failed to load suppliers or products"));
+      notifyError(t("Failed to load suppliers or supplies"));
     }
   };
 
@@ -60,7 +62,7 @@ const PurchaseOrderCreate = () => {
   };
 
   const addRow = () => {
-    setItems([...items, { product_id: "", quantity: 1, unit_cost: "" }]);
+    setItems([...items, { supply_id: "", quantity: 1, unit_cost: "" }]);
   };
 
   const removeRow = (index) => {
@@ -79,14 +81,13 @@ const PurchaseOrderCreate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!supplierId) {
       notifyError(t("Please select supplier"));
       return;
     }
 
     const cleanItems = items.filter(
-      (i) => i.product_id && Number(i.quantity) > 0 && Number(i.unit_cost) > 0,
+      (i) => i.supply_id && Number(i.quantity) > 0 && Number(i.unit_cost) > 0,
     );
 
     if (cleanItems.length === 0) {
@@ -96,11 +97,10 @@ const PurchaseOrderCreate = () => {
 
     try {
       setLoading(true);
-
       await api.post("/erp/purchase-orders", {
         supplier_id: supplierId,
         items: cleanItems.map((i) => ({
-          product_id: i.product_id,
+          supply_id: i.supply_id,
           quantity: Number(i.quantity),
           unit_cost: Number(i.unit_cost),
         })),
@@ -189,16 +189,16 @@ const PurchaseOrderCreate = () => {
                   <label>{t("Product")}</label>
                   <select
                     className="form-select"
-                    value={row.product_id}
+                    value={row.supply_id}
                     onChange={(e) =>
-                      handleItemChange(i, "product_id", e.target.value)
+                      handleItemChange(i, "supply_id", e.target.value)
                     }
                     required
                   >
-                    <option value="">{t("Select product...")}</option>
-                    {products.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.title_en ?? p.name}
+                    <option value="">{t("Select supply...")}</option>
+                    {supplies.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
                       </option>
                     ))}
                   </select>

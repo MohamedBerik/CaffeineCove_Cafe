@@ -294,7 +294,7 @@ const PurchaseOrderDetails = () => {
                 <div className="item-header">
                   <span className="item-number">#{i + 1}</span>
                   <span className="item-product">
-                    {item.product?.title_en || t("N/A")}
+                    {item.supply?.name || t("N/A")}
                   </span>
                 </div>
                 <div className="item-details">
@@ -545,7 +545,7 @@ const PurchaseOrderDetails = () => {
             <thead className="table-light">
               <tr>
                 <th style={{ width: 60 }}>#</th>
-                <th>{t("Product")}</th>
+                <th>{t("Supply")}</th>
                 <th style={{ width: 100 }}>{t("Quantity")}</th>
                 <th style={{ width: 120 }}>{t("Unit Cost")}</th>
                 <th style={{ width: 120 }}>{t("Line Total")}</th>
@@ -556,7 +556,7 @@ const PurchaseOrderDetails = () => {
               {po.items.map((item, i) => (
                 <tr key={item.id}>
                   <td className="fw-semibold">{i + 1}</td>
-                  <td>{item.product?.title_en ?? item.product_id}</td>
+                  <td>{item.supply?.name ?? item.supply_id}</td>
                   <td>{item.quantity}</td>
                   <td>{formatCurrency(item.unit_cost)}</td>
                   <td className="fw-semibold">{formatCurrency(item.total)}</td>

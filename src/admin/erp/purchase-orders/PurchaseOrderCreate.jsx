@@ -11,6 +11,15 @@ const PurchaseOrderCreate = () => {
   const [searchParams] = useSearchParams();
   const preselectedSupplierId = searchParams.get("supplier_id") || "";
 
+  // دالة لاستخراج مصفوفة من بيانات API مهما كان شكلها
+  const extractArray = (payload) => {
+    if (Array.isArray(payload)) return payload;
+    if (payload?.data && Array.isArray(payload.data)) return payload.data;
+    if (payload?.data?.data && Array.isArray(payload.data.data))
+      return payload.data.data;
+    return [];
+  };
+
   const [suppliers, setSuppliers] = useState([]);
   const [supplies, setSupplies] = useState([]); // ✅ استبدال products بـ supplies
   const [supplierId, setSupplierId] = useState(preselectedSupplierId);
@@ -43,12 +52,12 @@ const PurchaseOrderCreate = () => {
   const fetchInitialData = async () => {
     try {
       const [supRes, supRes2] = await Promise.all([
-        api.get("/erp/suppliers"), // ✅ الموردين من ERP
-        api.get("/erp/supplies"), // ✅ المستلزمات
+        api.get("/erp/suppliers"),
+        api.get("/erp/supplies"),
       ]);
 
-      setSuppliers(supRes.data.data ?? supRes.data);
-      setSupplies(supRes2.data.data ?? supRes2.data);
+      setSuppliers(extractArray(supRes.data));
+      setSupplies(extractArray(supRes2.data));
     } catch (e) {
       console.error(e);
       notifyError(t("Failed to load suppliers or supplies"));

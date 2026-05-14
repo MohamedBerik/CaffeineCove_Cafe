@@ -19,9 +19,6 @@ export default function SupplierFormPage() {
     name: "",
     email: "",
     phone: "",
-    address: "",
-    contact_person: "",
-    notes: "",
   });
 
   useEffect(() => {
@@ -44,9 +41,6 @@ export default function SupplierFormPage() {
         name: supplier.name || "",
         email: supplier.email || "",
         phone: supplier.phone || "",
-        address: supplier.address || "",
-        contact_person: supplier.contact_person || "",
-        notes: supplier.notes || "",
       });
     } catch (err) {
       setError(
@@ -76,9 +70,6 @@ export default function SupplierFormPage() {
         name: form.name.trim(),
         email: form.email.trim(),
         phone: form.phone.trim(),
-        address: form.address.trim() || null,
-        contact_person: form.contact_person.trim() || null,
-        notes: form.notes.trim() || null,
       };
 
       if (isEdit) {
@@ -231,7 +222,7 @@ export default function SupplierFormPage() {
                 />
               </div>
 
-              <div className="form-group">
+              {/* <div className="form-group">
                 <label className="form-label">
                   <i className="fas fa-user-tie me-2"></i>
                   {t("Contact Person")}
@@ -244,9 +235,9 @@ export default function SupplierFormPage() {
                   onChange={handleChange}
                   placeholder={t("Optional")}
                 />
-              </div>
+              </div> */}
 
-              <div className="form-group full-width">
+              {/* <div className="form-group full-width">
                 <label className="form-label">
                   <i className="fas fa-map-marker-alt me-2"></i>
                   {t("Address")}
@@ -259,9 +250,9 @@ export default function SupplierFormPage() {
                   onChange={handleChange}
                   placeholder={t("Optional")}
                 />
-              </div>
+              </div> */}
 
-              <div className="form-group full-width">
+              {/* <div className="form-group full-width">
                 <label className="form-label">
                   <i className="fas fa-sticky-note me-2"></i>
                   {t("Notes")}
@@ -274,7 +265,7 @@ export default function SupplierFormPage() {
                   onChange={handleChange}
                   placeholder={t("Optional internal notes...")}
                 />
-              </div>
+              </div> */}
             </div>
 
             <div className="form-actions">

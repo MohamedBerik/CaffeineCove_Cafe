@@ -269,7 +269,7 @@ export default function SuppliesListPage() {
                         {item.stock_quantity ?? 0}
                       </td>
                       <td data-label={t("Supplier")}>
-                        {item.supplier?.name || "-"}
+                        {item.supplier?.name || item.supplier?.id}
                       </td>
                       <td data-label={t("Actions")}>
                         <div className="action-buttons">

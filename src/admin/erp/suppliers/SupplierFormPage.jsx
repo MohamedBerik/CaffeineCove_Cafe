@@ -221,51 +221,6 @@ export default function SupplierFormPage() {
                   required
                 />
               </div>
-
-              {/* <div className="form-group">
-                <label className="form-label">
-                  <i className="fas fa-user-tie me-2"></i>
-                  {t("Contact Person")}
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  name="contact_person"
-                  value={form.contact_person}
-                  onChange={handleChange}
-                  placeholder={t("Optional")}
-                />
-              </div> */}
-
-              {/* <div className="form-group full-width">
-                <label className="form-label">
-                  <i className="fas fa-map-marker-alt me-2"></i>
-                  {t("Address")}
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  name="address"
-                  value={form.address}
-                  onChange={handleChange}
-                  placeholder={t("Optional")}
-                />
-              </div> */}
-
-              {/* <div className="form-group full-width">
-                <label className="form-label">
-                  <i className="fas fa-sticky-note me-2"></i>
-                  {t("Notes")}
-                </label>
-                <textarea
-                  className="form-control"
-                  rows="3"
-                  name="notes"
-                  value={form.notes}
-                  onChange={handleChange}
-                  placeholder={t("Optional internal notes...")}
-                />
-              </div> */}
             </div>
 
             <div className="form-actions">

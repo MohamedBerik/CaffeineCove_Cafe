@@ -248,7 +248,6 @@ export default function SuppliersListPage() {
                     <th>{t("Name")}</th>
                     <th>{t("Email")}</th>
                     <th>{t("Phone")}</th>
-                    {/* <th>{t("Contact Person")}</th> */}
                     <th>{t("Actions")}</th>
                   </tr>
                 </thead>
@@ -285,9 +284,6 @@ export default function SuppliersListPage() {
                           "-"
                         )}
                       </td>
-                      {/* <td data-label={t("Contact Person")}>
-                        {item.contact_person || "-"}
-                      </td> */}
                       <td data-label={t("Actions")}>
                         <div className="action-buttons">
                           {(user?.is_super_admin ||

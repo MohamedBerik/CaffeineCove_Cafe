@@ -230,15 +230,6 @@ export default function InvoiceDetails() {
         <button className="btn btn-sm btn-outline-danger" onClick={loadInvoice}>
           {t("Retry")}
         </button>
-        <Link
-          to={`/admin/erp/invoices/${invoice.id}/print`}
-          className="btn btn-outline-secondary"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <i className="fas fa-print me-2"></i>
-          {t("Print")}
-        </Link>
       </div>
     );
   }
@@ -283,7 +274,15 @@ export default function InvoiceDetails() {
               {t("Patient Profile")}
             </Link>
           )}
-
+          <Link
+            to={`/admin/erp/invoices/${invoice.id}/print`}
+            className="btn btn-outline-dark"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i className="fas fa-print me-2"></i>
+            {t("Print")}
+          </Link>
           <button className="btn btn-primary" onClick={loadInvoice}>
             <i className="fas fa-sync-alt me-2"></i>
             {t("Refresh")}

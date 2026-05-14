@@ -286,53 +286,81 @@ export default function SuppliersListPage() {
                       </td>
                       <td data-label={t("Actions")}>
                         <div className="action-buttons">
+                          {/* زر التعديل – موجود مسبقاً */}
                           {(user?.is_super_admin ||
                             user?.role === "admin" ||
                             user?.permissions?.includes(
                               "inventory.manage",
                             )) && (
-                            <>
-                              <Link
-                                to={`/admin/erp/suppliers/${item.id}/edit`}
-                                className="btn btn-sm btn-outline-primary"
-                                title={t("Edit Supplier")}
-                              >
-                                <i className="fas fa-edit"></i>
-                              </Link>
-                              <Link
-                                to={`/admin/erp/suppliers/${item.id}/statement`}
-                                className="btn btn-sm btn-outline-info"
-                                title={t("Supplier Statement")}
-                              >
-                                <i className="fas fa-file-invoice"></i>
-                              </Link>
-                              <Link
-                                to={`/admin/erp/purchase-orders/create?supplier_id=${item.id}`}
-                                className="btn btn-sm btn-outline-success"
-                                title={t("Create Purchase Order")}
-                              >
-                                <i className="fas fa-shopping-cart"></i>
-                              </Link>
-                              <Link
-                                to={`/admin/erp/purchase-orders?supplier_id=${item.id}`}
-                                className="btn btn-sm btn-outline-info"
-                              >
-                                <i className="fas fa-list"></i> {t("Orders")}
-                              </Link>
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-outline-danger"
-                                onClick={() => deleteSupplier(item)}
-                                disabled={actingId === item.id}
-                                title={t("Delete Supplier")}
-                              >
-                                {actingId === item.id ? (
-                                  <span className="spinner-border spinner-border-sm me-1"></span>
-                                ) : (
-                                  <i className="fas fa-trash-alt"></i>
-                                )}
-                              </button>
-                            </>
+                            <Link
+                              to={`/admin/erp/suppliers/${item.id}/edit`}
+                              className="btn btn-sm btn-outline-primary"
+                              title={t("Edit Supplier")}
+                            >
+                              <i className="fas fa-edit"></i>
+                            </Link>
+                          )}
+
+                          {/* ✅ زر كشف حساب المورد */}
+                          {(user?.is_super_admin ||
+                            user?.role === "admin" ||
+                            user?.permissions?.includes("finance.view")) && (
+                            <Link
+                              to={`/admin/erp/suppliers/${item.id}/statement`}
+                              className="btn btn-sm btn-outline-info"
+                              title={t("Supplier Statement")}
+                            >
+                              <i className="fas fa-file-invoice"></i>
+                            </Link>
+                          )}
+
+                          {/* ✅ زر إنشاء أمر شراء لهذا المورد */}
+                          {(user?.is_super_admin ||
+                            user?.role === "admin" ||
+                            user?.permissions?.includes(
+                              "purchases.manage",
+                            )) && (
+                            <Link
+                              to={`/admin/erp/purchase-orders/create?supplier_id=${item.id}`}
+                              className="btn btn-sm btn-outline-success"
+                              title={t("Create Purchase Order")}
+                            >
+                              <i className="fas fa-shopping-cart"></i>
+                            </Link>
+                          )}
+
+                          {/* ✅ زر عرض أوامر الشراء الخاصة بهذا المورد (اختياري) */}
+                          {(user?.is_super_admin ||
+                            user?.role === "admin" ||
+                            user?.permissions?.includes("finance.view")) && (
+                            <Link
+                              to={`/admin/erp/purchase-orders?supplier_id=${item.id}`}
+                              className="btn btn-sm btn-outline-secondary"
+                              title={t("View Purchase Orders")}
+                            >
+                              <i className="fas fa-list"></i>
+                            </Link>
+                          )}
+
+                          {/* زر الحذف – موجود مسبقاً */}
+                          {(user?.is_super_admin ||
+                            user?.role === "admin" ||
+                            user?.permissions?.includes(
+                              "inventory.manage",
+                            )) && (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() => deleteSupplier(item)}
+                              disabled={actingId === item.id}
+                              title={t("Delete Supplier")}
+                            >
+                              {actingId === item.id ? (
+                                <span className="spinner-border spinner-border-sm me-1"></span>
+                              ) : (
+                                <i className="fas fa-trash-alt"></i>
+                              )}
+                            </button>
                           )}
                         </div>
                       </td>

@@ -121,7 +121,7 @@ export default function PurchaseOrderReturnsHistory() {
               </div>
               <div className="timeline-content">
                 <div className="return-header">
-                  <h5>{r.product}</h5>
+                  <h5>{r.supply}</h5> {/* ✅ تم التغيير */}
                   <span className="return-quantity">
                     <i className="fas fa-undo-alt me-1"></i>
                     {r.quantity}
@@ -185,7 +185,7 @@ export default function PurchaseOrderReturnsHistory() {
           <thead>
             <tr>
               <th style={{ width: 60 }}>#</th>
-              <th>{t("Product")}</th>
+              <th>{t("Supply")}</th> {/* ✅ تم التغيير */}
               <th style={{ width: 150 }}>{t("Returned Quantity")}</th>
               <th style={{ width: 200 }}>{t("Date & Time")}</th>
               <th style={{ width: 100 }}>{t("Return ID")}</th>
@@ -205,10 +205,14 @@ export default function PurchaseOrderReturnsHistory() {
                   <td className="index-cell">
                     <span className="index-badge">{index + 1}</span>
                   </td>
-                  <td className="product-cell">
-                    <div className="product-info">
+                  <td className="supply-cell">
+                    {" "}
+                    {/* ✅ تم تغيير اسم الفئة */}
+                    <div className="supply-info">
+                      {" "}
+                      {/* ✅ تم تغيير اسم الفئة */}
                       <i className="fas fa-box me-2 text-muted"></i>
-                      {r.product}
+                      {r.supply} {/* ✅ تم التغيير */}
                     </div>
                   </td>
                   <td className="quantity-cell">

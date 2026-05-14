@@ -178,8 +178,8 @@
   text-align: center;
 }
 
-/* Product Cell */
-.product-info {
+/* Supply Cell */
+.supply-info {
   display: flex;
   align-items: center;
   font-weight: 500;
@@ -537,7 +537,7 @@
   flex-direction: row-reverse;
 }
 
-[dir="rtl"] .product-info i {
+[dir="rtl"] .supply-info i {
   margin-right: 0;
   margin-left: 0.5rem;
 }

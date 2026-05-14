@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import "./PurchaseOrderReturns.css";
 
 export default function PurchaseOrderReturns() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
@@ -24,6 +24,7 @@ export default function PurchaseOrderReturns() {
     setLoading(true);
     try {
       const res = await api.get(`/erp/purchase-orders/${id}/returnable-items`);
+      // الخادم يُرجع الآن supply_id و supply_name بدلاً من product
       const rows = res.data.items.map((i) => ({
         ...i,
         return_qty: "",
@@ -45,7 +46,6 @@ export default function PurchaseOrderReturns() {
 
   const handleReturn = async (row) => {
     const qty = Number(row.return_qty);
-
     if (!qty || qty <= 0) {
       notifyError(t("Enter a valid quantity"));
       return;
@@ -57,7 +57,7 @@ export default function PurchaseOrderReturns() {
 
     try {
       await api.post(`/erp/purchase-orders/${id}/return`, {
-        product_id: row.product_id,
+        supply_id: row.supply_id, // ✅ تم التغيير
         quantity: qty,
       });
 
@@ -70,10 +70,10 @@ export default function PurchaseOrderReturns() {
     }
   };
 
-  const handleQuantityChange = (productId, value) => {
+  const handleQuantityChange = (supplyId, value) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.product_id === productId ? { ...item, return_qty: value } : item,
+        item.supply_id === supplyId ? { ...item, return_qty: value } : item,
       ),
     );
   };
@@ -126,9 +126,11 @@ export default function PurchaseOrderReturns() {
       ) : (
         <div className="items-list">
           {items.map((item) => (
-            <div key={item.product_id} className="item-card">
+            <div key={item.supply_id} className="item-card">
+              {" "}
+              {/* ✅ مفتاح supply_id */}
               <div className="item-header">
-                <h4>{item.product_name}</h4>
+                <h4>{item.supply_name}</h4> {/* ✅ supply_name */}
                 <div className="item-stats">
                   <div className="stat-badge received">
                     <span className="stat-label">{t("Received")}:</span>
@@ -140,7 +142,6 @@ export default function PurchaseOrderReturns() {
                   </div>
                 </div>
               </div>
-
               <div className="available-section">
                 <div className="available-label">
                   {t("Available for Return")}
@@ -149,7 +150,6 @@ export default function PurchaseOrderReturns() {
                   {item.available_to_return}
                 </div>
               </div>
-
               {item.available_to_return > 0 ? (
                 <div className="return-controls">
                   <input
@@ -159,8 +159,9 @@ export default function PurchaseOrderReturns() {
                     max={item.available_to_return}
                     placeholder={t("Qty")}
                     value={item.return_qty}
-                    onChange={(e) =>
-                      handleQuantityChange(item.product_id, e.target.value)
+                    onChange={
+                      (e) =>
+                        handleQuantityChange(item.supply_id, e.target.value) // ✅
                     }
                   />
                   <button
@@ -195,7 +196,8 @@ export default function PurchaseOrderReturns() {
             </div>
             <div className="modal-body">
               <p>
-                <strong>{t("Product")}:</strong> {selectedItem.product_name}
+                <strong>{t("Supply")}:</strong> {selectedItem.supply_name}{" "}
+                {/* ✅ */}
               </p>
               <p>
                 <strong>{t("Return Quantity")}:</strong>{" "}
@@ -239,7 +241,7 @@ export default function PurchaseOrderReturns() {
         <table className="returns-table">
           <thead>
             <tr>
-              <th>{t("Product")}</th>
+              <th>{t("Supply")}</th> {/* ✅ */}
               <th>{t("Received")}</th>
               <th>{t("Returned")}</th>
               <th>{t("Available for Return")}</th>
@@ -259,8 +261,10 @@ export default function PurchaseOrderReturns() {
               </tr>
             ) : (
               items.map((item) => (
-                <tr key={item.product_id}>
-                  <td className="product-name">{item.product_name}</td>
+                <tr key={item.supply_id}>
+                  {" "}
+                  {/* ✅ */}
+                  <td className="supply-name">{item.supply_name}</td> {/* ✅ */}
                   <td className="text-center received-cell">
                     {item.received_quantity}
                   </td>
@@ -282,8 +286,9 @@ export default function PurchaseOrderReturns() {
                       max={item.available_to_return}
                       placeholder={t("Qty")}
                       value={item.return_qty}
-                      onChange={(e) =>
-                        handleQuantityChange(item.product_id, e.target.value)
+                      onChange={
+                        (e) =>
+                          handleQuantityChange(item.supply_id, e.target.value) // ✅
                       }
                       disabled={item.available_to_return <= 0}
                     />

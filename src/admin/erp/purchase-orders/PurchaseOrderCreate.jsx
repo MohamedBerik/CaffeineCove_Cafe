@@ -387,7 +387,7 @@ const PurchaseOrderCreate = () => {
                     <th className="text-center" style={{ width: 50 }}>
                       #
                     </th>
-                    <th>{t("Product")}</th>
+                    <th>{t("Supply")}</th>
                     <th style={{ width: 120 }}>{t("Quantity")}</th>
                     <th style={{ width: 150 }}>{t("Unit Cost")}</th>
                     <th style={{ width: 120 }}>{t("Line Total")}</th>
@@ -401,16 +401,16 @@ const PurchaseOrderCreate = () => {
                       <td>
                         <select
                           className="form-select"
-                          value={row.product_id}
+                          value={row.supply_id}
                           onChange={(e) =>
-                            handleItemChange(i, "product_id", e.target.value)
+                            handleItemChange(i, "supply_id", e.target.value)
                           }
                           required
                         >
-                          <option value="">{t("Select product...")}</option>
-                          {products.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {p.title_en ?? p.name}
+                          <option value="">{t("Select supply...")}</option>
+                          {supplies.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.name}
                             </option>
                           ))}
                         </select>

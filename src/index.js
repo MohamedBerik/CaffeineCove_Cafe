@@ -92,6 +92,8 @@ import ProductFormPage from "./admin/erp/products/ProductFormPage";
 import SuppliersListPage from "./admin/erp/suppliers/SuppliersListPage";
 import SupplierFormPage from "./admin/erp/suppliers/SupplierFormPage";
 import SupplierStatementPage from "./admin/erp/suppliers/SupplierStatementPage";
+import SuppliesListPage from "./admin/erp/supplies/SuppliesListPage";
+import SupplyFormPage from "./admin/erp/supplies/SupplyFormPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -170,6 +172,11 @@ createRoot(document.getElementById("root")).render(
                 path="suppliers/:id/statement"
                 element={<SupplierStatementPage />}
               />
+
+              <Route path="supplies" element={<SuppliesListPage />} />
+              <Route path="supplies/create" element={<SupplyFormPage />} />
+              <Route path="supplies/:id/edit" element={<SupplyFormPage />} />
+
               <Route
                 path="patients/:id/statement"
                 element={<PatientStatement />}

@@ -94,6 +94,7 @@ import SupplierFormPage from "./admin/erp/suppliers/SupplierFormPage";
 import SupplierStatementPage from "./admin/erp/suppliers/SupplierStatementPage";
 import SuppliesListPage from "./admin/erp/supplies/SuppliesListPage";
 import SupplyFormPage from "./admin/erp/supplies/SupplyFormPage";
+import PrintInvoicePage from "./admin/erp/PrintInvoicePage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({

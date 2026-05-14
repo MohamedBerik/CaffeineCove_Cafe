@@ -90,6 +90,8 @@ import PlatformSettings from "./admin/saas/PlatformSettings";
 import ActivityLogs from "./admin/erp/activity-logs/ActivityLogs";
 import BillingPage from "./admin/erp/billing/BillingPage";
 import ProductFormPage from "./admin/erp/products/ProductFormPage";
+import SuppliersListPage from "./admin/erp/suppliers/SuppliersListPage";
+import SupplierFormPage from "./admin/erp/suppliers/SupplierFormPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -160,6 +162,10 @@ createRoot(document.getElementById("root")).render(
                 path="purchase-orders/:id/returns-history"
                 element={<PurchaseOrderReturnsHistory />}
               />
+
+              <Route path="suppliers" element={<SuppliersListPage />} />
+              <Route path="suppliers/create" element={<SupplierFormPage />} />
+              <Route path="suppliers/:id/edit" element={<SupplierFormPage />} />
               <Route
                 path="suppliers/:id/statement"
                 element={<SupplierStatement />}

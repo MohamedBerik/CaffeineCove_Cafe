@@ -16,7 +16,7 @@ const erpNavItems = [
     to: "/admin/erp/visits/start",
     labelKey: "Start Visit",
     icon: "fas fa-stethoscope",
-    permission: "appointments.view", // تم التغيير إلى appointments.view
+    permission: "appointments.view",
   },
   {
     to: "/admin/erp/doctors",
@@ -83,6 +83,12 @@ const erpNavItems = [
     labelKey: "Purchase Orders",
     icon: "fas fa-truck-loading",
     permission: "purchases.manage",
+  },
+  {
+    to: "/admin/erp/suppliers",
+    labelKey: "Suppliers",
+    icon: "fa-solid fa-boxes-packing",
+    permission: "inventory.manage",
   },
   {
     to: "/admin/erp/reports",

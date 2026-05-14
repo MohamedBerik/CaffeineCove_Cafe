@@ -230,6 +230,15 @@ export default function InvoiceDetails() {
         <button className="btn btn-sm btn-outline-danger" onClick={loadInvoice}>
           {t("Retry")}
         </button>
+        <Link
+          to={`/admin/erp/invoices/${invoice.id}/print`}
+          className="btn btn-outline-secondary"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <i className="fas fa-print me-2"></i>
+          {t("Print")}
+        </Link>
       </div>
     );
   }

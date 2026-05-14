@@ -299,6 +299,13 @@ export default function SuppliersListPage() {
                               >
                                 <i className="fas fa-edit"></i>
                               </Link>
+                              <Link
+                                to={`/admin/erp/suppliers/${item.id}/statement`}
+                                className="btn btn-sm btn-outline-info"
+                                title={t("Supplier Statement")}
+                              >
+                                <i className="fas fa-file-invoice"></i>
+                              </Link>
                               <button
                                 type="button"
                                 className="btn btn-sm btn-outline-danger"

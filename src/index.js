@@ -47,7 +47,6 @@ import PurchaseOrderDetails from "./admin/erp/purchase-orders/PurchaseOrderDetai
 import PurchaseOrderReturns from "./admin/erp/purchase-orders/PurchaseOrderReturns";
 import PurchaseOrderReturnsHistory from "./admin/erp/purchase-orders/PurchaseOrderReturnsHistory";
 import PatientStatement from "./admin/erp/patients/PatientStatement";
-import SupplierStatement from "./admin/erp/suppliers/SupplierStatement";
 import PatientsList from "./admin/erp/patients/PatientsList";
 import PatientProfilePage from "./admin/erp/patients/PatientProfilePage";
 import PatientTimelinePage from "./admin/erp/patients/PatientTimelinePage";
@@ -92,6 +91,7 @@ import BillingPage from "./admin/erp/billing/BillingPage";
 import ProductFormPage from "./admin/erp/products/ProductFormPage";
 import SuppliersListPage from "./admin/erp/suppliers/SuppliersListPage";
 import SupplierFormPage from "./admin/erp/suppliers/SupplierFormPage";
+import SupplierStatementPage from "./admin/erp/suppliers/SupplierStatementPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -168,7 +168,7 @@ createRoot(document.getElementById("root")).render(
               <Route path="suppliers/:id/edit" element={<SupplierFormPage />} />
               <Route
                 path="suppliers/:id/statement"
-                element={<SupplierStatement />}
+                element={<SupplierStatementPage />}
               />
               <Route
                 path="patients/:id/statement"

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import api from "../../../services/axios";
 import { notifyError, notifySuccess } from "../../../utils/notify";
 import { useTranslation } from "react-i18next";

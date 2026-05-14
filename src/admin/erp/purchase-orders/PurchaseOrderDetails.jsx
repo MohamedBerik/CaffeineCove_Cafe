@@ -293,7 +293,7 @@ const PurchaseOrderDetails = () => {
               <div key={item.id} className="item-card">
                 <div className="item-header">
                   <span className="item-number">#{i + 1}</span>
-                  <span className="item-product">
+                  <span className="item-supply">
                     {item.supply?.name || t("N/A")}
                   </span>
                 </div>

@@ -9,20 +9,30 @@ export default function PrintInvoicePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState(null);
+  const [clinicSettings, setClinicSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const printRef = useRef();
 
   useEffect(() => {
-    loadInvoice();
+    loadData();
   }, [id]);
 
-  const loadInvoice = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
       setError("");
-      const res = await api.get(`/erp/invoices/${id}`);
-      setInvoice(res.data.data || res.data);
+
+      const [invoiceRes, clinicRes] = await Promise.all([
+        api.get(`/erp/invoices/${id}`),
+        api.get("/erp/clinic-settings"),
+      ]);
+
+      const invoicePayload = invoiceRes.data || {};
+      const clinicPayload = clinicRes.data || {};
+
+      setInvoice(invoicePayload.data || invoicePayload);
+      setClinicSettings(clinicPayload.data || clinicPayload);
     } catch (err) {
       setError(err?.response?.data?.message || t("Failed to load invoice"));
     } finally {
@@ -37,7 +47,7 @@ export default function PrintInvoicePage() {
   const formatCurrency = (value) => {
     return new Intl.NumberFormat(i18n.language === "ar" ? "ar-EG" : "en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "EGP",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(Number(value || 0));
@@ -50,6 +60,13 @@ export default function PrintInvoicePage() {
       { year: "numeric", month: "short", day: "2-digit" },
     );
   };
+
+  // ✅ استخراج بيانات العيادة من الإعدادات
+  const clinicName =
+    clinicSettings?.clinic_name || clinicSettings?.name || t("Dental Clinic");
+  const clinicAddress = clinicSettings?.address || "";
+  const clinicPhone = clinicSettings?.phone || "";
+  const clinicEmail = clinicSettings?.email || "";
 
   if (loading) {
     return (
@@ -98,10 +115,18 @@ export default function PrintInvoicePage() {
       <div className="invoice-container" ref={printRef}>
         <div className="invoice-header">
           <div className="clinic-info">
-            <h2>{t("Dental Clinic Name")}</h2>
-            <p>{t("123 Medical Street, City")}</p>
-            <p>{t("Phone: +20 123 456 789")}</p>
-            <p>{t("Email: clinic@example.com")}</p>
+            <h2>{clinicName}</h2>
+            {clinicAddress && <p>{clinicAddress}</p>}
+            {clinicPhone && (
+              <p>
+                {t("Phone")}: {clinicPhone}
+              </p>
+            )}
+            {clinicEmail && (
+              <p>
+                {t("Email")}: {clinicEmail}
+              </p>
+            )}
           </div>
           <div className="invoice-title">
             <h1>{t("INVOICE")}</h1>
@@ -148,7 +173,7 @@ export default function PrintInvoicePage() {
                   <td>
                     {item.product?.title ||
                       item.description ||
-                      `Item ${index + 1}`}
+                      `${t("Item")} ${index + 1}`}
                   </td>
                   <td>{item.quantity}</td>
                   <td>{formatCurrency(item.unit_price)}</td>

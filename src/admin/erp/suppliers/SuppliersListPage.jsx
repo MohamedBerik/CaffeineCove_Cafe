@@ -306,6 +306,19 @@ export default function SuppliersListPage() {
                               >
                                 <i className="fas fa-file-invoice"></i>
                               </Link>
+                              <Link
+                                to={`/admin/erp/purchase-orders/create?supplier_id=${item.id}`}
+                                className="btn btn-sm btn-outline-success"
+                                title={t("Create Purchase Order")}
+                              >
+                                <i className="fas fa-shopping-cart"></i>
+                              </Link>
+                              <Link
+                                to={`/admin/erp/purchase-orders?supplier_id=${item.id}`}
+                                className="btn btn-sm btn-outline-info"
+                              >
+                                <i className="fas fa-list"></i> {t("Orders")}
+                              </Link>
                               <button
                                 type="button"
                                 className="btn btn-sm btn-outline-danger"

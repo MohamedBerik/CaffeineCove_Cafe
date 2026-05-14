@@ -41,8 +41,8 @@ const PurchaseOrderCreate = () => {
   const fetchInitialData = async () => {
     try {
       const [supRes, prodRes] = await Promise.all([
-        api.get("/admin/suppliers"),
-        api.get("/admin/products"),
+        api.get("/erp/suppliers"),
+        api.get("/erp/products"),
       ]);
 
       setSuppliers(supRes.data.data ?? supRes.data);

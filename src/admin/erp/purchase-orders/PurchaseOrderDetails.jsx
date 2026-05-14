@@ -396,6 +396,18 @@ const PurchaseOrderDetails = () => {
             </div>
           </div>
         </div>
+        <div className="header-actions">
+          {/* ✅ زر الطباعة */}
+          <Link
+            to={`/admin/erp/purchase-orders/${po.id}/print`}
+            className="btn btn-outline-dark"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i className="fas fa-print me-2"></i>
+            {t("Print")}
+          </Link>
+        </div>
       </div>
 
       {/* Summary Cards */}

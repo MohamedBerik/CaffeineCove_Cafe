@@ -95,6 +95,7 @@ import SupplierStatementPage from "./admin/erp/suppliers/SupplierStatementPage";
 import SuppliesListPage from "./admin/erp/supplies/SuppliesListPage";
 import SupplyFormPage from "./admin/erp/supplies/SupplyFormPage";
 import PrintInvoicePage from "./admin/erp/PrintInvoicePage";
+import PrintPurchaseOrderPage from "./admin/erp/PrintPurchaseOrderPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -137,6 +138,10 @@ createRoot(document.getElementById("root")).render(
             <Route
               path="/admin/erp/invoices/:id/print"
               element={<PrintInvoicePage />}
+            />
+            <Route
+              path="/admin/erp/purchase-orders/:id/print"
+              element={<PrintPurchaseOrderPage />}
             />
 
             <Route

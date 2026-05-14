@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import axios from "../../../services/axios";
+import api from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import "./SupplierFormPage.css";
 
@@ -36,7 +36,7 @@ export default function SupplierFormPage() {
       setError("");
       setSuccess("");
 
-      const res = await axios.get(`/erp/suppliers/${id}`);
+      const res = await api.get(`/erp/suppliers/${id}`);
       const payload = res.data || {};
       const supplier = payload.data || payload || {};
 
@@ -82,9 +82,9 @@ export default function SupplierFormPage() {
       };
 
       if (isEdit) {
-        await axios.put(`/erp/suppliers/${id}`, payload);
+        await api.put(`/erp/suppliers/${id}`, payload);
       } else {
-        await axios.post("/erp/suppliers", payload);
+        await api.post("/erp/suppliers", payload);
       }
 
       setSuccess(

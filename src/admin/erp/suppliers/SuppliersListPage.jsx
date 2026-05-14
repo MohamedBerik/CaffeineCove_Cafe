@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "../../../services/axios";
+import api from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../context/AuthContext";
 import "./SuppliersListPage.css";
@@ -28,7 +28,7 @@ export default function SuppliersListPage() {
       setActionError("");
       setActionSuccess("");
 
-      const res = await axios.get("/erp/suppliers");
+      const res = await api.get("/erp/suppliers");
       const payload = res.data || {};
       const rowsData = Array.isArray(payload.data)
         ? payload.data
@@ -81,7 +81,7 @@ export default function SuppliersListPage() {
       setActionSuccess("");
       setActingId(item.id);
 
-      await axios.delete(`/erp/suppliers/${item.id}`);
+      await api.delete(`/erp/suppliers/${item.id}`);
       setActionSuccess(t("Supplier deleted successfully."));
       await loadSuppliers();
     } catch (err) {

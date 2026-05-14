@@ -84,7 +84,7 @@ export default function SupplierFormPage() {
       if (isEdit) {
         payload.append("_method", "PUT");
 
-        await api.put(`/erp/suppliers/${id}`, payload);
+        await api.post(`/erp/suppliers/${id}`, payload);
       } else {
         await api.post("/erp/suppliers", payload);
       }

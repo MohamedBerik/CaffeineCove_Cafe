@@ -186,7 +186,7 @@ const PurchaseOrderCreate = () => {
 
               <div className="item-form">
                 <div className="form-group">
-                  <label>{t("Product")}</label>
+                  <label>{t("Supply")}</label>
                   <select
                     className="form-select"
                     value={row.supply_id}

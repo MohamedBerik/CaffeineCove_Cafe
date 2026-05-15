@@ -671,6 +671,7 @@ export default function ErpDashboardHome() {
   const recentAppointments = dashboard.recent_appointments || [];
   const recentInvoices = dashboard.recent_invoices || [];
   const recentPayments = dashboard.recent_payments || [];
+  const recentPurchaseOrders = dashboard.recent_purchase_orders || [];
   const reminderStats = dashboard.reminders?.stats || {};
   const failedReminders = dashboard.reminders?.failed_recent || [];
   const alerts = dashboard.reminders?.alerts || [];
@@ -977,6 +978,46 @@ export default function ErpDashboardHome() {
         />
       </div>
 
+      {/* Purchases KPIs */}
+      <div className="section-header">
+        <h2>{t("Purchases")}</h2>
+        <p>{t("Monitor your procurement and supplier payments")}</p>
+      </div>
+
+      <div className="kpis-grid">
+        <KpiCard
+          title={t("Purchase Total")}
+          value={formatCurrency(kpis.purchase_total?.current || 0)}
+          icon="fas fa-shopping-cart"
+          color="info"
+          delta={kpis.purchase_total?.delta}
+          deltaLabel={t("vs previous")}
+        />
+        <KpiCard
+          title={t("Orders Count")}
+          value={kpis.purchase_orders_count?.current || 0}
+          icon="fas fa-clipboard-list"
+          color="primary"
+          delta={kpis.purchase_orders_count?.delta}
+          deltaLabel={t("vs previous")}
+        />
+        <KpiCard
+          title={t("Paid to Suppliers")}
+          value={formatCurrency(kpis.supplier_payments?.current || 0)}
+          icon="fas fa-credit-card"
+          color="success"
+          delta={kpis.supplier_payments?.delta}
+          deltaLabel={t("vs previous")}
+        />
+        <KpiCard
+          title={t("Remaining to Pay")}
+          value={formatCurrency(kpis.purchase_remaining?.current || 0)}
+          icon="fas fa-hand-holding-usd"
+          color="warning"
+          // المتبقي تراكمي وقد لا يكون له دلتا مفيدة
+        />
+      </div>
+
       {/* Charts Section */}
       <div className="section-header">
         <h2>{t("Analytics Overview")}</h2>
@@ -1191,6 +1232,66 @@ export default function ErpDashboardHome() {
                         </td>
                         <td data-label={t("Paid At")}>
                           {formatDateTime(item.paid_at || item.created_at)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Recent Purchase Orders */}
+        <div className="dashboard-card">
+          <div className="card-header-custom">
+            <div className="card-title-wrapper">
+              <i className="fas fa-truck"></i>
+              <h5 className="card-title">{t("Recent Purchase Orders")}</h5>
+            </div>
+            <Link to="/admin/erp/purchase-orders" className="card-link">
+              {t("View All")} <i className="fas fa-arrow-right"></i>
+            </Link>
+          </div>
+          <div className="card-body-custom">
+            {recentPurchaseOrders.length === 0 ? (
+              <EmptyState text={t("No recent purchase orders.")} />
+            ) : (
+              <div className="table-responsive">
+                <table className="dashboard-table">
+                  <thead>
+                    <tr>
+                      <th>{t("PO #")}</th>
+                      <th>{t("Supplier")}</th>
+                      <th>{t("Total")}</th>
+                      <th>{t("Paid")}</th>
+                      <th>{t("Remaining")}</th>
+                      <th>{t("Status")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentPurchaseOrders.map((po) => (
+                      <tr key={po.id}>
+                        <td data-label={t("PO #")}>
+                          <Link
+                            to={`/admin/erp/purchase-orders/${po.id}`}
+                            className="invoice-link"
+                          >
+                            {po.number}
+                          </Link>
+                        </td>
+                        <td data-label={t("Supplier")}>{po.supplier || "-"}</td>
+                        <td data-label={t("Total")}>
+                          {formatCurrency(po.total)}
+                        </td>
+                        <td data-label={t("Paid")}>
+                          {formatCurrency(po.total_paid)}
+                        </td>
+                        <td data-label={t("Remaining")}>
+                          {formatCurrency(po.remaining)}
+                        </td>
+                        <td data-label={t("Status")}>
+                          <StatusBadge status={po.status} />
                         </td>
                       </tr>
                     ))}

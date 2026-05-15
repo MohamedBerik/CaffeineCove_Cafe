@@ -672,6 +672,7 @@ export default function ErpDashboardHome() {
   const recentInvoices = dashboard.recent_invoices || [];
   const recentPayments = dashboard.recent_payments || [];
   const recentPurchaseOrders = dashboard.recent_purchase_orders || [];
+  const lowStockSupplies = dashboard.low_stock_supplies || [];
   const reminderStats = dashboard.reminders?.stats || {};
   const failedReminders = dashboard.reminders?.failed_recent || [];
   const alerts = dashboard.reminders?.alerts || [];
@@ -1382,6 +1383,60 @@ export default function ErpDashboardHome() {
           </div>
         </div>
 
+        {/* Low Stock Supplies */}
+        {lowStockSupplies.length > 0 && (
+          <div className="dashboard-card warning-card">
+            <div className="card-header-custom">
+              <div className="card-title-wrapper">
+                <i className="fas fa-exclamation-triangle"></i>
+                <h5 className="card-title">{t("Low Stock Supplies")}</h5>
+              </div>
+              <Link to="/admin/erp/supplies" className="card-link">
+                {t("View All")} <i className="fas fa-arrow-right"></i>
+              </Link>
+            </div>
+            <div className="card-body-custom">
+              <div className="table-responsive">
+                <table className="dashboard-table">
+                  <thead>
+                    <tr>
+                      <th>{t("Name")}</th>
+                      <th>{t("In Stock")}</th>
+                      <th>{t("Unit Cost")}</th>
+                      <th>{t("Total Value")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lowStockSupplies.map((item) => (
+                      <tr key={item.id}>
+                        <td data-label={t("Name")}>
+                          <Link
+                            to={`/admin/erp/supplies/${item.id}/edit`}
+                            className="invoice-link"
+                          >
+                            {item.name}
+                          </Link>
+                        </td>
+                        <td
+                          data-label={t("In Stock")}
+                          className="text-danger fw-bold"
+                        >
+                          {item.stock_quantity}
+                        </td>
+                        <td data-label={t("Unit Cost")}>
+                          {formatCurrency(item.unit_cost)}
+                        </td>
+                        <td data-label={t("Total Value")}>
+                          {formatCurrency(item.inventory_value)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Failed Reminders */}
         {failedReminders.length > 0 && (
           <div className="dashboard-card warning-card">

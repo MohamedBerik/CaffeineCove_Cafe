@@ -5731,6 +5731,13 @@ const resources = {
       "Outstanding Receivables": "المستحقات على المرضى",
       "Outstanding Payables": "المستحقات للموردين",
       "Purchase Balance": "رصيد المشتريات",
+
+      "Low Stock Supplies": "مستلزمات منخفضة المخزون",
+      Name: "الاسم",
+      "In Stock": "في المخزون",
+      "Unit Cost": "سعر الوحدة",
+      "Total Value": "القيمة الإجمالية",
+      "View All": "عرض الكل",
     },
   },
 };

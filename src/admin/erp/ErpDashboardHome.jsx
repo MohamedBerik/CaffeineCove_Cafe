@@ -897,7 +897,7 @@ export default function ErpDashboardHome() {
             <span className="stat-value">
               {kpis.total_patients?.current ?? 0}
             </span>
-            <span className="stat-label">{t("Total Patients")}</span>
+            <span className="stat-label">{t("New Patients")}</span>
           </div>
         </div>
       </div>

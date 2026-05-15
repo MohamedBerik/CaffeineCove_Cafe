@@ -1041,12 +1041,20 @@ export default function ErpDashboardHome() {
           deltaLabel={t("vs previous")}
         />
         <KpiCard
+          title={t("Purchase Balance")}
+          value={formatCurrency(kpis.purchase_balance?.current || 0)}
+          icon="fas fa-balance-scale"
+          color="secondary"
+          delta={kpis.purchase_balance?.delta}
+          deltaLabel={t("vs previous")}
+        />
+        {/* <KpiCard
           title={t("Remaining to Pay")}
           value={formatCurrency(kpis.purchase_remaining?.current || 0)}
           icon="fas fa-hand-holding-usd"
           color="warning"
           // المتبقي تراكمي وقد لا يكون له دلتا مفيدة
-        />
+        /> */}
         <KpiCard
           title={t("Purchase Returns")}
           value={formatCurrency(kpis.purchase_returns?.current || 0)}

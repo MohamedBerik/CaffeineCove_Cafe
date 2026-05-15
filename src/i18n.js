@@ -2877,6 +2877,7 @@ const resources = {
       "Net Profit": "Net Profit",
       "Outstanding Receivables": "Outstanding Receivables",
       "Outstanding Payables": "Outstanding Payables",
+      "Purchase Balance": "Purchase Balance",
     },
   },
   ar: {
@@ -5730,6 +5731,7 @@ const resources = {
       "Net Profit": "صافي الربح",
       "Outstanding Receivables": "المستحقات على المرضى",
       "Outstanding Payables": "المستحقات للموردين",
+      "Purchase Balance": "رصيد المشتريات",
     },
   },
 };

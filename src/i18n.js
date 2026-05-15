@@ -2869,6 +2869,8 @@ const resources = {
       Inventory: "Inventory",
       "Stock levels and inventory valuation":
         "Stock levels and inventory valuation",
+      "Purchase Returns": "Purchase Returns",
+      "Net Purchases": "Net Purchases",
     },
   },
   ar: {
@@ -5714,6 +5716,8 @@ const resources = {
       "Inventory Value": "قيمة المخزون",
       Inventory: "المخزون",
       "Stock levels and inventory valuation": "مستويات المخزون وتقييمه",
+      "Purchase Returns": "قيمة المرتجعات",
+      "Net Purchases": "صافي المشتريات",
     },
   },
 };

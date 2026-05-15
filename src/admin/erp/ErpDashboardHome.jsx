@@ -1016,6 +1016,22 @@ export default function ErpDashboardHome() {
           color="warning"
           // المتبقي تراكمي وقد لا يكون له دلتا مفيدة
         />
+        <KpiCard
+          title={t("Purchase Returns")}
+          value={formatCurrency(kpis.purchase_returns?.current || 0)}
+          icon="fas fa-undo-alt"
+          color="danger"
+          delta={kpis.purchase_returns?.delta}
+          deltaLabel={t("vs previous")}
+        />
+        <KpiCard
+          title={t("Net Purchases")}
+          value={formatCurrency(kpis.purchase_net?.current || 0)}
+          icon="fas fa-receipt"
+          color="primary"
+          delta={kpis.purchase_net?.delta}
+          deltaLabel={t("vs previous")}
+        />
       </div>
 
       {/* Inventory KPIs */}

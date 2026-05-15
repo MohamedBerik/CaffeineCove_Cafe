@@ -1044,7 +1044,9 @@ export default function ErpDashboardHome() {
           title={t("Purchase Balance")}
           value={formatCurrency(kpis.purchase_balance?.current || 0)}
           icon="fas fa-balance-scale"
-          color="secondary"
+          color={
+            (kpis.purchase_balance?.current || 0) < 0 ? "warning" : "secondary"
+          }
           delta={kpis.purchase_balance?.delta}
           deltaLabel={t("vs previous")}
         />

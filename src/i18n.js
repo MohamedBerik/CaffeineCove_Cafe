@@ -36,7 +36,7 @@ const resources = {
         "Clinic operations, billing, and payment overview",
       Refresh: "Refresh",
       // ErpDashboardHome - KPIs
-      "Appointments Today": "Appointments Today",
+      Appointments: "Appointments",
       "Scheduled Today": "Scheduled Today",
       "Completed Today": "Completed Today",
       "Cancelled / No Show": "Cancelled / No Show",
@@ -2205,7 +2205,6 @@ const resources = {
       "Analytics Overview": "Analytics Overview",
       "Real-time insights at a glance": "Real-time insights at a glance",
       "Revenue Overview": "Revenue Overview",
-      "Appointments Today": "Appointments Today",
       Today: "Today",
       Month: "Month",
       Total: "Total",
@@ -2913,7 +2912,7 @@ const resources = {
         "نظرة عامة على عمليات العيادة والفواتير والمدفوعات",
       Refresh: "تحديث",
       // ErpDashboardHome - KPIs
-      "Appointments Today": "مواعيد اليوم",
+      Appointments: "المواعيد",
       "Scheduled Today": "المجدولة اليوم",
       "Completed Today": "المكتملة اليوم",
       "Cancelled / No Show": "ملغية / عدم حضور",

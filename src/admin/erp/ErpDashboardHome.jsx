@@ -864,7 +864,7 @@ export default function ErpDashboardHome() {
             <span className="stat-value">
               {kpis.appointments?.current ?? 0}
             </span>
-            <span className="stat-label">{t("Appointments Today")}</span>
+            <span className="stat-label">{t("Appointments")}</span>
           </div>
           <div className="stat-trend up">
             <i className="fas fa-arrow-up"></i>

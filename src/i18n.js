@@ -2852,6 +2852,23 @@ const resources = {
       Retry: "Retry",
       Back: "Back",
       "Loading...": "Loading...",
+
+      "Purchase Total": "Purchase Total",
+      "Orders Count": "Orders Count",
+      "Paid to Suppliers": "Paid to Suppliers",
+      "Remaining to Pay": "Remaining to Pay",
+      Purchases: "Purchases",
+      "Monitor your procurement and supplier payments":
+        "Monitor your procurement and supplier payments",
+      "Recent Purchase Orders": "Recent Purchase Orders",
+      "No recent purchase orders.": "No recent purchase orders.",
+      "PO #": "PO #",
+      Paid: "Paid",
+      "Low Stock Supplies": "Low Stock Supplies",
+      "Inventory Value": "Inventory Value",
+      Inventory: "Inventory",
+      "Stock levels and inventory valuation":
+        "Stock levels and inventory valuation",
     },
   },
   ar: {
@@ -5681,6 +5698,22 @@ const resources = {
       Retry: "إعادة المحاولة",
       Back: "رجوع",
       "Loading...": "جاري التحميل...",
+
+      "Purchase Total": "إجمالي المشتريات",
+      "Orders Count": "عدد الطلبات",
+      "Paid to Suppliers": "المدفوع للموردين",
+      "Remaining to Pay": "المتبقي للسداد",
+      Purchases: "المشتريات",
+      "Monitor your procurement and supplier payments":
+        "مراقبة المشتريات والمدفوعات للموردين",
+      "Recent Purchase Orders": "أحدث أوامر الشراء",
+      "No recent purchase orders.": "لا توجد أوامر شراء حديثة.",
+      "PO #": "أمر شراء #",
+      Paid: "المدفوع",
+      "Low Stock Supplies": "مستلزمات منخفضة المخزون",
+      "Inventory Value": "قيمة المخزون",
+      Inventory: "المخزون",
+      "Stock levels and inventory valuation": "مستويات المخزون وتقييمه",
     },
   },
 };

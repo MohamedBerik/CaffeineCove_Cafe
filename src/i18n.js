@@ -2871,6 +2871,12 @@ const resources = {
         "Stock levels and inventory valuation",
       "Purchase Returns": "Purchase Returns",
       "Net Purchases": "Net Purchases",
+
+      "Financial Overview": "Financial Overview",
+      "Key financial health indicators": "Key financial health indicators",
+      "Net Profit": "Net Profit",
+      "Outstanding Receivables": "Outstanding Receivables",
+      "Outstanding Payables": "Outstanding Payables",
     },
   },
   ar: {
@@ -5718,6 +5724,12 @@ const resources = {
       "Stock levels and inventory valuation": "مستويات المخزون وتقييمه",
       "Purchase Returns": "قيمة المرتجعات",
       "Net Purchases": "صافي المشتريات",
+
+      "Financial Overview": "نظرة مالية عامة",
+      "Key financial health indicators": "مؤشرات الصحة المالية الرئيسية",
+      "Net Profit": "صافي الربح",
+      "Outstanding Receivables": "المستحقات على المرضى",
+      "Outstanding Payables": "المستحقات للموردين",
     },
   },
 };

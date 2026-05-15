@@ -902,6 +902,37 @@ export default function ErpDashboardHome() {
         </div>
       </div>
 
+      {/* Financial Overview */}
+      <div className="section-header">
+        <h2>{t("Financial Overview")}</h2>
+        <p>{t("Key financial health indicators")}</p>
+      </div>
+
+      <div className="kpis-grid">
+        <KpiCard
+          title={t("Net Profit")}
+          value={formatCurrency(kpis.net_profit?.current || 0)}
+          icon="fas fa-chart-pie"
+          color={(kpis.net_profit?.current || 0) >= 0 ? "success" : "danger"}
+          delta={kpis.net_profit?.delta}
+          deltaLabel={t("vs previous")}
+        />
+        <KpiCard
+          title={t("Outstanding Receivables")}
+          value={formatCurrency(kpis.outstanding_receivables?.current || 0)}
+          icon="fas fa-hand-holding-usd"
+          color="warning"
+          link="/admin/erp/invoices"
+        />
+        <KpiCard
+          title={t("Outstanding Payables")}
+          value={formatCurrency(kpis.outstanding_payables?.current || 0)}
+          icon="fas fa-money-check-alt"
+          color="danger"
+          link="/admin/erp/purchase-orders"
+        />
+      </div>
+
       {/* KPIs Grid */}
       <div className="section-header">
         <h2>{t("Key Performance Indicators")}</h2>

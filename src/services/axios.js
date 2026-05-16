@@ -75,6 +75,22 @@ api.interceptors.response.use(
     );
     console.error("  - Full Error:", error);
     if (error.response?.status === 403) {
+      const data = error.response?.data || {};
+
+      // ✅ إعادة توجيه تلقائي إذا كان السبب متعلقًا بالاشتراك
+      if (
+        data.code === "SUBSCRIPTION_INACTIVE" ||
+        data.code === "SUBSCRIPTION_EXPIRED" ||
+        data.code === "SUBSCRIPTION_PAST_DUE"
+      ) {
+        const redirectTo = data.redirect_to || "/admin/erp/billing";
+        console.warn(
+          `⛔ Subscription issue: ${data.code}. Redirecting to ${redirectTo}`,
+        );
+        window.location.href = redirectTo;
+        return Promise.reject(error); // أوقف أي معالجة أخرى
+      }
+
       console.warn(
         `⛔ Permission denied for ${error.config.url}. Returning null.`,
       );

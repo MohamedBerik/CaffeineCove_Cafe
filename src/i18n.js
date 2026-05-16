@@ -2877,6 +2877,36 @@ const resources = {
       "Outstanding Receivables": "Outstanding Receivables",
       "Outstanding Payables": "Outstanding Payables",
       "Purchase Balance": "Purchase Balance",
+
+      "Max Branches": "Max Branches",
+      "Up to {{count}} branches": "Up to {{count}} branches",
+      "You have reached the maximum number of branches allowed by your plan.":
+        "You have reached the maximum number of branches allowed by your plan.",
+
+      Branches: "Branches",
+      "Manage clinic branches": "Manage clinic branches",
+      "Add Branch": "Add Branch",
+      "Branches List": "Branches List",
+      branches: "branches",
+      "No branches found.": "No branches found.",
+      "Edit Branch": "Edit Branch",
+      "Delete Branch": "Delete Branch",
+      'Are you sure you want to delete branch "{{name}}"?':
+        'Are you sure you want to delete branch "{{name}}"?',
+      "Branch deleted successfully.": "Branch deleted successfully.",
+      "Failed to delete branch.": "Failed to delete branch.",
+      "Failed to load branches.": "Failed to load branches.",
+      "New Branch": "New Branch",
+      "Branch Details": "Branch Details",
+      Slug: "Slug",
+      "Save Changes": "Save Changes",
+      "Create Branch": "Create Branch",
+      "Branch updated successfully.": "Branch updated successfully.",
+      "Branch created successfully.": "Branch created successfully.",
+      "You have reached the maximum number of branches allowed by your plan.":
+        "You have reached the maximum number of branches allowed by your plan.",
+      "Up to {{count}} branches": "Up to {{count}} branches",
+      "Max Branches": "Max Branches",
     },
   },
   ar: {
@@ -5738,6 +5768,36 @@ const resources = {
       "Unit Cost": "سعر الوحدة",
       "Total Value": "القيمة الإجمالية",
       "View All": "عرض الكل",
+
+      "Max Branches": "الحد الأقصى للفروع",
+      "Up to {{count}} branches": "حتى {{count}} فروع",
+      "You have reached the maximum number of branches allowed by your plan.":
+        "لقد وصلت إلى الحد الأقصى لعدد الفروع المسموح به في باقتك.",
+
+      Branches: "الفروع",
+      "Manage clinic branches": "إدارة فروع العيادة",
+      "Add Branch": "إضافة فرع",
+      "Branches List": "قائمة الفروع",
+      branches: "فروع",
+      "No branches found.": "لم يتم العثور على فروع.",
+      "Edit Branch": "تعديل فرع",
+      "Delete Branch": "حذف فرع",
+      'Are you sure you want to delete branch "{{name}}"?':
+        'هل أنت متأكد من حذف الفرع "{{name}}"؟',
+      "Branch deleted successfully.": "تم حذف الفرع بنجاح.",
+      "Failed to delete branch.": "فشل حذف الفرع.",
+      "Failed to load branches.": "فشل تحميل الفروع.",
+      "New Branch": "فرع جديد",
+      "Branch Details": "تفاصيل الفرع",
+      Slug: "المعرف المختصر",
+      "Save Changes": "حفظ التغييرات",
+      "Create Branch": "إنشاء فرع",
+      "Branch updated successfully.": "تم تحديث الفرع بنجاح.",
+      "Branch created successfully.": "تم إنشاء الفرع بنجاح.",
+      "You have reached the maximum number of branches allowed by your plan.":
+        "لقد وصلت إلى الحد الأقصى لعدد الفروع المسموح به في خطتك.",
+      "Up to {{count}} branches": "حتى {{count}} فروع",
+      "Max Branches": "الحد الأقصى للفروع",
     },
   },
 };

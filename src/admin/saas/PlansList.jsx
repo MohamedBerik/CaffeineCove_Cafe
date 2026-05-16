@@ -21,6 +21,7 @@ export default function PlansList() {
     max_users: "5",
     max_patients: "",
     max_appointments: "",
+    max_branches: "",
     features: [],
     is_active: true,
   });
@@ -327,6 +328,14 @@ function PlanCard({
               </span>
             </li>
           )}
+          {plan.max_branches && (
+            <li>
+              <i className="fas fa-building"></i>
+              <span>
+                {t("Up to {{count}} branches", { count: plan.max_branches })}
+              </span>
+            </li>
+          )}
           {plan.features?.map((feature, idx) => (
             <li key={idx}>
               <i
@@ -496,6 +505,17 @@ function PlanModal({
                 type="number"
                 name="max_appointments"
                 value={formData.max_appointments}
+                onChange={handleChange}
+                min="0"
+                placeholder={t("Unlimited")}
+              />
+            </div>
+            <div className="form-group">
+              <label>{t("Max Branches")}</label>
+              <input
+                type="number"
+                name="max_branches"
+                value={formData.max_branches || ""}
                 onChange={handleChange}
                 min="0"
                 placeholder={t("Unlimited")}

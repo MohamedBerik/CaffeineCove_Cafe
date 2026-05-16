@@ -96,6 +96,8 @@ import SuppliesListPage from "./admin/erp/supplies/SuppliesListPage";
 import SupplyFormPage from "./admin/erp/supplies/SupplyFormPage";
 import PrintInvoicePage from "./admin/erp/PrintInvoicePage";
 import PrintPurchaseOrderPage from "./admin/erp/PrintPurchaseOrderPage";
+import BranchesListPage from "./admin/saas/BranchesListPage";
+import BranchFormPage from "./admin/saas/BranchFormPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -248,6 +250,10 @@ createRoot(document.getElementById("root")).render(
               <Route path="employees" element={<EmployeeListPage />} />
               <Route path="employees/create" element={<EmployeeFormPage />} />
               <Route path="employees/:id/edit" element={<EmployeeFormPage />} />
+
+              <Route path="branches" element={<BranchesListPage />} />
+              <Route path="branches/create" element={<BranchFormPage />} />
+              <Route path="branches/:id/edit" element={<BranchFormPage />} />
 
               <Route path="reports" element={<ReportsDashboardPage />} />
               <Route path="reports/revenue" element={<RevenueReportPage />} />

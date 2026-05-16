@@ -13,6 +13,12 @@ const erpNavItems = [
     permission: "finance.view",
   },
   {
+    to: "/admin/erp/branches",
+    labelKey: "Branches",
+    icon: "fas fa-building",
+    permission: "branches.view",
+  },
+  {
     to: "/admin/erp/visits/start",
     labelKey: "Start Visit",
     icon: "fas fa-stethoscope",

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../services/axios";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "../../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import "./BranchesListPage.css";
 
 export default function BranchesListPage() {

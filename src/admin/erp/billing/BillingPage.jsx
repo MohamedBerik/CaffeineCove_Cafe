@@ -449,9 +449,14 @@ export default function BillingPage() {
                       <StatusBadge status={invoice.status} t={t} />
                     </td>
                     <td>
-                      <button className="btn-download">
+                      <Link
+                        to={`/admin/erp/billing/invoices/${invoice.id}/print`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-sm btn-outline-secondary"
+                      >
                         <i className="fas fa-download"></i>
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                 ))}

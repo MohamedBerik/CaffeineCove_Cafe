@@ -2908,6 +2908,17 @@ const resources = {
       "Up to {{count}} branches": "Up to {{count}} branches",
       "Max Branches": "Max Branches",
       "Subscribe Now": "Subscribe Now",
+
+      "Print Invoice": "Print Invoice",
+      "Subscription Invoice": "Subscription Invoice",
+      Description: "Description",
+      "Tax (14%)": "Tax (14%)",
+      "Thank you for your subscription!": "Thank you for your subscription!",
+      "This invoice was generated electronically.":
+        "This invoice was generated electronically.",
+      "Failed to load invoice.": "Failed to load invoice.",
+      "Invoice not found": "Invoice not found",
+      "Paid At": "Paid At",
     },
   },
   ar: {
@@ -5800,6 +5811,17 @@ const resources = {
       "Up to {{count}} branches": "حتى {{count}} فروع",
       "Max Branches": "الحد الأقصى للفروع",
       "Subscribe Now": "اشترك الان",
+
+      "Print Invoice": "طباعة الفاتورة",
+      "Subscription Invoice": "فاتورة الاشتراك",
+      Description: "الوصف",
+      "Tax (14%)": "الضريبة (14%)",
+      "Thank you for your subscription!": "شكراً لاشتراكك!",
+      "This invoice was generated electronically.":
+        "تم إصدار هذه الفاتورة إلكترونياً.",
+      "Failed to load invoice.": "فشل تحميل الفاتورة.",
+      "Invoice not found": "الفاتورة غير موجودة",
+      "Paid At": "تاريخ الدفع",
     },
   },
 };

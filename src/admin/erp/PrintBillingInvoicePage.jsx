@@ -34,7 +34,7 @@ export default function PrintBillingInvoicePage() {
     } catch {
       // استخدام قيم افتراضية إذا فشل التحميل
       setPlatform({
-        name: "My Platform",
+        name: "",
         email: "",
         phone: "",
         address: "",

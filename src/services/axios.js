@@ -59,14 +59,13 @@ api.interceptors.request.use(
   },
 );
 
-// ✅ Response Interceptor – اجعل الدالة async
+// ✅ Response Interceptor
 api.interceptors.response.use(
   (response) => {
     console.log("✅ Response:", response.status, response.config.url);
     return response;
   },
-  async (error) => {
-    // <-- أضف async هنا
+  (error) => {
     console.error("❌ Response Error:");
     console.error("  - URL:", error.config?.url);
     console.error("  - Status:", error.response?.status);
@@ -75,22 +74,15 @@ api.interceptors.response.use(
       error.response?.data?.message || error.message,
     );
     console.error("  - Full Error:", error);
-
-    // ✅ إعادة المحاولة تلقائياً عند 429 (Too Many Requests)
-    if (error.response?.status === 429) {
-      const retryAfter = error.response.headers["retry-after"] || 5;
-      console.warn(`⏳ Rate limited. Retrying after ${retryAfter}s`);
-      await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
-      return api.request(error.config); // يعيد إرسال نفس الطلب مرة واحدة
-    }
-
     if (error.response?.status === 403) {
       const data = error.response?.data || {};
 
+      // ✅ إذا كان الطلب هو تسجيل الدخول، لا تُرجع null بل ارفض الخطأ لتعرض رسالة مخصصة
       if (error.config.url.includes("/login")) {
         return Promise.reject(error);
       }
 
+      // ✅ أخطاء الاشتراك – إعادة توجيه
       if (
         data.code === "SUBSCRIPTION_INACTIVE" ||
         data.code === "SUBSCRIPTION_EXPIRED" ||
@@ -103,6 +95,7 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
 
+      // ✅ باقي أخطاء 403 – إرجاع null كما في السابق
       return Promise.resolve(null);
     }
 

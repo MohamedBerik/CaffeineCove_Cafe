@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../../services/axios";
+import api from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import "./PrintBillingInvoicePage.css";
 
@@ -9,21 +9,36 @@ export default function PrintBillingInvoicePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState(null);
+  const [platform, setPlatform] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     loadInvoice();
+    loadPlatformInfo();
   }, [id]);
 
   const loadInvoice = async () => {
     try {
-      setLoading(true);
-      setError("");
       const res = await api.get(`/erp/billing/invoices/${id}`);
       setInvoice(res.data.data || res.data);
     } catch (err) {
       setError(err?.response?.data?.message || t("Failed to load invoice."));
+    }
+  };
+
+  const loadPlatformInfo = async () => {
+    try {
+      const res = await api.get("/erp/platform-info");
+      setPlatform(res.data);
+    } catch {
+      // استخدام قيم افتراضية إذا فشل التحميل
+      setPlatform({
+        name: "My Platform",
+        email: "",
+        phone: "",
+        address: "",
+      });
     } finally {
       setLoading(false);
     }
@@ -94,7 +109,18 @@ export default function PrintBillingInvoicePage() {
       <div className="invoice-container">
         <div className="invoice-header">
           <div className="clinic-info">
-            <h2>{t("Dental Clinic")}</h2>
+            <h2>{platform?.name || t("Dental Clinic")}</h2>
+            {platform?.address && <p>{platform.address}</p>}
+            {platform?.phone && (
+              <p>
+                {t("Phone")}: {platform.phone}
+              </p>
+            )}
+            {platform?.email && (
+              <p>
+                {t("Email")}: {platform.email}
+              </p>
+            )}
             <p>{t("Subscription Invoice")}</p>
           </div>
           <div className="invoice-title">

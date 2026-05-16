@@ -27,6 +27,12 @@ function Login() {
       // ✅ استخدم البيانات اللي رجعت من الـ API
       login(res.data.user, res.data.token);
 
+      if (res.data.requires_subscription) {
+        // توجيه مباشر لصفحة الفوترة بدلاً من الصفحة الرئيسية
+        navigate("/admin/erp/billing");
+        return;
+      }
+
       // ✅ توجيه ذكي بناءً على نوع المستخدم والـ Tenant
       if (res.data.user.is_super_admin) {
         const savedCompany = localStorage.getItem("selectedCompany");

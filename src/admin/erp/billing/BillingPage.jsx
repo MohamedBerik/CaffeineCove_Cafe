@@ -314,39 +314,65 @@ export default function BillingPage() {
         <div className="current-plan-card">
           {subscription ? (
             <>
-              <div className="plan-info">
-                <div className="plan-name">
-                  <h3>{subscription.plan?.name || t("No Active Plan")}</h3>
-                  <StatusBadge status={subscription.status} t={t} />
-                </div>
-                <p className="plan-price">
-                  {formatCurrency(subscription.amount)} /{" "}
-                  {t(subscription.billing_cycle || "month")}
-                </p>
-                <p className="plan-period">
-                  {t("Started")}: {formatDate(subscription.starts_at)}
-                </p>
-                {subscription.ends_at && (
-                  <p className="plan-period">
-                    {t("Renews on")}: {formatDate(subscription.ends_at)}
-                    {getDaysLeft(subscription.ends_at) > 0 && (
-                      <span className="days-left">
-                        ({getDaysLeft(subscription.ends_at)} {t("days left")})
-                      </span>
-                    )}
+              {subscription.type === "trial" ? (
+                <div className="trial-info">
+                  <h3>{t("Free Trial")}</h3>
+                  <p>
+                    {t("You have {{days}} days left in your trial.", {
+                      days: subscription.days_left,
+                    })}
                   </p>
-                )}
-              </div>
-              <div className="plan-actions">
-                <button className="btn-change-plan" onClick={handleChangePlan}>
-                  {t("Change Plan")}
-                </button>
-                {subscription.status === "active" && (
-                  <button className="btn-cancel-plan" onClick={handleCancel}>
-                    {t("Cancel Subscription")}
+                  <button
+                    className="btn-choose-plan"
+                    onClick={() => setShowPlansModal(true)}
+                  >
+                    {t("Upgrade Now")}
                   </button>
-                )}
-              </div>
+                </div>
+              ) : (
+                <>
+                  <div className="plan-info">
+                    <div className="plan-name">
+                      <h3>{subscription.plan?.name || t("No Active Plan")}</h3>
+                      <StatusBadge status={subscription.status} t={t} />
+                    </div>
+                    <p className="plan-price">
+                      {formatCurrency(subscription.amount)} /{" "}
+                      {t(subscription.billing_cycle || "month")}
+                    </p>
+                    <p className="plan-period">
+                      {t("Started")}: {formatDate(subscription.starts_at)}
+                    </p>
+                    {subscription.ends_at && (
+                      <p className="plan-period">
+                        {t("Renews on")}: {formatDate(subscription.ends_at)}
+                        {getDaysLeft(subscription.ends_at) > 0 && (
+                          <span className="days-left">
+                            ({getDaysLeft(subscription.ends_at)}{" "}
+                            {t("days left")})
+                          </span>
+                        )}
+                      </p>
+                    )}
+                  </div>
+                  <div className="plan-actions">
+                    <button
+                      className="btn-change-plan"
+                      onClick={handleChangePlan}
+                    >
+                      {t("Change Plan")}
+                    </button>
+                    {subscription.status === "active" && (
+                      <button
+                        className="btn-cancel-plan"
+                        onClick={handleCancel}
+                      >
+                        {t("Cancel Subscription")}
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
             </>
           ) : (
             <div className="no-plan">

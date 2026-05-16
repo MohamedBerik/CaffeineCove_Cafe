@@ -38,8 +38,8 @@ const erpNavItems = [
   },
   {
     to: "/admin/erp/products",
-    labelKey: "Consultation Price",
-    icon: "fa-solid fa-hand-holding-dollar",
+    labelKey: "Consultation Fees",
+    icon: "fa-solid fa-receipt",
     permission: "products.view",
   },
   {

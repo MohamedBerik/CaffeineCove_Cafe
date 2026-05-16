@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "../../../services/axios";
 import toast from "react-hot-toast";
 import "./BillingPage.css";
+import { Link } from "react-router";
 
 export default function BillingPage() {
   const { t, i18n } = useTranslation();

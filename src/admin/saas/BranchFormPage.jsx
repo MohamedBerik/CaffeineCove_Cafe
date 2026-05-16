@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import api from "../../../services/axios";
+import api from "../../services/axios";
 import { useTranslation } from "react-i18next";
 import "./BranchFormPage.css";
 

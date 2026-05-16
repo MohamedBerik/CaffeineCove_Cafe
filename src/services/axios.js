@@ -77,23 +77,25 @@ api.interceptors.response.use(
     if (error.response?.status === 403) {
       const data = error.response?.data || {};
 
-      // ✅ إعادة توجيه تلقائي إذا كان السبب متعلقًا بالاشتراك
+      // ✅ إذا كان الطلب هو تسجيل الدخول، لا تُرجع null بل ارفض الخطأ لتعرض رسالة مخصصة
+      if (error.config.url.includes("/login")) {
+        return Promise.reject(error);
+      }
+
+      // ✅ أخطاء الاشتراك – إعادة توجيه
       if (
         data.code === "SUBSCRIPTION_INACTIVE" ||
         data.code === "SUBSCRIPTION_EXPIRED" ||
-        data.code === "SUBSCRIPTION_PAST_DUE"
+        data.code === "SUBSCRIPTION_PAST_DUE" ||
+        data.code === "TRIAL_EXPIRED" ||
+        data.code === "COMPANY_SUSPENDED"
       ) {
         const redirectTo = data.redirect_to || "/admin/erp/billing";
-        console.warn(
-          `⛔ Subscription issue: ${data.code}. Redirecting to ${redirectTo}`,
-        );
         window.location.href = redirectTo;
-        return Promise.reject(error); // أوقف أي معالجة أخرى
+        return Promise.reject(error);
       }
 
-      console.warn(
-        `⛔ Permission denied for ${error.config.url}. Returning null.`,
-      );
+      // ✅ باقي أخطاء 403 – إرجاع null كما في السابق
       return Promise.resolve(null);
     }
     return Promise.reject(error);

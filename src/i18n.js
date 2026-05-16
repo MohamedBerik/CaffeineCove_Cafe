@@ -2907,6 +2907,7 @@ const resources = {
         "You have reached the maximum number of branches allowed by your plan.",
       "Up to {{count}} branches": "Up to {{count}} branches",
       "Max Branches": "Max Branches",
+      "Subscribe Now": "Subscribe Now",
     },
   },
   ar: {
@@ -5798,6 +5799,7 @@ const resources = {
         "لقد وصلت إلى الحد الأقصى لعدد الفروع المسموح به في خطتك.",
       "Up to {{count}} branches": "حتى {{count}} فروع",
       "Max Branches": "الحد الأقصى للفروع",
+      "Subscribe Now": "اشترك الان",
     },
   },
 };

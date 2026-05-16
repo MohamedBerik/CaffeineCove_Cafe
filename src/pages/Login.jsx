@@ -13,13 +13,13 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null); // ✅ تغيير إلى كائن { message, showSubscribe }
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError(null); // مسح الخطأ السابق
 
     try {
       const res = await api.post("/login", { email, password });
@@ -30,12 +30,9 @@ function Login() {
       // ✅ توجيه ذكي بناءً على نوع المستخدم والـ Tenant
       if (res.data.user.is_super_admin) {
         const savedCompany = localStorage.getItem("selectedCompany");
-
-        // لو أول مرة أو Global Mode → SaaS Dashboard
         if (!savedCompany || savedCompany === "" || savedCompany === "global") {
           navigate("/admin/saas");
         } else {
-          // عنده Company مختارة → ERP Dashboard
           navigate("/admin/erp");
         }
       } else if (res.data.user.role === "admin") {
@@ -45,18 +42,37 @@ function Login() {
       } else if (res.data.user.role === "receptionist") {
         navigate("/admin/erp/visits/start");
       } else {
-        // Regular User → الصفحة الرئيسية
         navigate("/");
       }
     } catch (err) {
       console.error(err);
-      setError(
-        err.response?.data?.message ||
-          t("Login failed. Please check your email and password."),
-      );
+      const data = err.response?.data || {};
+      let message =
+        data.message ||
+        t("Login failed. Please check your email and password.");
+      let showSubscribe = false;
+
+      // ✅ إذا كان الخطأ متعلقًا بالاشتراك (403 من AuthController أو Middleware)
+      if (
+        data.code === "TRIAL_EXPIRED" ||
+        data.code === "COMPANY_SUSPENDED" ||
+        data.code === "COMPANY_CANCELLED" ||
+        data.code === "SUBSCRIPTION_INACTIVE" ||
+        data.code === "SUBSCRIPTION_EXPIRED" ||
+        data.code === "SUBSCRIPTION_PAST_DUE"
+      ) {
+        showSubscribe = true;
+      }
+
+      setError({ message, showSubscribe });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoToBilling = () => {
+    // ✅ يمكن للمستخدم الانتقال إلى صفحة الفوترة حتى بدون تسجيل الدخول
+    window.location.href = "/admin/erp/billing";
   };
 
   return (
@@ -157,7 +173,16 @@ function Login() {
               {error && (
                 <div className="error-message">
                   <i className="fas fa-exclamation-circle"></i>
-                  {error}
+                  <span>{error.message}</span>
+                  {error.showSubscribe && (
+                    <button
+                      type="button"
+                      className="subscribe-btn"
+                      onClick={handleGoToBilling}
+                    >
+                      {t("Subscribe Now")}
+                    </button>
+                  )}
                 </div>
               )}
 

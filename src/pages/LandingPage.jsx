@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import api from "../services/axios";
-import LandingNavbar from "../../../components/LandingNavbar";
+import LandingNavbar from "../components/LandingNavbar";
 import Footer from "../components/Footer/Footer";
 import "./LandingPage.css";
 

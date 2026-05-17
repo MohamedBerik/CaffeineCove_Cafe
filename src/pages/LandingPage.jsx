@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import api from "../services/axios";
 import LandingNavbar from "../components/LandingNavbar";
-import Footer from "../components/Footer/Footer";
+import LandingFooter from "../components/LandingFooter";
 import "./LandingPage.css";
 
 export default function LandingPage() {
@@ -193,7 +193,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <Footer />
+      <LandingFooter />
     </div>
   );
 }

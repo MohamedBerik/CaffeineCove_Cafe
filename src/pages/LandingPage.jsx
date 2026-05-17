@@ -107,7 +107,7 @@ export default function LandingPage() {
             </div>
             <div className={styles.heroImage}>
               <img
-                src="/images/slider/wp9526009.jpg"
+                src="images/gallery/screencapture-caffeine-cove-cafe-vercel-app-admin-erp-reports-2026-05-17-11_29_42.png"
                 alt={t("Dashboard Preview")}
                 className={styles.heroImg}
               />

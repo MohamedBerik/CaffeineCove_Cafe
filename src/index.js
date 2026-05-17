@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { AuthProvider } from "./context/AuthContext";
 import { AlertProvider } from "./context/AlertContext";
+import "./global.css";
 import App from "./App";
 import "./i18n";
 
@@ -18,6 +19,7 @@ import AllContact from "./pages/Contact/AllContact";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
+import LandingPage from "./pages/LandingPage";
 
 /* ================= Generic CRUD (temporary) ================= */
 import CrudTable from "./admin/components/CrudTable";
@@ -99,7 +101,6 @@ import PrintPurchaseOrderPage from "./admin/erp/PrintPurchaseOrderPage";
 import BranchesListPage from "./admin/saas/BranchesListPage";
 import BranchFormPage from "./admin/saas/BranchFormPage";
 import PrintBillingInvoicePage from "./admin/erp/PrintBillingInvoicePage";
-import LandingPage from "./pages/LandingPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({

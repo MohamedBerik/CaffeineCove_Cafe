@@ -113,7 +113,7 @@ export default function LandingPage() {
       {/* ✨ Features Section */}
       <section className="features-section" id="features">
         <div className="container">
-          <div className="section-header">
+          <div className="landing-section-header">
             <h2>{t("Everything You Need")}</h2>
             <p>
               {t(
@@ -136,7 +136,7 @@ export default function LandingPage() {
       {/* 💲 Pricing Section */}
       <section className="pricing-section" id="pricing">
         <div className="container">
-          <div className="section-header">
+          <div className="landing-section-header">
             <h2>{t("Simple Pricing")}</h2>
             <p>
               {t(

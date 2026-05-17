@@ -188,9 +188,9 @@ export default function LandingPage() {
       {/* 🚀 CTA Section */}
       <section className={styles.cta}>
         <div className={styles.container}>
-          <h2 className={styles.ctaTitle}>
+          <h1 className={styles.ctaTitle}>
             {t("Ready to Transform Your Clinic?")}
-          </h2>
+          </h1>
           <p className={styles.ctaSubtitle}>
             {t(
               "Join hundreds of dental clinics already using our platform. Start your free 14-day trial today.",

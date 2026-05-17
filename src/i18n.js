@@ -5822,6 +5822,43 @@ const resources = {
       "Failed to load invoice.": "فشل تحميل الفاتورة.",
       "Invoice not found": "الفاتورة غير موجودة",
       "Paid At": "تاريخ الدفع",
+
+      "Manage Your Dental Clinic Smarter": "أدر عيادة أسنانك بذكاء",
+      "The all-in-one platform for dental clinics — appointments, invoices, inventory, reports, and more.":
+        "المنصة الشاملة لعيادات الأسنان — مواعيد، فواتير، مخزون، تقارير، والمزيد.",
+      "Start Free Trial": "ابدأ تجربة مجانية",
+      Login: "تسجيل الدخول",
+      "Everything You Need": "كل ما تحتاجه",
+      "From appointments to inventory, we've got every aspect of your clinic covered.":
+        "من المواعيد إلى المخزون، نغطي كل جوانب عيادتك.",
+      Appointments: "المواعيد",
+      "Smart scheduling, reminders, and online booking for patients.":
+        "جدولة ذكية وتذكيرات وحجز إلكتروني.",
+      "Invoices & Payments": "الفواتير والمدفوعات",
+      "Track payments, issue invoices, and manage billing with ease.":
+        "تتبع المدفوعات وإصدار الفواتير بسهولة.",
+      "Inventory & Supplies": "المخزون والمستلزمات",
+      "Monitor stock levels and manage supplier purchases.":
+        "مراقبة المخزون وإدارة مشتريات الموردين.",
+      "Reports & Insights": "التقارير والإحصائيات",
+      "Real-time dashboards and detailed clinic performance reports.":
+        "لوحات تحكم مباشرة وتقارير أداء مفصلة.",
+      "Patient Records": "سجلات المرضى",
+      "Comprehensive patient profiles, medical history, and timelines.":
+        "ملفات مرضى شاملة وتاريخ طبي.",
+      "Multi-Branch": "تعدد الفروع",
+      "Manage multiple clinic branches from one account.":
+        "إدارة عدة فروع للعيادة من حساب واحد.",
+      "Simple Pricing": "أسعار بسيطة",
+      "Choose a plan that fits your clinic size. Upgrade anytime as you grow.":
+        "اختر خطة تناسب حجم عيادتك. قم بالترقية في أي وقت.",
+      "Get Started": "ابدأ الآن",
+      "Ready to Transform Your Clinic?": "مستعد لتطوير عيادتك؟",
+      "Join hundreds of dental clinics already using our platform. Start your free 14-day trial today.":
+        "انضم إلى مئات العيادات التي تستخدم منصتنا. ابدأ تجربتك المجانية لمدة 14 يومًا اليوم.",
+      Clinics: "عيادة",
+      "Appointments Managed": "موعد مُدار",
+      "EGP Processed": "جنيه مصري تمت معالجته",
     },
   },
 };

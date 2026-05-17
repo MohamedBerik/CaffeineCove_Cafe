@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import api from "../services/axios";
-import Navbar from "../components/Navbar/Navbar";
+import LandingNavbar from "../components/LandingNavbar";
 import Footer from "../components/Footer/Footer";
 import "./LandingPage.css";
 
@@ -64,7 +64,7 @@ export default function LandingPage() {
 
   return (
     <div className="landing-page" dir={i18n.language === "ar" ? "rtl" : "ltr"}>
-      <Navbar />
+      <LandingNavbar />
 
       {/* 🏆 Hero Section */}
       <section className="hero-section">

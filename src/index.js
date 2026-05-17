@@ -99,6 +99,7 @@ import PrintPurchaseOrderPage from "./admin/erp/PrintPurchaseOrderPage";
 import BranchesListPage from "./admin/saas/BranchesListPage";
 import BranchFormPage from "./admin/saas/BranchFormPage";
 import PrintBillingInvoicePage from "./admin/erp/PrintBillingInvoicePage";
+import LandingPage from "./pages/LandingPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -127,13 +128,14 @@ createRoot(document.getElementById("root")).render(
           <Toaster position="top-right" />
           <Routes>
             {/* ================= Public ================= */}
-            <Route path="/" element={<App />} />
+            {/* <Route path="/" element={<App />} /> */}
             <Route path="/about" element={<AllAbout />} />
             <Route path="/timeline" element={<AllTimeline />} />
             <Route path="/testimonials" element={<AllTestimonials />} />
             <Route path="/booking" element={<AllBooking />} />
             <Route path="/contact" element={<AllContact />} />
             {/* ================= Auth ================= */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/logout" element={<Logout />} />

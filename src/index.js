@@ -8,18 +8,12 @@ import "./global.css";
 import App from "./App";
 import "./i18n";
 
-/* ================= Public Pages ================= */
-import AllAbout from "./pages/About/AllAbout";
-import AllTimeline from "./pages/Timeline/AllTimeline";
-import AllTestimonials from "./pages/Testimonials/AllTestimonials";
-import AllBooking from "./pages/Booking/AllBooking";
-import AllContact from "./pages/Contact/AllContact";
-
 /* ================= Auth ================= */
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
 import LandingPage from "./pages/LandingPage";
+import AllContact from "./pages/Contact/AllContact";
 
 /* ================= Generic CRUD (temporary) ================= */
 import CrudTable from "./admin/components/CrudTable";
@@ -130,10 +124,6 @@ createRoot(document.getElementById("root")).render(
           <Routes>
             {/* ================= Public ================= */}
             {/* <Route path="/" element={<App />} /> */}
-            <Route path="/about" element={<AllAbout />} />
-            <Route path="/timeline" element={<AllTimeline />} />
-            <Route path="/testimonials" element={<AllTestimonials />} />
-            <Route path="/booking" element={<AllBooking />} />
             <Route path="/contact" element={<AllContact />} />
             {/* ================= Auth ================= */}
             <Route path="/" element={<LandingPage />} />

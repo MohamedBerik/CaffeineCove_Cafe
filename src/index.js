@@ -15,11 +15,11 @@ import LandingPage from "./pages/LandingPage";
 import AllContact from "./pages/Contact/AllContact";
 
 /* ================= Generic CRUD (temporary) ================= */
-import CrudTable from "./admin/components/CrudTable";
-import CrudForm from "./admin/components/CrudForm";
+// import CrudTable from "./admin/components/CrudTable";
+// import CrudForm from "./admin/components/CrudForm";
 
 /* ================= Old Admin ================= */
-import AdminDashboard from "./admin/Dashboard/Dashboard";
+// import AdminDashboard from "./admin/Dashboard/Dashboard";
 import AdminLayout from "./admin/layouts/AdminLayout";
 
 /* ================= Route Guards ================= */
@@ -359,7 +359,7 @@ createRoot(document.getElementById("root")).render(
               <Route index element={<ActivityLogs />} />
             </Route>
             {/* ================= Generic admin CRUD ================= */}
-            <Route
+            {/* <Route
               path="/admin/:table"
               element={
                 <AdminRoute>
@@ -390,16 +390,16 @@ createRoot(document.getElementById("root")).render(
                   <CrudForm />
                 </AdminRoute>
               }
-            />
+            /> */}
             {/* ================= Old Admin Dashboard ================= */}
-            <Route
+            {/* <Route
               path="/admin/dashboard/*"
               element={
                 <AdminRoute>
                   <AdminDashboard />
                 </AdminRoute>
               }
-            />
+            /> */}
             <Route
               path="/adminLayout"
               element={

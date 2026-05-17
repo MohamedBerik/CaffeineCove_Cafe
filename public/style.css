@@ -154,80 +154,9 @@ a {
 /* ===================== */
 /* Sections Padding */
 /* ===================== */
-#about,
-#menu,
-#testimonials,
 #contact,
 #footer .footer-top {
   padding: 6rem 0;
-}
-
-/* ===================== */
-/* About */
-/* ===================== */
-#about .row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-  align-items: center;
-}
-
-/* ===================== */
-/* Menu */
-/* ===================== */
-#menu {
-  background: var(--bg--secondary);
-}
-
-#menu .row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 3rem;
-}
-
-#menu .item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid #ddd;
-  padding: 20px;
-  gap: 15px;
-}
-
-#menu .item img {
-  width: 70px;
-}
-
-#menu .details {
-  flex: 1;
-}
-
-#menu .price {
-  font-weight: bold;
-  font-size: 18px;
-}
-
-/* ===================== */
-/* Testimonials */
-/* ===================== */
-#testimonials .row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-}
-
-#testimonials .item {
-  background: var(--bg--color);
-  text-align: center;
-  padding: 25px;
-}
-
-#testimonials .item img {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  margin-top: -45px;
-  border: 5px solid #fff;
 }
 
 /* ===================== */
@@ -281,9 +210,6 @@ a {
 /* Responsive */
 /* ===================== */
 @media (max-width: 992px) {
-  #about .row,
-  #menu .row,
-  #testimonials .row,
   #footer .footer-top .row,
   #contact .row {
     grid-template-columns: 1fr;
@@ -309,11 +235,6 @@ a {
   #header ul {
     flex-wrap: wrap;
     justify-content: center;
-  }
-
-  #menu .item {
-    flex-direction: column;
-    text-align: center;
   }
 }
 

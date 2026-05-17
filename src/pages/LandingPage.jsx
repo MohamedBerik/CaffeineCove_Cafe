@@ -107,7 +107,7 @@ export default function LandingPage() {
             </div>
             <div className={styles.heroImage}>
               <img
-                src="images/gallery/screencapture-caffeine-cove-cafe-vercel-app-admin-erp-reports-2026-05-17-11_29_42.png"
+                src="images/gallery/screencapture-caffeine-cove-cafe-vercel-app-admin-reports-saas-2026-05-17-20_36_05.png"
                 alt={t("Dashboard Preview")}
                 className={styles.heroImg}
               />

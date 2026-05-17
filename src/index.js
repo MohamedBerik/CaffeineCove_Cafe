@@ -11,7 +11,7 @@ import "./i18n";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
-import LandingPage from "./LandingPage";
+import LandingPage from "./pages/LandingPage";
 import AllContact from "./pages/Contact/AllContact";
 
 /* ================= Generic CRUD (temporary) ================= */

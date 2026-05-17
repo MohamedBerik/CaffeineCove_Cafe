@@ -107,7 +107,7 @@ export default function LandingPage() {
             </div>
             <div className={styles.heroImage}>
               <img
-                src="/images/dashboard-preview.png"
+                src="/images/slider/wp9526009.jpg"
                 alt={t("Dashboard Preview")}
                 className={styles.heroImg}
               />

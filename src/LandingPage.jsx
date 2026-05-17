@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import api from "../services/axios";
-import LandingNavbar from "../components/LandingNavbar";
-import LandingFooter from "../components/LandingFooter";
+import api from "./services/axios";
+import LandingNavbar from "./components/LandingNavbar";
+import LandingFooter from "./components/LandingFooter";
 import "./LandingPage.css";
 
 export default function LandingPage() {

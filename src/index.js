@@ -121,11 +121,9 @@ createRoot(document.getElementById("root")).render(
           />
           <Toaster position="top-right" />
           <Routes>
-            {/* ================= Public ================= */}
-            {/* <Route path="/" element={<App />} /> */}
-            <Route path="/contact" element={<AllContact />} />
             {/* ================= Auth ================= */}
             <Route path="/" element={<LandingPage />} />
+            <Route path="/contact" element={<AllContact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/logout" element={<Logout />} />

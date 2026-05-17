@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import api from "../services/axios";
 import LandingNavbar from "../components/LandingNavbar";
 import LandingFooter from "../components/LandingFooter";
-import "./LandingPage.css";
+import styles from "./LandingPage.module.css"; // ✅ استيراد كـ CSS Module
 
 export default function LandingPage() {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
   const [plans, setPlans] = useState([]);
 
   useEffect(() => {
@@ -63,70 +62,77 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="landing-page" dir={i18n.language === "ar" ? "rtl" : "ltr"}>
+    <div className={styles.page} dir={i18n.language === "ar" ? "rtl" : "ltr"}>
       <LandingNavbar />
 
       {/* 🏆 Hero Section */}
-      <section className="hero-section">
-        <div className="container">
-          <div className="hero-content">
-            <h1>{t("Manage Your Dental Clinic Smarter")}</h1>
-            <p>
-              {t(
-                "The all-in-one platform for dental clinics — appointments, invoices, inventory, reports, and more.",
-              )}
-            </p>
-            <div className="hero-actions">
-              <Link to="/register" className="btn-primary-lg">
-                <i className="fas fa-rocket me-2"></i>
-                {t("Start Free Trial")}
-              </Link>
-              <Link to="/login" className="btn-outline-lg">
-                <i className="fas fa-sign-in-alt me-2"></i>
-                {t("Login")}
-              </Link>
+      <section className={styles.hero}>
+        <div className={styles.container}>
+          <div className={styles.heroRow}>
+            <div className={styles.heroContent}>
+              <h1 className={styles.heroTitle}>
+                {t("Manage Your Dental Clinic Smarter")}
+              </h1>
+              <p className={styles.heroSubtitle}>
+                {t(
+                  "The all-in-one platform for dental clinics — appointments, invoices, inventory, reports, and more.",
+                )}
+              </p>
+              <div className={styles.heroActions}>
+                <Link to="/register" className={styles.btnPrimary}>
+                  <i className="fas fa-rocket me-2"></i>
+                  {t("Start Free Trial")}
+                </Link>
+                <Link to="/login" className={styles.btnOutline}>
+                  <i className="fas fa-sign-in-alt me-2"></i>
+                  {t("Login")}
+                </Link>
+              </div>
+              <div className={styles.heroStats}>
+                <div className={styles.stat}>
+                  <span className={styles.statNumber}>500+</span>
+                  <span className={styles.statLabel}>{t("Clinics")}</span>
+                </div>
+                <div className={styles.stat}>
+                  <span className={styles.statNumber}>50k+</span>
+                  <span className={styles.statLabel}>
+                    {t("Appointments Managed")}
+                  </span>
+                </div>
+                <div className={styles.stat}>
+                  <span className={styles.statNumber}>10M+</span>
+                  <span className={styles.statLabel}>{t("EGP Processed")}</span>
+                </div>
+              </div>
             </div>
-            <div className="hero-stats">
-              <div className="stat">
-                <span className="stat-number">500+</span>
-                <span className="stat-label">{t("Clinics")}</span>
-              </div>
-              <div className="stat">
-                <span className="stat-number">50k+</span>
-                <span className="stat-label">{t("Appointments Managed")}</span>
-              </div>
-              <div className="stat">
-                <span className="stat-number">10M+</span>
-                <span className="stat-label">{t("EGP Processed")}</span>
-              </div>
+            <div className={styles.heroImage}>
+              <img
+                src="/images/dashboard-preview.png"
+                alt={t("Dashboard Preview")}
+                className={styles.heroImg}
+              />
             </div>
-          </div>
-          <div className="hero-image">
-            <img
-              src="/images/dashboard-preview.png"
-              alt={t("Dashboard Preview")}
-            />
           </div>
         </div>
       </section>
 
       {/* ✨ Features Section */}
-      <section className="features-section" id="features">
-        <div className="container">
-          <div className="landing-section-header">
-            <h2>{t("Everything You Need")}</h2>
-            <p>
+      <section className={styles.features} id="features">
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>{t("Everything You Need")}</h2>
+            <p className={styles.sectionSubtitle}>
               {t(
                 "From appointments to inventory, we've got every aspect of your clinic covered.",
               )}
             </p>
           </div>
-          <div className="features-grid">
+          <div className={styles.featuresGrid}>
             {features.map((feature, idx) => (
-              <div key={idx} className="feature-card">
-                <i className={feature.icon}></i>
-                <h3>{feature.title}</h3>
-                <p>{feature.desc}</p>
+              <div key={idx} className={styles.featureCard}>
+                <i className={`${feature.icon} ${styles.featureIcon}`}></i>
+                <h3 className={styles.featureTitle}>{feature.title}</h3>
+                <p className={styles.featureDesc}>{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -134,41 +140,43 @@ export default function LandingPage() {
       </section>
 
       {/* 💲 Pricing Section */}
-      <section className="pricing-section" id="pricing">
-        <div className="container">
-          <div className="landing-section-header">
-            <h2>{t("Simple Pricing")}</h2>
-            <p>
+      <section className={styles.pricing} id="pricing">
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>{t("Simple Pricing")}</h2>
+            <p className={styles.sectionSubtitle}>
               {t(
                 "Choose a plan that fits your clinic size. Upgrade anytime as you grow.",
               )}
             </p>
           </div>
-          <div className="plans-grid">
+          <div className={styles.plansGrid}>
             {plans.map((plan) => (
               <div
                 key={plan.id}
-                className={`plan-card ${plan.is_active ? "" : "inactive"}`}
+                className={`${styles.planCard} ${!plan.is_active ? styles.planCardInactive : ""}`}
               >
-                <h3>{plan.name}</h3>
-                <div className="plan-price">
-                  <span className="price">
+                <h3 className={styles.planName}>{plan.name}</h3>
+                <div className={styles.planPrice}>
+                  <span className={styles.planAmount}>
                     {formatCurrency(plan.price_monthly)}
                   </span>
-                  <span className="period">/{t("mo")}</span>
+                  <span className={styles.planPeriod}>/{t("mo")}</span>
                 </div>
-                <p className="plan-desc">{plan.description}</p>
-                <ul className="plan-features">
+                <p className={styles.planDesc}>{plan.description}</p>
+                <ul className={styles.planFeatures}>
                   {plan.features &&
                     Array.isArray(plan.features) &&
                     plan.features.slice(0, 6).map((feature, i) => (
-                      <li key={i}>
-                        <i className="fas fa-check-circle"></i>
+                      <li key={i} className={styles.planFeatureItem}>
+                        <i
+                          className={`fas fa-check-circle ${styles.planFeatureIcon}`}
+                        ></i>
                         {feature}
                       </li>
                     ))}
                 </ul>
-                <Link to="/register" className="btn-plan">
+                <Link to="/register" className={styles.btnPlan}>
                   {t("Get Started")}
                 </Link>
               </div>
@@ -178,15 +186,17 @@ export default function LandingPage() {
       </section>
 
       {/* 🚀 CTA Section */}
-      <section className="cta-section">
-        <div className="container">
-          <h2>{t("Ready to Transform Your Clinic?")}</h2>
-          <p>
+      <section className={styles.cta}>
+        <div className={styles.container}>
+          <h2 className={styles.ctaTitle}>
+            {t("Ready to Transform Your Clinic?")}
+          </h2>
+          <p className={styles.ctaSubtitle}>
             {t(
               "Join hundreds of dental clinics already using our platform. Start your free 14-day trial today.",
             )}
           </p>
-          <Link to="/register" className="btn-primary-lg">
+          <Link to="/register" className={styles.ctaButton}>
             <i className="fas fa-rocket me-2"></i>
             {t("Start Free Trial")}
           </Link>

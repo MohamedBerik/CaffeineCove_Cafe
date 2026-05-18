@@ -5884,6 +5884,16 @@ const resources = {
       Specialty: "التخصص",
       "No data available.": "لا توجد بيانات متاحة",
       "Generated on": "تم الإنشاء في",
+
+      "Revenue Report": "تقرير الإيرادات",
+      "Total Invoiced": "إجمالي الفواتير",
+      "Gross Paid": "إجمالي المدفوع",
+      Refunded: "مسترجع",
+      "Net Paid": "صافي المدفوع",
+      Remaining: "المتبقي",
+      Period: "الفترة",
+      "No revenue rows found.": "لا توجد صفوف إيرادات.",
+      "Generated on": "تم الإنشاء في",
     },
   },
 };

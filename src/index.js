@@ -97,6 +97,7 @@ import PrintBillingInvoicePage from "./admin/erp/PrintBillingInvoicePage";
 import PrintAnalyticsDashboardPage from "./admin/erp/reports/PrintAnalyticsDashboardPage";
 import PrintAppointmentsReportPage from "./admin/erp/reports/PrintAppointmentsReportPage";
 import PrintDoctorPerformanceReportPage from "./admin/erp/reports/PrintDoctorPerformanceReportPage";
+import PrintRevenueReportPage from "./admin/erp/reports/PrintRevenueReportPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -154,6 +155,10 @@ createRoot(document.getElementById("root")).render(
             <Route
               path="/admin/erp/reports/doctors/print"
               element={<PrintDoctorPerformanceReportPage />}
+            />
+            <Route
+              path="/admin/erp/reports/revenue/print"
+              element={<PrintRevenueReportPage />}
             />
             <Route
               path="/admin/erp/*"

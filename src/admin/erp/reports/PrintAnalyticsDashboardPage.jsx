@@ -61,22 +61,39 @@ export default function PrintAnalyticsDashboardPage() {
     try {
       setLoading(true);
       setError("");
-      const [appRes, invRes, docRes] = await Promise.all([
+
+      const [appointmentsRes, invoicesRes, doctorsRes] = await Promise.all([
         axios.get("/erp/appointments"),
         axios.get("/erp/invoices"),
         axios.get("/erp/doctors"),
       ]);
 
-      const extract = (payload) =>
-        Array.isArray(payload)
-          ? payload
-          : payload?.data?.data || payload?.data || [];
+      const appointmentsPayload = appointmentsRes.data || {};
+      const invoicesPayload = invoicesRes.data || {};
+      const doctorsPayload = doctorsRes.data || {};
 
-      setAppointments(extract(appRes.data));
-      setInvoices(extract(invRes.data));
-      setDoctors(extract(docRes.data));
+      // ✅ نفس منطق الاستخراج الموجود في AnalyticsDashboardPage
+      const appointmentRows = Array.isArray(appointmentsPayload.data)
+        ? appointmentsPayload.data
+        : appointmentsPayload.data?.data || [];
+
+      const invoiceRows = Array.isArray(invoicesPayload.data)
+        ? invoicesPayload.data
+        : invoicesPayload.data?.data || invoicesPayload.invoices || [];
+
+      const doctorRows = Array.isArray(doctorsPayload.data)
+        ? doctorsPayload.data
+        : doctorsPayload.data?.data || [];
+
+      setAppointments(appointmentRows);
+      setInvoices(invoiceRows);
+      setDoctors(doctorRows);
     } catch (err) {
-      setError(err?.response?.data?.message || t("Failed to load data."));
+      setError(
+        err?.response?.data?.message ||
+          err?.response?.data?.msg ||
+          t("Failed to load analytics."),
+      );
     } finally {
       setLoading(false);
     }

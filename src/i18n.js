@@ -5894,6 +5894,16 @@ const resources = {
       Period: "الفترة",
       "No revenue rows found.": "لا توجد صفوف إيرادات.",
       "Generated on": "تم الإنشاء في",
+
+      "Payments Report": "تقرير المدفوعات",
+      "Total Payments": "إجمالي المدفوعات",
+      "Number of Payments": "عدد الدفعات",
+      "Average Payment": "متوسط الدفعة",
+      "Payment ID": "رقم الدفعة",
+      Applied: "المطبق",
+      Method: "طريقة الدفع",
+      "No payments found.": "لا توجد مدفوعات.",
+      "Generated on": "تم الإنشاء في",
     },
   },
 };

@@ -98,6 +98,8 @@ import PrintAnalyticsDashboardPage from "./admin/erp/reports/PrintAnalyticsDashb
 import PrintAppointmentsReportPage from "./admin/erp/reports/PrintAppointmentsReportPage";
 import PrintDoctorPerformanceReportPage from "./admin/erp/reports/PrintDoctorPerformanceReportPage";
 import PrintRevenueReportPage from "./admin/erp/reports/PrintRevenueReportPage";
+import PaymentsReportPage from "./admin/erp/reports/PaymentsReportPage";
+import PrintPaymentsReportPage from "./admin/erp/reports/PrintPaymentsReportPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -159,6 +161,10 @@ createRoot(document.getElementById("root")).render(
             <Route
               path="/admin/erp/reports/revenue/print"
               element={<PrintRevenueReportPage />}
+            />
+            <Route
+              path="/admin/erp/reports/payments/print"
+              element={<PrintPaymentsReportPage />}
             />
             <Route
               path="/admin/erp/*"
@@ -283,6 +289,11 @@ createRoot(document.getElementById("root")).render(
                 path="reports/analytics"
                 element={<AnalyticsDashboardPage />}
               />
+              <Route
+                path="/admin/erp/reports/payments"
+                element={<PaymentsReportPage />}
+              />
+
               <Route path="procedures" element={<ProceduresListPage />} />
               <Route path="procedures/create" element={<ProcedureFormPage />} />
               <Route

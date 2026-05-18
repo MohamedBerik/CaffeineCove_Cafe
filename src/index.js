@@ -104,6 +104,7 @@ import TreatmentPlansReportPage from "./admin/erp/reports/TreatmentPlansReportPa
 import PrintTreatmentPlansReportPage from "./admin/erp/reports/PrintTreatmentPlansReportPage";
 import PrintPatientsReportPage from "./admin/erp/reports/PrintPatientsReportPage";
 import PatientsReportPage from "./admin/erp/reports/PatientsReportPage";
+import PrintSaaSReportsPage from "./admin/saas/PrintSaaSReportsPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -177,6 +178,10 @@ createRoot(document.getElementById("root")).render(
             <Route
               path="/admin/erp/reports/patients/print"
               element={<PrintPatientsReportPage />}
+            />
+            <Route
+              path="/admin/saas/reports/print"
+              element={<PrintSaaSReportsPage />}
             />
 
             <Route

@@ -18,6 +18,7 @@ import {
   Area,
 } from "recharts";
 import "./SaaSReports.css";
+import { Link } from "react-router";
 
 // ثوابت
 const COLORS = [
@@ -138,10 +139,15 @@ export default function SaaSReports() {
               </button>
             ))}
           </div>
-          <button className="btn-export" onClick={() => window.print()}>
-            <i className="fas fa-download"></i>
-            {t("Export")}
-          </button>
+          <Link
+            to={`/admin/saas/reports/print?period=${period}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-export"
+          >
+            <i className="fas fa-print me-2"></i>
+            {t("Print")}
+          </Link>
         </div>
       </div>
 

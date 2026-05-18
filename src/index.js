@@ -95,6 +95,7 @@ import BranchesListPage from "./admin/saas/BranchesListPage";
 import BranchFormPage from "./admin/saas/BranchFormPage";
 import PrintBillingInvoicePage from "./admin/erp/PrintBillingInvoicePage";
 import PrintAnalyticsDashboardPage from "./admin/erp/reports/PrintAnalyticsDashboardPage";
+import PrintAppointmentsReportPage from "./admin/erp/reports/PrintAppointmentsReportPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -145,7 +146,10 @@ createRoot(document.getElementById("root")).render(
               path="/admin/erp/reports/analytics/print"
               element={<PrintAnalyticsDashboardPage />}
             />
-
+            <Route
+              path="/admin/erp/reports/appointments/print"
+              element={<PrintAppointmentsReportPage />}
+            />
             <Route
               path="/admin/erp/*"
               element={

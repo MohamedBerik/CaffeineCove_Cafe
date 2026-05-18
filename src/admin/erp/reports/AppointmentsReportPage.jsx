@@ -206,15 +206,15 @@ export default function AppointmentsReportPage() {
             {t("Back to Reports")}
           </Link>
 
-          <button className="btn btn-outline-dark" onClick={printReport}>
+          <Link
+            to={`/admin/erp/reports/appointments/print?from=${filters.from}&to=${filters.to}&doctor_id=${filters.doctor_id}&status=${filters.status}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-outline-dark"
+          >
             <i className="fas fa-print me-2"></i>
             {t("Print")}
-          </button>
-
-          <button className="btn btn-outline-success" onClick={exportRows}>
-            <i className="fas fa-file-csv me-2"></i>
-            {t("Export CSV")}
-          </button>
+          </Link>
 
           <button className="btn btn-primary" onClick={loadReport}>
             <i className="fas fa-sync-alt me-2"></i>

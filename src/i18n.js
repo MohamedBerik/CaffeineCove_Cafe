@@ -5859,6 +5859,23 @@ const resources = {
       Clinics: "عيادة",
       "Appointments Managed": "موعد مُدار",
       "EGP Processed": "جنيه مصري تمت معالجته",
+
+      "Analytics Dashboard": "لوحة التحليلات",
+      Period: "الفترة",
+      Invoiced: "تمت الفوترة",
+      Collected: "تم تحصيله",
+      "Generated on": "تم الإنشاء في",
+      "No data": "لا توجد بيانات",
+
+      "Appointments Report": "تقرير المواعيد",
+      Total: "الإجمالي",
+      Scheduled: "مجدول",
+      Completed: "مكتمل",
+      Cancelled: "ملغى",
+      "No Show": "لم يحضر",
+      "In Progress": "قيد التنفيذ",
+      "No appointments found.": "لا توجد مواعيد.",
+      "Generated on": "تم الإنشاء في",
     },
   },
 };

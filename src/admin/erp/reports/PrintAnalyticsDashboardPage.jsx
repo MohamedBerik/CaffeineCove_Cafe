@@ -24,7 +24,6 @@ const COLORS = ["#1a237e", "#4caf50", "#f44336", "#ff9800", "#03a9f4"];
 
 export default function PrintAnalyticsDashboardPage() {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
   const today = new Date().toISOString().slice(0, 10);
 
   const navigate = useNavigate();

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 import "./PrintAnalyticsDashboardPage.css";
+import { useNavigate, useLocation } from "react-router-dom"; // أضف useLocation هنا
 
 import {
   ResponsiveContainer,
@@ -26,7 +27,16 @@ export default function PrintAnalyticsDashboardPage() {
   const navigate = useNavigate();
   const today = new Date().toISOString().slice(0, 10);
 
-  const [filters] = useState({ from: today, to: today });
+  const navigate = useNavigate();
+  const location = useLocation(); // لاستخراج القيم من الرابط
+  const today = new Date().toISOString().slice(0, 10);
+
+  // قراءة التواريخ من الرابط إذا وجدت، وإلا استخدام تاريخ اليوم كبديل احتياطي
+  const queryParams = new URLSearchParams(location.search);
+  const [filters] = useState({
+    from: queryParams.get("from") || today,
+    to: queryParams.get("to") || today,
+  });
   const [appointments, setAppointments] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [doctors, setDoctors] = useState([]);

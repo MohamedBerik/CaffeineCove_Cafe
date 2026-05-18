@@ -299,7 +299,7 @@ export default function AnalyticsDashboardPage() {
             {t("Back to Reports")}
           </Link>
           <Link
-            to="/admin/erp/reports/analytics/print"
+            to={`/admin/erp/reports/analytics/print?from=${filters.from}&to=${filters.to}`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-outline-dark"

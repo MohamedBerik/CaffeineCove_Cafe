@@ -26,8 +26,6 @@ export default function PrintAnalyticsDashboardPage() {
   const { t, i18n } = useTranslation();
   const today = new Date().toISOString().slice(0, 10);
 
-  const navigate = useNavigate();
-  const location = useLocation(); // لاستخراج القيم من الرابط
   const today = new Date().toISOString().slice(0, 10);
 
   // قراءة التواريخ من الرابط إذا وجدت، وإلا استخدام تاريخ اليوم كبديل احتياطي

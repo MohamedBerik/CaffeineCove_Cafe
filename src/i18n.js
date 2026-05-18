@@ -5876,6 +5876,14 @@ const resources = {
       "In Progress": "قيد التنفيذ",
       "No appointments found.": "لا توجد مواعيد.",
       "Generated on": "تم الإنشاء في",
+
+      "Doctor Performance Report": "تقرير أداء الأطباء",
+      "Total Doctors": "إجمالي الأطباء",
+      "Total Appointments": "إجمالي المواعيد",
+      "Avg Completion Rate": "متوسط نسبة الإكمال",
+      Specialty: "التخصص",
+      "No data available.": "لا توجد بيانات متاحة",
+      "Generated on": "تم الإنشاء في",
     },
   },
 };

@@ -184,11 +184,6 @@ export default function PaymentsReportPage() {
             {t("Print")}
           </Link>
 
-          <button className="btn btn-outline-success" onClick={exportRows}>
-            <i className="fas fa-file-csv me-2"></i>
-            {t("Export CSV")}
-          </button>
-
           <button className="btn btn-primary" onClick={loadReport}>
             <i className="fas fa-sync-alt me-2"></i>
             {t("Refresh")}

@@ -289,10 +289,7 @@ createRoot(document.getElementById("root")).render(
                 path="reports/analytics"
                 element={<AnalyticsDashboardPage />}
               />
-              <Route
-                path="/admin/erp/reports/payments"
-                element={<PaymentsReportPage />}
-              />
+              <Route path="reports/payments" element={<PaymentsReportPage />} />
 
               <Route path="procedures" element={<ProceduresListPage />} />
               <Route path="procedures/create" element={<ProcedureFormPage />} />

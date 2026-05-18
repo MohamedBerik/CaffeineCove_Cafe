@@ -94,6 +94,7 @@ import PrintPurchaseOrderPage from "./admin/erp/PrintPurchaseOrderPage";
 import BranchesListPage from "./admin/saas/BranchesListPage";
 import BranchFormPage from "./admin/saas/BranchFormPage";
 import PrintBillingInvoicePage from "./admin/erp/PrintBillingInvoicePage";
+import PrintAnalyticsDashboardPage from "./admin/erp/reports/PrintAnalyticsDashboardPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({

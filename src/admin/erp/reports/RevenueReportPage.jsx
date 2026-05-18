@@ -500,7 +500,7 @@ function ReportCard({ title, value, color = "primary", icon }) {
       </div>
       <div className="report-content">
         <div className="report-title">{title}</div>
-        <div className="report-value" style={{ color: colors.text }}>
+        <div className="revenue-report-value" style={{ color: colors.text }}>
           {value}
         </div>
       </div>

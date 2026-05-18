@@ -12,7 +12,8 @@ export default function LandingNavbar() {
   useEffect(() => {
     // جلب اسم المنصة من الإعدادات العامة
     api
-      .get("/erp/platform-info")
+      .get("/public/platform-info")
+
       .then((res) => {
         if (res.data?.name) setPlatformName(res.data.name);
       })

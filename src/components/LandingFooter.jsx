@@ -11,7 +11,7 @@ export default function LandingFooter() {
 
   useEffect(() => {
     api
-      .get("/erp/platform-info")
+      .get("/public/platform-info")
       .then((res) => {
         if (res.data?.name) setPlatformName(res.data.name);
       })

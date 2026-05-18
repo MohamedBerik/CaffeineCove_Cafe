@@ -493,13 +493,13 @@ function ReportCard({ title, value, color = "primary", icon }) {
   return (
     <div className="revenue-report-card">
       <div
-        className="report-icon"
+        className="revenue-report-icon"
         style={{ backgroundColor: colors.bg, color: colors.text }}
       >
         <i className={icon}></i>
       </div>
       <div className="revenue-report-content">
-        <div className="report-title">{title}</div>
+        <div className="revenue-report-title">{title}</div>
         <div className="revenue-report-value" style={{ color: colors.text }}>
           {value}
         </div>

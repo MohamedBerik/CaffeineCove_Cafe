@@ -12,7 +12,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     api
-      .get("/saas/plans")
+      .get("/public/plans")
       .then((res) => setPlans(res.data.data || []))
       .catch(console.error);
   }, []);

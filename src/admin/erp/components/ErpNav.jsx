@@ -78,12 +78,12 @@ const erpNavItems = [
     icon: "fas fa-file-invoice-dollar",
     permission: "finance.view",
   },
-  {
-    to: "/admin/erp/orders",
-    labelKey: "Orders",
-    icon: "fas fa-shopping-cart",
-    permission: "orders.view",
-  },
+  // {
+  //   to: "/admin/erp/orders",
+  //   labelKey: "Orders",
+  //   icon: "fas fa-shopping-cart",
+  //   permission: "orders.view",
+  // },
   {
     to: "/admin/erp/purchase-orders",
     labelKey: "Purchase Orders",

@@ -1,0 +1,100 @@
+.print-patients-report-page {
+  background: white;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.print-actions {
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.print-content {
+  max-width: 1100px;
+  margin: auto;
+}
+
+.print-title {
+  font-size: 2rem;
+  color: #1a237e;
+  margin-bottom: 0.25rem;
+}
+
+.print-period {
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.print-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.print-summary-card {
+  background: #f8f9ff;
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.summary-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.summary-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a237e;
+}
+
+.print-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+  font-size: 0.85rem;
+}
+
+.print-table th {
+  background: #f0f0f0;
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #ccc;
+}
+
+.print-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+.print-footer {
+  margin-top: 2rem;
+  color: #999;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-patients-report-page {
+    padding: 0;
+  }
+
+  body {
+    background: white;
+  }
+}
+
+[dir="rtl"] .print-table th,
+[dir="rtl"] .print-table td {
+  text-align: right;
+}

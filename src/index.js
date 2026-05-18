@@ -140,6 +140,10 @@ createRoot(document.getElementById("root")).render(
               path="/admin/erp/billing/invoices/:id/print"
               element={<PrintBillingInvoicePage />}
             />
+            <Route
+              path="/admin/erp/reports/analytics/print"
+              element={<PrintAnalyticsDashboardPage />}
+            />
 
             <Route
               path="/admin/erp/*"

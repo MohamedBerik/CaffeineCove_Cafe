@@ -298,7 +298,15 @@ export default function AnalyticsDashboardPage() {
             <i className="fas fa-chart-bar me-2"></i>
             {t("Back to Reports")}
           </Link>
-
+          <Link
+            to="/admin/erp/reports/analytics/print"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-outline-dark"
+          >
+            <i className="fas fa-print me-2"></i>
+            {t("Print")}
+          </Link>
           <button className="btn btn-primary" onClick={loadAnalytics}>
             <i className="fas fa-sync-alt me-2"></i>
             {t("Refresh")}

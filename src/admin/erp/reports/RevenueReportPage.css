@@ -93,7 +93,7 @@
   margin-bottom: 1.5rem;
 }
 
-.report-card {
+.revenue-report-card {
   background: white;
   border-radius: 16px;
   padding: 1rem;
@@ -105,12 +105,12 @@
   transition: all 0.3s ease;
 }
 
-.report-card:hover {
+.revenue-report-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
-.report-icon {
+.revenue-report-icon {
   width: 48px;
   height: 48px;
   border-radius: 12px;
@@ -120,11 +120,11 @@
   font-size: 1.25rem;
 }
 
-.report-content {
+.revenue-report-content {
   flex: 1;
 }
 
-.report-title {
+.revenue-report-title {
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;

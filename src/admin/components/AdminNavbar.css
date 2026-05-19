@@ -656,6 +656,21 @@
 }
 
 @media (max-width: 576px) {
+  /* ✅ إخفاء نص ERP System في الشاشات الصغيرة */
+  .navbar-brand .brand-text {
+    display: none; /* يخفي العنوان والفرعي */
+  }
+
+  .navbar-brand i {
+    font-size: 1.5rem; /* تصغير الأيقونة قليلاً */
+    margin-right: 0; /* إزالة أي هامش جانبي */
+  }
+
+  .navbar-brand {
+    gap: 0; /* لا مسافة بين الأيقونة والنص المخفي */
+    padding: 0;
+  }
+
   .navbar-container {
     height: 56px;
     padding: 0 0.85rem;
@@ -679,26 +694,10 @@
     width: 34px;
     height: 34px;
   }
-  /* تأكد من ظهور زر الخروج بوضوح في الشاشات الصغيرة */
   .logout-btn {
-    display: inline-flex !important;
-    padding: 0.4rem !important;
-    background: rgba(244, 67, 54, 0.2); /* خلفية حمراء شفافة لإبرازه */
-    border: 1px solid rgba(255, 82, 82, 0.5);
-    flex-shrink: 0;
-    min-width: 38px;
-    justify-content: center;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
   }
-  .logout-btn i {
-    font-size: 1.1rem !important;
-    color: #ffcdd2; /* أيقونة فاتحة */
-  }
-  .navbar-actions {
-    flex-wrap: nowrap;
-    overflow-x: auto; /* يسمح بالتمرير الأفقي عند الحاجة */
-    -webkit-overflow-scrolling: touch;
-  }
-
   .logout-btn span {
     display: none;
   }

@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom"; // ✅ أضف useLocation
 import { useTranslation } from "react-i18next";
 import api from "../services/axios";
 import "./LandingNavbar.css";
 
 export default function LandingNavbar() {
   const { t, i18n } = useTranslation();
+  const location = useLocation(); // ✅ لمعرفة الصفحة الحالية
   const [platformName, setPlatformName] = useState("My Platform");
   const [scrolled, setScrolled] = useState(false);
 
@@ -34,9 +35,16 @@ export default function LandingNavbar() {
     document.documentElement.lang = newLang;
   };
 
+  // ✅ دالة التمرير الذكية
   const scrollToSection = (id) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+    if (location.pathname === "/") {
+      // إذا كنا بالفعل في صفحة الهبوط، مرر مباشرة
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    } else {
+      // إذا كنا في صفحة أخرى، انتقل إلى صفحة الهبوط مع hash
+      window.location.href = `/#${id}`;
+    }
   };
 
   return (

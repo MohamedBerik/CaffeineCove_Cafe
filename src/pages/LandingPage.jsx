@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom"; // ✅ استورد useLocation
 import { useTranslation } from "react-i18next";
 import api from "../services/axios";
 import LandingNavbar from "../components/LandingNavbar";
@@ -8,7 +8,20 @@ import styles from "./LandingPage.module.css";
 
 export default function LandingPage() {
   const { t, i18n } = useTranslation();
+  const location = useLocation(); // ✅
   const [plans, setPlans] = useState([]);
+
+  // ✅ التمرير التلقائي عند وجود hash
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace("#", "");
+      // تأخير بسيط لضمان تحميل العنصر
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [location.hash]);
 
   useEffect(() => {
     api

@@ -794,13 +794,13 @@
 
 @media (max-width: 480px) {
   .company-switcher-wrapper {
-    margin-right: 3px;
+    margin-right: 2px;
   }
   .company-switcher {
     min-width: 80px;
     max-width: 90px;
     font-size: 0.65rem;
-    padding: 4px 2px;
+    padding: 3px 1px;
   }
   .company-switcher option {
     font-size: 0.65rem;
@@ -812,7 +812,7 @@
     font-size: 0.7rem;
   }
   .notification-bell {
-    padding: 4px;
+    padding: 3px;
   }
   .notification-bell i {
     font-size: 1.1rem;

@@ -5974,6 +5974,20 @@ const resources = {
         "فشل إرسال رسالتك. يرجى المحاولة مرة أخرى.",
       "Your message has been sent successfully. We will get back to you soon.":
         "تم إرسال رسالتك بنجاح. سنعاود الاتصال بك قريباً.",
+
+      "Contact Messages": "رسائل الاتصال",
+      "Messages received from the contact form":
+        "الرسائل الواردة من نموذج الاتصال",
+      "No messages found.": "لا توجد رسائل.",
+      "Mark as Read": "تعليم كمقروء",
+      Read: "مقروء",
+      Unread: "غير مقروء",
+      Phone: "الهاتف",
+      Clear: "مسح",
+      "Failed to load messages.": "فشل تحميل الرسائل.",
+      "Message deleted successfully.": "تم حذف الرسالة بنجاح.",
+      "Failed to mark as read.": "فشل تعليم الرسالة كمقروءة.",
+      "Failed to delete message.": "فشل حذف الرسالة.",
     },
   },
 };

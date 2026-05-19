@@ -100,6 +100,7 @@ import PrintTreatmentPlansReportPage from "./admin/erp/reports/PrintTreatmentPla
 import PrintPatientsReportPage from "./admin/erp/reports/PrintPatientsReportPage";
 import PatientsReportPage from "./admin/erp/reports/PatientsReportPage";
 import PrintSaaSReportsPage from "./admin/saas/PrintSaaSReportsPage";
+import ContactMessagesListPage from "./admin/saas/ContactMessagesListPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -403,56 +404,12 @@ createRoot(document.getElementById("root")).render(
             >
               <Route index element={<ActivityLogs />} />
             </Route>
-            {/* ================= Generic admin CRUD ================= */}
-            {/* <Route
-              path="/admin/:table"
-              element={
-                <AdminRoute>
-                  <CrudTable />
-                </AdminRoute>
-              }
-            />
+
             <Route
-              path="/admin/:table/create"
-              element={
-                <AdminRoute>
-                  <CrudForm />
-                </AdminRoute>
-              }
+              path="/admin/contact-messages"
+              element={<ContactMessagesListPage />}
             />
-            <Route
-              path="/admin/:table/:id/edit"
-              element={
-                <AdminRoute>
-                  <CrudForm />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/:table/:id/show"
-              element={
-                <AdminRoute>
-                  <CrudForm />
-                </AdminRoute>
-              }
-            /> */}
-            {/* ================= Old Admin Dashboard ================= */}
-            {/* <Route
-              path="/admin/dashboard/*"
-              element={
-                <AdminRoute>
-                  <AdminDashboard />
-                </AdminRoute>
-              }
-            /> */}
-            <Route
-              path="/adminLayout"
-              element={
-                <AdminRoute>
-                  <AdminLayout />
-                </AdminRoute>
-              }
-            />
+
             {/* ================= 404 ================= */}
             <Route
               path="*"

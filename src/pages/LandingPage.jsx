@@ -202,7 +202,7 @@ export default function LandingPage() {
       <section className={styles.cta}>
         <div className={styles.container}>
           <h1 className={styles.ctaTitle}>
-            {t("Ready to Transform Your Clinic?")}
+            {t("Ready to Transform Your Dental Clinic?")}
           </h1>
           <p className={styles.ctaSubtitle}>
             {t(

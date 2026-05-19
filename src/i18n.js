@@ -5972,6 +5972,8 @@ const resources = {
         "تم إرسال رسالتك بنجاح. سنعاود الاتصال بك قريباً.",
       "Failed to send your message. Please try again.":
         "فشل إرسال رسالتك. يرجى المحاولة مرة أخرى.",
+      "Your message has been sent successfully. We will get back to you soon.":
+        "تم إرسال رسالتك بنجاح. سنعاود الاتصال بك قريباً.",
     },
   },
 };

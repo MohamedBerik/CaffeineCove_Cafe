@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "../../../context/AuthContext";
-import api from "../../../services/axios";
+import { useAuth } from "../../context/AuthContext";
+import api from "../../services/axios";
 import "./ContactMessagesListPage.css";
 
 export default function ContactMessagesListPage() {

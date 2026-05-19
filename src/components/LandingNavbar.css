@@ -25,7 +25,7 @@
   justify-content: space-between;
 }
 
-.navbar-brand {
+.landing-navbar-brand {
   display: flex;
   align-items: center;
   gap: 0.5rem;

@@ -5956,6 +5956,22 @@ const resources = {
       Print: "طباعة",
       "No data": "لا توجد بيانات",
       "Generated on": "تم الإنشاء في",
+
+      "Contact Us": "اتصل بنا",
+      "Have a question or need help? Fill out the form below and we'll get back to you shortly.":
+        "هل لديك سؤال أو تحتاج مساعدة؟ املأ النموذج أدناه وسنعاود الاتصال بك قريباً.",
+      "Your Name": "اسمك",
+      "Email Address": "البريد الإلكتروني",
+      Subject: "الموضوع",
+      "How can we help you?": "كيف يمكننا مساعدتك؟",
+      Message: "الرسالة",
+      "Tell us more about your inquiry...": "أخبرنا المزيد عن استفسارك...",
+      "Send Message": "إرسال الرسالة",
+      "Sending...": "جارٍ الإرسال...",
+      "Your message has been sent successfully. We will get back to you soon.":
+        "تم إرسال رسالتك بنجاح. سنعاود الاتصال بك قريباً.",
+      "Failed to send your message. Please try again.":
+        "فشل إرسال رسالتك. يرجى المحاولة مرة أخرى.",
     },
   },
 };

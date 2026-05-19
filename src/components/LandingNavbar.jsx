@@ -59,6 +59,9 @@ export default function LandingNavbar() {
             </button>
           </li>
           <li>
+            <Link to="/contact">{t("Contact Us")}</Link>
+          </li>
+          <li>
             <button onClick={toggleLanguage} className="lang-btn">
               <i className="fas fa-globe"></i>{" "}
               {i18n.language === "en" ? "AR" : "EN"}

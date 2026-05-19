@@ -679,10 +679,26 @@
     width: 34px;
     height: 34px;
   }
+  /* تأكد من ظهور زر الخروج بوضوح في الشاشات الصغيرة */
   .logout-btn {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
+    display: inline-flex !important;
+    padding: 0.4rem !important;
+    background: rgba(244, 67, 54, 0.2); /* خلفية حمراء شفافة لإبرازه */
+    border: 1px solid rgba(255, 82, 82, 0.5);
+    flex-shrink: 0;
+    min-width: 38px;
+    justify-content: center;
   }
+  .logout-btn i {
+    font-size: 1.1rem !important;
+    color: #ffcdd2; /* أيقونة فاتحة */
+  }
+  .navbar-actions {
+    flex-wrap: nowrap;
+    overflow-x: auto; /* يسمح بالتمرير الأفقي عند الحاجة */
+    -webkit-overflow-scrolling: touch;
+  }
+
   .logout-btn span {
     display: none;
   }

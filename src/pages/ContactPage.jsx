@@ -11,6 +11,7 @@ export default function ContactPage() {
   const [form, setForm] = useState({
     name: "",
     email: "",
+    phone: "",
     subject: "",
     message: "",
   });
@@ -114,7 +115,20 @@ export default function ContactPage() {
                   />
                 </div>
               </div>
-
+              <div className={styles.group}>
+                <label className={styles.label}>
+                  <i className="fas fa-phone me-2"></i>
+                  {t("Phone Number")}
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  className={styles.input}
+                  placeholder={t("Optional")}
+                />
+              </div>
               <div className={styles.group}>
                 <label className={styles.label}>
                   <i className="fas fa-tag me-2"></i>

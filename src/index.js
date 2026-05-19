@@ -405,15 +405,17 @@ createRoot(document.getElementById("root")).render(
               <Route index element={<ActivityLogs />} />
             </Route>
 
+            {/* ================= Contact Messages Route ================= */}
             <Route
               path="/admin/contact-messages"
               element={
                 <AdminRoute>
-                  <ContactMessagesListPage />
+                  <ERPDashboard />
                 </AdminRoute>
               }
-            />
-
+            >
+              <Route index element={<ContactMessagesListPage />} />
+            </Route>
             {/* ================= 404 ================= */}
             <Route
               path="*"

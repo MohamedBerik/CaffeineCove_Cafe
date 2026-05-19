@@ -14,12 +14,7 @@ import Logout from "./pages/Logout";
 import LandingPage from "./pages/LandingPage";
 import AllContact from "./pages/Contact/AllContact";
 
-/* ================= Generic CRUD (temporary) ================= */
-// import CrudTable from "./admin/components/CrudTable";
-// import CrudForm from "./admin/components/CrudForm";
-
 /* ================= Old Admin ================= */
-// import AdminDashboard from "./admin/Dashboard/Dashboard";
 import AdminLayout from "./admin/layouts/AdminLayout";
 
 /* ================= Route Guards ================= */

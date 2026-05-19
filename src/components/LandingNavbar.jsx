@@ -51,7 +51,7 @@ export default function LandingNavbar() {
     <nav className={`landing-navbar ${scrolled ? "scrolled" : ""}`}>
       <div className="landing-navbar-container">
         <div className="landing-navbar-brand">
-          <i className="fa-clinic-medical"></i>
+          <i className="fas fa-tooth"></i>
           <span>{platformName}</span>
         </div>
 

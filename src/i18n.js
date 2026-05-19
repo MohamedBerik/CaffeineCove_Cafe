@@ -5988,6 +5988,54 @@ const resources = {
       "Message deleted successfully.": "تم حذف الرسالة بنجاح.",
       "Failed to mark as read.": "فشل تعليم الرسالة كمقروءة.",
       "Failed to delete message.": "فشل حذف الرسالة.",
+
+      "Terms of Service": "شروط الخدمة",
+      "Last Updated": "آخر تحديث",
+      "1. Acceptance of Terms": "١. قبول الشروط",
+      "By accessing and using our platform, you agree to be bound by these Terms of Service. If you do not agree, please do not use our services.":
+        "باستخدامك منصتنا، فإنك توافق على الالتزام بهذه الشروط. إذا كنت لا توافق، يُرجى عدم استخدام خدماتنا.",
+      "2. Description of Service": "٢. وصف الخدمة",
+      "We provide a cloud-based dental practice management software (SaaS) that allows clinics to manage appointments, patients, invoices, inventory, and more.":
+        "نحن نقدم برنامجاً سحابياً لإدارة عيادات الأسنان (SaaS) يتيح للعيادات إدارة المواعيد والمرضى والفواتير والمخزون والمزيد.",
+      "3. User Accounts": "٣. حسابات المستخدمين",
+      "You are responsible for maintaining the confidentiality of your account credentials. You must notify us immediately of any unauthorized use of your account.":
+        "أنت مسؤول عن الحفاظ على سرية بيانات دخول حسابك. يجب عليك إبلاغنا فوراً عن أي استخدام غير مصرح به لحسابك.",
+      "4. Subscription and Payments": "٤. الاشتراك والمدفوعات",
+      "Some features require a paid subscription. You agree to pay all fees associated with your plan. Subscription fees are non-refundable unless required by law.":
+        "بعض الميزات تتطلب اشتراكاً مدفوعاً. أنت توافق على دفع جميع الرسوم المرتبطة بخطتك. رسوم الاشتراك غير قابلة للاسترداد إلا إذا نص القانون على ذلك.",
+      "5. Limitation of Liability": "٥. تحديد المسؤولية",
+      "We shall not be liable for any indirect, incidental, or consequential damages arising from your use of the platform.":
+        "لا نتحمل المسؤولية عن أي أضرار غير مباشرة أو عرضية أو تبعية تنشأ عن استخدامك للمنصة.",
+      "6. Changes to Terms": "٦. تعديل الشروط",
+      "We reserve the right to update these terms at any time. Continued use of the platform after changes constitutes acceptance of the new terms.":
+        "نحتفظ بالحق في تحديث هذه الشروط في أي وقت. استمرارك في استخدام المنصة بعد التعديلات يعني قبولك للشروط الجديدة.",
+      "7. Contact": "٧. الاتصال",
+      "For any questions about these terms, please contact us through our contact page.":
+        "لأي استفسار حول هذه الشروط، يُرجى التواصل معنا عبر صفحة الاتصال.",
+
+      "Privacy Policy": "سياسة الخصوصية",
+      "Last Updated": "آخر تحديث",
+      "1. Information We Collect": "١. المعلومات التي نجمعها",
+      "We collect information you provide when registering, such as name, email address, clinic information, and payment details. We also collect usage data automatically.":
+        "نقوم بجمع المعلومات التي تقدمها عند التسجيل، مثل الاسم، البريد الإلكتروني، بيانات العيادة، وتفاصيل الدفع. كما نجمع بيانات الاستخدام تلقائياً.",
+      "2. How We Use Your Information": "٢. كيف نستخدم معلوماتك",
+      "We use your information to provide, maintain, and improve our services, process payments, send notifications, and comply with legal obligations.":
+        "نستخدم معلوماتك لتقديم خدماتنا وصيانتها وتحسينها، ومعالجة المدفوعات، وإرسال الإشعارات، والامتثال للالتزامات القانونية.",
+      "3. Data Sharing": "٣. مشاركة البيانات",
+      "We do not sell your personal data. We may share data with trusted third-party service providers (such as payment gateways) only as necessary to provide the service.":
+        "نحن لا نبيع بياناتك الشخصية. قد نشارك البيانات مع مقدمي خدمات خارجيين موثوقين (مثل بوابات الدفع) فقط بقدر ما هو ضروري لتقديم الخدمة.",
+      "4. Data Security": "٤. أمن البيانات",
+      "We implement industry-standard security measures to protect your data. However, no method of transmission over the internet is 100% secure.":
+        "نحن نطبق إجراءات أمنية معيارية في المجال لحماية بياناتك. ومع ذلك، لا توجد طريقة نقل عبر الإنترنت آمنة بنسبة 100%.",
+      "5. Your Rights": "٥. حقوقك",
+      "You have the right to access, correct, or delete your personal data. You may also object to or restrict certain processing activities.":
+        "لديك الحق في الوصول إلى بياناتك الشخصية أو تصحيحها أو حذفها. كما يمكنك الاعتراض على أو تقييد بعض أنشطة المعالجة.",
+      "6. Cookies": "٦. ملفات تعريف الارتباط (كوكيز)",
+      "We use cookies to improve your browsing experience. You can disable cookies in your browser settings, but this may affect the functionality of the platform.":
+        "نستخدم ملفات تعريف الارتباط لتحسين تجربة التصفح لديك. يمكنك تعطيل الكوكيز في إعدادات المتصفح، لكن هذا قد يؤثر على وظائف المنصة.",
+      "7. Contact": "٧. الاتصال",
+      "For any questions about this privacy policy, please contact us through our contact page.":
+        "لأي استفسار حول سياسة الخصوصية هذه، يُرجى التواصل معنا عبر صفحة الاتصال.",
     },
   },
 };

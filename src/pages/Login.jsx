@@ -88,24 +88,29 @@ function Login() {
         <div className="login-brand">
           <div className="brand-content">
             <div className="brand-icon">
-              <i className="fas fa-tooth"></i>
+              <i className="fas fa-chart-line"></i>{" "}
+              {/* أيقونة تحليلية بدل السن */}
             </div>
-            <h1>{t("Dental Care Clinic")}</h1>
+            <h1>{t("Clinic Management Platform")}</h1>{" "}
+            {/* بدل Dental Care Clinic */}
             <p>
-              {t("Your trusted partner in dental health and beautiful smiles")}
+              {t(
+                "The smart way to manage your dental clinic – appointments, invoices, inventory, and more.",
+              )}
             </p>
             <div className="brand-features">
               <div className="feature">
                 <i className="fas fa-check-circle"></i>
-                <span>{t("Expert Dentists")}</span>
+                <span>{t("Appointment Management")}</span>{" "}
+                {/* بدل Expert Dentists */}
               </div>
               <div className="feature">
                 <i className="fas fa-check-circle"></i>
-                <span>{t("Modern Equipment")}</span>
+                <span>{t("Invoicing & Payments")}</span>
               </div>
               <div className="feature">
                 <i className="fas fa-check-circle"></i>
-                <span>{t("Pain-Free Treatments")}</span>
+                <span>{t("Inventory & Reports")}</span>
               </div>
             </div>
           </div>

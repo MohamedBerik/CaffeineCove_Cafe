@@ -73,9 +73,9 @@ function Register() {
         <div className="register-brand">
           <div className="brand-content">
             <div className="brand-icon">
-              <i className="fas fa-tooth"></i>
+              <i className="fas fa-laptop-medical"></i> {/* أيقونة المنصة */}
             </div>
-            <h1>{t("Start Managing Your Clinic")}</h1>
+            <h1>{t("Start Managing Your Dental Clinic")}</h1>
             <p>
               {t(
                 "Create your clinic account to manage appointments, doctors, patients, invoices, and more.",
@@ -88,7 +88,8 @@ function Register() {
               </div>
               <div className="feature">
                 <i className="fas fa-check-circle"></i>
-                <span>{t("Multi-Branch Support")}</span>
+                <span>{t("Smart Scheduling")}</span>{" "}
+                {/* بدل Multi-Branch Support أو إضافتها */}
               </div>
               <div className="feature">
                 <i className="fas fa-check-circle"></i>

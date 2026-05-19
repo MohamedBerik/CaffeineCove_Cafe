@@ -403,16 +403,16 @@ createRoot(document.getElementById("root")).render(
               }
             >
               <Route index element={<ActivityLogs />} />
-
-              <Route
-                path="/admin/contact-messages"
-                element={
-                  <AdminRoute>
-                    <ContactMessagesListPage />
-                  </AdminRoute>
-                }
-              />
             </Route>
+
+            <Route
+              path="/admin/contact-messages"
+              element={
+                <AdminRoute>
+                  <ContactMessagesListPage />
+                </AdminRoute>
+              }
+            />
 
             {/* ================= 404 ================= */}
             <Route

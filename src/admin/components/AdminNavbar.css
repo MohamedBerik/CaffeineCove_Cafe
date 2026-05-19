@@ -608,6 +608,21 @@
 }
 
 @media (max-width: 768px) {
+  /* ✅ إخفاء نص ERP System في الشاشات الصغيرة */
+  .navbar-brand .brand-text {
+    display: none; /* يخفي العنوان والفرعي */
+  }
+
+  .navbar-brand i {
+    font-size: 1.5rem; /* تصغير الأيقونة قليلاً */
+    margin-right: 0; /* إزالة أي هامش جانبي */
+  }
+
+  .navbar-brand {
+    gap: 0; /* لا مسافة بين الأيقونة والنص المخفي */
+    padding: 0;
+  }
+
   .notification-dropdown {
     width: 320px;
     max-height: 380px;

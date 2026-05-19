@@ -407,7 +407,7 @@ createRoot(document.getElementById("root")).render(
 
             {/* ================= Contact Messages Route ================= */}
             <Route
-              path="/admin/contact-messages"
+              path="/admin/saas/contact-messages"
               element={
                 <AdminRoute>
                   <ERPDashboard />

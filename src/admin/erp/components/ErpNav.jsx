@@ -167,7 +167,7 @@ const saasNavItems = [
     permission: "activity_logs.view",
   },
   {
-    to: "/admin/contact-messages",
+    to: "/admin/saas/contact-messages",
     labelKey: "Contact Messages",
     icon: "fas fa-envelope",
     permission: "contact_messages.manage",

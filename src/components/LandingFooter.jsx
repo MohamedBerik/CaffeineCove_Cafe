@@ -28,8 +28,8 @@ export default function LandingFooter() {
         </div>
 
         <div className="footer-links">
-          <a href="#">{t("Privacy Policy")}</a>
-          <a href="#">{t("Terms of Service")}</a>
+          <Link to="/privacy">{t("Privacy Policy")}</Link>
+          <Link to="/terms">{t("Terms of Service")}</Link>
           <Link to="/contact">{t("Contact Us")}</Link>
         </div>
 

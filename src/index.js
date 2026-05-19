@@ -101,6 +101,8 @@ import PrintPatientsReportPage from "./admin/erp/reports/PrintPatientsReportPage
 import PatientsReportPage from "./admin/erp/reports/PatientsReportPage";
 import PrintSaaSReportsPage from "./admin/saas/PrintSaaSReportsPage";
 import ContactMessagesListPage from "./admin/saas/ContactMessagesListPage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPage from "./pages/PrivacyPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -131,6 +133,8 @@ createRoot(document.getElementById("root")).render(
             {/* ================= Auth ================= */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/logout" element={<Logout />} />

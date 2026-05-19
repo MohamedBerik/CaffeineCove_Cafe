@@ -5,6 +5,16 @@ import LandingNavbar from "../components/LandingNavbar";
 import LandingFooter from "../components/LandingFooter";
 import styles from "./ContactPage.module.css";
 
+// ✅ الأسئلة المتوقعة
+const COMMON_SUBJECTS = [
+  "support", // "أحتاج مساعدة تقنية"
+  "pricing", // "أريد الاستفسار عن الأسعار"
+  "payment", // "لدي مشكلة في الدفع"
+  "demo", // "أريد حجز عرض توضيحي"
+  "partnership", // "شراكة / تعاون"
+  "other", // "موضوع آخر"
+];
+
 export default function ContactPage() {
   const { t } = useTranslation();
 
@@ -15,6 +25,7 @@ export default function ContactPage() {
     subject: "",
     message: "",
   });
+  const [selectedQuestion, setSelectedQuestion] = useState(""); // ✅ قيمة القائمة المنسدلة
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -22,6 +33,24 @@ export default function ContactPage() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // ✅ عند اختيار سؤال من القائمة المنسدلة
+  const handleCommonSubjectChange = (e) => {
+    const key = e.target.value;
+
+    // إذا اختار "موضوع آخر" نظل محتفظين بأي موضوع مكتوب يدوياً،
+    // وإلا نضع عنواناً افتراضياً جاهزاً
+    if (key === "other") {
+      // لا نغير الموضوع، نترك للمستخدم الحرية
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        subject: t(`subject_${key}`), // سيأتي من الترجمة
+      }));
+    }
+
+    setSelectedQuestion(key);
   };
 
   const handleSubmit = async (e) => {
@@ -34,10 +63,11 @@ export default function ContactPage() {
       await api.post("/public/contact", form);
       setSuccess(
         t(
-          "Your message has been sent successfully. We will get back to you soon.",
+          "Your message has been received. We will reply to you via email or phone shortly.",
         ),
       );
-      setForm({ name: "", email: "", subject: "", message: "" });
+      setForm({ name: "", email: "", phone: "", subject: "", message: "" });
+      setSelectedQuestion("");
     } catch (err) {
       const msg =
         err?.response?.data?.msg ||
@@ -115,20 +145,28 @@ export default function ContactPage() {
                   />
                 </div>
               </div>
+
+              {/* ✅ قائمة منسدلة للأسئلة الشائعة */}
               <div className={styles.group}>
                 <label className={styles.label}>
-                  <i className="fas fa-phone me-2"></i>
-                  {t("Phone Number")}
+                  <i className="fas fa-question-circle me-2"></i>
+                  {t("How can we help you?")}
                 </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
+                <select
                   className={styles.input}
-                  placeholder={t("Optional")}
-                />
+                  value={selectedQuestion}
+                  onChange={handleCommonSubjectChange}
+                >
+                  <option value="">{t("-- Select a topic --")}</option>
+                  {COMMON_SUBJECTS.map((key) => (
+                    <option key={key} value={key}>
+                      {t(`subject_${key}`)}
+                    </option>
+                  ))}
+                </select>
               </div>
+
+              {/* حقل الموضوع – يمتلئ تلقائياً أو يدوياً */}
               <div className={styles.group}>
                 <label className={styles.label}>
                   <i className="fas fa-tag me-2"></i>
@@ -140,7 +178,7 @@ export default function ContactPage() {
                   value={form.subject}
                   onChange={handleChange}
                   className={styles.input}
-                  placeholder={t("How can we help you?")}
+                  placeholder={t("Or type your own subject...")}
                   required
                 />
               </div>

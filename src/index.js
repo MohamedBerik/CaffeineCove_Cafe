@@ -12,7 +12,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
 import LandingPage from "./pages/LandingPage";
-import AllContact from "./pages/Contact/AllContact";
+import ContactPage from "./pages/ContactPage";
 
 /* ================= Old Admin ================= */
 import AdminLayout from "./admin/layouts/AdminLayout";
@@ -100,7 +100,6 @@ import PrintTreatmentPlansReportPage from "./admin/erp/reports/PrintTreatmentPla
 import PrintPatientsReportPage from "./admin/erp/reports/PrintPatientsReportPage";
 import PatientsReportPage from "./admin/erp/reports/PatientsReportPage";
 import PrintSaaSReportsPage from "./admin/saas/PrintSaaSReportsPage";
-import ContactPage from "./pages/ContactPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({

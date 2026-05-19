@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import api from "../services/axios";
 import LandingNavbar from "../components/LandingNavbar";
 import LandingFooter from "../components/LandingFooter";
-import styles from "./LandingPage.module.css"; // ✅ استيراد كـ CSS Module
+import styles from "./LandingPage.module.css";
 
 export default function LandingPage() {
   const { t, i18n } = useTranslation();

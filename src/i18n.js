@@ -6036,6 +6036,13 @@ const resources = {
       "7. Contact": "٧. الاتصال",
       "For any questions about this privacy policy, please contact us through our contact page.":
         "لأي استفسار حول سياسة الخصوصية هذه، يُرجى التواصل معنا عبر صفحة الاتصال.",
+
+      "Clinic Management Platform": "منصة إدارة العيادات",
+      "The smart way to manage your dental clinic – appointments, invoices, inventory, and more.":
+        "الطريقة الذكية لإدارة عيادة الأسنان – المواعيد، الفواتير، المخزون، والتقارير.",
+      "Appointment Management": "إدارة المواعيد",
+      "Invoicing & Payments": "الفواتير والمدفوعات",
+      "Inventory & Reports": "المخزون والتقارير",
     },
   },
 };

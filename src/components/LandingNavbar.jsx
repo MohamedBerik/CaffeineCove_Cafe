@@ -51,8 +51,11 @@ export default function LandingNavbar() {
     <nav className={`landing-navbar ${scrolled ? "scrolled" : ""}`}>
       <div className="landing-navbar-container">
         <div className="landing-navbar-brand">
-          <i className="fas fa-tooth"></i>
-          <span>{platformName}</span>
+          <i className="fas fa-tooth">
+            <Link to="/">
+              <span>{platformName}</span>
+            </Link>
+          </i>
         </div>
 
         <ul className="navbar-links">

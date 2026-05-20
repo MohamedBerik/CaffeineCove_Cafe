@@ -90,6 +90,15 @@ const PurchaseOrderCreate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // ✅ منع إنشاء أمر شراء بدون فرع
+    const branchId = localStorage.getItem("selectedBranchId");
+    if (!branchId || branchId === "all" || branchId === "") {
+      notifyError(
+        t("Please select a specific branch before creating a purchase order."),
+      );
+      return;
+    }
+
     if (!supplierId) {
       notifyError(t("Please select supplier"));
       return;

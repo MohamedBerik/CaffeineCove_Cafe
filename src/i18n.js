@@ -6043,6 +6043,7 @@ const resources = {
       "Appointment Management": "إدارة المواعيد",
       "Invoicing & Payments": "الفواتير والمدفوعات",
       "Inventory & Reports": "المخزون والتقارير",
+      "Supplier Credits": "مستحقات لدى الموردين",
     },
   },
 };

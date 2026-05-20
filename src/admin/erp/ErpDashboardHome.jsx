@@ -1042,22 +1042,29 @@ export default function ErpDashboardHome() {
           deltaLabel={t("vs previous")}
         />
         <KpiCard
-          title={t("Purchase Balance")}
-          value={formatCurrency(kpis.purchase_balance?.current || 0)}
-          icon="fas fa-balance-scale"
+          title={
+            (kpis.purchase_balance?.current || 0) < 0
+              ? t("Supplier Credits") // ✅ "مستحقات لدى الموردين"
+              : t("Purchase Balance")
+          }
+          value={
+            (kpis.purchase_balance?.current || 0) < 0
+              ? formatCurrency(Math.abs(kpis.purchase_balance?.current || 0))
+              : formatCurrency(kpis.purchase_balance?.current || 0)
+          }
+          icon={
+            (kpis.purchase_balance?.current || 0) < 0
+              ? "fas fa-hand-holding-heart" // أيقونة تعبر عن رصيد لصالحك
+              : "fas fa-balance-scale"
+          }
           color={
-            (kpis.purchase_balance?.current || 0) < 0 ? "warning" : "secondary"
+            (kpis.purchase_balance?.current || 0) < 0
+              ? "success" // لون أخضر لإظهار أنه وضع إيجابي
+              : "secondary"
           }
           delta={kpis.purchase_balance?.delta}
           deltaLabel={t("vs previous")}
         />
-        {/* <KpiCard
-          title={t("Remaining to Pay")}
-          value={formatCurrency(kpis.purchase_remaining?.current || 0)}
-          icon="fas fa-hand-holding-usd"
-          color="warning"
-          // المتبقي تراكمي وقد لا يكون له دلتا مفيدة
-        /> */}
         <KpiCard
           title={t("Purchase Returns")}
           value={formatCurrency(kpis.purchase_returns?.current || 0)}

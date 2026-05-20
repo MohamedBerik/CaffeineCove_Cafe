@@ -1042,6 +1042,22 @@ export default function ErpDashboardHome() {
           deltaLabel={t("vs previous")}
         />
         <KpiCard
+          title={t("Purchase Returns")}
+          value={formatCurrency(kpis.purchase_returns?.current || 0)}
+          icon="fas fa-undo-alt"
+          color="danger"
+          delta={kpis.purchase_returns?.delta}
+          deltaLabel={t("vs previous")}
+        />
+        <KpiCard
+          title={t("Net Purchases")}
+          value={formatCurrency(kpis.purchase_net?.current || 0)}
+          icon="fas fa-receipt"
+          color="primary"
+          delta={kpis.purchase_net?.delta}
+          deltaLabel={t("vs previous")}
+        />
+        <KpiCard
           title={
             (kpis.purchase_balance?.current || 0) < 0
               ? t("Supplier Credits") // ✅ "مستحقات لدى الموردين"
@@ -1063,22 +1079,6 @@ export default function ErpDashboardHome() {
               : "secondary"
           }
           delta={kpis.purchase_balance?.delta}
-          deltaLabel={t("vs previous")}
-        />
-        <KpiCard
-          title={t("Purchase Returns")}
-          value={formatCurrency(kpis.purchase_returns?.current || 0)}
-          icon="fas fa-undo-alt"
-          color="danger"
-          delta={kpis.purchase_returns?.delta}
-          deltaLabel={t("vs previous")}
-        />
-        <KpiCard
-          title={t("Net Purchases")}
-          value={formatCurrency(kpis.purchase_net?.current || 0)}
-          icon="fas fa-receipt"
-          color="primary"
-          delta={kpis.purchase_net?.delta}
           deltaLabel={t("vs previous")}
         />
       </div>

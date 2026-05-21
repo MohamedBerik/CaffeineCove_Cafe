@@ -2,9 +2,9 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { useAlertState, useAlertActions } from "../../context/AlertContext";
-import { useAuth } from "../../context/AuthContext";
-import api from "../../services/axios";
+import { useAlertState, useAlertActions } from "../../../context/AlertContext";
+import { useAuth } from "../../../context/AuthContext";
+import api from "../../../services/axios";
 import { useQueryClient } from "@tanstack/react-query";
 import "./AdminNavbar.css";
 

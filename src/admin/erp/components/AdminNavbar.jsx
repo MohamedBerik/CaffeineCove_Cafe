@@ -360,14 +360,15 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
 
             {/* === Branch Selector – يظهر فقط لمدير الشركة (branch_id === null) === */}
             {showBranchSelector && (
-              <div className="company-switcher-wrapper">
-                <span className="company-switcher-icon branch-switcher-icon">
+              <div className="d-flex align-items-center ms-3">
+                <span className="me-2 text-muted">
                   <i className="fas fa-building"></i>
                 </span>
                 <select
                   value={selectedBranch}
                   onChange={handleBranchChange}
-                  className="company-switcher"
+                  className="form-select form-select-sm w-auto"
+                  style={{ minWidth: "150px" }}
                 >
                   <option value="all">🔍 {t("All Branches")}</option>
                   {branches.map((branch) => (

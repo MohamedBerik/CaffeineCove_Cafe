@@ -14,9 +14,6 @@ import Logout from "./pages/Logout";
 import LandingPage from "./pages/LandingPage";
 import ContactPage from "./pages/ContactPage";
 
-/* ================= Old Admin ================= */
-import AdminLayout from "./admin/layouts/AdminLayout";
-
 /* ================= Route Guards ================= */
 import { AdminRoute } from "./admin/routes/ProtectedRoute";
 import { ToastContainer } from "react-toastify";

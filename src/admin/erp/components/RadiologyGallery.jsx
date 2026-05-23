@@ -57,9 +57,22 @@ export default function RadiologyGallery({ patientId, refreshTrigger }) {
     }
   };
 
+  // دالة فحص موحدة للملف إذا كان PDF بناءً على الامتداد أو النوع المرجوع من لارافل
+  const checkIsPdf = (rad) => {
+    return (
+      rad?.file_type === "pdf_report" ||
+      rad?.file_type === "report" ||
+      rad?.file_url?.toLowerCase().endsWith(".pdf")
+    );
+  };
+
   const getFileTypeIcon = (type, fileUrl) => {
-    if (fileUrl?.endsWith(".pdf")) {
-      return "fas fa-file-pdf";
+    if (
+      fileUrl?.toLowerCase().endsWith(".pdf") ||
+      type === "pdf_report" ||
+      type === "report"
+    ) {
+      return "fas fa-file-pdf text-danger"; // تم إضافة لون أحمر مميز للـ PDF
     }
     switch (type?.toLowerCase()) {
       case "panorama":
@@ -68,17 +81,11 @@ export default function RadiologyGallery({ patientId, refreshTrigger }) {
         return "fas fa-cube";
       case "cephalometric":
         return "fas fa-ruler-combined";
-      case "report":
-        return "fas fa-file-pdf";
       case "consent":
         return "fas fa-file-signature";
       default:
         return "fas fa-x-ray";
     }
-  };
-
-  const isPdf = (fileUrl) => {
-    return fileUrl && fileUrl.endsWith(".pdf");
   };
 
   if (loading) {
@@ -105,79 +112,86 @@ export default function RadiologyGallery({ patientId, refreshTrigger }) {
   return (
     <div className="radiology-gallery">
       <div className="gallery-grid">
-        {radiologies.map((rad) => (
-          <div key={rad.id} className="gallery-item">
-            <div
-              className="gallery-image"
-              onClick={() => {
-                // نفتح المودال فقط إذا لم يكن الملف PDF
-                if (!rad.file_url.endsWith(".pdf")) {
-                  setSelectedImage(rad);
-                }
-              }}
-            >
-              {rad.file_url.endsWith(".pdf") ? (
-                <a
-                  href={rad.file_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="pdf-link-card"
-                  onClick={(e) => {
-                    // ✅ يمنع الحدث من تشغيل onClick الخاصة بالـ div الأب
-                    e.stopPropagation();
-                  }}
-                >
-                  <i className="fas fa-file-pdf"></i>
-                  <span>
-                    {rad.title} ({t("Click to open PDF")})
-                  </span>
-                </a>
-              ) : (
-                <img src={rad.file_url} alt={rad.title} />
-              )}
+        {radiologies.map((rad) => {
+          const isFilePdf = checkIsPdf(rad);
 
-              {/* أظهر أيقونة البحث فقط للصور وليس للـ PDF */}
-              {!rad.file_url.endsWith(".pdf") && (
-                <div className="gallery-overlay">
-                  <i className="fas fa-search-plus"></i>
-                </div>
-              )}
-            </div>
-            <div className="gallery-info">
-              <div className="gallery-title">
-                <i className={getFileTypeIcon(rad.file_type, rad.file_url)}></i>
-                <span>{rad.title}</span>
-              </div>
-              <div className="gallery-meta">
-                {rad.tooth_number && (
-                  <span className="tooth-badge">
-                    <i className="fas fa-tooth"></i> {rad.tooth_number}
-                  </span>
-                )}
-                <span className="date-badge">
-                  <i className="fas fa-calendar-alt"></i>{" "}
-                  {formatDate(rad.captured_at)}
-                </span>
-              </div>
-              {rad.notes && <div className="gallery-notes">{rad.notes}</div>}
-              <button
-                className="btn-delete"
-                onClick={() => handleDelete(rad.id)}
-                disabled={deletingId === rad.id}
+          return (
+            <div key={rad.id} className="gallery-item">
+              <div
+                className="gallery-image"
+                onClick={() => {
+                  if (!isFilePdf) {
+                    setSelectedImage(rad);
+                  }
+                }}
               >
-                {deletingId === rad.id ? (
-                  <span className="spinner-border spinner-border-sm"></span>
+                {isFilePdf ? (
+                  <a
+                    href={rad.file_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="pdf-link-card"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <i className="fas fa-file-pdf fa-3x mb-2 text-danger"></i>
+                    <span>
+                      {rad.title} <br />
+                      <small className="text-muted">
+                        ({t("Click to open PDF")})
+                      </small>
+                    </span>
+                  </a>
                 ) : (
-                  <i className="fas fa-trash"></i>
+                  <img src={rad.file_url} alt={rad.title} />
                 )}
-              </button>
+
+                {!isFilePdf && (
+                  <div className="gallery-overlay">
+                    <i className="fas fa-search-plus"></i>
+                  </div>
+                )}
+              </div>
+
+              <div className="gallery-info">
+                <div className="gallery-title">
+                  <i
+                    className={getFileTypeIcon(rad.file_type, rad.file_url)}
+                  ></i>
+                  <span>{rad.title}</span>
+                </div>
+                <div className="gallery-meta">
+                  {rad.tooth_number && (
+                    <span className="tooth-badge">
+                      <i className="fas fa-tooth"></i> {rad.tooth_number}
+                    </span>
+                  )}
+                  <span className="date-badge">
+                    <i className="fas fa-calendar-alt"></i>{" "}
+                    {formatDate(rad.captured_at)}
+                  </span>
+                </div>
+                {rad.notes && <div className="gallery-notes">{rad.notes}</div>}
+                <button
+                  className="btn-delete"
+                  onClick={() => handleDelete(rad.id)}
+                  disabled={deletingId === rad.id}
+                >
+                  {deletingId === rad.id ? (
+                    <span className="spinner-border spinner-border-sm"></span>
+                  ) : (
+                    <i className="fas fa-trash"></i>
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Lightbox Modal */}
-      {selectedImage && !isPdf(selectedImage.file_url) && (
+      {selectedImage && !checkIsPdf(selectedImage) && (
         <div className="lightbox-modal" onClick={() => setSelectedImage(null)}>
           <div
             className="lightbox-content"

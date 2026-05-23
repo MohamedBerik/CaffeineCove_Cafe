@@ -2,6 +2,8 @@
 .company-details-container {
   padding: 0 1rem;
   animation: fadeIn 0.5s ease;
+  overflow-x: hidden; /* منع التمرير الأفقي */
+  max-width: 100%; /* منع أي تجاوز */
 }
 
 @keyframes fadeIn {

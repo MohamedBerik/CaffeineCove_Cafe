@@ -74,21 +74,17 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
     setError("");
 
     const formData = new FormData();
-    formData.append("customer_id", String(patientId)); // التأكد من إرسال المعرف كنص واضح
+    formData.append("customer_id", patientId);
     formData.append("title", title);
-    formData.append("file", file); // الملف الفعلي
+    formData.append("file", file);
     formData.append("file_type", fileType);
     formData.append("captured_at", capturedAt);
     if (toothNumber) formData.append("tooth_number", toothNumber);
     if (notes) formData.append("notes", notes);
 
     try {
-      // إرسال الطلب مع ترك Axios يحدد الـ Boundary تلقائياً للملفات
       const response = await axios.post("/erp/patient-radiologies", formData, {
-        headers: {
-          // نترك المتصفح يضع multipart/form-data مع الـ boundary الفريد للملف
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       console.log("Upload response:", response.data);
@@ -101,23 +97,14 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
       setNotes("");
       setError("");
 
+      // Trigger refresh
       if (onUploadSuccess) onUploadSuccess();
+
+      // Reset file input
       document.getElementById("radiology-file-input").value = "";
     } catch (err) {
-      // طباعة تفصيلية لمعرفة الحقل المسبب للأزمة في الـ Console
-      console.error("Upload error fully detailed:", err.response?.data);
-
-      // إذا أرجع الباكيند مصفوفة أخطاء واضحة (Validation Errors)
-      if (err.response?.data?.errors) {
-        const validationErrors = Object.values(err.response.data.errors)
-          .flat()
-          .join(" | ");
-        setError(validationErrors);
-      } else {
-        setError(
-          err.response?.data?.message || t("Failed to upload radiology"),
-        );
-      }
+      console.error("Upload error:", err.response?.data || err.message);
+      setError(err.response?.data?.message || t("Failed to upload radiology"));
     } finally {
       setUploading(false);
     }

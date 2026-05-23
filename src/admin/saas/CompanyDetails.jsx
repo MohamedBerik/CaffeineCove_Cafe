@@ -224,7 +224,7 @@ export default function CompanyDetails() {
 
   // ========================= UI =========================
   return (
-    <div className="company-detail-container">
+    <div className="company-details-container">
       {/* Header */}
       <div className="details-header">
         <div className="header-left">

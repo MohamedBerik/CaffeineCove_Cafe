@@ -556,7 +556,7 @@
   flex-direction: row-reverse;
 }
 [dir="rtl"] .btn-back i {
-  transform: scaleX(-1);
+  transform: scaleX(1);
 }
 [dir="rtl"] .stat-card {
   flex-direction: row-reverse;

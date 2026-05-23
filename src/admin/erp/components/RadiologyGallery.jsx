@@ -111,11 +111,16 @@ export default function RadiologyGallery({ patientId, refreshTrigger }) {
               className="gallery-image"
               onClick={() => setSelectedImage(rad)}
             >
-              {isPdf(rad.file_url) ? (
-                <div className="gallery-pdf-preview">
-                  <i className="fas fa-file-pdf"></i>
-                  <span>{rad.file_name || "PDF"}</span>
-                </div>
+              {rad.file_url.endsWith(".pdf") ? (
+                <a
+                  href={rad.file_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="pdf-link-card"
+                >
+                  <i className="fas fa-file-pdf"></i> {/* أيقونة PDF */}
+                  <span>{rad.title} (اضغط لفتح الملف)</span>
+                </a>
               ) : (
                 <img src={rad.file_url} alt={rad.title} />
               )}

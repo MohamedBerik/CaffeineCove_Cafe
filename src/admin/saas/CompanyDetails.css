@@ -500,8 +500,7 @@
 /* Responsive */
 @media (max-width: 1400px) {
   .stats-grid {
-    grid-template-columns: repeat(3, 1fr);
-    overflow-x: hidden;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 }
 @media (max-width: 992px) {

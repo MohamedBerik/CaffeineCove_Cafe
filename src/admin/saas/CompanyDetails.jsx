@@ -532,9 +532,9 @@ function UsersTab({ users, t }) {
         <tbody>
           {users.map((user) => (
             <tr key={user.id}>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>{user.role}</td>
+              <td data-label={t("Name")}>{user.name}</td>
+              <td data-label={t("Email")}>{user.email}</td>
+              <td data-label={t("Role")}>{user.role}</td>
               <td>
                 <span
                   className={`user-status ${user.status === 1 ? "active" : "inactive"}`}
@@ -565,11 +565,17 @@ function SubscriptionsTab({ subscriptions, t, formatDate, formatCurrency }) {
       <table className="subscriptions-table">
         <thead>
           <tr>
-            <th>{t("Plan")}</th>
-            <th>{t("Amount")}</th>
-            <th>{t("Status")}</th>
-            <th>{t("Start Date")}</th>
-            <th>{t("End Date")}</th>
+            <td data-label={t("Plan")}>{sub.plan?.name || "-"}</td>
+
+            <td data-label={t("Amount")}>{formatCurrency(sub.amount)}</td>
+
+            <td data-label={t("Status")}>
+              <StatusBadge />
+            </td>
+
+            <td data-label={t("Start Date")}>{formatDate(sub.starts_at)}</td>
+
+            <td data-label={t("End Date")}>{formatDate(sub.ends_at)}</td>
           </tr>
         </thead>
         <tbody>

@@ -69,12 +69,35 @@ export default function CompanyDetails() {
   const handleExportClinic = async () => {
     setExporting(true);
     try {
+      // 1. تشغيل التصدير
       const res = await api.post(`/saas/companies/${id}/export`);
-      if (res.data.download_url) {
-        window.open(`/api${res.data.download_url}`, "_blank");
-        toast.success(t("Export completed. Download started."));
+      const downloadUrl = res.data.download_url; // `/saas/companies/{id}/export-download?file=...`
+
+      if (!downloadUrl) {
+        toast.error(t("Export failed. No file generated."));
+        return;
       }
+
+      // 2. تحميل الملف عبر api (يرسل التوكن)
+      const fileRes = await api.get(downloadUrl, {
+        responseType: "blob",
+      });
+
+      // 3. إنشاء رابط مؤقت وتنزيله
+      const url = window.URL.createObjectURL(new Blob([fileRes.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      // استخراج اسم الملف من الرابط
+      const fileName = downloadUrl.split("file=")[1] || "clinic_export.zip";
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success(t("Export completed. Download started."));
     } catch (err) {
+      console.error("Export error:", err);
       toast.error(t("Export failed. Please try again."));
     } finally {
       setExporting(false);

@@ -224,199 +224,197 @@ export default function CompanyDetails() {
 
   // ========================= UI =========================
   return (
-    <div className="company-home-details">
-      <div className="company-details-container">
-        {/* Header */}
-        <div className="details-header">
-          <div className="header-left">
-            <button
-              className="btn-back"
-              onClick={() => navigate("/admin/companies")}
-            >
-              <i className="fas fa-arrow-left"></i>
-            </button>
-            <div className="company-title">
-              <h1>{company.name}</h1>
-              <span className="company-slug">{company.slug}</span>
-            </div>
-            <StatusBadge status={company.status} t={t} />
+    <div className="company-details-container">
+      {/* Header */}
+      <div className="details-header">
+        <div className="header-left">
+          <button
+            className="btn-back"
+            onClick={() => navigate("/admin/companies")}
+          >
+            <i className="fas fa-arrow-left"></i>
+          </button>
+          <div className="company-title">
+            <h1>{company.name}</h1>
+            <span className="company-slug">{company.slug}</span>
           </div>
-          <div className="header-actions">
-            <Link to={`/admin/companies/${id}/edit`} className="btn-edit">
-              <i className="fas fa-edit"></i>
-              {t("Edit")}
-            </Link>
-            <button
-              className="btn btn-outline-info"
-              onClick={handleExportClinic}
-              disabled={exporting}
-            >
-              {exporting ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2"></span>
-                  {t("Exporting...")}
-                </>
-              ) : (
-                <>
-                  <i className="fas fa-download me-2"></i>
-                  {t("Export Clinic Data")}
-                </>
-              )}
-            </button>
-            {company.status === "suspended" ? (
-              <button className="btn-activate" onClick={handleActivate}>
-                <i className="fas fa-check-circle"></i>
-                {t("Activate")}
-              </button>
+          <StatusBadge status={company.status} t={t} />
+        </div>
+        <div className="header-actions">
+          <Link to={`/admin/companies/${id}/edit`} className="btn-edit">
+            <i className="fas fa-edit"></i>
+            {t("Edit")}
+          </Link>
+          <button
+            className="btn btn-outline-info"
+            onClick={handleExportClinic}
+            disabled={exporting}
+          >
+            {exporting ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2"></span>
+                {t("Exporting...")}
+              </>
             ) : (
-              <button className="btn-suspend" onClick={handleSuspend}>
-                <i className="fas fa-pause-circle"></i>
-                {t("Suspend")}
-              </button>
+              <>
+                <i className="fas fa-download me-2"></i>
+                {t("Export Clinic Data")}
+              </>
             )}
-            <button className="btn-delete" onClick={handleDelete}>
-              <i className="fas fa-trash"></i>
-              {t("Delete")}
+          </button>
+          {company.status === "suspended" ? (
+            <button className="btn-activate" onClick={handleActivate}>
+              <i className="fas fa-check-circle"></i>
+              {t("Activate")}
             </button>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="stats-grid">
-          <StatCard
-            title={t("Total Users")}
-            value={stats?.total_users || 0}
-            icon="fas fa-users"
-            color="primary"
-          />
-          <StatCard
-            title={t("Total Patients")}
-            value={stats?.total_patients || 0}
-            icon="fas fa-user-injured"
-            color="info"
-          />
-          <StatCard
-            title={t("Total Appointments")}
-            value={stats?.total_appointments || 0}
-            icon="fas fa-calendar-check"
-            color="success"
-          />
-          <StatCard
-            title={t("Total Revenue")}
-            value={formatCurrency(stats?.total_revenue || 0)}
-            icon="fas fa-dollar-sign"
-            color="warning"
-          />
-          <StatCard
-            title={t("MRR")}
-            value={formatCurrency(stats?.mrr || 0)}
-            icon="fas fa-chart-line"
-            color="dark"
-          />
-          <StatCard
-            title={t("Outstanding Invoices")}
-            value={formatCurrency(stats?.outstanding || 0)}
-            icon="fas fa-file-invoice"
-            color="danger"
-          />
-        </div>
-
-        {/* Company Info */}
-        <div className="info-card">
-          <h3>{t("Company Information")}</h3>
-          <div className="info-grid">
-            <InfoItem
-              icon="fas fa-envelope"
-              label={t("Email")}
-              value={company.email || "-"}
-            />
-            <InfoItem
-              icon="fas fa-phone"
-              label={t("Phone")}
-              value={company.phone || "-"}
-            />
-            <InfoItem
-              icon="fas fa-map-marker-alt"
-              label={t("Address")}
-              value={company.address || "-"}
-            />
-            <InfoItem
-              icon="fas fa-user-tie"
-              label={t("Contact Person")}
-              value={company.contact_person || "-"}
-            />
-            <InfoItem
-              icon="fas fa-calendar"
-              label={t("Created")}
-              value={formatDate(company.created_at)}
-            />
-            <InfoItem
-              icon="fas fa-calendar-alt"
-              label={t("Trial Ends")}
-              value={formatDate(company.trial_ends_at) || "-"}
-            />
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="details-tabs">
-          <button
-            className={`tab-btn ${activeTab === "overview" ? "active" : ""}`}
-            onClick={() => setActiveTab("overview")}
-          >
-            <i className="fas fa-chart-bar"></i>
-            {t("Overview")}
-          </button>
-          <button
-            className={`tab-btn ${activeTab === "users" ? "active" : ""}`}
-            onClick={() => setActiveTab("users")}
-          >
-            <i className="fas fa-users"></i>
-            {t("Users")}
-          </button>
-          <button
-            className={`tab-btn ${activeTab === "subscriptions" ? "active" : ""}`}
-            onClick={() => setActiveTab("subscriptions")}
-          >
-            <i className="fas fa-credit-card"></i>
-            {t("Subscriptions")}
-          </button>
-          <button
-            className={`tab-btn ${activeTab === "activity" ? "active" : ""}`}
-            onClick={() => setActiveTab("activity")}
-          >
-            <i className="fas fa-history"></i>
-            {t("Activity Logs")}
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        <div className="tab-content">
-          {activeTab === "overview" && (
-            <OverviewTab
-              company={company}
-              stats={stats}
-              t={t}
-              formatCurrency={formatCurrency}
-            />
+          ) : (
+            <button className="btn-suspend" onClick={handleSuspend}>
+              <i className="fas fa-pause-circle"></i>
+              {t("Suspend")}
+            </button>
           )}
-          {activeTab === "users" && <UsersTab users={users} t={t} />}
-          {activeTab === "subscriptions" && (
-            <SubscriptionsTab
-              subscriptions={subscriptions}
-              t={t}
-              formatDate={formatDate}
-              formatCurrency={formatCurrency}
-            />
-          )}
-          {activeTab === "activity" && (
-            <ActivityTab
-              logs={activityLogs}
-              t={t}
-              formatDateTime={formatDateTime}
-            />
-          )}
+          <button className="btn-delete" onClick={handleDelete}>
+            <i className="fas fa-trash"></i>
+            {t("Delete")}
+          </button>
         </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="stats-grid">
+        <StatCard
+          title={t("Total Users")}
+          value={stats?.total_users || 0}
+          icon="fas fa-users"
+          color="primary"
+        />
+        <StatCard
+          title={t("Total Patients")}
+          value={stats?.total_patients || 0}
+          icon="fas fa-user-injured"
+          color="info"
+        />
+        <StatCard
+          title={t("Total Appointments")}
+          value={stats?.total_appointments || 0}
+          icon="fas fa-calendar-check"
+          color="success"
+        />
+        <StatCard
+          title={t("Total Revenue")}
+          value={formatCurrency(stats?.total_revenue || 0)}
+          icon="fas fa-dollar-sign"
+          color="warning"
+        />
+        <StatCard
+          title={t("MRR")}
+          value={formatCurrency(stats?.mrr || 0)}
+          icon="fas fa-chart-line"
+          color="dark"
+        />
+        <StatCard
+          title={t("Outstanding Invoices")}
+          value={formatCurrency(stats?.outstanding || 0)}
+          icon="fas fa-file-invoice"
+          color="danger"
+        />
+      </div>
+
+      {/* Company Info */}
+      <div className="info-card">
+        <h3>{t("Company Information")}</h3>
+        <div className="info-grid">
+          <InfoItem
+            icon="fas fa-envelope"
+            label={t("Email")}
+            value={company.email || "-"}
+          />
+          <InfoItem
+            icon="fas fa-phone"
+            label={t("Phone")}
+            value={company.phone || "-"}
+          />
+          <InfoItem
+            icon="fas fa-map-marker-alt"
+            label={t("Address")}
+            value={company.address || "-"}
+          />
+          <InfoItem
+            icon="fas fa-user-tie"
+            label={t("Contact Person")}
+            value={company.contact_person || "-"}
+          />
+          <InfoItem
+            icon="fas fa-calendar"
+            label={t("Created")}
+            value={formatDate(company.created_at)}
+          />
+          <InfoItem
+            icon="fas fa-calendar-alt"
+            label={t("Trial Ends")}
+            value={formatDate(company.trial_ends_at) || "-"}
+          />
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="details-tabs">
+        <button
+          className={`tab-btn ${activeTab === "overview" ? "active" : ""}`}
+          onClick={() => setActiveTab("overview")}
+        >
+          <i className="fas fa-chart-bar"></i>
+          {t("Overview")}
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "users" ? "active" : ""}`}
+          onClick={() => setActiveTab("users")}
+        >
+          <i className="fas fa-users"></i>
+          {t("Users")}
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "subscriptions" ? "active" : ""}`}
+          onClick={() => setActiveTab("subscriptions")}
+        >
+          <i className="fas fa-credit-card"></i>
+          {t("Subscriptions")}
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "activity" ? "active" : ""}`}
+          onClick={() => setActiveTab("activity")}
+        >
+          <i className="fas fa-history"></i>
+          {t("Activity Logs")}
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      <div className="tab-content">
+        {activeTab === "overview" && (
+          <OverviewTab
+            company={company}
+            stats={stats}
+            t={t}
+            formatCurrency={formatCurrency}
+          />
+        )}
+        {activeTab === "users" && <UsersTab users={users} t={t} />}
+        {activeTab === "subscriptions" && (
+          <SubscriptionsTab
+            subscriptions={subscriptions}
+            t={t}
+            formatDate={formatDate}
+            formatCurrency={formatCurrency}
+          />
+        )}
+        {activeTab === "activity" && (
+          <ActivityTab
+            logs={activityLogs}
+            t={t}
+            formatDateTime={formatDateTime}
+          />
+        )}
       </div>
     </div>
   );

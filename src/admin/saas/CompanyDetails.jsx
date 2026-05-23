@@ -565,17 +565,11 @@ function SubscriptionsTab({ subscriptions, t, formatDate, formatCurrency }) {
       <table className="subscriptions-table">
         <thead>
           <tr>
-            <td data-label={t("Plan")}>{sub.plan?.name || "-"}</td>
-
-            <td data-label={t("Amount")}>{formatCurrency(sub.amount)}</td>
-
-            <td data-label={t("Status")}>
-              <StatusBadge />
-            </td>
-
-            <td data-label={t("Start Date")}>{formatDate(sub.starts_at)}</td>
-
-            <td data-label={t("End Date")}>{formatDate(sub.ends_at)}</td>
+            <th>{t("Plan")}</th>
+            <th>{t("Amount")}</th>
+            <th>{t("Status")}</th>
+            <th>{t("Start Date")}</th>
+            <th>{t("End Date")}</th>
           </tr>
         </thead>
         <tbody>

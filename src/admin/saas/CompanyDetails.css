@@ -2,6 +2,7 @@
 .company-details-container {
   padding: 0 1rem;
   animation: fadeIn 0.5s ease;
+  overflow-x: hidden;
 }
 
 @keyframes fadeIn {
@@ -173,17 +174,17 @@
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(5, 2fr);
-  gap: 0.5rem;
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
 .stat-card {
   background: white;
   border-radius: 16px;
-  padding: 1.2rem;
+  padding: 1.25rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   border: 1px solid rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;

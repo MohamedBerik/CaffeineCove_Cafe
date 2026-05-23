@@ -69,7 +69,7 @@ export default function CompanyDetails() {
   const handleExportClinic = async () => {
     setExporting(true);
     try {
-      const res = await axios.post(`/saas/companies/${id}/export`);
+      const res = await api.post(`/saas/companies/${id}/export`);
       if (res.data.download_url) {
         window.open(res.data.download_url, "_blank");
       }

@@ -71,10 +71,11 @@ export default function CompanyDetails() {
     try {
       const res = await api.post(`/saas/companies/${id}/export`);
       if (res.data.download_url) {
-        window.open(res.data.download_url, "_blank");
+        window.open(`/api${res.data.download_url}`, "_blank");
+        toast.success(t("Export completed. Download started."));
       }
     } catch (err) {
-      toast.error(t("Export failed"));
+      toast.error(t("Export failed. Please try again."));
     } finally {
       setExporting(false);
     }
@@ -221,6 +222,23 @@ export default function CompanyDetails() {
             <i className="fas fa-edit"></i>
             {t("Edit")}
           </Link>
+          <button
+            className="btn btn-outline-info"
+            onClick={handleExportClinic}
+            disabled={exporting}
+          >
+            {exporting ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2"></span>
+                {t("Exporting...")}
+              </>
+            ) : (
+              <>
+                <i className="fas fa-download me-2"></i>
+                {t("Export Clinic Data")}
+              </>
+            )}
+          </button>
           {company.status === "suspended" ? (
             <button className="btn-activate" onClick={handleActivate}>
               <i className="fas fa-check-circle"></i>
@@ -235,13 +253,6 @@ export default function CompanyDetails() {
           <button className="btn-delete" onClick={handleDelete}>
             <i className="fas fa-trash"></i>
             {t("Delete")}
-          </button>
-          <button
-            className="btn btn-outline-info"
-            onClick={handleExportClinic}
-            disabled={exporting}
-          >
-            {exporting ? t("Exporting...") : t("Export Clinic Data")}
           </button>
         </div>
       </div>

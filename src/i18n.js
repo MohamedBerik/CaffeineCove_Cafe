@@ -6044,6 +6044,11 @@ const resources = {
       "Invoicing & Payments": "الفواتير والمدفوعات",
       "Inventory & Reports": "المخزون والتقارير",
       "Supplier Credits": "مستحقات لدى الموردين",
+
+      "Export Clinic Data": "تصدير بيانات العيادة",
+      "Exporting...": "جارٍ التصدير...",
+      "Export completed. Download started.": "اكتمل التصدير. بدأ التحميل.",
+      "Export failed. Please try again.": "فشل التصدير. حاول مرة أخرى.",
     },
   },
 };

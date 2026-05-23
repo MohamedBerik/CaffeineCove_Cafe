@@ -109,7 +109,12 @@ export default function RadiologyGallery({ patientId, refreshTrigger }) {
           <div key={rad.id} className="gallery-item">
             <div
               className="gallery-image"
-              onClick={() => setSelectedImage(rad)}
+              onClick={() => {
+                // نفتح المودال فقط إذا لم يكن الملف PDF
+                if (!rad.file_url.endsWith(".pdf")) {
+                  setSelectedImage(rad);
+                }
+              }}
             >
               {rad.file_url.endsWith(".pdf") ? (
                 <a
@@ -117,16 +122,26 @@ export default function RadiologyGallery({ patientId, refreshTrigger }) {
                   target="_blank"
                   rel="noreferrer"
                   className="pdf-link-card"
+                  onClick={(e) => {
+                    // ✅ يمنع الحدث من تشغيل onClick الخاصة بالـ div الأب
+                    e.stopPropagation();
+                  }}
                 >
-                  <i className="fas fa-file-pdf"></i> {/* أيقونة PDF */}
-                  <span>{rad.title} (اضغط لفتح الملف)</span>
+                  <i className="fas fa-file-pdf"></i>
+                  <span>
+                    {rad.title} ({t("Click to open PDF")})
+                  </span>
                 </a>
               ) : (
                 <img src={rad.file_url} alt={rad.title} />
               )}
-              <div className="gallery-overlay">
-                <i className="fas fa-search-plus"></i>
-              </div>
+
+              {/* أظهر أيقونة البحث فقط للصور وليس للـ PDF */}
+              {!rad.file_url.endsWith(".pdf") && (
+                <div className="gallery-overlay">
+                  <i className="fas fa-search-plus"></i>
+                </div>
+              )}
             </div>
             <div className="gallery-info">
               <div className="gallery-title">

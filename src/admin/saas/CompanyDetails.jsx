@@ -12,6 +12,7 @@ export default function CompanyDetails() {
   const queryClient = useQueryClient();
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("overview");
+  const [exporting, setExporting] = useState(false);
 
   // ========================= Queries =========================
   const {
@@ -64,6 +65,20 @@ export default function CompanyDetails() {
     },
     enabled: Boolean(id) && activeTab === "activity",
   });
+
+  const handleExportClinic = async () => {
+    setExporting(true);
+    try {
+      const res = await axios.post(`/saas/companies/${id}/export`);
+      if (res.data.download_url) {
+        window.open(res.data.download_url, "_blank");
+      }
+    } catch (err) {
+      toast.error(t("Export failed"));
+    } finally {
+      setExporting(false);
+    }
+  };
 
   // ========================= Mutations =========================
   const suspendMutation = useMutation({
@@ -220,6 +235,13 @@ export default function CompanyDetails() {
           <button className="btn-delete" onClick={handleDelete}>
             <i className="fas fa-trash"></i>
             {t("Delete")}
+          </button>
+          <button
+            className="btn btn-outline-info"
+            onClick={handleExportClinic}
+            disabled={exporting}
+          >
+            {exporting ? t("Exporting...") : t("Export Clinic Data")}
           </button>
         </div>
       </div>

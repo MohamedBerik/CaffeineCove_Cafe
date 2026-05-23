@@ -1,4 +1,9 @@
 /* Company Details Container */
+.company-home-details {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 .company-details-container {
   padding: 0 1rem;
   animation: fadeIn 0.5s ease;

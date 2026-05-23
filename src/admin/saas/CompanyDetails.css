@@ -2,8 +2,8 @@
 .company-details-container {
   padding: 0 1rem;
   animation: fadeIn 0.5s ease;
-  overflow-x: hidden; /* منع التمرير الأفقي */
-  max-width: 100%; /* منع أي تجاوز */
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 @keyframes fadeIn {
@@ -174,7 +174,7 @@
 /* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }

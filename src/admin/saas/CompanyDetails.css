@@ -172,15 +172,15 @@
 /* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, 2fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(4, 2fr);
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
 .stat-card {
   background: white;
   border-radius: 16px;
-  padding: 1rem;
+  padding: 1.25rem;
   display: flex;
   align-items: center;
   gap: 1rem;

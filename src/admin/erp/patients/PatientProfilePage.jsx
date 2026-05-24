@@ -7,6 +7,53 @@ import RadiologyUploader from "../components/RadiologyUploader";
 import RadiologyGallery from "../components/RadiologyGallery";
 import "./PatientProfilePage.css";
 
+// تحويل Universal (1-32) إلى FDI (string)
+const universalToFDI = (universal) => {
+  const map = {
+    1: "18",
+    2: "17",
+    3: "16",
+    4: "15",
+    5: "14",
+    6: "13",
+    7: "12",
+    8: "11",
+    9: "21",
+    10: "22",
+    11: "23",
+    12: "24",
+    13: "25",
+    14: "26",
+    15: "27",
+    16: "28",
+    17: "38",
+    18: "37",
+    19: "36",
+    20: "35",
+    21: "34",
+    22: "33",
+    23: "32",
+    24: "31",
+    25: "41",
+    26: "42",
+    27: "43",
+    28: "44",
+    29: "45",
+    30: "46",
+    31: "47",
+    32: "48",
+  };
+  return map[universal] || universal;
+};
+
+// الأسنان بالنظام العالمي (الداخلي) – مصفوفة الأرقام
+const UNIVERSAL_TEETH = [
+  [1, 2, 3, 4, 5, 6, 7, 8], // الفك العلوي الأيمن
+  [9, 10, 11, 12, 13, 14, 15, 16], // العلوي الأيسر
+  [17, 18, 19, 20, 21, 22, 23, 24], // السفلي الأيسر
+  [25, 26, 27, 28, 29, 30, 31, 32], // السفلي الأيمن
+];
+
 export default function PatientProfilePage() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
@@ -39,6 +86,15 @@ export default function PatientProfilePage() {
   const [convertingRecordId, setConvertingRecordId] = useState(null);
   const [convertError, setConvertError] = useState("");
   const [convertSuccess, setConvertSuccess] = useState("");
+
+  const [notation, setNotation] = useState(
+    () => localStorage.getItem("toothNotation") || "universal",
+  );
+
+  const handleNotationChange = (newNotation) => {
+    setNotation(newNotation);
+    localStorage.setItem("toothNotation", newNotation);
+  };
 
   useEffect(() => {
     loadProfile();
@@ -577,6 +633,8 @@ export default function PatientProfilePage() {
           selectedTooth={selectedTooth}
           onSelectTooth={setSelectedTooth}
           t={t}
+          notation={notation}
+          onNotationChange={handleNotationChange}
         />
       </Section>
 
@@ -966,11 +1024,18 @@ function InvoiceStatusBadge({ status, t }) {
 }
 
 // DentalChart Component
-function DentalChart({ toothSurfacesMap, selectedTooth, onSelectTooth, t }) {
-  const upperRight = ["1", "2", "3", "4", "5", "6", "7", "8"];
-  const upperLeft = ["9", "10", "11", "12", "13", "14", "15", "16"];
-  const lowerLeft = ["17", "18", "19", "20", "21", "22", "23", "24"];
-  const lowerRight = ["25", "26", "27", "28", "29", "30", "31", "32"];
+function DentalChart({
+  toothSurfacesMap,
+  selectedTooth,
+  onSelectTooth,
+  t,
+  notation,
+  onNotationChange,
+}) {
+  const upperRight = UNIVERSAL_TEETH[0];
+  const upperLeft = UNIVERSAL_TEETH[1];
+  const lowerLeft = UNIVERSAL_TEETH[2];
+  const lowerRight = UNIVERSAL_TEETH[3];
 
   return (
     <div className="dental-chart">
@@ -978,15 +1043,30 @@ function DentalChart({ toothSurfacesMap, selectedTooth, onSelectTooth, t }) {
         <div className="chart-note">
           {t("Each tooth shows surfaces: O/I, M, D, B/F, L/P")}
         </div>
-        {selectedTooth && (
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          {/* ✅ أزرار تبديل الترميز */}
           <button
-            className="btn btn-sm btn-outline-secondary"
-            onClick={() => onSelectTooth(null)}
+            className={`btn btn-sm ${notation === "universal" ? "btn-primary" : "btn-outline-secondary"}`}
+            onClick={() => onNotationChange("universal")}
           >
-            <i className="fas fa-times me-1"></i>
-            {t("Clear Selection")}
+            {t("Universal (1-32)")}
           </button>
-        )}
+          <button
+            className={`btn btn-sm ${notation === "fdi" ? "btn-primary" : "btn-outline-secondary"}`}
+            onClick={() => onNotationChange("fdi")}
+          >
+            {t("FDI (11-48)")}
+          </button>
+          {selectedTooth && (
+            <button
+              className="btn btn-sm btn-outline-secondary"
+              onClick={() => onSelectTooth(null)}
+            >
+              <i className="fas fa-times me-1"></i>
+              {t("Clear Selection")}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="jaw-section">
@@ -1051,13 +1131,14 @@ function DentalChart({ toothSurfacesMap, selectedTooth, onSelectTooth, t }) {
   );
 }
 
-function ToothCard({ tooth, surfaces, onSelect, isSelected, t }) {
+function ToothCard({ tooth, surfaces, onSelect, isSelected, t, notation }) {
   const occlusal = surfaces.occlusal || surfaces.incisal || surfaces.general;
   const mesial = surfaces.mesial || surfaces.m;
   const distal = surfaces.distal || surfaces.d;
   const buccal = surfaces.buccal || surfaces.facial || surfaces.b || surfaces.f;
   const lingual =
     surfaces.lingual || surfaces.palatal || surfaces.l || surfaces.p;
+  const displayNumber = notation === "fdi" ? universalToFDI(tooth) : tooth;
 
   const getSurfaceStatus = (record) => {
     if (!record) return "empty";
@@ -1096,7 +1177,7 @@ function ToothCard({ tooth, surfaces, onSelect, isSelected, t }) {
       onClick={() => onSelect(tooth)}
       title={buildTooltip()}
     >
-      <div className="tooth-number">{tooth}</div>
+      <div className="tooth-number">{displayNumber}</div>
       <div className="tooth-surfaces">
         <div className="surface-row top">
           <div className="surface-placeholder"></div>

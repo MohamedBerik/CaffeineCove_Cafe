@@ -1080,6 +1080,7 @@ function DentalChart({
               onSelect={onSelectTooth}
               isSelected={String(selectedTooth) === String(tooth)}
               t={t}
+              notation={notation} // ✅ أضف هذا
             />
           ))}
           {upperLeft.map((tooth) => (
@@ -1090,6 +1091,7 @@ function DentalChart({
               onSelect={onSelectTooth}
               isSelected={String(selectedTooth) === String(tooth)}
               t={t}
+              notation={notation} // ✅ أضف هذا
             />
           ))}
         </div>
@@ -1106,6 +1108,7 @@ function DentalChart({
               onSelect={onSelectTooth}
               isSelected={String(selectedTooth) === String(tooth)}
               t={t}
+              notation={notation} // ✅ أضف هذا
             />
           ))}
           {lowerRight.map((tooth) => (
@@ -1116,6 +1119,7 @@ function DentalChart({
               onSelect={onSelectTooth}
               isSelected={String(selectedTooth) === String(tooth)}
               t={t}
+              notation={notation} // ✅ أضف هذا
             />
           ))}
         </div>

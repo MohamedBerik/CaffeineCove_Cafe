@@ -786,7 +786,11 @@ export default function PatientProfilePage() {
 
       {/* Radiology Section - New */}
       <Section title={t("Radiology")} icon="fas fa-x-ray">
-        <RadiologyTabs patientId={id} />
+        <RadiologyTabs
+          patientId={id}
+          selectedTooth={selectedTooth} // ✅
+          dentalRecords={dentalRecords} // ✅
+        />
       </Section>
     </div>
   );
@@ -1476,7 +1480,8 @@ function ConvertForm({
 }
 
 // Radiology Tabs Component
-function RadiologyTabs({ patientId }) {
+function RadiologyTabs({ patientId, selectedTooth, dentalRecords }) {
+  // ✅ استقبل الخواص الجديدة
   const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState("gallery");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -1485,6 +1490,19 @@ function RadiologyTabs({ patientId }) {
     setRefreshTrigger((prev) => prev + 1);
     setActiveTab("gallery");
   };
+
+  // ✅ تحديد dentalRecordId المناسب
+  let activeDentalRecordId = null;
+  if (selectedTooth && dentalRecords) {
+    const matchingRecords = dentalRecords.filter(
+      (r) =>
+        String(r.tooth_number || "").trim() === String(selectedTooth).trim(),
+    );
+    // إذا وُجد سجل واحد فقط لهذا السن، استخدم معرفه تلقائيًا
+    if (matchingRecords.length === 1) {
+      activeDentalRecordId = matchingRecords[0].id;
+    }
+  }
 
   return (
     <div className="radiology-tabs">
@@ -1516,6 +1534,7 @@ function RadiologyTabs({ patientId }) {
           <RadiologyUploader
             patientId={patientId}
             onUploadSuccess={handleUploadSuccess}
+            dentalRecordId={activeDentalRecordId} // ✅ تمريره تلقائيًا
           />
         )}
       </div>

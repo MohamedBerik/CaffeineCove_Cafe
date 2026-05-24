@@ -2,7 +2,11 @@ import { useState } from "react";
 import axios from "../../../services/axios";
 import { useTranslation } from "react-i18next";
 
-export default function RadiologyUploader({ patientId, onUploadSuccess }) {
+export default function RadiologyUploader({
+  patientId,
+  onUploadSuccess,
+  dentalRecordId,
+}) {
   const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState(null);
@@ -81,6 +85,7 @@ export default function RadiologyUploader({ patientId, onUploadSuccess }) {
     formData.append("captured_at", capturedAt);
     if (toothNumber) formData.append("tooth_number", toothNumber);
     if (notes) formData.append("notes", notes);
+    if (dentalRecordId) formData.append("dental_record_id", dentalRecordId);
 
     try {
       const response = await axios.post("/erp/patient-radiologies", formData, {

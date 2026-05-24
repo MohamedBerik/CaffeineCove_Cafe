@@ -562,36 +562,38 @@ function SubscriptionsTab({ subscriptions, t, formatDate, formatCurrency }) {
 
   return (
     <div className="subscriptions-tab">
-      <table className="subscriptions-table">
-        <thead>
-          <tr>
-            <th>{t("Plan")}</th>
-            <th>{t("Amount")}</th>
-            <th>{t("Status")}</th>
-            <th>{t("Start Date")}</th>
-            <th>{t("End Date")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {subscriptions.map(
-            (
-              sub, // ✅ تأكد من أن (sub) مكتوبة هنا
-            ) => (
-              <tr key={sub.id}>
-                <td data-label={t("Plan")}>{sub.plan?.name || "-"}</td>
-                <td data-label={t("Amount")}>{formatCurrency(sub.amount)}</td>
-                <td data-label={t("Status")}>
-                  <StatusBadge status={sub.status} t={t} />
-                </td>
-                <td data-label={t("Start Date")}>
-                  {formatDate(sub.starts_at)}
-                </td>
-                <td data-label={t("End Date")}>{formatDate(sub.ends_at)}</td>
-              </tr>
-            ),
-          )}
-        </tbody>
-      </table>
+      <div className="subscriptions-table-wrapper">
+        <table className="subscriptions-table">
+          <thead>
+            <tr>
+              <th>{t("Plan")}</th>
+              <th>{t("Amount")}</th>
+              <th>{t("Status")}</th>
+              <th>{t("Start Date")}</th>
+              <th>{t("End Date")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {subscriptions.map(
+              (
+                sub, // ✅ تأكد من أن (sub) مكتوبة هنا
+              ) => (
+                <tr key={sub.id}>
+                  <td data-label={t("Plan")}>{sub.plan?.name || "-"}</td>
+                  <td data-label={t("Amount")}>{formatCurrency(sub.amount)}</td>
+                  <td data-label={t("Status")}>
+                    <StatusBadge status={sub.status} t={t} />
+                  </td>
+                  <td data-label={t("Start Date")}>
+                    {formatDate(sub.starts_at)}
+                  </td>
+                  <td data-label={t("End Date")}>{formatDate(sub.ends_at)}</td>
+                </tr>
+              ),
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

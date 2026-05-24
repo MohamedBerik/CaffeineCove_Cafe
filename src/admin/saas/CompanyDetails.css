@@ -370,9 +370,16 @@
 }
 
 /* Subscriptions Tab */
+/* ✅ يبقى كجدول طبيعي مع تمرير أفقي في الشاشات الصغيرة */
+.subscriptions-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 .subscriptions-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 600px; /* يضمن عدم تكدس الأعمدة */
 }
 .subscriptions-table th {
   padding: 0.75rem 1rem;
@@ -574,8 +581,6 @@
 }
 
 /* ==================== تحسينات إضافية للتجاوب ==================== */
-
-/* ✅ تحسين الأزرار في الهيدر على الشاشات الصغيرة جداً */
 @media (max-width: 576px) {
   .company-details-container {
     padding: 0 0.5rem;
@@ -602,7 +607,6 @@
     font-size: 0.8rem;
   }
 
-  /* جعل الأزرار تأخذ صفاً كاملاً في الموبايل */
   .btn-edit,
   .btn-suspend,
   .btn-activate,
@@ -610,7 +614,6 @@
     flex: 1 1 auto;
   }
 
-  /* تصغير حجم الأيقونات في البطاقات الإحصائية */
   .stat-icon {
     width: 36px;
     height: 36px;
@@ -621,57 +624,53 @@
     font-size: 1.1rem;
   }
 
-  /* تحسين الجداول على الموبايل */
-  .users-table thead,
-  .subscriptions-table thead {
+  /* ✅ جدول المستخدمين فقط: يتحول إلى بطاقات */
+  .users-table thead {
     display: none;
   }
 
-  .users-table tbody tr,
-  .subscriptions-table tbody tr {
+  .users-table tbody tr {
     display: block;
     margin-bottom: 1rem;
     border: 1px solid #e9ecef;
     border-radius: 12px;
     background: white;
     padding: 0.75rem;
-    width: 100%; /* تأكد من أن العرض 100% */
+    width: 100%;
   }
 
-  .users-table td,
-  .subscriptions-table td {
+  .users-table td {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.6rem 0.75rem;
     border-bottom: 1px solid #f1f3f5;
-    width: 100%; /* كل خلية تأخذ عرض الصف كاملاً */
+    width: 100%;
     box-sizing: border-box;
   }
 
-  .users-table td:last-child,
-  .subscriptions-table td:last-child {
+  .users-table td:last-child {
     border-bottom: none;
   }
 
-  .users-table td::before,
-  .subscriptions-table td::before {
+  .users-table td::before {
     content: attr(data-label);
     font-weight: 600;
     font-size: 0.75rem;
     color: #6c757d;
     margin-right: 1rem;
     white-space: nowrap;
-    flex-shrink: 0; /* منع تقلص اسم العمود */
+    flex-shrink: 0;
   }
 
-  /* تبويبات أصغر */
+  /* ✅ جدول الاشتراكات: يبقى أفقياً مع تمرير */
+  /* لا نلمس .subscriptions-table thead, tbody tr, td هنا */
+
   .tab-btn {
     padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
   }
 
-  /* قائمة الأنشطة */
   .activity-item {
     flex-direction: column;
     align-items: flex-start;
@@ -683,7 +682,6 @@
     text-align: left;
   }
 
-  /* تباعد أفضل للفوتر */
   .info-card {
     padding: 1rem;
   }
@@ -721,7 +719,6 @@
 
 /* ==================== تحسينات للشاشات الصغيرة جداً (أقل من 400px) ==================== */
 @media (max-width: 400px) {
-  /* تعديل عرض الأزرار في الهيدر لتناسب الشاشات الضيقة */
   .header-actions {
     flex-direction: column;
     width: 100%;
@@ -738,26 +735,11 @@
     font-size: 0.85rem;
   }
 
-  /* منع النص من التمدد خارج البطاقة الإحصائية */
   .stat-value {
     font-size: 1rem;
     word-break: break-word;
   }
 
-  /* تحسين عرض جداول المستخدمين والاشتراكات بشكل أفضل */
-  .users-table td,
-  .subscriptions-table td {
-    flex-wrap: wrap;
-    justify-content: space-between;
-    word-break: break-word;
-  }
-
-  .users-table td::before,
-  .subscriptions-table td::before {
-    white-space: nowrap;
-  }
-
-  /* محاذاة أفضل لعناصر المعلومات */
   .info-item {
     flex-direction: column;
     gap: 0.25rem;
@@ -767,7 +749,6 @@
     margin-bottom: 0.25rem;
   }
 
-  /* تقليص حجم التبويبات أكثر */
   .details-tabs {
     flex-direction: column;
     gap: 0.5rem;
@@ -785,6 +766,4 @@
 .users-table td {
   overflow-wrap: break-word;
   word-wrap: break-word;
-  -ms-word-break: break-all;
-  word-break: break-word;
 }

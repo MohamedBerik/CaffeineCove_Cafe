@@ -2,14 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "../../../services/axios";
 import { useTranslation } from "react-i18next";
-import "./PatientProfilePage.css";
 import RadiologyUploader from "../components/RadiologyUploader";
 import RadiologyGallery from "../components/RadiologyGallery";
 import "./PatientProfilePage.css";
 
-// تحويل Universal (1-32) إلى FDI (string)
+// التحويل الصحيح والدقيق من Universal (1-32) إلى FDI (11-48)
 const universalToFDI = (universal) => {
   const map = {
+    // Upper Right (1-8) -> FDI (18-11)
     1: "18",
     2: "17",
     3: "16",
@@ -18,6 +18,7 @@ const universalToFDI = (universal) => {
     6: "13",
     7: "12",
     8: "11",
+    // Upper Left (9-16) -> FDI (21-28)
     9: "21",
     10: "22",
     11: "23",
@@ -26,14 +27,16 @@ const universalToFDI = (universal) => {
     14: "26",
     15: "27",
     16: "28",
-    17: "38",
-    18: "37",
-    19: "36",
-    20: "35",
-    21: "34",
-    22: "33",
-    23: "32",
-    24: "31",
+    // Lower Left (17-24) -> FDI (31-38)
+    17: "31",
+    18: "32",
+    19: "33",
+    20: "34",
+    21: "35",
+    22: "36",
+    23: "37",
+    24: "38",
+    // Lower Right (25-32) -> FDI (41-48)
     25: "41",
     26: "42",
     27: "43",
@@ -46,12 +49,14 @@ const universalToFDI = (universal) => {
   return map[universal] || universal;
 };
 
-// الأسنان بالنظام العالمي (الداخلي) – مصفوفة الأرقام
+// هيكل الأسنان الصحيح متوافقاً مع اتجاه رؤية طبيب الأسنان للشاشة (Dental Chart View)
 const UNIVERSAL_TEETH = [
-  [1, 2, 3, 4, 5, 6, 7, 8], // الفك العلوي الأيمن
-  [9, 10, 11, 12, 13, 14, 15, 16], // العلوي الأيسر
-  [17, 18, 19, 20, 21, 22, 23, 24], // السفلي الأيسر
-  [25, 26, 27, 28, 29, 30, 31, 32], // السفلي الأيمن
+  [1, 2, 3, 4, 5, 6, 7, 8], // الفك العلوي الأيمن (شمال الشاشة)
+  [9, 10, 11, 12, 13, 14, 15, 16], // الفك العلوي الأيسر (يمين الشاشة)
+
+  // التعديل الهام هنا للفك السفلي ليتطابق مع خط سير الأطباء:
+  [24, 23, 22, 21, 20, 19, 18, 17], // الفك السفلي الأيسر (FDI 38 -> 31)
+  [25, 26, 27, 28, 29, 30, 31, 32], // الفك السفلي الأيمن (FDI 41 -> 48)
 ];
 
 export default function PatientProfilePage() {
@@ -97,7 +102,30 @@ export default function PatientProfilePage() {
   };
 
   useEffect(() => {
+    let isMounted = true;
+
+    const loadProfile = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`/erp/customers/${id}/profile`);
+        if (isMounted) setData(res.data?.data || null);
+      } catch (err) {
+        if (isMounted) {
+          setError(
+            err?.response?.data?.message ||
+              err?.response?.data?.msg ||
+              t("Failed to load patient profile"),
+          );
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
     loadProfile();
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   const loadProfile = async () => {
@@ -673,6 +701,7 @@ export default function PatientProfilePage() {
             getRecordMeta={getRecordMeta}
             t={t}
             formatCurrency={formatCurrency}
+            notation={notation}
           />
         </Section>
       )}
@@ -1270,6 +1299,7 @@ function ToothDetails({
   getRecordMeta,
   t,
   formatCurrency,
+  notation,
 }) {
   const surfaceOptions = [
     { value: "", label: t("Select surface") },
@@ -1323,9 +1353,11 @@ function ToothDetails({
               <input
                 type="text"
                 className="form-control"
-                name="tooth_number"
-                value={recordForm.tooth_number}
-                onChange={onRecordChange}
+                value={
+                  notation === "fdi"
+                    ? universalToFDI(recordForm.tooth_number)
+                    : recordForm.tooth_number
+                }
                 readOnly
               />
             </div>

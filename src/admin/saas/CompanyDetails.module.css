@@ -1,48 +1,51 @@
 /* ==================== إعادة تعيين تأثيرات Bootstrap داخل CompanyDetails ==================== */
-.company-details-container table,
-.company-details-container .table {
+.container {
   width: 100%;
   margin-bottom: 0;
   background-color: transparent;
   border-collapse: collapse;
 }
 
-.company-details-container th,
-.company-details-container td {
+.headerCell {
   padding: 0;
   vertical-align: middle;
   border: none;
 }
 
-.company-details-container .tab-content {
+.cell {
+  padding: 0;
+  vertical-align: middle;
+  border: none;
+}
+
+.tabContent {
   border-top: none;
 }
 
-.company-details-container .table-responsive {
+.tableResponsive {
   overflow-x: visible;
 }
 
-.company-details-container .card,
-.company-details-container .card-body,
-.company-details-container .card-header {
+.card,
+.cardBody,
+.cardHeader {
   border: none;
   padding: 0;
   background: transparent;
 }
 
-.company-details-container .btn {
+.btn {
   border-radius: 10px;
 }
 
-/* إلغاء تأثير container-fluid و row إن وُجدا */
-.company-details-container .container-fluid,
-.company-details-container .row {
+.fluidContainer,
+.row {
   padding: 0;
   margin: 0;
 }
 
 /* Company Details Container */
-.company-details-container {
+.companyDetailsContainer {
   padding: 0 1rem;
   animation: fadeIn 0.5s ease;
 }
@@ -59,7 +62,7 @@
 }
 
 /* Header */
-.details-header {
+.detailsHeader {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -68,14 +71,14 @@
   gap: 1rem;
 }
 
-.header-left {
+.headerLeft {
   display: flex;
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
 }
 
-.btn-back {
+.btnBack {
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -89,33 +92,33 @@
   transition: all 0.2s ease;
 }
 
-.btn-back:hover {
+.btnBack:hover {
   background: #f8f9fa;
   border-color: #1a237e;
   color: #1a237e;
 }
 
-.company-title h1 {
+.companyTitle h1 {
   font-size: 1.75rem;
   font-weight: 700;
   color: #1a237e;
   margin: 0;
 }
 
-.company-slug {
+.companySlug {
   font-size: 0.875rem;
   color: #6c757d;
 }
 
-.header-actions {
+.headerActions {
   display: flex;
   gap: 0.75rem;
 }
 
-.btn-edit,
-.btn-suspend,
-.btn-activate,
-.btn-delete {
+.btnEdit,
+.btnSuspend,
+.btnActivate,
+.btnDelete {
   padding: 0.625rem 1.25rem;
   border-radius: 10px;
   font-weight: 500;
@@ -127,49 +130,49 @@
   text-decoration: none;
 }
 
-.btn-edit {
+.btnEdit {
   background: white;
   border: 1px solid #e0e0e0;
   color: #6c757d;
 }
-.btn-edit:hover {
+.btnEdit:hover {
   background: #f8f9fa;
   border-color: #1a237e;
   color: #1a237e;
 }
 
-.btn-suspend {
+.btnSuspend {
   background: #fff3e0;
   border: 1px solid #ff9800;
   color: #ed6c02;
 }
-.btn-suspend:hover {
+.btnSuspend:hover {
   background: #ff9800;
   color: white;
 }
 
-.btn-activate {
+.btnActivate {
   background: #e8f5e9;
   border: 1px solid #4caf50;
   color: #2e7d32;
 }
-.btn-activate:hover {
+.btnActivate:hover {
   background: #4caf50;
   color: white;
 }
 
-.btn-delete {
+.btnDelete {
   background: #ffebee;
   border: 1px solid #f44336;
   color: #c62828;
 }
-.btn-delete:hover {
+.btnDelete:hover {
   background: #f44336;
   color: white;
 }
 
 /* Status Badge */
-.status-badge {
+.statusBadge {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -178,49 +181,49 @@
   font-size: 0.75rem;
   font-weight: 600;
 }
-.status-dot {
+.statusDot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
 }
-.status-success {
+.statusSuccess {
   background: #e8f5e9;
   color: #2e7d32;
 }
-.status-success .status-dot {
+.statusSuccess .statusDot {
   background: #2e7d32;
 }
-.status-danger {
+.statusDanger {
   background: #ffebee;
   color: #c62828;
 }
-.status-danger .status-dot {
+.statusDanger .statusDot {
   background: #c62828;
 }
-.status-warning {
+.statusWarning {
   background: #fff3e0;
   color: #ed6c02;
 }
-.status-warning .status-dot {
+.statusWarning .statusDot {
   background: #ed6c02;
 }
-.status-secondary {
+.statusSecondary {
   background: #eceff1;
   color: #546e7a;
 }
-.status-secondary .status-dot {
+.statusSecondary .statusDot {
   background: #546e7a;
 }
 
 /* Stats Grid */
-.stats-grid {
+.statsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.stat-card {
+.statCard {
   background: white;
   border-radius: 16px;
   padding: 1.25rem;
@@ -231,11 +234,11 @@
   border: 1px solid rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
 }
-.stat-card:hover {
+.statCard:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
-.stat-icon {
+.statIcon {
   width: 48px;
   height: 48px;
   border-radius: 16px;
@@ -244,17 +247,17 @@
   justify-content: center;
   font-size: 1.25rem;
 }
-.stat-content {
+.statContent {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
-.stat-value {
+.statValue {
   font-size: 1.25rem;
   font-weight: 700;
   color: #2c3e50;
 }
-.stat-label {
+.statLabel {
   font-size: 0.7rem;
   color: #6c757d;
   text-transform: uppercase;
@@ -262,7 +265,7 @@
 }
 
 /* Info Card */
-.info-card {
+.infoCard {
   background: white;
   border-radius: 16px;
   padding: 1.5rem;
@@ -270,53 +273,53 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
-.info-card h3 {
+.infoCard h3 {
   font-size: 1rem;
   font-weight: 600;
   color: #2c3e50;
   margin: 0 0 1rem 0;
 }
-.info-grid {
+.infoGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
 }
-.info-item {
+.infoItem {
   display: flex;
   gap: 1rem;
 }
-.info-item i {
+.infoItem i {
   font-size: 1.25rem;
   color: #1a237e;
   width: 24px;
   text-align: center;
 }
-.info-content {
+.infoContent {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
-.info-label {
+.infoLabel {
   font-size: 0.75rem;
   color: #6c757d;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.info-value {
+.infoValue {
   font-size: 0.875rem;
   color: #2c3e50;
   font-weight: 500;
 }
 
 /* Tabs */
-.details-tabs {
+.detailsTabs {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
   border-bottom: 1px solid #e9ecef;
   padding-bottom: 0.5rem;
 }
-.tab-btn {
+.tabBtn {
   padding: 0.75rem 1.5rem;
   background: transparent;
   border: none;
@@ -329,17 +332,17 @@
   gap: 0.5rem;
   transition: all 0.2s ease;
 }
-.tab-btn:hover {
+.tabBtn:hover {
   background: #f8f9fa;
   color: #1a237e;
 }
-.tab-btn.active {
+.tabBtnActive {
   background: #1a237e;
   color: white;
 }
 
 /* Tab Content */
-.tab-content {
+.tabContent {
   background: white;
   border-radius: 16px;
   padding: 1.5rem;
@@ -348,18 +351,18 @@
 }
 
 /* Overview Tab */
-.overview-section h4 {
+.overviewSection h4 {
   font-size: 0.875rem;
   font-weight: 600;
   color: #6c757d;
   margin: 0 0 1rem 0;
 }
-.performance-grid {
+.performanceGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
-.performance-item {
+.performanceItem {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -367,22 +370,22 @@
   background: #f8f9fa;
   border-radius: 12px;
 }
-.performance-label {
+.performanceLabel {
   font-size: 0.75rem;
   color: #6c757d;
 }
-.performance-value {
+.performanceValue {
   font-size: 1.5rem;
   font-weight: 700;
   color: #1a237e;
 }
 
 /* Users Tab */
-.users-table {
+.usersTable {
   width: 100%;
   border-collapse: collapse;
 }
-.users-table th {
+.usersTable th {
   padding: 0.75rem 1rem;
   font-size: 0.75rem;
   font-weight: 600;
@@ -391,40 +394,38 @@
   text-align: left;
   border-bottom: 1px solid #e9ecef;
 }
-.users-table td {
+.usersTable td {
   padding: 1rem;
   border-bottom: 1px solid #f1f3f5;
   font-size: 0.875rem;
 }
-.user-status {
+.userStatus {
   display: inline-block;
   padding: 0.25rem 0.75rem;
   border-radius: 30px;
   font-size: 0.7rem;
   font-weight: 600;
 }
-.user-status.active {
+.userStatusActive {
   background: #e8f5e9;
   color: #2e7d32;
 }
-.user-status.inactive {
+.userStatusInactive {
   background: #eceff1;
   color: #546e7a;
 }
 
 /* Subscriptions Tab */
-/* ✅ يبقى كجدول طبيعي مع تمرير أفقي في الشاشات الصغيرة */
-.subscriptions-table-wrapper {
+.subscriptionsTableWrapper {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
-.subscriptions-table {
+.subscriptionsTable {
   width: 100%;
   border-collapse: collapse;
-  min-width: 600px; /* يضمن عدم تكدس الأعمدة */
 }
-.subscriptions-table th {
+.subscriptionsTable th {
   padding: 0.75rem 1rem;
   font-size: 0.75rem;
   font-weight: 600;
@@ -433,19 +434,19 @@
   text-align: left;
   border-bottom: 1px solid #e9ecef;
 }
-.subscriptions-table td {
+.subscriptionsTable td {
   padding: 1rem;
   border-bottom: 1px solid #f1f3f5;
   font-size: 0.875rem;
 }
 
 /* Activity Tab */
-.activity-list {
+.activityList {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
-.activity-item {
+.activityItem {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -453,7 +454,7 @@
   background: #f8f9fa;
   border-radius: 12px;
 }
-.activity-icon {
+.activityIcon {
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -463,42 +464,42 @@
   justify-content: center;
   color: #0288d1;
 }
-.activity-content {
+.activityContent {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
 }
-.activity-action {
+.activityAction {
   font-weight: 500;
   color: #2c3e50;
 }
-.activity-user {
+.activityUser {
   font-size: 0.75rem;
   color: #6c757d;
 }
-.activity-time {
+.activityTime {
   font-size: 0.75rem;
   color: #adb5bd;
 }
 
 /* Empty Tab */
-.empty-tab {
+.emptyTab {
   text-align: center;
   padding: 3rem;
 }
-.empty-tab i {
+.emptyTab i {
   font-size: 3rem;
   color: #dee2e6;
   margin-bottom: 1rem;
 }
-.empty-tab p {
+.emptyTab p {
   color: #adb5bd;
   margin: 0;
 }
 
 /* Loading State */
-.company-details-loading {
+.companyDetailsLoading {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -506,7 +507,7 @@
   min-height: 400px;
   gap: 1rem;
 }
-.loading-spinner {
+.loadingSpinner {
   width: 40px;
   height: 40px;
   border: 3px solid #f3f3f3;
@@ -524,18 +525,18 @@
 }
 
 /* Error State */
-.company-details-error {
+.companyDetailsError {
   text-align: center;
   padding: 3rem;
   background: #fff5f5;
   border-radius: 20px;
 }
-.company-details-error i {
+.companyDetailsError i {
   font-size: 3rem;
   color: #dc3545;
   margin-bottom: 1rem;
 }
-.btn-retry {
+.btnRetry {
   background: linear-gradient(135deg, #1a237e, #283593);
   color: white;
   border: none;
@@ -549,130 +550,124 @@
 
 /* Responsive */
 @media (max-width: 1400px) {
-  .stats-grid {
+  .statsGrid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 @media (max-width: 992px) {
-  .stats-grid {
+  .statsGrid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .info-grid {
+  .infoGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 @media (max-width: 768px) {
-  .details-header {
+  .detailsHeader {
     flex-direction: column;
   }
-  .header-actions {
+  .headerActions {
     width: 100%;
     flex-wrap: wrap;
   }
-  .btn-edit,
-  .btn-suspend,
-  .btn-activate,
-  .btn-delete {
+  .btnEdit,
+  .btnSuspend,
+  .btnActivate,
+  .btnDelete {
     flex: 1;
     justify-content: center;
   }
-  .stats-grid {
+  .statsGrid {
     grid-template-columns: 1fr;
   }
-  .info-grid {
+  .infoGrid {
     grid-template-columns: 1fr;
   }
-  .details-tabs {
+  .detailsTabs {
     flex-wrap: wrap;
   }
-  .tab-btn {
+  .tabBtn {
     flex: 1;
     justify-content: center;
   }
-  .performance-grid {
+  .performanceGrid {
     grid-template-columns: 1fr;
   }
-  .activity-item {
+  .activityItem {
     flex-wrap: wrap;
   }
-  .activity-time {
+  .activityTime {
     width: 100%;
     text-align: right;
   }
 }
 
 /* RTL Support */
-[dir="rtl"] .header-left {
+[dir="rtl"] .headerLeft {
   flex-direction: row-reverse;
 }
-[dir="rtl"] .btn-back i {
+[dir="rtl"] .btnBack i {
   transform: scaleX(-1);
 }
-[dir="rtl"] .stat-card {
+[dir="rtl"] .statCard {
   flex-direction: row-reverse;
   text-align: right;
 }
-[dir="rtl"] .info-item {
+[dir="rtl"] .infoItem {
   flex-direction: row-reverse;
   text-align: right;
 }
-[dir="rtl"] .activity-item {
+[dir="rtl"] .activityItem {
   flex-direction: row-reverse;
 }
-[dir="rtl"] .activity-time {
+[dir="rtl"] .activityTime {
   text-align: left;
 }
 
 /* ==================== تحسينات إضافية للتجاوب ==================== */
 @media (max-width: 576px) {
-  .company-details-container {
+  .companyDetailsContainer {
     padding: 0 0.5rem;
   }
 
-  .header-left {
+  .headerLeft {
     width: 100%;
     justify-content: space-between;
   }
 
-  .company-title h1 {
+  .companyTitle h1 {
     font-size: 1.25rem;
   }
 
-  .header-actions {
+  .headerActions {
     width: 100%;
   }
 
-  .btn-edit,
-  .btn-suspend,
-  .btn-activate,
-  .btn-delete {
+  .btnEdit,
+  .btnSuspend,
+  .btnActivate,
+  .btnDelete {
     padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
-  }
-
-  .btn-edit,
-  .btn-suspend,
-  .btn-activate,
-  .btn-delete {
     flex: 1 1 auto;
   }
 
-  .stat-icon {
+  .statIcon {
     width: 36px;
     height: 36px;
     font-size: 1rem;
   }
 
-  .stat-value {
+  .statValue {
     font-size: 1.1rem;
   }
 
   /* ✅ جدول المستخدمين فقط: يتحول إلى بطاقات */
-  .users-table thead {
+  .usersTable thead {
     display: none;
   }
 
-  .users-table tbody tr {
+  .usersTable tbody tr {
     display: block;
     margin-bottom: 1rem;
     border: 1px solid #e9ecef;
@@ -682,7 +677,7 @@
     width: 100%;
   }
 
-  .users-table td {
+  .usersTable td {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -692,11 +687,11 @@
     box-sizing: border-box;
   }
 
-  .users-table td:last-child {
+  .usersTable td:last-child {
     border-bottom: none;
   }
 
-  .users-table td::before {
+  .usersTable td::before {
     content: attr(data-label);
     font-weight: 600;
     font-size: 0.75rem;
@@ -706,107 +701,99 @@
     flex-shrink: 0;
   }
 
-  /* ✅ جدول الاشتراكات: يبقى أفقياً مع تمرير */
-  /* لا نلمس .subscriptions-table thead, tbody tr, td هنا */
-
-  .tab-btn {
+  .tabBtn {
     padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
   }
 
-  .activity-item {
+  .activityItem {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
 
-  .activity-time {
+  .activityTime {
     width: 100%;
     text-align: left;
   }
 
-  .info-card {
+  .infoCard {
     padding: 1rem;
   }
 }
 
-/* ✅ تصغير حجم البطاقات الإحصائية في التابلت */
 @media (max-width: 768px) {
-  .stat-card {
+  .statCard {
     padding: 1rem;
     gap: 0.75rem;
   }
 
-  .stats-grid {
+  .statsGrid {
     gap: 0.75rem;
   }
 }
 
-/* ✅ تحسين مظهر الأزرار عندما تكون في وضع التعطيل */
-.btn-edit:disabled,
-.btn-suspend:disabled,
-.btn-activate:disabled,
-.btn-delete:disabled,
-.btn-retry:disabled {
+.btnEdit:disabled,
+.btnSuspend:disabled,
+.btnActivate:disabled,
+.btnDelete:disabled,
+.btnRetry:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* ✅ إضافة تأثير ضغط للأزرار */
-.btn-edit:active,
-.btn-suspend:active,
-.btn-activate:active,
-.btn-delete:active {
+.btnEdit:active,
+.btnSuspend:active,
+.btnActivate:active,
+.btnDelete:active {
   transform: scale(0.97);
 }
 
-/* ==================== تحسينات للشاشات الصغيرة جداً (أقل من 400px) ==================== */
 @media (max-width: 400px) {
-  .header-actions {
+  .headerActions {
     flex-direction: column;
     width: 100%;
     gap: 0.5rem;
   }
 
-  .btn-edit,
-  .btn-suspend,
-  .btn-activate,
-  .btn-delete {
+  .btnEdit,
+  .btnSuspend,
+  .btnActivate,
+  .btnDelete {
     width: 100%;
     justify-content: center;
     padding: 0.6rem;
     font-size: 0.85rem;
   }
 
-  .stat-value {
+  .statValue {
     font-size: 1rem;
     word-break: break-word;
   }
 
-  .info-item {
+  .infoItem {
     flex-direction: column;
     gap: 0.25rem;
   }
 
-  .info-item i {
+  .infoItem i {
     margin-bottom: 0.25rem;
   }
 
-  .details-tabs {
+  .detailsTabs {
     flex-direction: column;
     gap: 0.5rem;
   }
 
-  .tab-btn {
+  .tabBtn {
     justify-content: flex-start;
     padding: 0.6rem 0.75rem;
     font-size: 0.85rem;
   }
 }
 
-/* ✅ إصلاح إضافي لمنع تجاوز النص في أي مكان */
-.subscriptions-table td,
-.users-table td {
+.subscriptionsTable td,
+.usersTable td {
   overflow-wrap: break-word;
   word-wrap: break-word;
 }

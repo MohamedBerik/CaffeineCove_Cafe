@@ -4,7 +4,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../services/axios";
 import toast from "react-hot-toast";
-import "./CompanyDetails.css";
+import styles from "./CompanyDetails.module.css";
 
 export default function CompanyDetails() {
   const { t, i18n } = useTranslation();
@@ -69,25 +69,21 @@ export default function CompanyDetails() {
   const handleExportClinic = async () => {
     setExporting(true);
     try {
-      // 1. تشغيل التصدير
       const res = await api.post(`/saas/companies/${id}/export`);
-      const downloadUrl = res.data.download_url; // `/saas/companies/{id}/export-download?file=...`
+      const downloadUrl = res.data.download_url;
 
       if (!downloadUrl) {
         toast.error(t("Export failed. No file generated."));
         return;
       }
 
-      // 2. تحميل الملف عبر api (يرسل التوكن)
       const fileRes = await api.get(downloadUrl, {
         responseType: "blob",
       });
 
-      // 3. إنشاء رابط مؤقت وتنزيله
       const url = window.URL.createObjectURL(new Blob([fileRes.data]));
       const link = document.createElement("a");
       link.href = url;
-      // استخراج اسم الملف من الرابط
       const fileName = downloadUrl.split("file=")[1] || "clinic_export.zip";
       link.setAttribute("download", fileName);
       document.body.appendChild(link);
@@ -198,8 +194,8 @@ export default function CompanyDetails() {
   // ========================= Loading State =========================
   if (isLoading) {
     return (
-      <div className="company-details-loading">
-        <div className="loading-spinner"></div>
+      <div className={styles.companyDetailsLoading}>
+        <div className={styles.loadingSpinner}></div>
         <p>{t("Loading company details...")}</p>
       </div>
     );
@@ -208,11 +204,11 @@ export default function CompanyDetails() {
   // ========================= Error State =========================
   if (error) {
     return (
-      <div className="company-details-error">
+      <div className={styles.companyDetailsError}>
         <i className="fas fa-exclamation-triangle"></i>
         <h3>{t("Something went wrong")}</h3>
         <p>{error.message}</p>
-        <button className="btn-retry" onClick={refetch}>
+        <button className={styles.btnRetry} onClick={refetch}>
           <i className="fas fa-sync-alt"></i>
           {t("Try Again")}
         </button>
@@ -224,29 +220,29 @@ export default function CompanyDetails() {
 
   // ========================= UI =========================
   return (
-    <div className="company-details-container">
+    <div className={styles.companyDetailsContainer}>
       {/* Header */}
-      <div className="details-header">
-        <div className="header-left">
+      <div className={styles.detailsHeader}>
+        <div className={styles.headerLeft}>
           <button
-            className="btn-back"
+            className={styles.btnBack}
             onClick={() => navigate("/admin/companies")}
           >
             <i className="fas fa-arrow-left"></i>
           </button>
-          <div className="company-title">
+          <div className={styles.companyTitle}>
             <h1>{company.name}</h1>
-            <span className="company-slug">{company.slug}</span>
+            <span className={styles.companySlug}>{company.slug}</span>
           </div>
           <StatusBadge status={company.status} t={t} />
         </div>
-        <div className="header-actions">
-          <Link to={`/admin/companies/${id}/edit`} className="btn-edit">
+        <div className={styles.headerActions}>
+          <Link to={`/admin/companies/${id}/edit`} className={styles.btnEdit}>
             <i className="fas fa-edit"></i>
             {t("Edit")}
           </Link>
           <button
-            className="btn btn-outline-info"
+            className={`btn btn-outline-info`}
             onClick={handleExportClinic}
             disabled={exporting}
           >
@@ -263,17 +259,17 @@ export default function CompanyDetails() {
             )}
           </button>
           {company.status === "suspended" ? (
-            <button className="btn-activate" onClick={handleActivate}>
+            <button className={styles.btnActivate} onClick={handleActivate}>
               <i className="fas fa-check-circle"></i>
               {t("Activate")}
             </button>
           ) : (
-            <button className="btn-suspend" onClick={handleSuspend}>
+            <button className={styles.btnSuspend} onClick={handleSuspend}>
               <i className="fas fa-pause-circle"></i>
               {t("Suspend")}
             </button>
           )}
-          <button className="btn-delete" onClick={handleDelete}>
+          <button className={styles.btnDelete} onClick={handleDelete}>
             <i className="fas fa-trash"></i>
             {t("Delete")}
           </button>
@@ -281,7 +277,7 @@ export default function CompanyDetails() {
       </div>
 
       {/* Stats Cards */}
-      <div className="stats-grid">
+      <div className={styles.statsGrid}>
         <StatCard
           title={t("Total Users")}
           value={stats?.total_users || 0}
@@ -321,9 +317,9 @@ export default function CompanyDetails() {
       </div>
 
       {/* Company Info */}
-      <div className="info-card">
+      <div className={styles.infoCard}>
         <h3>{t("Company Information")}</h3>
-        <div className="info-grid">
+        <div className={styles.infoGrid}>
           <InfoItem
             icon="fas fa-envelope"
             label={t("Email")}
@@ -358,30 +354,30 @@ export default function CompanyDetails() {
       </div>
 
       {/* Tabs */}
-      <div className="details-tabs">
+      <div className={styles.detailsTabs}>
         <button
-          className={`tab-btn ${activeTab === "overview" ? "active" : ""}`}
+          className={`${styles.tabBtn} ${activeTab === "overview" ? styles.tabBtnActive : ""}`}
           onClick={() => setActiveTab("overview")}
         >
           <i className="fas fa-chart-bar"></i>
           {t("Overview")}
         </button>
         <button
-          className={`tab-btn ${activeTab === "users" ? "active" : ""}`}
+          className={`${styles.tabBtn} ${activeTab === "users" ? styles.tabBtnActive : ""}`}
           onClick={() => setActiveTab("users")}
         >
           <i className="fas fa-users"></i>
           {t("Users")}
         </button>
         <button
-          className={`tab-btn ${activeTab === "subscriptions" ? "active" : ""}`}
+          className={`${styles.tabBtn} ${activeTab === "subscriptions" ? styles.tabBtnActive : ""}`}
           onClick={() => setActiveTab("subscriptions")}
         >
           <i className="fas fa-credit-card"></i>
           {t("Subscriptions")}
         </button>
         <button
-          className={`tab-btn ${activeTab === "activity" ? "active" : ""}`}
+          className={`${styles.tabBtn} ${activeTab === "activity" ? styles.tabBtnActive : ""}`}
           onClick={() => setActiveTab("activity")}
         >
           <i className="fas fa-history"></i>
@@ -390,7 +386,7 @@ export default function CompanyDetails() {
       </div>
 
       {/* Tab Content */}
-      <div className="tab-content">
+      <div className={styles.tabContent}>
         {activeTab === "overview" && (
           <OverviewTab
             company={company}
@@ -434,13 +430,13 @@ function StatCard({ title, value, icon, color }) {
   const colors = colorMap[color] || colorMap.primary;
 
   return (
-    <div className="stat-card">
-      <div className="stat-icon" style={{ backgroundColor: colors.bg }}>
+    <div className={styles.statCard}>
+      <div className={styles.statIcon} style={{ backgroundColor: colors.bg }}>
         <i className={icon} style={{ color: colors.text }}></i>
       </div>
-      <div className="stat-content">
-        <span className="stat-value">{value}</span>
-        <span className="stat-label">{title}</span>
+      <div className={styles.statContent}>
+        <span className={styles.statValue}>{value}</span>
+        <span className={styles.statLabel}>{title}</span>
       </div>
     </div>
   );
@@ -448,11 +444,11 @@ function StatCard({ title, value, icon, color }) {
 
 function InfoItem({ icon, label, value }) {
   return (
-    <div className="info-item">
+    <div className={styles.infoItem}>
       <i className={icon}></i>
-      <div className="info-content">
-        <span className="info-label">{label}</span>
-        <span className="info-value">{value}</span>
+      <div className={styles.infoContent}>
+        <span className={styles.infoLabel}>{label}</span>
+        <span className={styles.infoValue}>{value}</span>
       </div>
     </div>
   );
@@ -467,8 +463,10 @@ function StatusBadge({ status, t }) {
   };
   const info = statusMap[status] || { label: status, class: "secondary" };
   return (
-    <span className={`status-badge status-${info.class}`}>
-      <span className="status-dot"></span>
+    <span
+      className={`${styles.statusBadge} ${styles[`status${info.class.charAt(0).toUpperCase() + info.class.slice(1)}`]}`}
+    >
+      <span className={styles.statusDot}></span>
       {t(info.label)}
     </span>
   );
@@ -476,29 +474,31 @@ function StatusBadge({ status, t }) {
 
 function OverviewTab({ company, stats, t, formatCurrency }) {
   return (
-    <div className="overview-tab">
-      <div className="overview-section">
+    <div className={styles.overviewTab}>
+      <div className={styles.overviewSection}>
         <h4>{t("Recent Performance")}</h4>
-        <div className="performance-grid">
-          <div className="performance-item">
-            <span className="performance-label">
+        <div className={styles.performanceGrid}>
+          <div className={styles.performanceItem}>
+            <span className={styles.performanceLabel}>
               {t("Appointments This Month")}
             </span>
-            <span className="performance-value">
+            <span className={styles.performanceValue}>
               {stats?.appointments_this_month || 0}
             </span>
           </div>
-          <div className="performance-item">
-            <span className="performance-label">{t("Revenue This Month")}</span>
-            <span className="performance-value">
+          <div className={styles.performanceItem}>
+            <span className={styles.performanceLabel}>
+              {t("Revenue This Month")}
+            </span>
+            <span className={styles.performanceValue}>
               {formatCurrency(stats?.revenue_this_month || 0)}
             </span>
           </div>
-          <div className="performance-item">
-            <span className="performance-label">
+          <div className={styles.performanceItem}>
+            <span className={styles.performanceLabel}>
               {t("New Patients This Month")}
             </span>
-            <span className="performance-value">
+            <span className={styles.performanceValue}>
               {stats?.new_patients_this_month || 0}
             </span>
           </div>
@@ -511,7 +511,7 @@ function OverviewTab({ company, stats, t, formatCurrency }) {
 function UsersTab({ users, t }) {
   if (!users || users.length === 0) {
     return (
-      <div className="empty-tab">
+      <div className={styles.emptyTab}>
         <i className="fas fa-users"></i>
         <p>{t("No users found")}</p>
       </div>
@@ -519,8 +519,8 @@ function UsersTab({ users, t }) {
   }
 
   return (
-    <div className="users-tab">
-      <table className="users-table">
+    <div className={styles.usersTab}>
+      <table className={styles.usersTable}>
         <thead>
           <tr>
             <th>{t("Name")}</th>
@@ -537,7 +537,7 @@ function UsersTab({ users, t }) {
               <td data-label={t("Role")}>{user.role}</td>
               <td>
                 <span
-                  className={`user-status ${user.status === 1 ? "active" : "inactive"}`}
+                  className={`${styles.userStatus} ${user.status === 1 ? styles.userStatusActive : styles.userStatusInactive}`}
                 >
                   {user.status === 1 ? t("Active") : t("Inactive")}
                 </span>
@@ -553,7 +553,7 @@ function UsersTab({ users, t }) {
 function SubscriptionsTab({ subscriptions, t, formatDate, formatCurrency }) {
   if (!subscriptions || subscriptions.length === 0) {
     return (
-      <div className="empty-tab">
+      <div className={styles.emptyTab}>
         <i className="fas fa-credit-card"></i>
         <p>{t("No subscriptions found")}</p>
       </div>
@@ -561,9 +561,9 @@ function SubscriptionsTab({ subscriptions, t, formatDate, formatCurrency }) {
   }
 
   return (
-    <div className="subscriptions-tab">
-      <div className="subscriptions-table-wrapper">
-        <table className="subscriptions-table">
+    <div className={styles.subscriptionsTab}>
+      <div className={styles.subscriptionsTableWrapper}>
+        <table className={styles.subscriptionsTable}>
           <thead>
             <tr>
               <th>{t("Plan")}</th>
@@ -574,23 +574,19 @@ function SubscriptionsTab({ subscriptions, t, formatDate, formatCurrency }) {
             </tr>
           </thead>
           <tbody>
-            {subscriptions.map(
-              (
-                sub, // ✅ تأكد من أن (sub) مكتوبة هنا
-              ) => (
-                <tr key={sub.id}>
-                  <td data-label={t("Plan")}>{sub.plan?.name || "-"}</td>
-                  <td data-label={t("Amount")}>{formatCurrency(sub.amount)}</td>
-                  <td data-label={t("Status")}>
-                    <StatusBadge status={sub.status} t={t} />
-                  </td>
-                  <td data-label={t("Start Date")}>
-                    {formatDate(sub.starts_at)}
-                  </td>
-                  <td data-label={t("End Date")}>{formatDate(sub.ends_at)}</td>
-                </tr>
-              ),
-            )}
+            {subscriptions.map((sub) => (
+              <tr key={sub.id}>
+                <td data-label={t("Plan")}>{sub.plan?.name || "-"}</td>
+                <td data-label={t("Amount")}>{formatCurrency(sub.amount)}</td>
+                <td data-label={t("Status")}>
+                  <StatusBadge status={sub.status} t={t} />
+                </td>
+                <td data-label={t("Start Date")}>
+                  {formatDate(sub.starts_at)}
+                </td>
+                <td data-label={t("End Date")}>{formatDate(sub.ends_at)}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -601,7 +597,7 @@ function SubscriptionsTab({ subscriptions, t, formatDate, formatCurrency }) {
 function ActivityTab({ logs, t, formatDateTime }) {
   if (!logs || logs.length === 0) {
     return (
-      <div className="empty-tab">
+      <div className={styles.emptyTab}>
         <i className="fas fa-history"></i>
         <p>{t("No activity logs found")}</p>
       </div>
@@ -620,20 +616,20 @@ function ActivityTab({ logs, t, formatDateTime }) {
   };
 
   return (
-    <div className="activity-tab">
-      <div className="activity-list">
+    <div className={styles.activityTab}>
+      <div className={styles.activityList}>
         {logs.map((log) => (
-          <div key={log.id} className="activity-item">
-            <div className="activity-icon">
+          <div key={log.id} className={styles.activityItem}>
+            <div className={styles.activityIcon}>
               <i className={`fas ${getActivityIcon(log.action)}`}></i>
             </div>
-            <div className="activity-content">
-              <span className="activity-action">{t(log.action)}</span>
-              <span className="activity-user">
+            <div className={styles.activityContent}>
+              <span className={styles.activityAction}>{t(log.action)}</span>
+              <span className={styles.activityUser}>
                 {log.user?.name || "System"}
               </span>
             </div>
-            <div className="activity-time">
+            <div className={styles.activityTime}>
               {formatDateTime(log.created_at)}
             </div>
           </div>

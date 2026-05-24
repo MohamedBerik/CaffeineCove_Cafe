@@ -1,3 +1,45 @@
+/* ==================== إعادة تعيين تأثيرات Bootstrap داخل CompanyDetails ==================== */
+.company-details-container table,
+.company-details-container .table {
+  width: 100%;
+  margin-bottom: 0;
+  background-color: transparent;
+  border-collapse: collapse;
+}
+
+.company-details-container th,
+.company-details-container td {
+  padding: 0;
+  vertical-align: middle;
+  border: none;
+}
+
+.company-details-container .tab-content {
+  border-top: none;
+}
+
+.company-details-container .table-responsive {
+  overflow-x: visible;
+}
+
+.company-details-container .card,
+.company-details-container .card-body,
+.company-details-container .card-header {
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+
+.company-details-container .btn {
+  border-radius: 10px;
+}
+
+/* إلغاء تأثير container-fluid و row إن وُجدا */
+.company-details-container .container-fluid,
+.company-details-container .row {
+  padding: 0;
+  margin: 0;
+}
 /* Company Details Container */
 .company-details-container {
   padding: 0 1rem;

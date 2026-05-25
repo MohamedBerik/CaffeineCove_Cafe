@@ -19,7 +19,10 @@ api.interceptors.request.use(
       const tenantId = localStorage.getItem("selectedCompany");
 
       // 💡 لقط الـ branchId من الـ URL مباشرة لو ممرر صراحة لحل مشكلة التزامن
-      const urlParams = new URLSearchParams(config.url.split("?")[1]);
+      const queryString = config.url.includes("?")
+        ? config.url.split("?")[1]
+        : "";
+      const urlParams = new URLSearchParams(queryString);
       const explicitBranchId = urlParams.get("branchId");
       const branchId =
         explicitBranchId || localStorage.getItem("selectedBranchId");

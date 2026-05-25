@@ -56,6 +56,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   }, [user]);
 
   // ✅ جلب قائمة الفروع (يعتمد على selectedCompany)
+  // ✅ جلب قائمة الفروع مع تعيين فرع افتراضي تلقائياً لمنع الـ null state والـ Race Conditions
   useEffect(() => {
     console.log("🌿 Branch fetch check:", {
       user: !!user,
@@ -77,7 +78,28 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
       .get("/branches")
       .then((res) => {
         console.log("Branches fetched:", res.data);
-        setBranches(Array.isArray(res.data) ? res.data : []);
+        const branchList = Array.isArray(res.data) ? res.data : [];
+        setBranches(branchList);
+
+        // 🎯 لقطة الأمان: إذا وجدنا فروع والفرع الحالي غير محدد أو قيمته "all"
+        const currentStoredBranch = localStorage.getItem("selectedBranchId");
+
+        if (
+          branchList.length > 0 &&
+          (!currentStoredBranch ||
+            currentStoredBranch === "all" ||
+            currentStoredBranch === "")
+        ) {
+          const defaultBranchId = String(branchList[0].id);
+
+          console.log("🎯 Auto-setting default branch:", defaultBranchId);
+
+          setSelectedBranch(defaultBranchId);
+          localStorage.setItem("selectedBranchId", defaultBranchId);
+
+          // إطلاق الحدث فوراً لتحديث الـ Dashboard وباقي المكونات بالفرع الجديد
+          window.dispatchEvent(new Event("globalBranchChanged"));
+        }
       })
       .catch((err) => {
         console.error("Branches error:", err);
@@ -118,20 +140,26 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   };
 
   // ✅ تبديل الفرع مع إطلاق حدث فوري للداشبورد
+  // ✅ تبديل الفرع مع إطلاق حدث فوري للداشبورد
   const handleBranchChange = async (e) => {
     const value = e.target.value;
 
     setSelectedBranch(value);
     localStorage.setItem("selectedBranchId", value);
 
+    console.log("🔄 Branch changed manually to:", value);
+
     // 📢 إطلاق حدث مخصص لإعلام الداشبورد بالتحديث فوراً
     window.dispatchEvent(new Event("globalBranchChanged"));
 
-    // تحديث بيانات المستخدم أولاً
-    await refreshUser();
-
-    // ثم تحديث الاستعلامات الأخرى في الكاش
-    queryClient.invalidateQueries();
+    try {
+      // تحديث بيانات المستخدم أولاً
+      await refreshUser();
+      // ثم تحديث الاستعلامات الأخرى في الكاش
+      queryClient.invalidateQueries();
+    } catch (error) {
+      console.error("❌ Failed to refresh user after branch change:", error);
+    }
   };
 
   // ✅ تجميع الشركات حسب الحالة

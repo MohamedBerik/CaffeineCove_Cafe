@@ -57,6 +57,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
 
   // ✅ جلب قائمة الفروع (يعتمد على selectedCompany)
   // ✅ جلب قائمة الفروع مع تعيين فرع افتراضي تلقائياً لمنع الـ null state والـ Race Conditions
+  // ✅ جلب قائمة الفروع مع معالجة ذكية للفرع الافتراضي حسب صلاحية المستخدم
   useEffect(() => {
     console.log("🌿 Branch fetch check:", {
       user: !!user,
@@ -81,24 +82,40 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
         const branchList = Array.isArray(res.data) ? res.data : [];
         setBranches(branchList);
 
-        // 🎯 لقطة الأمان: إذا وجدنا فروع والفرع الحالي غير محدد أو قيمته "all"
         const currentStoredBranch = localStorage.getItem("selectedBranchId");
 
-        if (
-          branchList.length > 0 &&
-          (!currentStoredBranch ||
-            currentStoredBranch === "all" ||
-            currentStoredBranch === "")
-        ) {
-          const defaultBranchId = String(branchList[0].id);
+        // 🎯 السيناريو الأول: المستخدم هو "أدمن العيادات" (يستطيع التنقل بين الفروع)
+        if (user?.can_switch_branch || user?.role === "admin") {
+          // لو مفيش قيمة متخزنة أصلاً، سيبها "all" عشان يشوف الداشبورد كاملة
+          if (!currentStoredBranch) {
+            setSelectedBranch("all");
+            localStorage.setItem("selectedBranchId", "all");
+            window.dispatchEvent(new Event("globalBranchChanged"));
+          } else {
+            // لو فيه قيمة قديمة متخزنة (سواء فرع معين أو all) احترم رغبته وسيبها زي ما هي
+            setSelectedBranch(currentStoredBranch);
+          }
+        }
 
-          console.log("🎯 Auto-setting default branch:", defaultBranchId);
+        // 🎯 السيناريو الثاني: مستخدم عادي (طبيب أو موظف مربوط بفرع محدد ولا يملك صلاحية التنقل)
+        else {
+          // لو مفيش فرع متخزن أو كانت قيمته "all" بالخطأ، اربطه بأول فرع تلقائياً حمايةً للداتا
+          if (
+            branchList.length > 0 &&
+            (!currentStoredBranch ||
+              currentStoredBranch === "all" ||
+              currentStoredBranch === "")
+          ) {
+            const defaultBranchId = String(branchList[0].id);
+            console.log(
+              "🔒 Employee forced to default branch:",
+              defaultBranchId,
+            );
 
-          setSelectedBranch(defaultBranchId);
-          localStorage.setItem("selectedBranchId", defaultBranchId);
-
-          // إطلاق الحدث فوراً لتحديث الـ Dashboard وباقي المكونات بالفرع الجديد
-          window.dispatchEvent(new Event("globalBranchChanged"));
+            setSelectedBranch(defaultBranchId);
+            localStorage.setItem("selectedBranchId", defaultBranchId);
+            window.dispatchEvent(new Event("globalBranchChanged"));
+          }
         }
       })
       .catch((err) => {

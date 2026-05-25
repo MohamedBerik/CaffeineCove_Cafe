@@ -47,7 +47,8 @@ export default function ErpDashboardHome() {
     const saved = localStorage.getItem("showComparison");
     return saved === "true";
   });
-  const [branchId] = useState(
+  // 1. الـ State المحلية بتفضل زي ما هي للقراءة الأولية
+  const [branchId, setBranchId] = useState(
     () => localStorage.getItem("selectedBranchId") || "all",
   );
 
@@ -57,10 +58,30 @@ export default function ErpDashboardHome() {
   const acknowledgingRef = useRef(new Set());
   const buffer = useRef([]);
   const chartRef = useRef(null);
-  // ✅ إصلاح Memory Leak: استخدام ref للـ Audio
   const audioRef = useRef(null);
 
-  // ✅ توحيد Query Keys (إصلاح Bug خطير)
+  // ✅ التعديل السحري: مراقبة التغيير فوراً عند حدوثه في الـ Navbar
+  useEffect(() => {
+    const syncBranch = () => {
+      const latestBranch = localStorage.getItem("selectedBranchId") || "all";
+      if (latestBranch !== branchId) {
+        setBranchId(latestBranch);
+      }
+    };
+
+    // أسلوب مخصص: هنسمع لـ Custom Event هبعته من الـ Navbar عشان التحديث يكون فوري في نفس اللحظة
+    window.addEventListener("globalBranchChanged", syncBranch);
+
+    // للاحتياط لو التغيير تم من تبويب آخر
+    window.addEventListener("storage", syncBranch);
+
+    return () => {
+      window.removeEventListener("globalBranchChanged", syncBranch);
+      window.removeEventListener("storage", syncBranch);
+    };
+  }, [branchId]);
+
+  // ✅ توحيد Query Keys (تلقائياً هيحس بالـ branchId الجديد لما الـ Effect اللي فوق يغيره)
   const DASHBOARD_QUERY_KEY = useMemo(
     () => ["dashboard", branchId, range, showComparison],
     [branchId, range, showComparison],

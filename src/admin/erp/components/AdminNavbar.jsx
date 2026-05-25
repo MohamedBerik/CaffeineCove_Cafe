@@ -117,20 +117,21 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     }
   };
 
-  // ✅ تبديل الفرع (بدون إعادة تحميل كاملة – نعيد الجلب فقط)
+  // ✅ تبديل الفرع مع إطلاق حدث فوري للداشبورد
   const handleBranchChange = async (e) => {
     const value = e.target.value;
 
     setSelectedBranch(value);
     localStorage.setItem("selectedBranchId", value);
 
-    // تحديث بيانات المستخدم أولاً (ليعكس التغيير مباشرة)
+    // 📢 إطلاق حدث مخصص لإعلام الداشبورد بالتحديث فوراً
+    window.dispatchEvent(new Event("globalBranchChanged"));
+
+    // تحديث بيانات المستخدم أولاً
     await refreshUser();
 
-    // ثم تحديث الاستعلامات الأخرى
+    // ثم تحديث الاستعلامات الأخرى في الكاش
     queryClient.invalidateQueries();
-    // لو أردت إعادة تحميل الصفحة بلطف
-    // navigate(0);
   };
 
   // ✅ تجميع الشركات حسب الحالة

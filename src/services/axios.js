@@ -73,30 +73,32 @@ api.interceptors.response.use(
       "  - Message:",
       error.response?.data?.message || error.message,
     );
-    console.error("  - Full Error:", error);
+
     if (error.response?.status === 403) {
       const data = error.response?.data || {};
 
-      // ✅ إذا كان الطلب هو تسجيل الدخول، لا تُرجع null بل ارفض الخطأ لتعرض رسالة مخصصة
       if (error.config.url.includes("/login")) {
         return Promise.reject(error);
       }
 
-      // ✅ أخطاء الاشتراك – إعادة توجيه
-      if (
-        data.code === "SUBSCRIPTION_INACTIVE" ||
-        data.code === "SUBSCRIPTION_EXPIRED" ||
-        data.code === "SUBSCRIPTION_PAST_DUE" ||
-        data.code === "TRIAL_EXPIRED" ||
-        data.code === "COMPANY_SUSPENDED"
-      ) {
+      // ✅ أخطاء الاشتراك – إعادة توجيه فورية
+      const subscriptionErrors = [
+        "SUBSCRIPTION_INACTIVE",
+        "SUBSCRIPTION_EXPIRED",
+        "SUBSCRIPTION_PAST_DUE",
+        "TRIAL_EXPIRED",
+        "COMPANY_SUSPENDED",
+      ];
+
+      if (subscriptionErrors.includes(data.code)) {
         const redirectTo = data.redirect_to || "/admin/erp/billing";
         window.location.href = redirectTo;
         return Promise.reject(error);
       }
 
-      // ✅ باقي أخطاء 403 – إرجاع null كما في السابق
-      return Promise.resolve(null);
+      // ⚠️ أخطاء الصلاحيات الأخرى (مثلاً طبيب يحاول دخول لوحة المدير الإداري)
+      // نرجع Reject عشان الـ Component يهندلها ويعرض رسالة "غير مسموح لك بالدخول"
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);

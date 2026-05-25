@@ -58,7 +58,7 @@ export default function ErpDashboardHome() {
 
   // ✅ توحيد Query Keys (إصلاح Bug خطير)
   const DASHBOARD_QUERY_KEY = useMemo(
-    () => ["dashboard", range, showComparison],
+    () => ["dashboard", branchId, range, showComparison],
     [range, showComparison],
   );
   const ACTIVITY_LOGS_QUERY_KEY = ["activityLogs"];

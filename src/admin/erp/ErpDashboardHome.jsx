@@ -1627,14 +1627,13 @@ function RevenueChart({
         <LineChart data={data}>
           <XAxis dataKey="label" />
           <YAxis />
+          // نقوم بتعديل المكون الفرعي ليستقبل formatCurrency و t عبر إغلاق مسبق
+          (Closure) أو استخدام الـ Context // أو الأبسط والأسرع: تمريره كـ
+          Component Reference مع ربط الخصائص الإضافية:
           <Tooltip
-            content={(props) => (
-              <CustomTooltipWrapper
-                {...props}
-                formatCurrency={formatCurrency}
-                t={t}
-              />
-            )}
+            content={
+              <CustomTooltipWrapper formatCurrency={formatCurrency} t={t} />
+            }
           />
           <Line
             type="monotone"

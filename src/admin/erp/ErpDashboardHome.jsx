@@ -86,9 +86,12 @@ export default function ErpDashboardHome() {
     () => ["dashboard", branchId, range, showComparison],
     [branchId, range, showComparison],
   );
-  const ACTIVITY_LOGS_QUERY_KEY = ["activityLogs"];
-
+  const ACTIVITY_LOGS_QUERY_KEY = useMemo(
+    () => ["activityLogs", branchId],
+    [branchId],
+  );
   // ========================= Queries =========================
+  // تعديل الـ useQuery الرئيسية للـ Dashboard
   const {
     data: dashboard,
     isLoading,
@@ -97,8 +100,9 @@ export default function ErpDashboardHome() {
   } = useQuery({
     queryKey: DASHBOARD_QUERY_KEY,
     queryFn: async () => {
+      // ✅ تم إضافة الـ branchId للرابط لضمان العزل الكامل على مستوى الـ API
       const res = await axios.get(
-        `/erp/dashboard?range=${range}&compare=${showComparison}`,
+        `/erp/dashboard?branchId=${branchId}&range=${range}&compare=${showComparison}`,
       );
       let newData = res.data?.data ?? null;
 
@@ -126,14 +130,14 @@ export default function ErpDashboardHome() {
     },
     staleTime: 10000,
     refetchOnWindowFocus: true,
-    // refetchInterval: 60000,
-    refetchInterval: false, //مؤقت
+    refetchInterval: false,
   });
-
   const { data: activityLogs = [] } = useQuery({
     queryKey: ACTIVITY_LOGS_QUERY_KEY,
     queryFn: async () => {
-      const res = await axios.get("/erp/activity-logs?limit=5");
+      const res = await axios.get(
+        `/erp/activity-logs?branchId=${branchId}&limit=5`,
+      );
       return res.data?.data || [];
     },
     refetchInterval: 30000,
@@ -244,8 +248,10 @@ export default function ErpDashboardHome() {
   const handleDashboardEvent = useCallback(
     (event) => {
       if (range !== "day") return;
-      // ✅ استخدام المفتاح الموحد مع range="day"
-      const dayQueryKey = ["dashboard", "day", showComparison];
+
+      // ✅ إصلاح الكاش: تضمين الـ branchId الحالي لمنع تداخل الفروع أثناء التحديث الحي
+      const dayQueryKey = ["dashboard", branchId, "day", showComparison];
+
       queryClient.setQueryData(dayQueryKey, (old) => {
         if (!old) return old;
         const kpis = { ...old.kpis };

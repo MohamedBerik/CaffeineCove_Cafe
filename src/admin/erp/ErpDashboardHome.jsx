@@ -47,6 +47,10 @@ export default function ErpDashboardHome() {
     const saved = localStorage.getItem("showComparison");
     return saved === "true";
   });
+  const [branchId] = useState(
+    () => localStorage.getItem("selectedBranchId") || "all",
+  );
+
   const [expandedInsight, setExpandedInsight] = useState(null);
 
   // ========================= Refs =========================
@@ -59,7 +63,7 @@ export default function ErpDashboardHome() {
   // ✅ توحيد Query Keys (إصلاح Bug خطير)
   const DASHBOARD_QUERY_KEY = useMemo(
     () => ["dashboard", branchId, range, showComparison],
-    [range, showComparison],
+    [branchId, range, showComparison],
   );
   const ACTIVITY_LOGS_QUERY_KEY = ["activityLogs"];
 

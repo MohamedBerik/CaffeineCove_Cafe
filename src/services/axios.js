@@ -14,21 +14,21 @@ api.interceptors.request.use(
     const isAuthRoute =
       config.url.includes("/login") || config.url.includes("/register");
 
+    let token = localStorage.getItem("token");
+    const tenantId = localStorage.getItem("selectedCompany");
+    const branchId = localStorage.getItem("selectedBranchId");
+
+    // ✅ إضافة branch_id تلقائياً من localStorage (فقط لغير مسارات المصادقة)
+    if (!isAuthRoute && branchId && branchId !== "all" && branchId !== "") {
+      config.headers["X-Branch-ID"] = branchId;
+    }
+
+    console.log("🔑 TOKEN from localStorage:", token);
+    console.log("🏢 Tenant ID from localStorage:", tenantId);
+    console.log("📡 Request URL:", config.url);
+    console.log("🔐 isAuthRoute:", isAuthRoute);
+
     if (!isAuthRoute) {
-      let token = localStorage.getItem("token");
-      const tenantId = localStorage.getItem("selectedCompany");
-
-      // 💡 لقط الـ branchId من الـ URL مباشرة لو ممرر صراحة لحل مشكلة التزامن
-      const urlParams = new URLSearchParams(config.url.split("?")[1]);
-      const explicitBranchId = urlParams.get("branchId");
-      const branchId =
-        explicitBranchId || localStorage.getItem("selectedBranchId");
-
-      // ✅ إضافة branch_id تلقائياً
-      if (branchId && branchId !== "all" && branchId !== "") {
-        config.headers["X-Branch-ID"] = branchId;
-      }
-
       if (token) {
         try {
           if (token.startsWith('"') && token.endsWith('"')) {
@@ -44,12 +44,13 @@ api.interceptors.request.use(
         config.headers["X-Tenant-ID"] = tenantId;
       }
     } else {
-      // ✅ حذف أي هيدرات قد تكون عالقة في مسارات المصادقة (شغل عالي يا هندسة)
+      // ✅ حذف أي هيدرات قد تكون عالقة في مسارات المصادقة
       delete config.headers.Authorization;
       delete config.headers["X-Tenant-ID"];
-      delete config.headers["X-Branch-ID"];
+      delete config.headers["X-Branch-ID"]; // ← السطر المُضاف
     }
 
+    console.log("📋 Final Headers:", JSON.stringify(config.headers));
     return config;
   },
   (error) => {
@@ -61,9 +62,18 @@ api.interceptors.request.use(
 // ✅ Response Interceptor
 api.interceptors.response.use(
   (response) => {
+    console.log("✅ Response:", response.status, response.config.url);
     return response;
   },
   (error) => {
+    console.error("❌ Response Error:");
+    console.error("  - URL:", error.config?.url);
+    console.error("  - Status:", error.response?.status);
+    console.error(
+      "  - Message:",
+      error.response?.data?.message || error.message,
+    );
+
     if (error.response?.status === 403) {
       const data = error.response?.data || {};
 
@@ -82,9 +92,13 @@ api.interceptors.response.use(
 
       if (subscriptionErrors.includes(data.code)) {
         const redirectTo = data.redirect_to || "/admin/erp/billing";
-        window.location.href = redirectTo; // Hard reload لأمان الـ SaaS
+        window.location.href = redirectTo;
         return Promise.reject(error);
       }
+
+      // ⚠️ أخطاء الصلاحيات الأخرى (مثلاً طبيب يحاول دخول لوحة المدير الإداري)
+      // نرجع Reject عشان الـ Component يهندلها ويعرض رسالة "غير مسموح لك بالدخول"
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);

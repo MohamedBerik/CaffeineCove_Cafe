@@ -178,8 +178,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     // 1. إعادة تعيين الكاش بدلاً من invalidation فقط
     await queryClient.resetQueries({ queryKey: ["dashboard"] });
     await queryClient.resetQueries({ queryKey: ["activityLogs"] });
-    queryClient.resetQueries({ queryKey: ["subscription-status"] });
-
+    await queryClient.resetQueries({ queryKey: ["subscription-status"] });
     // 2. إطلاق حدث مخصص مع تمرير branchId الجديد
     window.dispatchEvent(
       new CustomEvent("globalBranchChanged", {

@@ -1,12 +1,6 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
-import axios from "../../services/axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
-import "./ErpDashboardHome.css";
-import useAlertsSocket from "../../hooks/useAlertsSocket";
-import { useAlertActions } from "../../context/AlertContext";
 import {
   LineChart,
   Line,
@@ -17,27 +11,363 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useAlertActions } from "../../context/AlertContext";
+import { RANGE, getAnomalyColor, insightIconMap } from "./dashboard/constants";
+import {
+  useFormatCurrency,
+  generateSummary,
+  formatDate,
+  formatDateTime,
+  formatTime,
+} from "./dashboard/helpers";
+import { useDashboardData } from "./dashboard/hooks/useDashboardData";
+import "./ErpDashboardHome.css";
 
-// ثوابت خارج المكون
-const PRIORITY_MAP = { high: 3, medium: 2, low: 1 };
-const getAnomalyColor = (priority) => {
-  switch (priority) {
-    case "high":
-      return "#ef4444";
-    case "medium":
-      return "#f59e0b";
-    default:
-      return "#eab308";
-  }
+// ========================= Sub-Components =========================
+const CustomTooltipWrapper = ({ active, payload, formatCurrency, t }) => {
+  if (!active || !payload?.length) return null;
+
+  const currentValue = payload.find((p) => p.dataKey === "current")?.value || 0;
+  const previousValue =
+    payload.find((p) => p.dataKey === "previous")?.value || 0;
+  const anomaly = payload[0]?.payload?.anomaly;
+
+  const change =
+    previousValue !== 0
+      ? ((currentValue - previousValue) / previousValue) * 100
+      : 0;
+
+  return (
+    <div className="custom-tooltip">
+      <div className="tooltip-current">
+        <span className="tooltip-label">{t("Current")}:</span>
+        <span className="tooltip-value">{formatCurrency(currentValue)}</span>
+      </div>
+      <div className="tooltip-previous">
+        <span className="tooltip-label">{t("Previous")}:</span>
+        <span className="tooltip-value">{formatCurrency(previousValue)}</span>
+      </div>
+      {previousValue > 0 && (
+        <div
+          className={`tooltip-change ${change >= 0 ? "positive" : "negative"}`}
+        >
+          <span className="tooltip-label">{t("Change")}:</span>
+          <span className="tooltip-value">
+            {change >= 0 ? "↑" : "↓"} {Math.abs(change).toFixed(1)}%
+          </span>
+        </div>
+      )}
+      {anomaly && (
+        <div
+          className="tooltip-anomaly"
+          style={{ borderColor: getAnomalyColor(anomaly.priority) }}
+        >
+          <span className="anomaly-icon">⚠️</span>
+          <span className="anomaly-message">{t(anomaly.message)}</span>
+        </div>
+      )}
+    </div>
+  );
 };
 
-// Helper function to generate consistent query keys
-const getDashboardKey = (branch, range, compare) => [
-  "dashboard",
-  branch,
-  range,
-  compare,
-];
+function RevenueChart({
+  data,
+  t,
+  formatCurrency,
+  AnimatedDot,
+  chartRef,
+  focusRange,
+  setFocusRange,
+  showComparison,
+}) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="chart-card">
+        <div className="chart-header">
+          <i className="fas fa-chart-line"></i>
+          <h4>{t("Revenue Overview")}</h4>
+        </div>
+        <div className="chart-empty">{t("No data available")}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="chart-card" ref={chartRef}>
+      <div className="chart-header">
+        <i className="fas fa-chart-line"></i>
+        <h4>{t("Revenue Overview")}</h4>
+      </div>
+
+      <div className="chart-legend">
+        <div className="legend-item">
+          <span className="legend-color current"></span>
+          <span>{t("Current Period")}</span>
+        </div>
+        {showComparison && (
+          <div className="legend-item">
+            <span className="legend-color previous"></span>
+            <span>{t("Previous Period")}</span>
+          </div>
+        )}
+        {data.some((d) => d.anomaly) && (
+          <div className="legend-item">
+            <span className="legend-color anomaly"></span>
+            <span>{t("Anomaly Detected")}</span>
+          </div>
+        )}
+      </div>
+
+      <ResponsiveContainer width="100%" height={250}>
+        <LineChart data={data}>
+          <XAxis dataKey="label" />
+          <YAxis />
+          <Tooltip
+            content={
+              <CustomTooltipWrapper formatCurrency={formatCurrency} t={t} />
+            }
+          />
+          <Line
+            type="monotone"
+            dataKey="current"
+            stroke="#1a237e"
+            strokeWidth={3}
+            dot={<AnimatedDot />}
+            isAnimationActive={true}
+            animationDuration={500}
+          />
+          {showComparison && (
+            <Line
+              type="monotone"
+              dataKey="previous"
+              stroke="#9ca3af"
+              strokeDasharray="5 5"
+              strokeWidth={2}
+              dot={false}
+              isAnimationActive={true}
+              animationDuration={400}
+            />
+          )}
+        </LineChart>
+      </ResponsiveContainer>
+
+      {focusRange && (
+        <button className="reset-view-btn" onClick={() => setFocusRange(null)}>
+          <i className="fas fa-expand"></i> {t("Reset View")}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function AppointmentsChart({ data, t }) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="chart-card">
+        <div className="chart-header">
+          <i className="fas fa-calendar-check"></i>
+          <h4>{t("Appointments Overview")}</h4>
+        </div>
+        <div className="chart-empty">{t("No data available")}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="chart-card">
+      <div className="chart-header">
+        <i className="fas fa-calendar-check"></i>
+        <h4>{t("Appointments Overview")}</h4>
+      </div>
+      <div className="chart-legend">
+        <div className="legend-item">
+          <span className="legend-color total"></span>
+          <span>{t("Total Appointments")}</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-color completed"></span>
+          <span>{t("Completed")}</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-color cancelled"></span>
+          <span>{t("Cancelled")}</span>
+        </div>
+      </div>
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart data={data}>
+          <XAxis dataKey="label" />
+          <YAxis />
+          <Tooltip content={<AppointmentsTooltip t={t} />} />
+          <Bar dataKey="total" fill="#1a237e" radius={[8, 8, 0, 0]} />
+          <Bar dataKey="completed" fill="#4caf50" radius={[8, 8, 0, 0]} />
+          <Bar dataKey="cancelled" fill="#ef4444" radius={[8, 8, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+const AppointmentsTooltip = ({ active, payload, t }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="custom-tooltip">
+      <div className="tooltip-current">
+        <span className="tooltip-label">{t("Total")}:</span>
+        <span className="tooltip-value">{payload[0]?.value || 0}</span>
+      </div>
+      <div className="tooltip-current">
+        <span className="tooltip-label">{t("Completed")}:</span>
+        <span className="tooltip-value" style={{ color: "#4caf50" }}>
+          {payload[1]?.value || 0}
+        </span>
+      </div>
+      <div className="tooltip-current">
+        <span className="tooltip-label">{t("Cancelled")}:</span>
+        <span className="tooltip-value" style={{ color: "#ef4444" }}>
+          {payload[2]?.value || 0}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+function KpiCard({
+  title,
+  value,
+  icon,
+  color = "primary",
+  link,
+  trend,
+  delta,
+  deltaLabel,
+}) {
+  const colorMap = {
+    primary: {
+      bg: "rgba(26, 35, 126, 0.1)",
+      text: "#1a237e",
+      border: "#1a237e",
+    },
+    info: { bg: "rgba(3, 169, 244, 0.1)", text: "#03a9f4", border: "#03a9f4" },
+    success: {
+      bg: "rgba(76, 175, 80, 0.1)",
+      text: "#4caf50",
+      border: "#4caf50",
+    },
+    danger: {
+      bg: "rgba(244, 67, 54, 0.1)",
+      text: "#f44336",
+      border: "#f44336",
+    },
+    warning: {
+      bg: "rgba(255, 152, 0, 0.1)",
+      text: "#ff9800",
+      border: "#ff9800",
+    },
+    secondary: {
+      bg: "rgba(108, 117, 125, 0.1)",
+      text: "#6c757d",
+      border: "#6c757d",
+    },
+    dark: { bg: "rgba(33, 37, 41, 0.1)", text: "#212529", border: "#212529" },
+  };
+  const colors = colorMap[color] || colorMap.primary;
+  const cardContent = (
+    <div className={`kpi-card premium-card ${link ? "clickable" : ""}`}>
+      <div className="kpi-card-header">
+        <div
+          className="kpi-icon-wrapper"
+          style={{ backgroundColor: colors.bg }}
+        >
+          <i className={icon} style={{ color: colors.text }}></i>
+        </div>
+        {trend && (
+          <div
+            className={`kpi-trend ${trend.includes("+") ? "positive" : "negative"}`}
+          >
+            <i
+              className={`fas fa-arrow-${trend.includes("+") ? "up" : "down"}`}
+            ></i>
+            <span>{trend}</span>
+          </div>
+        )}
+      </div>
+      <div className="kpi-card-body">
+        <span className="kpi-value">{value}</span>
+        <span className="kpi-title">{title}</span>
+        {delta !== undefined && (
+          <div className={`kpi-delta ${delta >= 0 ? "positive" : "negative"}`}>
+            <i className={`fas fa-arrow-${delta >= 0 ? "up" : "down"}`}></i>
+            <span>
+              {Math.abs(delta).toFixed(1)}% {deltaLabel}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+  if (!link) return cardContent;
+  return (
+    <Link to={link} className="kpi-link-wrapper">
+      {cardContent}
+    </Link>
+  );
+}
+
+function EmptyState({ text }) {
+  return (
+    <div className="empty-state">
+      <i className="fas fa-inbox empty-icon"></i>
+      <p className="empty-text">{text}</p>
+    </div>
+  );
+}
+
+function StatusBadge({ status }) {
+  const { t } = useTranslation();
+  const statusMap = {
+    paid: { label: "Paid", class: "success" },
+    completed: { label: "Completed", class: "success" },
+    unpaid: { label: "Unpaid", class: "danger" },
+    cancelled: { label: "Cancelled", class: "danger" },
+    no_show: { label: "No Show", class: "danger" },
+    partially_paid: { label: "Partially Paid", class: "warning" },
+    scheduled: { label: "Scheduled", class: "warning" },
+    in_progress: { label: "In Progress", class: "info" },
+    pending: { label: "Pending", class: "secondary" },
+  };
+  const value = String(status || "").toLowerCase();
+  const statusInfo = statusMap[value] || { label: status, class: "secondary" };
+  return (
+    <span className={`status-badge status-${statusInfo.class}`}>
+      <span className="status-dot"></span>
+      {t(statusInfo.label)}
+    </span>
+  );
+}
+
+function SummaryCard({ messages, t }) {
+  if (!messages.length) return null;
+
+  return (
+    <div className="summary-card">
+      <div className="summary-header">
+        <span>🧠 {t("Smart Summary")}</span>
+      </div>
+      <div className="summary-body">
+        {messages.map((msg, i) => (
+          <div key={i} className={`summary-item ${msg.type}`}>
+            <span className="icon">
+              {msg.type === "positive" && "📈"}
+              {msg.type === "negative" && "📉"}
+              {msg.type === "warning" && "⚠️"}
+            </span>
+            <span>{msg.message}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function ErpDashboardHome() {
   const { t, i18n } = useTranslation();
@@ -503,147 +833,6 @@ export default function ErpDashboardHome() {
     const end = Math.min(index + 4, mergedRevenueData.length);
     setFocusRange([start, end]);
   }, [revenueAnomalyPoints, mergedRevenueData]);
-
-  // ========================= Helpers =========================
-  const formatLog = (log) => {
-    const type = log.subject_type;
-    const action = log.action;
-    if (type === "Appointment") {
-      if (action === "created") return t("New appointment created");
-      if (action === "updated") return t("Appointment updated");
-      if (action === "deleted") return t("Appointment deleted");
-    }
-    if (type === "Invoice") {
-      if (action === "created") return t("New invoice created");
-      if (action === "paid") return t("Invoice paid");
-    }
-    if (type === "Payment") return t("New payment recorded");
-    if (type === "Customer") return t("Customer updated");
-    return `${type} ${action}`;
-  };
-
-  const AnimatedDot = (props) => {
-    const { cx, cy, payload } = props;
-    if (!payload?.anomaly) return null;
-    return (
-      <g>
-        <circle
-          cx={cx}
-          cy={cy}
-          r={8}
-          className="pulse-dot"
-          fill={getAnomalyColor(payload.anomaly.priority)}
-        />
-        <text
-          x={cx}
-          y={cy - 12}
-          fontSize="12"
-          textAnchor="middle"
-          fill={getAnomalyColor(payload.anomaly.priority)}
-        >
-          ⚠️
-        </text>
-      </g>
-    );
-  };
-
-  const formatCurrency = (value) => {
-    const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
-    return new Intl.NumberFormat(lang, {
-      style: "currency",
-      currency: "EGP",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(Number(value || 0));
-  };
-
-  const formatDateTime = (value) => {
-    if (!value) return "-";
-    try {
-      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
-      return new Date(value).toLocaleString(lang, {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return value;
-    }
-  };
-
-  const formatDate = (value) => {
-    if (!value) return "-";
-    try {
-      const lang = i18n.language === "ar" ? "ar-EG" : "en-US";
-      return new Date(value).toLocaleDateString(lang, {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-      });
-    } catch {
-      return value;
-    }
-  };
-
-  const formatTime = (value) => {
-    if (!value) return "-";
-    try {
-      return String(value).slice(0, 5);
-    } catch {
-      return value;
-    }
-  };
-
-  const generateSummary = (kpis) => {
-    const messages = [];
-    const priorityOrder = { negative: 3, warning: 2, positive: 1 };
-    const revenueDelta = kpis.revenue?.delta || 0;
-    if (revenueDelta > 10) {
-      messages.push({ type: "positive", message: t("summary_revenue_up") });
-    } else if (revenueDelta < -10) {
-      messages.push({ type: "negative", message: t("summary_revenue_down") });
-    }
-    const appointmentsDelta = kpis.appointments?.delta || 0;
-    if (appointmentsDelta > 15) {
-      messages.push({
-        type: "positive",
-        message: t("summary_appointments_up"),
-      });
-    }
-    const noShowCount = kpis.no_show_appointments?.current || 0;
-    if (noShowCount > 5) {
-      messages.push({ type: "warning", message: t("summary_no_show_high") });
-    }
-    const unpaidCount = kpis.unpaid_invoices?.current || 0;
-    if (unpaidCount > 10) {
-      messages.push({ type: "warning", message: t("summary_unpaid_high") });
-    }
-    const cancelledDelta = kpis.cancelled_appointments?.delta || 0;
-    if (cancelledDelta > 20) {
-      messages.push({ type: "warning", message: t("summary_cancelled_up") });
-    }
-    return messages
-      .sort((a, b) => priorityOrder[b.type] - priorityOrder[a.type])
-      .slice(0, 3);
-  };
-
-  const summaryMessages = useMemo(() => {
-    const kpis = dashboard?.kpis;
-    if (!kpis) return [];
-    return generateSummary(kpis);
-  }, [dashboard?.kpis, t]);
-
-  useEffect(() => {
-    const insights = dashboard?.insights || [];
-    if (insights.length > 0) {
-      const highIndex = insights.findIndex((i) => i.priority === "high");
-      if (highIndex !== -1) {
-        setExpandedInsight(highIndex);
-      }
-    }
-  }, [dashboard?.insights]);
 
   // ========================= Early Returns =========================
   if (isLoading) {
@@ -1499,352 +1688,6 @@ export default function ErpDashboardHome() {
             </div>
           </div>
         )}
-      </div>
-    </div>
-  );
-}
-
-// ========================= Sub-Components =========================
-const CustomTooltipWrapper = ({ active, payload, formatCurrency, t }) => {
-  if (!active || !payload?.length) return null;
-
-  const currentValue = payload.find((p) => p.dataKey === "current")?.value || 0;
-  const previousValue =
-    payload.find((p) => p.dataKey === "previous")?.value || 0;
-  const anomaly = payload[0]?.payload?.anomaly;
-
-  const change =
-    previousValue !== 0
-      ? ((currentValue - previousValue) / previousValue) * 100
-      : 0;
-
-  return (
-    <div className="custom-tooltip">
-      <div className="tooltip-current">
-        <span className="tooltip-label">{t("Current")}:</span>
-        <span className="tooltip-value">{formatCurrency(currentValue)}</span>
-      </div>
-      <div className="tooltip-previous">
-        <span className="tooltip-label">{t("Previous")}:</span>
-        <span className="tooltip-value">{formatCurrency(previousValue)}</span>
-      </div>
-      {previousValue > 0 && (
-        <div
-          className={`tooltip-change ${change >= 0 ? "positive" : "negative"}`}
-        >
-          <span className="tooltip-label">{t("Change")}:</span>
-          <span className="tooltip-value">
-            {change >= 0 ? "↑" : "↓"} {Math.abs(change).toFixed(1)}%
-          </span>
-        </div>
-      )}
-      {anomaly && (
-        <div
-          className="tooltip-anomaly"
-          style={{ borderColor: getAnomalyColor(anomaly.priority) }}
-        >
-          <span className="anomaly-icon">⚠️</span>
-          <span className="anomaly-message">{t(anomaly.message)}</span>
-        </div>
-      )}
-    </div>
-  );
-};
-
-function RevenueChart({
-  data,
-  t,
-  formatCurrency,
-  AnimatedDot,
-  chartRef,
-  focusRange,
-  setFocusRange,
-  showComparison,
-}) {
-  if (!data || data.length === 0) {
-    return (
-      <div className="chart-card">
-        <div className="chart-header">
-          <i className="fas fa-chart-line"></i>
-          <h4>{t("Revenue Overview")}</h4>
-        </div>
-        <div className="chart-empty">{t("No data available")}</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="chart-card" ref={chartRef}>
-      <div className="chart-header">
-        <i className="fas fa-chart-line"></i>
-        <h4>{t("Revenue Overview")}</h4>
-      </div>
-
-      <div className="chart-legend">
-        <div className="legend-item">
-          <span className="legend-color current"></span>
-          <span>{t("Current Period")}</span>
-        </div>
-        {showComparison && (
-          <div className="legend-item">
-            <span className="legend-color previous"></span>
-            <span>{t("Previous Period")}</span>
-          </div>
-        )}
-        {data.some((d) => d.anomaly) && (
-          <div className="legend-item">
-            <span className="legend-color anomaly"></span>
-            <span>{t("Anomaly Detected")}</span>
-          </div>
-        )}
-      </div>
-
-      <ResponsiveContainer width="100%" height={250}>
-        <LineChart data={data}>
-          <XAxis dataKey="label" />
-          <YAxis />
-          <Tooltip
-            content={
-              <CustomTooltipWrapper formatCurrency={formatCurrency} t={t} />
-            }
-          />
-          <Line
-            type="monotone"
-            dataKey="current"
-            stroke="#1a237e"
-            strokeWidth={3}
-            dot={<AnimatedDot />}
-            isAnimationActive={true}
-            animationDuration={500}
-          />
-          {showComparison && (
-            <Line
-              type="monotone"
-              dataKey="previous"
-              stroke="#9ca3af"
-              strokeDasharray="5 5"
-              strokeWidth={2}
-              dot={false}
-              isAnimationActive={true}
-              animationDuration={400}
-            />
-          )}
-        </LineChart>
-      </ResponsiveContainer>
-
-      {focusRange && (
-        <button className="reset-view-btn" onClick={() => setFocusRange(null)}>
-          <i className="fas fa-expand"></i> {t("Reset View")}
-        </button>
-      )}
-    </div>
-  );
-}
-
-function AppointmentsChart({ data, t }) {
-  if (!data || data.length === 0) {
-    return (
-      <div className="chart-card">
-        <div className="chart-header">
-          <i className="fas fa-calendar-check"></i>
-          <h4>{t("Appointments Overview")}</h4>
-        </div>
-        <div className="chart-empty">{t("No data available")}</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="chart-card">
-      <div className="chart-header">
-        <i className="fas fa-calendar-check"></i>
-        <h4>{t("Appointments Overview")}</h4>
-      </div>
-      <div className="chart-legend">
-        <div className="legend-item">
-          <span className="legend-color total"></span>
-          <span>{t("Total Appointments")}</span>
-        </div>
-        <div className="legend-item">
-          <span className="legend-color completed"></span>
-          <span>{t("Completed")}</span>
-        </div>
-        <div className="legend-item">
-          <span className="legend-color cancelled"></span>
-          <span>{t("Cancelled")}</span>
-        </div>
-      </div>
-      <ResponsiveContainer width="100%" height={250}>
-        <BarChart data={data}>
-          <XAxis dataKey="label" />
-          <YAxis />
-          <Tooltip content={<AppointmentsTooltip t={t} />} />
-          <Bar dataKey="total" fill="#1a237e" radius={[8, 8, 0, 0]} />
-          <Bar dataKey="completed" fill="#4caf50" radius={[8, 8, 0, 0]} />
-          <Bar dataKey="cancelled" fill="#ef4444" radius={[8, 8, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-
-const AppointmentsTooltip = ({ active, payload, t }) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="custom-tooltip">
-      <div className="tooltip-current">
-        <span className="tooltip-label">{t("Total")}:</span>
-        <span className="tooltip-value">{payload[0]?.value || 0}</span>
-      </div>
-      <div className="tooltip-current">
-        <span className="tooltip-label">{t("Completed")}:</span>
-        <span className="tooltip-value" style={{ color: "#4caf50" }}>
-          {payload[1]?.value || 0}
-        </span>
-      </div>
-      <div className="tooltip-current">
-        <span className="tooltip-label">{t("Cancelled")}:</span>
-        <span className="tooltip-value" style={{ color: "#ef4444" }}>
-          {payload[2]?.value || 0}
-        </span>
-      </div>
-    </div>
-  );
-};
-
-function KpiCard({
-  title,
-  value,
-  icon,
-  color = "primary",
-  link,
-  trend,
-  delta,
-  deltaLabel,
-}) {
-  const colorMap = {
-    primary: {
-      bg: "rgba(26, 35, 126, 0.1)",
-      text: "#1a237e",
-      border: "#1a237e",
-    },
-    info: { bg: "rgba(3, 169, 244, 0.1)", text: "#03a9f4", border: "#03a9f4" },
-    success: {
-      bg: "rgba(76, 175, 80, 0.1)",
-      text: "#4caf50",
-      border: "#4caf50",
-    },
-    danger: {
-      bg: "rgba(244, 67, 54, 0.1)",
-      text: "#f44336",
-      border: "#f44336",
-    },
-    warning: {
-      bg: "rgba(255, 152, 0, 0.1)",
-      text: "#ff9800",
-      border: "#ff9800",
-    },
-    secondary: {
-      bg: "rgba(108, 117, 125, 0.1)",
-      text: "#6c757d",
-      border: "#6c757d",
-    },
-    dark: { bg: "rgba(33, 37, 41, 0.1)", text: "#212529", border: "#212529" },
-  };
-  const colors = colorMap[color] || colorMap.primary;
-  const cardContent = (
-    <div className={`kpi-card premium-card ${link ? "clickable" : ""}`}>
-      <div className="kpi-card-header">
-        <div
-          className="kpi-icon-wrapper"
-          style={{ backgroundColor: colors.bg }}
-        >
-          <i className={icon} style={{ color: colors.text }}></i>
-        </div>
-        {trend && (
-          <div
-            className={`kpi-trend ${trend.includes("+") ? "positive" : "negative"}`}
-          >
-            <i
-              className={`fas fa-arrow-${trend.includes("+") ? "up" : "down"}`}
-            ></i>
-            <span>{trend}</span>
-          </div>
-        )}
-      </div>
-      <div className="kpi-card-body">
-        <span className="kpi-value">{value}</span>
-        <span className="kpi-title">{title}</span>
-        {delta !== undefined && (
-          <div className={`kpi-delta ${delta >= 0 ? "positive" : "negative"}`}>
-            <i className={`fas fa-arrow-${delta >= 0 ? "up" : "down"}`}></i>
-            <span>
-              {Math.abs(delta).toFixed(1)}% {deltaLabel}
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-  if (!link) return cardContent;
-  return (
-    <Link to={link} className="kpi-link-wrapper">
-      {cardContent}
-    </Link>
-  );
-}
-
-function EmptyState({ text }) {
-  return (
-    <div className="empty-state">
-      <i className="fas fa-inbox empty-icon"></i>
-      <p className="empty-text">{text}</p>
-    </div>
-  );
-}
-
-function StatusBadge({ status }) {
-  const { t } = useTranslation();
-  const statusMap = {
-    paid: { label: "Paid", class: "success" },
-    completed: { label: "Completed", class: "success" },
-    unpaid: { label: "Unpaid", class: "danger" },
-    cancelled: { label: "Cancelled", class: "danger" },
-    no_show: { label: "No Show", class: "danger" },
-    partially_paid: { label: "Partially Paid", class: "warning" },
-    scheduled: { label: "Scheduled", class: "warning" },
-    in_progress: { label: "In Progress", class: "info" },
-    pending: { label: "Pending", class: "secondary" },
-  };
-  const value = String(status || "").toLowerCase();
-  const statusInfo = statusMap[value] || { label: status, class: "secondary" };
-  return (
-    <span className={`status-badge status-${statusInfo.class}`}>
-      <span className="status-dot"></span>
-      {t(statusInfo.label)}
-    </span>
-  );
-}
-
-function SummaryCard({ messages, t }) {
-  if (!messages.length) return null;
-
-  return (
-    <div className="summary-card">
-      <div className="summary-header">
-        <span>🧠 {t("Smart Summary")}</span>
-      </div>
-      <div className="summary-body">
-        {messages.map((msg, i) => (
-          <div key={i} className={`summary-item ${msg.type}`}>
-            <span className="icon">
-              {msg.type === "positive" && "📈"}
-              {msg.type === "negative" && "📉"}
-              {msg.type === "warning" && "⚠️"}
-            </span>
-            <span>{msg.message}</span>
-          </div>
-        ))}
       </div>
     </div>
   );

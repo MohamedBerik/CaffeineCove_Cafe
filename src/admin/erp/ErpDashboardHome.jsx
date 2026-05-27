@@ -78,10 +78,10 @@ export default function ErpDashboardHome() {
   }, []);
 
   // ✅ توحيد Query Keys (تلقائياً هيحس بالـ branchId الجديد لما الـ Effect اللي فوق يغيره)
-  const DASHBOARD_QUERY_KEY = useMemo(
-    () => ["dashboard", branchId, range, showComparison],
-    [branchId, range, showComparison],
-  );
+  // const DASHBOARD_QUERY_KEY = useMemo(
+  //   () => ["dashboard", branchId, range, showComparison],
+  //   [branchId, range, showComparison],
+  // );
   const ACTIVITY_LOGS_QUERY_KEY = useMemo(
     () => ["activityLogs", branchId],
     [branchId],
@@ -94,11 +94,11 @@ export default function ErpDashboardHome() {
     error,
     refetch,
   } = useQuery({
-    queryKey: DASHBOARD_QUERY_KEY,
-    queryFn: async () => {
-      // ✅ تم إضافة الـ branchId للرابط لضمان العزل الكامل على مستوى الـ API
+    queryKey: getDashboardKey(branchId, range, showComparison),
+    queryFn: async ({ signal }) => {
       const res = await axios.get(
         `/erp/dashboard?branchId=${branchId}&range=${range}&compare=${showComparison}`,
+        { signal },
       );
       let newData = res.data?.data ?? null;
 
@@ -130,10 +130,12 @@ export default function ErpDashboardHome() {
   });
   const { data: activityLogs = [] } = useQuery({
     queryKey: ACTIVITY_LOGS_QUERY_KEY,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const res = await axios.get(
         `/erp/activity-logs?branchId=${branchId}&limit=5`,
+        { signal },
       );
+
       return res.data?.data || [];
     },
     refetchInterval: 30000,
@@ -144,9 +146,13 @@ export default function ErpDashboardHome() {
     mutationFn: (id) => axios.post(`/erp/alerts/${id}/ack`),
     onMutate: async (id) => {
       // ✅ استخدام المفتاح الموحد
-      await queryClient.cancelQueries(DASHBOARD_QUERY_KEY);
-      const prev = queryClient.getQueryData(DASHBOARD_QUERY_KEY);
-      queryClient.setQueryData(DASHBOARD_QUERY_KEY, (old) => {
+      const dashboardKey = getDashboardKey(branchId, range, showComparison);
+
+      await queryClient.cancelQueries({ queryKey: dashboardKey });
+
+      const prev = queryClient.getQueryData(dashboardKey);
+
+      queryClient.setQueryData(dashboardKey, (old) => {
         if (!old) return old;
         return {
           ...old,
@@ -209,27 +215,31 @@ export default function ErpDashboardHome() {
       addAlert(newAlert);
 
       // ✅ استخدام المفتاح الموحد
-      queryClient.setQueryData(DASHBOARD_QUERY_KEY, (old) => {
-        if (!old) return old;
-        const currentAlerts = old.reminders?.alerts || [];
-        let updatedAlerts = [
-          newAlert,
-          ...currentAlerts.filter((a) => a.id !== newAlert.id),
-        ]
-          .sort(
-            (a, b) =>
-              (PRIORITY_MAP[b.priority] || 0) - (PRIORITY_MAP[a.priority] || 0),
-          )
-          .slice(0, 10);
+      queryClient.setQueryData(
+        getDashboardKey(branchId, range, showComparison),
+        (old) => {
+          if (!old) return old;
+          const currentAlerts = old.reminders?.alerts || [];
+          let updatedAlerts = [
+            newAlert,
+            ...currentAlerts.filter((a) => a.id !== newAlert.id),
+          ]
+            .sort(
+              (a, b) =>
+                (PRIORITY_MAP[b.priority] || 0) -
+                (PRIORITY_MAP[a.priority] || 0),
+            )
+            .slice(0, 10);
 
-        return {
-          ...old,
-          reminders: {
-            ...old.reminders,
-            alerts: updatedAlerts,
-          },
-        };
-      });
+          return {
+            ...old,
+            reminders: {
+              ...old.reminders,
+              alerts: updatedAlerts,
+            },
+          };
+        },
+      );
 
       toast.custom((t) => (
         <div className="custom-toast">
@@ -246,8 +256,7 @@ export default function ErpDashboardHome() {
       if (range !== "day") return;
 
       // ✅ إصلاح الكاش: تضمين الـ branchId الحالي لمنع تداخل الفروع أثناء التحديث الحي
-      const dayQueryKey = ["dashboard", branchId, "day", showComparison];
-
+      const dayQueryKey = getDashboardKey(branchId, "day", showComparison);
       queryClient.setQueryData(dayQueryKey, (old) => {
         if (!old) return old;
         const kpis = { ...old.kpis };
@@ -298,7 +307,7 @@ export default function ErpDashboardHome() {
         return { ...old, kpis };
       });
     },
-    [queryClient, range, showComparison],
+    [queryClient, range, showComparison, branchId],
   );
 
   const handleNewInsight = useCallback(
@@ -313,13 +322,16 @@ export default function ErpDashboardHome() {
         ));
       }
       // ✅ استخدام المفتاح الموحد
-      queryClient.setQueryData(DASHBOARD_QUERY_KEY, (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          insights: [insight, ...(old.insights || [])].slice(0, 5),
-        };
-      });
+      queryClient.setQueryData(
+        getDashboardKey(branchId, range, showComparison),
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            insights: [insight, ...(old.insights || [])].slice(0, 5),
+          };
+        },
+      );
     },
     [queryClient, t, DASHBOARD_QUERY_KEY, playSound],
   );
@@ -327,21 +339,24 @@ export default function ErpDashboardHome() {
   const flushUpdates = useCallback(() => {
     if (buffer.current.length === 0) return;
     // ✅ استخدام المفتاح الموحد
-    queryClient.setQueryData(DASHBOARD_QUERY_KEY, (old) => {
-      if (!old) return old;
-      const kpis = { ...old.kpis };
-      let totalRevenue = 0;
-      buffer.current.forEach((event) => {
-        if (event.type === "payment_created") {
-          totalRevenue += event.data?.today_revenue || 0;
+    queryClient.setQueryData(
+      getDashboardKey(branchId, range, showComparison),
+      (old) => {
+        if (!old) return old;
+        const kpis = { ...old.kpis };
+        let totalRevenue = 0;
+        buffer.current.forEach((event) => {
+          if (event.type === "payment_created") {
+            totalRevenue += event.data?.today_revenue || 0;
+          }
+        });
+        if (totalRevenue > 0) {
+          kpis.today_revenue = (kpis.today_revenue || 0) + totalRevenue;
+          kpis.month_revenue = (kpis.month_revenue || 0) + totalRevenue;
         }
-      });
-      if (totalRevenue > 0) {
-        kpis.today_revenue = (kpis.today_revenue || 0) + totalRevenue;
-        kpis.month_revenue = (kpis.month_revenue || 0) + totalRevenue;
-      }
-      return { ...old, kpis };
-    });
+        return { ...old, kpis };
+      },
+    );
     buffer.current = [];
   }, [queryClient, DASHBOARD_QUERY_KEY]);
 
@@ -655,6 +670,12 @@ export default function ErpDashboardHome() {
     }
   }, [dashboard?.insights]);
 
+  const getDashboardKey = (branch, range, compare) => [
+    "dashboard",
+    branch,
+    range,
+    compare,
+  ];
   // ========================= Early Returns =========================
   if (isLoading) {
     return (

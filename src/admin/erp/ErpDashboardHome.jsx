@@ -367,6 +367,11 @@ export default function ErpDashboardHome() {
     localStorage.setItem("showComparison", showComparison);
   }, [showComparison]);
 
+  useEffect(() => {
+    queryClient.removeQueries({
+      queryKey: ["dashboard"],
+    });
+  }, [branchId, queryClient]);
   // ========================= Socket =========================
   const socketHandler = useCallback(
     (payload) => {

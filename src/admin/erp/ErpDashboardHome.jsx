@@ -92,15 +92,18 @@ export default function ErpDashboardHome() {
   const {
     data: dashboard,
     isLoading,
+    isFetching,
     error,
     refetch,
   } = useQuery({
     queryKey: getDashboardKey(branchId, range, showComparison),
+
     queryFn: async ({ signal }) => {
       const res = await axios.get(
         `/erp/dashboard?branchId=${branchId}&range=${range}&compare=${showComparison}`,
         { signal },
       );
+
       let newData = res.data?.data ?? null;
 
       if (newData?.reminders?.alerts) {
@@ -125,9 +128,13 @@ export default function ErpDashboardHome() {
 
       return newData;
     },
-    staleTime: 10000,
+
+    staleTime: 0,
+    gcTime: 0,
+
+    placeholderData: undefined,
+
     refetchOnWindowFocus: true,
-    refetchInterval: false,
   });
 
   const { data: activityLogs = [] } = useQuery({
@@ -367,11 +374,11 @@ export default function ErpDashboardHome() {
     localStorage.setItem("showComparison", showComparison);
   }, [showComparison]);
 
-  useEffect(() => {
-    queryClient.removeQueries({
-      queryKey: ["dashboard"],
-    });
-  }, [branchId, queryClient]);
+  // useEffect(() => {
+  //   queryClient.removeQueries({
+  //     queryKey: ["dashboard"],
+  //   });
+  // }, [branchId, queryClient]);
   // ========================= Socket =========================
   const socketHandler = useCallback(
     (payload) => {

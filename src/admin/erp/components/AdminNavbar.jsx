@@ -142,7 +142,17 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
       await queryClient.invalidateQueries(["me"]);
       await queryClient.refetchQueries(["me"]);
 
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries({
+        queryKey: ["dashboard"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["activityLogs"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["subscription-status"],
+      });
 
       if (!companyId || companyId === "") {
         navigate("/admin/saas");

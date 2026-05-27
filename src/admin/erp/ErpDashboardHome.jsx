@@ -64,22 +64,18 @@ export default function ErpDashboardHome() {
   useEffect(() => {
     const syncBranch = () => {
       const latestBranch = localStorage.getItem("selectedBranchId") || "all";
-      if (latestBranch !== branchId) {
-        setBranchId(latestBranch);
-      }
+
+      setBranchId((prev) => (prev !== latestBranch ? latestBranch : prev));
     };
 
-    // أسلوب مخصص: هنسمع لـ Custom Event هبعته من الـ Navbar عشان التحديث يكون فوري في نفس اللحظة
     window.addEventListener("globalBranchChanged", syncBranch);
-
-    // للاحتياط لو التغيير تم من تبويب آخر
     window.addEventListener("storage", syncBranch);
 
     return () => {
       window.removeEventListener("globalBranchChanged", syncBranch);
       window.removeEventListener("storage", syncBranch);
     };
-  }, [branchId]);
+  }, []);
 
   // ✅ توحيد Query Keys (تلقائياً هيحس بالـ branchId الجديد لما الـ Effect اللي فوق يغيره)
   const DASHBOARD_QUERY_KEY = useMemo(

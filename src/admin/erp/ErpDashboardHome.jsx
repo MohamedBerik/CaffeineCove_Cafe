@@ -31,6 +31,14 @@ const getAnomalyColor = (priority) => {
   }
 };
 
+// Helper function to generate consistent query keys
+const getDashboardKey = (branch, range, compare) => [
+  "dashboard",
+  branch,
+  range,
+  compare,
+];
+
 export default function ErpDashboardHome() {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
@@ -47,11 +55,9 @@ export default function ErpDashboardHome() {
     const saved = localStorage.getItem("showComparison");
     return saved === "true";
   });
-  // 1. الـ State المحلية بتفضل زي ما هي للقراءة الأولية
   const [branchId, setBranchId] = useState(
     () => localStorage.getItem("selectedBranchId") || "all",
   );
-
   const [expandedInsight, setExpandedInsight] = useState(null);
 
   // ========================= Refs =========================
@@ -60,11 +66,10 @@ export default function ErpDashboardHome() {
   const chartRef = useRef(null);
   const audioRef = useRef(null);
 
-  // ✅ التعديل السحري: مراقبة التغيير فوراً عند حدوثه في الـ Navbar
+  // Sync branchId from localStorage when changed by Navbar
   useEffect(() => {
     const syncBranch = () => {
       const latestBranch = localStorage.getItem("selectedBranchId") || "all";
-
       setBranchId((prev) => (prev !== latestBranch ? latestBranch : prev));
     };
 
@@ -77,17 +82,13 @@ export default function ErpDashboardHome() {
     };
   }, []);
 
-  // ✅ توحيد Query Keys (تلقائياً هيحس بالـ branchId الجديد لما الـ Effect اللي فوق يغيره)
-  // const DASHBOARD_QUERY_KEY = useMemo(
-  //   () => ["dashboard", branchId, range, showComparison],
-  //   [branchId, range, showComparison],
-  // );
+  // Activity logs query key includes branch for consistency
   const ACTIVITY_LOGS_QUERY_KEY = useMemo(
     () => ["activityLogs", branchId],
     [branchId],
   );
+
   // ========================= Queries =========================
-  // تعديل الـ useQuery الرئيسية للـ Dashboard
   const {
     data: dashboard,
     isLoading,
@@ -128,6 +129,7 @@ export default function ErpDashboardHome() {
     refetchOnWindowFocus: true,
     refetchInterval: false,
   });
+
   const { data: activityLogs = [] } = useQuery({
     queryKey: ACTIVITY_LOGS_QUERY_KEY,
     queryFn: async ({ signal }) => {
@@ -135,7 +137,6 @@ export default function ErpDashboardHome() {
         `/erp/activity-logs?branchId=${branchId}&limit=5`,
         { signal },
       );
-
       return res.data?.data || [];
     },
     refetchInterval: 30000,
@@ -145,13 +146,9 @@ export default function ErpDashboardHome() {
   const acknowledgeMutation = useMutation({
     mutationFn: (id) => axios.post(`/erp/alerts/${id}/ack`),
     onMutate: async (id) => {
-      // ✅ استخدام المفتاح الموحد
       const dashboardKey = getDashboardKey(branchId, range, showComparison);
-
       await queryClient.cancelQueries({ queryKey: dashboardKey });
-
       const prev = queryClient.getQueryData(dashboardKey);
-
       queryClient.setQueryData(dashboardKey, (old) => {
         if (!old) return old;
         return {
@@ -165,7 +162,8 @@ export default function ErpDashboardHome() {
       return { prev };
     },
     onError: (err, id, context) => {
-      queryClient.setQueryData(DASHBOARD_QUERY_KEY, context.prev);
+      const dashboardKey = getDashboardKey(branchId, range, showComparison);
+      queryClient.setQueryData(dashboardKey, context.prev);
       console.error("Failed to acknowledge alert", err);
     },
   });
@@ -174,13 +172,11 @@ export default function ErpDashboardHome() {
   const acknowledge = (id) => {
     if (acknowledgingRef.current.has(id)) return;
     acknowledgingRef.current.add(id);
-
     setAcknowledgingIds((prev) => {
       const next = new Set(prev);
       next.add(id);
       return next;
     });
-
     acknowledgeMutation.mutate(id, {
       onSettled: () => {
         setAcknowledgingIds((prev) => {
@@ -200,7 +196,6 @@ export default function ErpDashboardHome() {
     return t("Good Evening");
   };
 
-  // ✅ إصلاح Memory Leak: استخدام ref للـ Audio
   const playSound = useCallback(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio("/notification.mp3");
@@ -214,32 +209,28 @@ export default function ErpDashboardHome() {
       if (document.visibilityState === "visible") playSound();
       addAlert(newAlert);
 
-      // ✅ استخدام المفتاح الموحد
-      queryClient.setQueryData(
-        getDashboardKey(branchId, range, showComparison),
-        (old) => {
-          if (!old) return old;
-          const currentAlerts = old.reminders?.alerts || [];
-          let updatedAlerts = [
-            newAlert,
-            ...currentAlerts.filter((a) => a.id !== newAlert.id),
-          ]
-            .sort(
-              (a, b) =>
-                (PRIORITY_MAP[b.priority] || 0) -
-                (PRIORITY_MAP[a.priority] || 0),
-            )
-            .slice(0, 10);
+      const dashboardKey = getDashboardKey(branchId, range, showComparison);
+      queryClient.setQueryData(dashboardKey, (old) => {
+        if (!old) return old;
+        const currentAlerts = old.reminders?.alerts || [];
+        let updatedAlerts = [
+          newAlert,
+          ...currentAlerts.filter((a) => a.id !== newAlert.id),
+        ]
+          .sort(
+            (a, b) =>
+              (PRIORITY_MAP[b.priority] || 0) - (PRIORITY_MAP[a.priority] || 0),
+          )
+          .slice(0, 10);
 
-          return {
-            ...old,
-            reminders: {
-              ...old.reminders,
-              alerts: updatedAlerts,
-            },
-          };
-        },
-      );
+        return {
+          ...old,
+          reminders: {
+            ...old.reminders,
+            alerts: updatedAlerts,
+          },
+        };
+      });
 
       toast.custom((t) => (
         <div className="custom-toast">
@@ -248,19 +239,16 @@ export default function ErpDashboardHome() {
         </div>
       ));
     },
-    [addAlert, queryClient, DASHBOARD_QUERY_KEY, playSound],
+    [addAlert, queryClient, branchId, range, showComparison, playSound],
   );
 
   const handleDashboardEvent = useCallback(
     (event) => {
       if (range !== "day") return;
-
-      // ✅ إصلاح الكاش: تضمين الـ branchId الحالي لمنع تداخل الفروع أثناء التحديث الحي
       const dayQueryKey = getDashboardKey(branchId, "day", showComparison);
       queryClient.setQueryData(dayQueryKey, (old) => {
         if (!old) return old;
         const kpis = { ...old.kpis };
-
         switch (event.type) {
           case "appointment_created":
             kpis.today_appointments_count =
@@ -307,7 +295,7 @@ export default function ErpDashboardHome() {
         return { ...old, kpis };
       });
     },
-    [queryClient, range, showComparison, branchId],
+    [queryClient, branchId, range, showComparison],
   );
 
   const handleNewInsight = useCallback(
@@ -321,44 +309,38 @@ export default function ErpDashboardHome() {
           </div>
         ));
       }
-      // ✅ استخدام المفتاح الموحد
-      queryClient.setQueryData(
-        getDashboardKey(branchId, range, showComparison),
-        (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            insights: [insight, ...(old.insights || [])].slice(0, 5),
-          };
-        },
-      );
+      const dashboardKey = getDashboardKey(branchId, range, showComparison);
+      queryClient.setQueryData(dashboardKey, (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          insights: [insight, ...(old.insights || [])].slice(0, 5),
+        };
+      });
     },
-    [queryClient, t, DASHBOARD_QUERY_KEY, playSound],
+    [queryClient, t, branchId, range, showComparison, playSound],
   );
 
   const flushUpdates = useCallback(() => {
     if (buffer.current.length === 0) return;
-    // ✅ استخدام المفتاح الموحد
-    queryClient.setQueryData(
-      getDashboardKey(branchId, range, showComparison),
-      (old) => {
-        if (!old) return old;
-        const kpis = { ...old.kpis };
-        let totalRevenue = 0;
-        buffer.current.forEach((event) => {
-          if (event.type === "payment_created") {
-            totalRevenue += event.data?.today_revenue || 0;
-          }
-        });
-        if (totalRevenue > 0) {
-          kpis.today_revenue = (kpis.today_revenue || 0) + totalRevenue;
-          kpis.month_revenue = (kpis.month_revenue || 0) + totalRevenue;
+    const dashboardKey = getDashboardKey(branchId, range, showComparison);
+    queryClient.setQueryData(dashboardKey, (old) => {
+      if (!old) return old;
+      const kpis = { ...old.kpis };
+      let totalRevenue = 0;
+      buffer.current.forEach((event) => {
+        if (event.type === "payment_created") {
+          totalRevenue += event.data?.today_revenue || 0;
         }
-        return { ...old, kpis };
-      },
-    );
+      });
+      if (totalRevenue > 0) {
+        kpis.today_revenue = (kpis.today_revenue || 0) + totalRevenue;
+        kpis.month_revenue = (kpis.month_revenue || 0) + totalRevenue;
+      }
+      return { ...old, kpis };
+    });
     buffer.current = [];
-  }, [queryClient, DASHBOARD_QUERY_KEY]);
+  }, [queryClient, branchId, range, showComparison]);
 
   // ========================= Effects =========================
 
@@ -386,7 +368,6 @@ export default function ErpDashboardHome() {
   }, [showComparison]);
 
   // ========================= Socket =========================
-  // ✅ إصلاح stale closure: استخدام useCallback للمعالج الموحد
   const socketHandler = useCallback(
     (payload) => {
       if (payload.type === "insight" || payload.insight) {
@@ -411,7 +392,7 @@ export default function ErpDashboardHome() {
 
   useAlertsSocket(socketHandler);
 
-  // ========================= Memoized Values (قبل الـ early returns) =========================
+  // ========================= Memoized Values =========================
   const revenueAnomalyPoints = useMemo(() => {
     const insights = dashboard?.insights || [];
     return insights
@@ -425,8 +406,6 @@ export default function ErpDashboardHome() {
       .filter((i) => i.category === "appointments" && i.point)
       .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
   }, [dashboard]);
-
-  // ========================= Memoized Values =========================
 
   const revenueChartData = useMemo(() => {
     const revenueData = dashboard?.charts?.revenue || [];
@@ -450,17 +429,14 @@ export default function ErpDashboardHome() {
 
   const mergedRevenueData = useMemo(() => {
     if (!revenueChartData.length && !previousRevenueData.length) return [];
-
     const maxLength = Math.max(
       revenueChartData.length,
       previousRevenueData.length,
     );
     const merged = [];
-
     for (let i = 0; i < maxLength; i++) {
       const currentPoint = revenueChartData[i];
       const previousPoint = previousRevenueData[i];
-
       merged.push({
         label: currentPoint?.label || previousPoint?.label || `#${i + 1}`,
         date: currentPoint?.date || previousPoint?.date,
@@ -469,7 +445,6 @@ export default function ErpDashboardHome() {
         anomaly: currentPoint?.anomaly || null,
       });
     }
-
     return merged;
   }, [revenueChartData, previousRevenueData]);
 
@@ -488,7 +463,6 @@ export default function ErpDashboardHome() {
 
   const appointmentsChartData = useMemo(() => {
     const appointmentsData = dashboard?.charts?.appointments || [];
-
     return appointmentsData.map((item) => ({
       label: item.label,
       total: item.current,
@@ -507,8 +481,6 @@ export default function ErpDashboardHome() {
       return { ...point, anomaly: anomaly || null };
     });
   }, [appointmentsChartData, appointmentsAnomalyPoints]);
-
-  // ========================= Update focusRange effect =========================
 
   useEffect(() => {
     if (!revenueAnomalyPoints.length) {
@@ -618,14 +590,12 @@ export default function ErpDashboardHome() {
   const generateSummary = (kpis) => {
     const messages = [];
     const priorityOrder = { negative: 3, warning: 2, positive: 1 };
-
     const revenueDelta = kpis.revenue?.delta || 0;
     if (revenueDelta > 10) {
       messages.push({ type: "positive", message: t("summary_revenue_up") });
     } else if (revenueDelta < -10) {
       messages.push({ type: "negative", message: t("summary_revenue_down") });
     }
-
     const appointmentsDelta = kpis.appointments?.delta || 0;
     if (appointmentsDelta > 15) {
       messages.push({
@@ -633,22 +603,18 @@ export default function ErpDashboardHome() {
         message: t("summary_appointments_up"),
       });
     }
-
     const noShowCount = kpis.no_show_appointments?.current || 0;
     if (noShowCount > 5) {
       messages.push({ type: "warning", message: t("summary_no_show_high") });
     }
-
     const unpaidCount = kpis.unpaid_invoices?.current || 0;
     if (unpaidCount > 10) {
       messages.push({ type: "warning", message: t("summary_unpaid_high") });
     }
-
     const cancelledDelta = kpis.cancelled_appointments?.delta || 0;
     if (cancelledDelta > 20) {
       messages.push({ type: "warning", message: t("summary_cancelled_up") });
     }
-
     return messages
       .sort((a, b) => priorityOrder[b.type] - priorityOrder[a.type])
       .slice(0, 3);
@@ -670,12 +636,6 @@ export default function ErpDashboardHome() {
     }
   }, [dashboard?.insights]);
 
-  const getDashboardKey = (branch, range, compare) => [
-    "dashboard",
-    branch,
-    range,
-    compare,
-  ];
   // ========================= Early Returns =========================
   if (isLoading) {
     return (
@@ -731,7 +691,6 @@ export default function ErpDashboardHome() {
     invoices: "🧾",
     patients: "👥",
   };
-
   const visibleAlerts = alerts.filter((a) => !hiddenAlerts.has(a.id));
   const totalRevenue = kpis.revenue?.current || 0;
   const completionRate = kpis.appointments?.current
@@ -774,7 +733,6 @@ export default function ErpDashboardHome() {
             </button>
           ))}
         </div>
-
         <label className="comparison-toggle">
           <input
             type="checkbox"
@@ -865,7 +823,6 @@ export default function ErpDashboardHome() {
               <div className="insight-content">
                 <span className="insight-category">{t(insight.category)}</span>
                 <p>{t(insight.message)}</p>
-
                 {expandedInsight === i && insight.explanation && (
                   <div className="insight-explanation">
                     <p className="explanation-summary">
@@ -883,13 +840,11 @@ export default function ErpDashboardHome() {
                     </ul>
                   </div>
                 )}
-
                 {insight.action?.label && !insight.explanation && (
                   <span className="insight-action">
                     {t(insight.action.label)} →
                   </span>
                 )}
-
                 {insight.explanation && (
                   <span className="expand-indicator">
                     {expandedInsight === i ? "▲" : "▼"} {t("Show details")}
@@ -956,7 +911,6 @@ export default function ErpDashboardHome() {
         <h2>{t("Financial Overview")}</h2>
         <p>{t("Key financial health indicators")}</p>
       </div>
-
       <div className="kpis-grid">
         <KpiCard
           title={t("Net Profit")}
@@ -987,7 +941,6 @@ export default function ErpDashboardHome() {
         <h2>{t("Key Performance Indicators")}</h2>
         <p>{t("Monitor your clinic's performance at a glance")}</p>
       </div>
-
       <div className="kpis-grid">
         <KpiCard
           title={t("Revenue")}
@@ -1063,7 +1016,6 @@ export default function ErpDashboardHome() {
         <h2>{t("Purchases")}</h2>
         <p>{t("Monitor your procurement and supplier payments")}</p>
       </div>
-
       <div className="kpis-grid">
         <KpiCard
           title={t("Purchase Total")}
@@ -1108,7 +1060,7 @@ export default function ErpDashboardHome() {
         <KpiCard
           title={
             (kpis.purchase_balance?.current || 0) < 0
-              ? t("Supplier Credits") // ✅ "مستحقات لدى الموردين"
+              ? t("Supplier Credits")
               : t("Purchase Balance")
           }
           value={
@@ -1118,13 +1070,11 @@ export default function ErpDashboardHome() {
           }
           icon={
             (kpis.purchase_balance?.current || 0) < 0
-              ? "fas fa-hand-holding-heart" // أيقونة تعبر عن رصيد لصالحك
+              ? "fas fa-hand-holding-heart"
               : "fas fa-balance-scale"
           }
           color={
-            (kpis.purchase_balance?.current || 0) < 0
-              ? "success" // لون أخضر لإظهار أنه وضع إيجابي
-              : "secondary"
+            (kpis.purchase_balance?.current || 0) < 0 ? "success" : "secondary"
           }
           delta={kpis.purchase_balance?.delta}
           deltaLabel={t("vs previous")}
@@ -1136,7 +1086,6 @@ export default function ErpDashboardHome() {
         <h2>{t("Inventory")}</h2>
         <p>{t("Stock levels and inventory valuation")}</p>
       </div>
-
       <div className="kpis-grid">
         <KpiCard
           title={t("Low Stock Supplies")}
@@ -1492,6 +1441,7 @@ export default function ErpDashboardHome() {
             </div>
           </div>
         )}
+
         {/* Failed Reminders */}
         {failedReminders.length > 0 && (
           <div className="dashboard-card warning-card">
@@ -1609,7 +1559,7 @@ function RevenueChart({
           <i className="fas fa-chart-line"></i>
           <h4>{t("Revenue Overview")}</h4>
         </div>
-        <div className="chart-empty">No data available</div>
+        <div className="chart-empty">{t("No data available")}</div>
       </div>
     );
   }
@@ -1644,9 +1594,6 @@ function RevenueChart({
         <LineChart data={data}>
           <XAxis dataKey="label" />
           <YAxis />
-          // نقوم بتعديل المكون الفرعي ليستقبل formatCurrency و t عبر إغلاق مسبق
-          (Closure) أو استخدام الـ Context // أو الأبسط والأسرع: تمريره كـ
-          Component Reference مع ربط الخصائص الإضافية:
           <Tooltip
             content={
               <CustomTooltipWrapper formatCurrency={formatCurrency} t={t} />
@@ -1693,7 +1640,7 @@ function AppointmentsChart({ data, t }) {
           <i className="fas fa-calendar-check"></i>
           <h4>{t("Appointments Overview")}</h4>
         </div>
-        <div className="chart-empty">No data available</div>
+        <div className="chart-empty">{t("No data available")}</div>
       </div>
     );
   }
@@ -1734,7 +1681,6 @@ function AppointmentsChart({ data, t }) {
 
 const AppointmentsTooltip = ({ active, payload, t }) => {
   if (!active || !payload?.length) return null;
-
   return (
     <div className="custom-tooltip">
       <div className="tooltip-current">

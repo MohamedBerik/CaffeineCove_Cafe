@@ -176,15 +176,16 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     console.log("🔄 Branch changed manually to:", value);
 
     // 1. إعادة تعيين الكاش بدلاً من invalidation فقط
-    queryClient.resetQueries({ queryKey: ["dashboard"] });
-    queryClient.resetQueries({ queryKey: ["activityLogs"] });
+    await queryClient.resetQueries({ queryKey: ["dashboard"] });
+    await queryClient.resetQueries({ queryKey: ["activityLogs"] });
     queryClient.resetQueries({ queryKey: ["subscription-status"] });
 
-    // 2. إطلاق حدث مخصص لإعلام المكونات الأخرى بالتحديث فوراً
-    window.dispatchEvent(new Event("globalBranchChanged"));
-
-    // 3. تحديث بيانات المستخدم دون الاعتماد على الكاش
-    await refreshUser();
+    // 2. إطلاق حدث مخصص مع تمرير branchId الجديد
+    window.dispatchEvent(
+      new CustomEvent("globalBranchChanged", {
+        detail: { branchId: value },
+      }),
+    );
   };
 
   // ✅ تجميع الشركات حسب الحالة

@@ -68,8 +68,13 @@ export default function ErpDashboardHome() {
 
   // Sync branchId from localStorage when changed by Navbar
   useEffect(() => {
-    const syncBranch = () => {
-      const latestBranch = localStorage.getItem("selectedBranchId") || "all";
+    const syncBranch = (event) => {
+      // ✅ استخدام branchId من تفاصيل الحدث أولاً، ثم من localStorage
+      const latestBranch =
+        event?.detail?.branchId ||
+        localStorage.getItem("selectedBranchId") ||
+        "all";
+
       setBranchId((prev) => (prev !== latestBranch ? latestBranch : prev));
     };
 
@@ -92,12 +97,10 @@ export default function ErpDashboardHome() {
   const {
     data: dashboard,
     isLoading,
-    isFetching,
     error,
     refetch,
   } = useQuery({
     queryKey: getDashboardKey(branchId, range, showComparison),
-
     queryFn: async ({ signal }) => {
       const res = await axios.get(
         `/erp/dashboard?branchId=${branchId}&range=${range}&compare=${showComparison}`,
@@ -129,12 +132,11 @@ export default function ErpDashboardHome() {
       return newData;
     },
 
+    placeholderData: undefined,
     staleTime: 0,
     gcTime: 0,
-
-    placeholderData: undefined,
-
     refetchOnWindowFocus: true,
+    refetchInterval: false,
   });
 
   const { data: activityLogs = [] } = useQuery({
@@ -374,11 +376,6 @@ export default function ErpDashboardHome() {
     localStorage.setItem("showComparison", showComparison);
   }, [showComparison]);
 
-  // useEffect(() => {
-  //   queryClient.removeQueries({
-  //     queryKey: ["dashboard"],
-  //   });
-  // }, [branchId, queryClient]);
   // ========================= Socket =========================
   const socketHandler = useCallback(
     (payload) => {

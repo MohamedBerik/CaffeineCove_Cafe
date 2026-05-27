@@ -58,6 +58,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   // ✅ جلب قائمة الفروع (يعتمد على selectedCompany)
   // ✅ جلب قائمة الفروع مع تعيين فرع افتراضي تلقائياً لمنع الـ null state والـ Race Conditions
   // ✅ جلب قائمة الفروع مع معالجة ذكية للفرع الافتراضي حسب صلاحية المستخدم
+  // ✅ جلب قائمة الفروع مع معالجة ذكية والترتيب المنطقي السريع لمنع تعليق المتصفح
   useEffect(() => {
     console.log("🌿 Branch fetch check:", {
       user: !!user,
@@ -77,44 +78,57 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
 
     api
       .get("/branches")
-      .then((res) => {
+      .then(async (res) => {
+        // 💡 جعلنا الـ Callback async عشان ننتظر الـ Queries براحتنا
         console.log("Branches fetched:", res.data);
         const branchList = Array.isArray(res.data) ? res.data : [];
         setBranches(branchList);
 
         const currentStoredBranch = localStorage.getItem("selectedBranchId");
+        let branchToTrigger = null;
 
         // 🎯 السيناريو الأول: المستخدم هو "أدمن العيادات" (يستطيع التنقل بين الفروع)
         if (user?.can_switch_branch || user?.role === "admin") {
-          // لو مفيش قيمة متخزنة أصلاً، سيبها "all" عشان يشوف الداشبورد كاملة
           if (!currentStoredBranch) {
-            setSelectedBranch("all");
-            localStorage.setItem("selectedBranchId", "all");
-            window.dispatchEvent(new Event("globalBranchChanged"));
+            branchToTrigger = "all";
           } else {
-            // لو فيه قيمة قديمة متخزنة (سواء فرع معين أو all) احترم رغبته وسيبها زي ما هي
             setSelectedBranch(currentStoredBranch);
           }
         }
 
-        // 🎯 السيناريو الثاني: مستخدم عادي (طبيب أو موظف مربوط بفرع محدد ولا يملك صلاحية التنقل)
+        // 🎯 السيناريو الثاني: مستخدم عادي (طبيب أو موظف مربوط بفرع محدد)
         else {
-          // لو مفيش فرع متخزن أو كانت قيمته "all" بالخطأ، اربطه بأول فرع تلقائياً حمايةً للداتا
           if (
             branchList.length > 0 &&
             (!currentStoredBranch ||
               currentStoredBranch === "all" ||
               currentStoredBranch === "")
           ) {
-            const defaultBranchId = String(branchList[0].id);
+            branchToTrigger = String(branchList[0].id);
             console.log(
               "🔒 Employee forced to default branch:",
-              defaultBranchId,
+              branchToTrigger,
             );
+          }
+        }
 
-            setSelectedBranch(defaultBranchId);
-            localStorage.setItem("selectedBranchId", defaultBranchId);
+        // ⚡ تطبيق الترتيب المنطقي الصارم لو السيستم هياخد قرار تعيين تلقائي
+        if (branchToTrigger) {
+          // 1. التخزين في الـ Storage والـ State أولاً
+          localStorage.setItem("selectedBranchId", branchToTrigger);
+          setSelectedBranch(branchToTrigger);
+
+          try {
+            // 2. تحديث بيانات المستخدم عشان الـ Interceptor يلقط الهيدر الجديد فوراً
+            await refreshUser();
+
+            // 3. إجبار React Query على تحديث البيانات النشطة حالياً في الخلفية وبسرعة
+            await queryClient.refetchQueries({ active: true });
+
+            // 4. إطلاق الحدث في النهاية بعد استقرار الـ Cache تماماً
             window.dispatchEvent(new Event("globalBranchChanged"));
+          } catch (error) {
+            console.error("❌ Error during auto branch transition:", error);
           }
         }
       })
@@ -160,21 +174,21 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   const handleBranchChange = async (e) => {
     const value = e.target.value;
 
-    setSelectedBranch(value);
+    // 1. احفظ القيمة في الـ Storage فوراً
     localStorage.setItem("selectedBranchId", value);
-
-    console.log("🔄 Branch changed manually to:", value);
-
-    // 📢 إطلاق حدث مخصص لإعلام الداشبورد بالتحديث فوراً
-    window.dispatchEvent(new Event("globalBranchChanged"));
+    setSelectedBranch(value);
 
     try {
-      // تحديث بيانات المستخدم أولاً
+      // 2. حدّث بيانات المستخدم والكاش أولاً للتأكد أن الـ Interceptor لقط الهيدر الجديد
       await refreshUser();
-      // ثم تحديث الاستعلامات الأخرى في الكاش
-      queryClient.invalidateQueries();
+
+      // 3. اجبر React Query على إعادة جلب البيانات "النشطة حالياً على الشاشة" فوراً وبقوة
+      await queryClient.refetchQueries({ active: true });
+
+      // 4. الآن أطلق الحدث للمكونات الأخرى بعد أن أصبح الكاش والسيرفر جاهزين
+      window.dispatchEvent(new Event("globalBranchChanged"));
     } catch (error) {
-      console.error("❌ Failed to refresh user after branch change:", error);
+      console.error("❌ Error during branch transition:", error);
     }
   };
 

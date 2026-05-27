@@ -59,18 +59,12 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   // ✅ جلب قائمة الفروع مع تعيين فرع افتراضي تلقائياً لمنع الـ null state والـ Race Conditions
   // ✅ جلب قائمة الفروع مع معالجة ذكية للفرع الافتراضي حسب صلاحية المستخدم
   useEffect(() => {
-    console.log("🌿 Branch fetch check:", {
-      user: !!user,
-      isSuperAdmin: user?.is_super_admin,
-      selectedCompany,
-    });
-
-    if (!user || user.is_super_admin) {
-      setBranches([]);
-      return;
-    }
-
-    if (!selectedCompany || selectedCompany === "global") {
+    if (
+      !user ||
+      user.is_super_admin ||
+      !selectedCompany ||
+      selectedCompany === "global"
+    ) {
       setBranches([]);
       return;
     }
@@ -78,44 +72,37 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     api
       .get("/branches")
       .then((res) => {
-        console.log("Branches fetched:", res.data);
         const branchList = Array.isArray(res.data) ? res.data : [];
         setBranches(branchList);
 
         const currentStoredBranch = localStorage.getItem("selectedBranchId");
+        let branchToTrigger = null;
 
-        // 🎯 السيناريو الأول: المستخدم هو "أدمن العيادات" (يستطيع التنقل بين الفروع)
         if (user?.can_switch_branch || user?.role === "admin") {
-          // لو مفيش قيمة متخزنة أصلاً، سيبها "all" عشان يشوف الداشبورد كاملة
-          if (!currentStoredBranch) {
-            setSelectedBranch("all");
-            localStorage.setItem("selectedBranchId", "all");
-            window.dispatchEvent(new Event("globalBranchChanged"));
-          } else {
-            // لو فيه قيمة قديمة متخزنة (سواء فرع معين أو all) احترم رغبته وسيبها زي ما هي
-            setSelectedBranch(currentStoredBranch);
-          }
-        }
-
-        // 🎯 السيناريو الثاني: مستخدم عادي (طبيب أو موظف مربوط بفرع محدد ولا يملك صلاحية التنقل)
-        else {
-          // لو مفيش فرع متخزن أو كانت قيمته "all" بالخطأ، اربطه بأول فرع تلقائياً حمايةً للداتا
+          if (!currentStoredBranch) branchToTrigger = "all";
+        } else {
           if (
             branchList.length > 0 &&
             (!currentStoredBranch ||
               currentStoredBranch === "all" ||
               currentStoredBranch === "")
           ) {
-            const defaultBranchId = String(branchList[0].id);
-            console.log(
-              "🔒 Employee forced to default branch:",
-              defaultBranchId,
-            );
-
-            setSelectedBranch(defaultBranchId);
-            localStorage.setItem("selectedBranchId", defaultBranchId);
-            window.dispatchEvent(new Event("globalBranchChanged"));
+            branchToTrigger = String(branchList[0].id);
           }
+        }
+
+        // ⚡ الترتيب الصحيح لمنع تجمد الداشبورد على القيمة القديمة:
+        if (branchToTrigger) {
+          localStorage.setItem("selectedBranchId", branchToTrigger);
+          setSelectedBranch(branchToTrigger);
+
+          // أطلق الحدث أولاً لتستيقظ الداشبورد على الفرع الجديد
+          window.dispatchEvent(new Event("globalBranchChanged"));
+
+          // حدّث المستخدم والكاش في الخلفية بشكل متزامن وسلس
+          refreshUser().then(() => {
+            queryClient.invalidateQueries({ refetchType: "active" });
+          });
         }
       })
       .catch((err) => {
@@ -160,21 +147,23 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   const handleBranchChange = async (e) => {
     const value = e.target.value;
 
-    setSelectedBranch(value);
+    // 1. تحديث الـ Storage والـ State المحلية فوراً
     localStorage.setItem("selectedBranchId", value);
+    setSelectedBranch(value);
 
-    console.log("🔄 Branch changed manually to:", value);
-
-    // 📢 إطلاق حدث مخصص لإعلام الداشبورد بالتحديث فوراً
+    // 2. إطلاق الحدث فوراً لتنبيه الداشبورد وكل المكونات بالـ ID الجديد (قبل أي جلب)
     window.dispatchEvent(new Event("globalBranchChanged"));
 
     try {
-      // تحديث بيانات المستخدم أولاً
+      // 3. تحديث بيانات المستخدم
       await refreshUser();
-      // ثم تحديث الاستعلامات الأخرى في الكاش
-      queryClient.invalidateQueries();
+
+      // 4. تصفير الكاش وإجبار المكونات النشطة (مثل الداشبورد) على جلب الداتا بالـ ID الجديد
+      queryClient.invalidateQueries({
+        refetchType: "active", // يضمن جلب البيانات النشطة على الشاشة فوراً بالهيدر الجديد
+      });
     } catch (error) {
-      console.error("❌ Failed to refresh user after branch change:", error);
+      console.error("❌ Error during branch transition:", error);
     }
   };
 

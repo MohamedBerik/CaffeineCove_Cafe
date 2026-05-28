@@ -28,10 +28,20 @@ export function useDashboardData(branchId, range, showComparison) {
     dashboardKeyRef.current = getDashboardKey(branchId, range, showComparison);
   }, [branchId, range, showComparison]);
 
-  const companyId = useMemo(
-    () => localStorage.getItem("selectedCompany") || null,
-    [],
+  // companyId تفاعلي
+  const [companyId, setCompanyId] = useState(
+    localStorage.getItem("selectedCompany") || null,
   );
+  useEffect(() => {
+    const sync = () =>
+      setCompanyId(localStorage.getItem("selectedCompany") || null);
+    window.addEventListener("storage", sync);
+    window.addEventListener("companyChanged", sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("companyChanged", sync);
+    };
+  }, []);
 
   const dashboardKey = useMemo(
     () => getDashboardKey(branchId, range, showComparison),
@@ -137,7 +147,7 @@ export function useDashboardData(branchId, range, showComparison) {
     [acknowledgeMutation],
   );
 
-  // ---- تأثيرات صوتية (تظل في طبقة UI عبر toast) ----
+  // ---- تأثيرات صوتية ----
   const playSound = useCallback(() => {
     if (document.visibilityState !== "visible") return;
     if (!audioRef.current) {
@@ -146,10 +156,10 @@ export function useDashboardData(branchId, range, showComparison) {
     audioRef.current?.play().catch(() => {});
   }, []);
 
-  // ---- تحديث الإيرادات عبر buffer ----
+  // ---- تحديث الإيرادات عبر buffer (يستخدم dashboardKeyRef.current) ----
   const flushUpdates = useCallback(() => {
     if (buffer.current.length === 0) return;
-    queryClient.setQueryData(dashboardKey, (old) => {
+    queryClient.setQueryData(dashboardKeyRef.current, (old) => {
       if (!old) return old;
       const kpis = { ...old.kpis };
       let totalRevenue = 0;
@@ -167,12 +177,16 @@ export function useDashboardData(branchId, range, showComparison) {
       return { ...old, kpis };
     });
     buffer.current = [];
-  }, [queryClient, dashboardKey]);
+  }, [queryClient]);
 
+  const flushRef = useRef(flushUpdates);
   useEffect(() => {
-    const interval = setInterval(flushUpdates, 2000);
-    return () => clearInterval(interval);
+    flushRef.current = flushUpdates;
   }, [flushUpdates]);
+  useEffect(() => {
+    const interval = setInterval(() => flushRef.current(), 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   // ---- معالجات الأحداث ----
   const handleNewAlert = useCallback(
@@ -196,7 +210,6 @@ export function useDashboardData(branchId, range, showComparison) {
           reminders: { ...old.reminders, alerts: updatedAlerts },
         };
       });
-      // تنبيه منبثق مرة واحدة فقط (لأن useAlertsSocket لم يعد يظهره)
       toast.custom(
         (t) => (
           <div className="custom-toast">
@@ -315,10 +328,9 @@ export function useDashboardData(branchId, range, showComparison) {
     [playSound, queryClient, dashboardKey],
   );
 
-  // معالج الأحداث عبر WebSocket مع guard إضافي لمنع التلوث
+  // socketHandler مع payload normalization وإضافة المعالجات المفقودة
   const socketHandler = useCallback(
     (payload) => {
-      // استخراج معرف الفرع من الحمولة
       const payloadBranchId =
         payload.branch_id ??
         payload.branchId ??
@@ -327,25 +339,30 @@ export function useDashboardData(branchId, range, showComparison) {
         payload.branch?.id ??
         payload.data?.branch?.id;
 
-      const activeBranch = currentBranchRef.current;
-
-      // إذا كان لدينا فرع نشط والحمولة تحمل فرعًا مختلفًا (ولسنا في وضع "all") تجاهل الحدث
       if (
-        activeBranch &&
-        activeBranch !== "all" &&
+        currentBranchRef.current &&
+        currentBranchRef.current !== "all" &&
         payloadBranchId != null &&
-        String(payloadBranchId) !== String(activeBranch)
-      ) {
+        String(payloadBranchId) !== String(currentBranchRef.current)
+      )
         return;
+
+      // توحيد alert
+      const alertPayload =
+        payload.alert ??
+        payload.data?.alert ??
+        (payload.type === "alert" ? payload.data : null);
+
+      if (alertPayload) {
+        handleNewAlert(alertPayload);
       }
 
-      // توجيه الحدث إلى المعالجات المتخصصة
+      // معالجة insight
       if (payload.type === "insight" || payload.insight) {
         handleNewInsight(payload.insight || payload);
       }
-      if (payload.alert || payload.type === "alert") {
-        handleNewAlert(payload.alert || payload.data);
-      }
+
+      // معالجة dashboard events
       if (
         payload.type === "appointment_created" ||
         payload.type === "appointment_completed" ||
@@ -357,11 +374,17 @@ export function useDashboardData(branchId, range, showComparison) {
         handleDashboardEvent(payload);
       }
     },
-    [handleNewInsight, handleNewAlert, handleDashboardEvent],
+    [handleNewAlert, handleNewInsight, handleDashboardEvent],
   );
 
-  // ✅ استخدام الـ hook بالشركة والفرع (تم إصلاحه)
   useAlertsSocket(socketHandler, companyId, branchId);
+
+  // invalidate باستخدام predicate (للتبديلات)
+  const invalidateAllDashboardQueries = useCallback(() => {
+    queryClient.invalidateQueries({
+      predicate: (query) => query.queryKey[0] === "dashboard",
+    });
+  }, [queryClient]);
 
   // ---- تنظيف hiddenAlerts ----
   useEffect(() => {
@@ -390,7 +413,7 @@ export function useDashboardData(branchId, range, showComparison) {
       .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
   }, [dashboard]);
 
-  // ---- Chart data (دون تغيير) ----
+  // ---- Chart data ----
   const revenueChartData = useMemo(
     () =>
       (dashboard?.charts?.revenue || []).map((item) => ({
@@ -509,5 +532,6 @@ export function useDashboardData(branchId, range, showComparison) {
     visibleRevenueData,
     appointmentsDataWithAnomalies,
     playSound,
+    invalidateAllDashboardQueries, // متاح للمكونات الخارجية
   };
 }

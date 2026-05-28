@@ -1,27 +1,19 @@
-// dashboard/hooks/useDashboardData.js
-import { useMemo, useRef, useCallback, useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "../../../../services/axios";
 import { PRIORITY_MAP, getDashboardKey } from "../constants";
+import { useAlertActions } from "../../../../context/AlertContext";
 
 export function useDashboardData(branchId, range, showComparison) {
   const queryClient = useQueryClient();
-  const branchRef = useRef(branchId);
-  const rangeRef = useRef(range);
-  const compareRef = useRef(showComparison);
-  const acknowledgingRef = useRef(new Set());
-  const buffer = useRef([]);
+  const { markAllAsRead } = useAlertActions();
   const [hiddenAlerts, setHiddenAlerts] = useState(new Set());
-
-  useEffect(() => {
-    branchRef.current = branchId;
-    rangeRef.current = range;
-    compareRef.current = showComparison;
-  }, [branchId, range, showComparison]);
+  const acknowledgingRef = useRef(new Set());
+  const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
 
   const dashboardKey = getDashboardKey(branchId, range, showComparison);
 
-  // ---------- Dashboard Query ----------
+  // ---- Dashboard query ----
   const {
     data: dashboard,
     isLoading,
@@ -59,7 +51,7 @@ export function useDashboardData(branchId, range, showComparison) {
     refetchInterval: false,
   });
 
-  // ---------- Activity Logs Query ----------
+  // ---- Activity logs query ----
   const activityLogsKey = useMemo(() => ["activityLogs", branchId], [branchId]);
   const { data: activityLogs = [] } = useQuery({
     queryKey: activityLogsKey,
@@ -71,17 +63,14 @@ export function useDashboardData(branchId, range, showComparison) {
       return res.data?.data || [];
     },
     refetchInterval: 30000,
+    refetchIntervalInBackground: false, // لا تعمل في الخلفية
   });
 
-  // ---------- Acknowledge Mutation ----------
+  // ---- Acknowledge mutation ----
   const acknowledgeMutation = useMutation({
     mutationFn: (id) => axios.post(`/erp/alerts/${id}/ack`),
     onMutate: async (id) => {
-      const key = getDashboardKey(
-        branchRef.current,
-        rangeRef.current,
-        compareRef.current,
-      );
+      const key = getDashboardKey(branchId, range, showComparison);
       await queryClient.cancelQueries({ queryKey: key });
       const prev = queryClient.getQueryData(key);
       queryClient.setQueryData(key, (old) => {
@@ -97,37 +86,142 @@ export function useDashboardData(branchId, range, showComparison) {
       return { prev };
     },
     onError: (err, id, context) => {
-      const key = getDashboardKey(
-        branchRef.current,
-        rangeRef.current,
-        compareRef.current,
+      queryClient.setQueryData(
+        getDashboardKey(branchId, range, showComparison),
+        context.prev,
       );
-      queryClient.setQueryData(key, context.prev);
-      console.error("Failed to acknowledge alert", err);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: getDashboardKey(branchId, range, showComparison),
+      });
     },
   });
 
-  const acknowledge = (id) => {
-    if (acknowledgingRef.current.has(id)) return;
-    acknowledgingRef.current.add(id);
-    acknowledgeMutation.mutate(id, {
-      onSettled: () => {
-        acknowledgingRef.current.delete(id);
-      },
-    });
-  };
+  const acknowledge = useCallback(
+    (id) => {
+      if (acknowledgingRef.current.has(id)) return;
+      acknowledgingRef.current.add(id);
+      setAcknowledgingIds((prev) => new Set([...prev, id]));
+      acknowledgeMutation.mutate(id, {
+        onSettled: () => {
+          setAcknowledgingIds((prev) => {
+            const next = new Set(prev);
+            next.delete(id);
+            return next;
+          });
+          acknowledgingRef.current.delete(id);
+        },
+      });
+    },
+    [acknowledgeMutation],
+  );
 
-  // ---------- Cleanup hiddenAlerts ----------
+  // ---- Clean hidden alerts عند تغيير التنبيهات ----
   useEffect(() => {
     const alerts = dashboard?.reminders?.alerts || [];
     setHiddenAlerts((prev) => {
       const next = new Set();
-      alerts.forEach((alert) => {
-        if (prev.has(alert.id)) next.add(alert.id);
+      alerts.forEach((a) => {
+        if (prev.has(a.id)) next.add(a.id);
       });
       return next;
     });
   }, [dashboard?.reminders?.alerts]);
+
+  // ---- Anomaly maps ----
+  const revenueAnomalyMap = useMemo(() => {
+    const insights = dashboard?.insights || [];
+    return new Map(
+      insights
+        .filter((i) => i.category === "revenue" && i.point)
+        .map((i) => [i.point.date, i.point]),
+    );
+  }, [dashboard]);
+
+  const appointmentsAnomalyMap = useMemo(() => {
+    const insights = dashboard?.insights || [];
+    return new Map(
+      insights
+        .filter((i) => i.category === "appointments" && i.point)
+        .map((i) => [i.point.date, i.point]),
+    );
+  }, [dashboard]);
+
+  // ---- Revenue chart data ----
+  const revenueChartData = useMemo(
+    () =>
+      (dashboard?.charts?.revenue || []).map((item) => ({
+        label: item.label,
+        value: item.current,
+        date: item.label,
+        anomaly: null,
+      })),
+    [dashboard],
+  );
+  const previousRevenueData = useMemo(
+    () =>
+      (dashboard?.charts?.revenue || []).map((item) => ({
+        label: item.label,
+        value: item.previous,
+        date: item.label,
+        anomaly: null,
+      })),
+    [dashboard],
+  );
+
+  const mergedRevenueData = useMemo(() => {
+    const maxLen = Math.max(
+      revenueChartData.length,
+      previousRevenueData.length,
+    );
+    const merged = [];
+    for (let i = 0; i < maxLen; i++) {
+      const cur = revenueChartData[i];
+      const prev = previousRevenueData[i];
+      merged.push({
+        label: cur?.label || prev?.label || `#${i + 1}`,
+        date: cur?.date || prev?.date,
+        current: cur?.value || 0,
+        previous: prev?.value || 0,
+        anomaly: null,
+      });
+    }
+    return merged;
+  }, [revenueChartData, previousRevenueData]);
+
+  const revenueDataWithAnomalies = useMemo(
+    () =>
+      mergedRevenueData.map((p) => ({
+        ...p,
+        anomaly: revenueAnomalyMap.get(p.date) || null,
+      })),
+    [mergedRevenueData, revenueAnomalyMap],
+  );
+
+  // ---- Appointments chart data (with `date` for anomaly matching) ----
+  const appointmentsChartData = useMemo(
+    () =>
+      (dashboard?.charts?.appointments || []).map((item) => ({
+        label: item.label,
+        date: item.label, // أضفنا هذا الحقل لربط anomalies
+        total: item.current,
+        completed: item.completed || 0,
+        cancelled: item.cancelled || 0,
+        previous: item.previous || 0,
+        anomaly: null,
+      })),
+    [dashboard],
+  );
+
+  const appointmentsDataWithAnomalies = useMemo(
+    () =>
+      appointmentsChartData.map((p) => ({
+        ...p,
+        anomaly: appointmentsAnomalyMap.get(p.date) || null,
+      })),
+    [appointmentsChartData, appointmentsAnomalyMap],
+  );
 
   return {
     dashboard,
@@ -136,7 +230,11 @@ export function useDashboardData(branchId, range, showComparison) {
     refetch,
     activityLogs,
     acknowledge,
+    acknowledgingIds, // تمت إضافته للاستخدام في تعطيل الزر
     hiddenAlerts,
     setHiddenAlerts,
+    markAllAsRead,
+    revenueDataWithAnomalies, // يُستخدم بدل visibleRevenueData
+    appointmentsDataWithAnomalies,
   };
 }

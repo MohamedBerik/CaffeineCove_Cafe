@@ -323,7 +323,9 @@ export function useDashboardData(branchId, range, showComparison) {
         payload.branch_id ??
         payload.branchId ??
         payload.data?.branch_id ??
-        payload.alert?.branch_id;
+        payload.alert?.branch_id ??
+        payload.branch?.id ??
+        payload.data?.branch?.id;
 
       const activeBranch = currentBranchRef.current;
 

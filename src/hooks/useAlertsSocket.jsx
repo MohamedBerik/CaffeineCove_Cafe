@@ -5,8 +5,9 @@ import echo from "../services/echo";
 export default function useAlertsSocket(onNewAlert, companyId, branchId) {
   const { user } = useAuth();
   const onNewAlertRef = useRef(onNewAlert);
+  const previousChannelRef = useRef(null);
 
-  // حافظ على أحدث نسخة من الـ callback بدون إعادة اشتراك
+  // حافظ على أحدث نسخة من callback
   useEffect(() => {
     onNewAlertRef.current = onNewAlert;
   }, [onNewAlert]);
@@ -20,25 +21,34 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
         ? `company.${companyId}`
         : `company.${companyId}.branch.${branchId}`;
 
-    // مغادرة القناة السابقة تماماً
-    echo.leave(channelName);
+    // ✅ مغادرة القناة السابقة فقط وليس القناة الحالية
+    if (
+      previousChannelRef.current &&
+      previousChannelRef.current !== channelName
+    ) {
+      echo.leave(previousChannelRef.current);
+    }
+    previousChannelRef.current = channelName;
 
     const channel = echo.private(channelName);
 
     const alertListener = (e) => {
-      // استخراج branch_id من الحدث
-      const eventBranchId = e.alert?.branch_id ?? e.branch_id;
+      // استخراج branch_id من جميع المسارات الممكنة
+      const eventBranchId =
+        e.alert?.branch_id ??
+        e.branch_id ??
+        e.data?.branch_id ??
+        e.branch?.id ??
+        e.data?.branch?.id;
 
-      // فلترة الأحداث حسب الفرع إذا لم نكن في وضع "all"
       if (
         branchId !== "all" &&
-        eventBranchId &&
+        eventBranchId != null &&
         String(eventBranchId) !== String(branchId)
       ) {
-        return; // تجاهل الحدث القادم من فرع آخر
+        return;
       }
 
-      // استدعاء الـ callback الأحدث (الذي يملك مرجعاً مستقراً)
       onNewAlertRef.current(e.alert || e);
     };
 
@@ -48,5 +58,5 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
       channel.stopListening(".alert.created", alertListener);
       echo.leave(channelName);
     };
-  }, [companyId, branchId, user]); // ✅ مصفوفة التبعية صحيحة ومستقرة
+  }, [companyId, branchId, user]);
 }

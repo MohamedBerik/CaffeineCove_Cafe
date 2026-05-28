@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAlertState, useAlertActions } from "../../../context/AlertContext";
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../services/axios";
-import { useQueryClient } from "@tanstack/react-query";
+import { setActiveBranchId } from "../../../utils/activeBranch";
 import "./AdminNavbar.css";
 
 const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
@@ -33,14 +33,14 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     return stored && stored !== "" ? stored : "all";
   });
 
-  // ✅ جلب قائمة الشركات (لـ Super Admin فقط)
+  // ✅ جلب قائمة الشركات
   useEffect(() => {
     if (user?.is_super_admin || user?.role === "admin") {
       api.get("/companies").then((res) => setCompanies(res.data));
     }
   }, [user]);
 
-  // ✅ تعيين selectedCompany تلقائيًا من user (مرة واحدة، بدون selectedCompany في التبعية)
+  // ✅ تعيين selectedCompany تلقائيًا
   useEffect(() => {
     if (
       user?.company_id &&
@@ -49,27 +49,17 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
         selectedCompany === "global")
     ) {
       const companyId = String(user.company_id);
-      console.log("🔧 Auto-setting selectedCompany from user:", companyId);
       setSelectedCompany(companyId);
       localStorage.setItem("selectedCompany", companyId);
     }
   }, [user]);
 
-  // ✅ جلب قائمة الفروع (يعتمد على selectedCompany)
-  // ✅ جلب قائمة الفروع مع تعيين فرع افتراضي تلقائياً لمنع الـ null state والـ Race Conditions
-  // ✅ جلب قائمة الفروع مع معالجة ذكية للفرع الافتراضي حسب صلاحية المستخدم
+  // ✅ جلب الفروع وتعيين الفرع الافتراضي
   useEffect(() => {
-    console.log("🌿 Branch fetch check:", {
-      user: !!user,
-      isSuperAdmin: user?.is_super_admin,
-      selectedCompany,
-    });
-
     if (!user || user.is_super_admin) {
       setBranches([]);
       return;
     }
-
     if (!selectedCompany || selectedCompany === "global") {
       setBranches([]);
       return;
@@ -78,28 +68,22 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     api
       .get("/branches")
       .then((res) => {
-        console.log("Branches fetched:", res.data);
         const branchList = Array.isArray(res.data) ? res.data : [];
         setBranches(branchList);
 
         const currentStoredBranch = localStorage.getItem("selectedBranchId");
 
-        // 🎯 السيناريو الأول: المستخدم هو "أدمن العيادات" (يستطيع التنقل بين الفروع)
+        // أدمن يمكنه التنقل
         if (user?.can_switch_branch || user?.role === "admin") {
-          // لو مفيش قيمة متخزنة أصلاً، سيبها "all" عشان يشوف الداشبورد كاملة
           if (!currentStoredBranch) {
             setSelectedBranch("all");
-            localStorage.setItem("selectedBranchId", "all");
-            window.dispatchEvent(new Event("globalBranchChanged"));
+            setActiveBranchId("all"); // ✅ المصدر الموحد
           } else {
-            // لو فيه قيمة قديمة متخزنة (سواء فرع معين أو all) احترم رغبته وسيبها زي ما هي
             setSelectedBranch(currentStoredBranch);
+            setActiveBranchId(currentStoredBranch); // ✅ تأكيد القيمة
           }
-        }
-
-        // 🎯 السيناريو الثاني: مستخدم عادي (طبيب أو موظف مربوط بفرع محدد ولا يملك صلاحية التنقل)
-        else {
-          // لو مفيش فرع متخزن أو كانت قيمته "all" بالخطأ، اربطه بأول فرع تلقائياً حمايةً للداتا
+        } else {
+          // موظف مرتبط بفرع
           if (
             branchList.length > 0 &&
             (!currentStoredBranch ||
@@ -107,14 +91,8 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
               currentStoredBranch === "")
           ) {
             const defaultBranchId = String(branchList[0].id);
-            console.log(
-              "🔒 Employee forced to default branch:",
-              defaultBranchId,
-            );
-
             setSelectedBranch(defaultBranchId);
-            localStorage.setItem("selectedBranchId", defaultBranchId);
-            window.dispatchEvent(new Event("globalBranchChanged"));
+            setActiveBranchId(defaultBranchId); // ✅ المصدر الموحد
           }
         }
       })
@@ -127,32 +105,20 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   // ✅ تبديل الشركة
   const handleSwitch = async (companyId) => {
     if (switching) return;
-
     setSwitching(true);
     try {
       await api.post("/switch-company", { company_id: companyId || null });
-
       const valueToStore = companyId || "global";
       setSelectedCompany(valueToStore);
       localStorage.setItem("selectedCompany", valueToStore);
       setSelectedBranch("all");
-      localStorage.removeItem("selectedBranchId");
+      setActiveBranchId("all"); // ✅ بدلاً من localStorage.removeItem("selectedBranchId")
 
-      // 🔄 Refresh user data after switching company
       await queryClient.invalidateQueries(["me"]);
       await queryClient.refetchQueries(["me"]);
-
-      queryClient.invalidateQueries({
-        queryKey: ["dashboard"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["activityLogs"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["subscription-status"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["activityLogs"] });
+      queryClient.invalidateQueries({ queryKey: ["subscription-status"] });
 
       if (!companyId || companyId === "") {
         navigate("/admin/saas");
@@ -166,25 +132,14 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     }
   };
 
-  // ✅ تبديل الفرع مع إطلاق حدث فوري للداشبورد
-  const handleBranchChange = async (e) => {
+  // ✅ تبديل الفرع (المصدر الموحد)
+  const handleBranchChange = (e) => {
     const value = e.target.value;
-
     setSelectedBranch(value);
-    localStorage.setItem("selectedBranchId", value);
-
-    console.log("🔄 Branch changed manually to:", value);
-
-    // 1. إعادة تعيين الكاش بدلاً من invalidation فقط
-    await queryClient.resetQueries({ queryKey: ["dashboard"] });
-    await queryClient.resetQueries({ queryKey: ["activityLogs"] });
-    await queryClient.resetQueries({ queryKey: ["subscription-status"] });
-    // 2. إطلاق حدث مخصص مع تمرير branchId الجديد
-    window.dispatchEvent(
-      new CustomEvent("globalBranchChanged", {
-        detail: { branchId: value },
-      }),
-    );
+    setActiveBranchId(value); // ✅ يغني عن localStorage و globalBranchChanged
+    queryClient.resetQueries({ queryKey: ["dashboard"] });
+    queryClient.resetQueries({ queryKey: ["activityLogs"] });
+    queryClient.resetQueries({ queryKey: ["subscription-status"] });
   };
 
   // ✅ تجميع الشركات حسب الحالة

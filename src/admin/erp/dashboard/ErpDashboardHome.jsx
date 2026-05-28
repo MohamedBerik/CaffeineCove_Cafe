@@ -65,13 +65,15 @@ export default function ErpDashboardHome() {
       }
     };
 
-    window.addEventListener("globalBranchChanged", syncBranch);
+    // استخدم الحدث الموحد "activeBranchChanged" بدلاً من "globalBranchChanged"
+    window.addEventListener("activeBranchChanged", syncBranch);
     window.addEventListener("storage", syncBranch);
+
     return () => {
-      window.removeEventListener("globalBranchChanged", syncBranch);
+      window.removeEventListener("activeBranchChanged", syncBranch);
       window.removeEventListener("storage", syncBranch);
     };
-  }, [branchId, handleBranchChange]); // أضف branchId و handleBranchChange للتبعية
+  }, [branchId, handleBranchChange]);
 
   // ---- Greeting ----
   useEffect(() => {

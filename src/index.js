@@ -21,8 +21,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { Toaster } from "react-hot-toast";
 
 /* ================= ERP ================= */
-import ERPDashboard from "./admin/erp/ERPDashboard";
-import ErpDashboardHome from "./admin/erp/ErpDashboardHome";
+import ERPDashboard from "./admin/erp/dashboard/ERPDashboard";
+import ErpDashboardHome from "./admin/erp/dashboard/ErpDashboardHome";
 import OrdersList from "./admin/erp/orders/OrdersList";
 import CreateOrder from "./admin/erp/orders/CreateOrder";
 import OrderDetails from "./admin/erp/orders/OrderDetails";

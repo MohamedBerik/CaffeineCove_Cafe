@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import AdminNavbar from "./components/AdminNavbar";
-import ErpNav from "./components/ErpNav";
-import "./styles/dashboard-global.css";
-import { useAlertState } from "../../context/AlertContext";
+import AdminNavbar from "../components/AdminNavbar";
+import ErpNav from "../components/ErpNav";
+import "../styles/dashboard-global.css";
+import { useAlertState } from "../../../context/AlertContext";
 
 const ERPDashboard = () => {
   const { unreadCount } = useAlertState();

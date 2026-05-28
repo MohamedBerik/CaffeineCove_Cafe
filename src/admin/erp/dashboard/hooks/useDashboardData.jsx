@@ -1,9 +1,9 @@
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "../../../services/axios";
-import { PRIORITY_MAP, getDashboardKey } from "./constants";
-import { useAlertActions } from "../../../context/AlertContext";
-import useAlertsSocket from "../../../hooks/useAlertsSocket";
+import axios from "../../../../services/axios";
+import { PRIORITY_MAP, getDashboardKey } from "../constants";
+import { useAlertActions } from "../../../../context/AlertContext";
+import useAlertsSocket from "../../../../hooks/useAlertsSocket";
 import toast from "react-hot-toast";
 
 export function useDashboardData(branchId, range, showComparison) {

@@ -14,19 +14,19 @@ import {
   generateSummary,
   getGreeting,
   getAnomalyColor,
-} from "./dashboard/helpers";
-import { useDashboardData } from "./dashboard/hooks/useDashboardData";
-import { RANGE } from "./dashboard/constants";
-import RevenueChartCard from "./dashboard/components/RevenueChartCard";
-import AppointmentsChartCard from "./dashboard/components/AppointmentsChartCard";
-import SummaryCard from "./dashboard/components/SummaryCard";
-import AlertsSection from "./dashboard/components/AlertsSection";
-import InsightsSection from "./dashboard/components/InsightsSection";
-import StatsSection from "./dashboard/components/StatsSection";
-import ActivitySection from "./dashboard/components/ActivitySection";
-import TablesSection from "./dashboard/components/TablesSection";
+} from "./helpers";
+import { useDashboardData } from "./hooks/useDashboardData";
+import { RANGE } from "./constants";
+import RevenueChartCard from "./components/RevenueChartCard";
+import AppointmentsChartCard from "./components/AppointmentsChartCard";
+import SummaryCard from "./components/SummaryCard";
+import AlertsSection from "./components/AlertsSection";
+import InsightsSection from "./components/InsightsSection";
+import StatsSection from "./components/StatsSection";
+import ActivitySection from "./components/ActivitySection";
+import TablesSection from "./components/TablesSection";
 // يمكن إضافة KpisSection لو أردت نقل كل البطاقات أيضاً
-import KpiCard from "./dashboard/components/KpiCard"; // سنستخدمها مباشرة لبقية المؤشرات
+import KpiCard from "./components/KpiCard"; // سنستخدمها مباشرة لبقية المؤشرات
 import "./ErpDashboardHome.css";
 
 export default function ErpDashboardHome() {

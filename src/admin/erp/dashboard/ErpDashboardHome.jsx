@@ -47,6 +47,11 @@ export default function ErpDashboardHome() {
   });
   const [expandedInsight, setExpandedInsight] = useState(null);
 
+  const handleBranchChange = useCallback((newBranchId) => {
+    setBranchId(newBranchId);
+    setActiveBranchId(newBranchId);
+  }, []);
+
   // ---- Sync branch from Navbar ----
   useEffect(() => {
     const syncBranch = (event) => {
@@ -146,10 +151,6 @@ export default function ErpDashboardHome() {
     );
   }, []);
 
-  const handleBranchChange = useCallback((newBranchId) => {
-    setBranchId(newBranchId);
-    setActiveBranchId(newBranchId);
-  }, []);
   // ========================= Early Returns =========================
   if (isLoading) {
     return (

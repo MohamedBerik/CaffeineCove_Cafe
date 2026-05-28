@@ -10,7 +10,7 @@ import {
   getGreeting,
   getAnomalyColor,
 } from "./dashboard/helpers";
-import { useDashboardData } from "./dashboard/useDashboardData";
+import { useDashboardData } from "./dashboard/hooks/useDashboardData";
 import { RANGE, insightIconMap } from "./dashboard/constants";
 import RevenueChartCard from "./dashboard/components/RevenueChartCard";
 import AppointmentsChartCard from "./dashboard/components/AppointmentsChartCard";
@@ -37,6 +37,9 @@ const formatLog = (log, t) => {
   return `${type} ${action}`;
 };
 
+const MemoizedRevenueChartCard = React.memo(RevenueChartCard);
+const MemoizedAppointmentsChartCard = React.memo(AppointmentsChartCard);
+
 export default function ErpDashboardHome() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -54,12 +57,12 @@ export default function ErpDashboardHome() {
   });
   const [expandedInsight, setExpandedInsight] = useState(null);
 
-  // ---- Sync branch ----
+  // ---- Sync branch (استخدام ?? دقيق) ----
   useEffect(() => {
     const syncBranch = (event) => {
       const latestBranch =
-        event?.detail?.branchId ||
-        localStorage.getItem("selectedBranchId") ||
+        event?.detail?.branchId ??
+        localStorage.getItem("selectedBranchId") ??
         "all";
       setBranchId((prev) => (prev !== latestBranch ? latestBranch : prev));
     };
@@ -101,7 +104,7 @@ export default function ErpDashboardHome() {
     appointmentsDataWithAnomalies,
   } = useDashboardData(branchId, range, showComparison);
 
-  // ---- Memoized values (placed before any return) ----
+  // ---- Memoized values (قبل أي return) ----
   const kpis = dashboard?.kpis || {};
   const alerts = dashboard?.reminders?.alerts || [];
   const insights = dashboard?.insights || [];
@@ -133,7 +136,7 @@ export default function ErpDashboardHome() {
     }
   }, [insights]);
 
-  // ---- AnimatedDot as component (يمرر للمخطط) ----
+  // ---- AnimatedDot كمكون عبر useCallback ----
   const AnimatedDot = useCallback((props) => {
     const { cx, cy, payload } = props;
     if (!payload?.anomaly) return null;
@@ -180,8 +183,7 @@ export default function ErpDashboardHome() {
         <h3>{t("Something went wrong")}</h3>
         <p>{error.message}</p>
         <button className="btn-retry" onClick={refetch}>
-          <i className="fas fa-sync-alt"></i>
-          {t("Try Again")}
+          <i className="fas fa-sync-alt"></i> {t("Try Again")}
         </button>
       </div>
     );
@@ -197,7 +199,7 @@ export default function ErpDashboardHome() {
     );
   }
 
-  // ========================= Data Extraction (بعد التأكد من وجود dashboard) =========================
+  // ========================= Data Extraction =========================
   const recentAppointments = dashboard.recent_appointments || [];
   const recentInvoices = dashboard.recent_invoices || [];
   const recentPayments = dashboard.recent_payments || [];
@@ -257,9 +259,9 @@ export default function ErpDashboardHome() {
         </label>
       </div>
 
-      {/* Alerts Section – النقر على الحاوية يعلّم الكل كمقروء */}
+      {/* Alerts Section – زر explicit للمسح الكلي */}
       {alerts.length > 0 && (
-        <div className="alerts-container" onClick={markAllAsRead}>
+        <div className="alerts-container">
           {visibleAlerts.map((alert) => (
             <div key={alert.id} className={`alert-card alert-${alert.type}`}>
               <i
@@ -304,10 +306,16 @@ export default function ErpDashboardHome() {
               </button>
             </div>
           ))}
+          <button
+            className="btn btn-sm btn-outline-secondary mt-2"
+            onClick={markAllAsRead}
+          >
+            {t("Mark All as Read")}
+          </button>
         </div>
       )}
 
-      {/* Insights Section مع التنقل ومؤشر التوسيع */}
+      {/* Insights Section – مع accessibility عبر role و keyboard */}
       {insights.length > 0 && (
         <div className="insights-container">
           <div className="insights-header">
@@ -318,12 +326,25 @@ export default function ErpDashboardHome() {
             <div
               key={i}
               className={`insight-card ${insight.priority} ${insight.explanation ? "expandable" : ""} ${insight.action?.url ? "clickable" : ""}`}
+              role="button"
+              tabIndex={0}
               onClick={() => {
                 if (insight.explanation) {
                   setExpandedInsight(expandedInsight === i ? null : i);
                 }
                 if (insight.action?.url && !insight.explanation) {
                   navigate(insight.action.url);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  if (insight.explanation) {
+                    setExpandedInsight(expandedInsight === i ? null : i);
+                  }
+                  if (insight.action?.url && !insight.explanation) {
+                    navigate(insight.action.url);
+                  }
                 }
               }}
               style={{
@@ -625,7 +646,7 @@ export default function ErpDashboardHome() {
         <p>{t("Real-time insights at a glance")}</p>
       </div>
       <div className="charts-grid">
-        <RevenueChartCard
+        <MemoizedRevenueChartCard
           data={visibleRevenueData}
           t={t}
           formatCurrency={formatCurrency}
@@ -635,7 +656,10 @@ export default function ErpDashboardHome() {
           setFocusRange={setFocusRange}
           showComparison={showComparison}
         />
-        <AppointmentsChartCard data={appointmentsDataWithAnomalies} t={t} />
+        <MemoizedAppointmentsChartCard
+          data={appointmentsDataWithAnomalies}
+          t={t}
+        />
       </div>
 
       {/* Recent Activity */}
@@ -698,7 +722,7 @@ export default function ErpDashboardHome() {
                   <tbody>
                     {recentAppointments.map((item) => (
                       <tr key={item.id}>
-                        <td data-label={t("Patient")}>
+                        <td>
                           {item.patient?.id ? (
                             <Link
                               to={`/admin/erp/patients/${item.patient.id}/profile`}
@@ -710,14 +734,12 @@ export default function ErpDashboardHome() {
                             "-"
                           )}
                         </td>
-                        <td data-label={t("Doctor")}>
-                          {item.doctor?.name || item.doctor_name || "-"}
-                        </td>
-                        <td data-label={t("Date")}>
+                        <td>{item.doctor?.name || item.doctor_name || "-"}</td>
+                        <td>
                           {formatDate(item.appointment_date, i18n.language)}{" "}
                           {formatTime(item.appointment_time)}
                         </td>
-                        <td data-label={t("Status")}>
+                        <td>
                           <StatusBadge status={item.status} />
                         </td>
                       </tr>
@@ -757,7 +779,7 @@ export default function ErpDashboardHome() {
                   <tbody>
                     {recentInvoices.map((item) => (
                       <tr key={item.id}>
-                        <td data-label={t("Number")}>
+                        <td>
                           <Link
                             to={`/admin/erp/invoices/${item.id}`}
                             className="invoice-link"
@@ -765,13 +787,13 @@ export default function ErpDashboardHome() {
                             {item.number}
                           </Link>
                         </td>
-                        <td data-label={t("Total")} className="fw-semibold">
+                        <td className="fw-semibold">
                           {formatCurrency(item.total)}
                         </td>
-                        <td data-label={t("Status")}>
+                        <td>
                           <StatusBadge status={item.status} />
                         </td>
-                        <td data-label={t("Issued")}>
+                        <td>
                           {formatDate(
                             item.issued_at || item.created_at,
                             i18n.language,
@@ -814,7 +836,7 @@ export default function ErpDashboardHome() {
                   <tbody>
                     {recentPayments.map((item) => (
                       <tr key={item.id}>
-                        <td data-label={t("Invoice")}>
+                        <td>
                           <Link
                             to={`/admin/erp/invoices/${item.invoice_id}`}
                             className="invoice-link"
@@ -822,19 +844,13 @@ export default function ErpDashboardHome() {
                             #{item.invoice_id}
                           </Link>
                         </td>
-                        <td
-                          data-label={t("Applied")}
-                          className="fw-semibold text-success"
-                        >
+                        <td className="fw-semibold text-success">
                           {formatCurrency(item.applied_amount)}
                         </td>
-                        <td
-                          data-label={t("Method")}
-                          className="text-capitalize"
-                        >
+                        <td className="text-capitalize">
                           {item.method || "-"}
                         </td>
-                        <td data-label={t("Paid At")}>
+                        <td>
                           {formatDateTime(
                             item.paid_at || item.created_at,
                             i18n.language,
@@ -879,7 +895,7 @@ export default function ErpDashboardHome() {
                   <tbody>
                     {recentPurchaseOrders.map((po) => (
                       <tr key={po.id}>
-                        <td data-label={t("PO #")}>
+                        <td>
                           <Link
                             to={`/admin/erp/purchase-orders/${po.id}`}
                             className="invoice-link"
@@ -887,17 +903,11 @@ export default function ErpDashboardHome() {
                             {po.number}
                           </Link>
                         </td>
-                        <td data-label={t("Supplier")}>{po.supplier || "-"}</td>
-                        <td data-label={t("Total")}>
-                          {formatCurrency(po.total)}
-                        </td>
-                        <td data-label={t("Paid")}>
-                          {formatCurrency(po.total_paid)}
-                        </td>
-                        <td data-label={t("Remaining")}>
-                          {formatCurrency(po.remaining)}
-                        </td>
-                        <td data-label={t("Status")}>
+                        <td>{po.supplier || "-"}</td>
+                        <td>{formatCurrency(po.total)}</td>
+                        <td>{formatCurrency(po.total_paid)}</td>
+                        <td>{formatCurrency(po.remaining)}</td>
+                        <td>
                           <StatusBadge status={po.status} />
                         </td>
                       </tr>
@@ -935,7 +945,7 @@ export default function ErpDashboardHome() {
                   <tbody>
                     {lowStockSupplies.map((item) => (
                       <tr key={item.id}>
-                        <td data-label={t("Name")}>
+                        <td>
                           <Link
                             to={`/admin/erp/supplies/${item.id}/edit`}
                             className="invoice-link"
@@ -943,18 +953,11 @@ export default function ErpDashboardHome() {
                             {item.name}
                           </Link>
                         </td>
-                        <td
-                          data-label={t("In Stock")}
-                          className="text-danger fw-bold"
-                        >
+                        <td className="text-danger fw-bold">
                           {item.stock_quantity}
                         </td>
-                        <td data-label={t("Unit Cost")}>
-                          {formatCurrency(item.unit_cost)}
-                        </td>
-                        <td data-label={t("Total Value")}>
-                          {formatCurrency(item.inventory_value)}
-                        </td>
+                        <td>{formatCurrency(item.unit_cost)}</td>
+                        <td>{formatCurrency(item.inventory_value)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -988,20 +991,15 @@ export default function ErpDashboardHome() {
                   <tbody>
                     {failedReminders.map((item) => (
                       <tr key={item.id}>
-                        <td data-label={t("Appointment")}>#{item.id}</td>
-                        <td data-label={t("Doctor")}>
-                          {item.doctor_name || "-"}
-                        </td>
-                        <td data-label={t("Date")}>
+                        <td>#{item.id}</td>
+                        <td>{item.doctor_name || "-"}</td>
+                        <td>
                           {formatDate(item.appointment_date, i18n.language)}
                         </td>
-                        <td
-                          data-label={t("Retries")}
-                          className="text-danger fw-bold"
-                        >
+                        <td className="text-danger fw-bold">
                           {item.reminder_retry_count}
                         </td>
-                        <td data-label={t("Last Attempt")}>
+                        <td>
                           {formatDateTime(
                             item.reminder_last_attempt_at,
                             i18n.language,

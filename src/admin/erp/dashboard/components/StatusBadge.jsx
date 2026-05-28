@@ -1,3 +1,4 @@
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 const statusMap = {
@@ -10,9 +11,14 @@ const statusMap = {
   scheduled: { label: "Scheduled", class: "warning" },
   in_progress: { label: "In Progress", class: "info" },
   pending: { label: "Pending", class: "secondary" },
+  draft: { label: "Draft", class: "secondary" },
+  overdue: { label: "Overdue", class: "danger" },
+  refunded: { label: "Refunded", class: "info" },
+  processing: { label: "Processing", class: "warning" },
+  failed: { label: "Failed", class: "danger" },
 };
 
-export default function StatusBadge({ status }) {
+const StatusBadge = ({ status }) => {
   const { t } = useTranslation();
   const value = String(status || "").toLowerCase();
   const info = statusMap[value] || {
@@ -25,4 +31,6 @@ export default function StatusBadge({ status }) {
       {t(info.label)}
     </span>
   );
-}
+};
+
+export default React.memo(StatusBadge);

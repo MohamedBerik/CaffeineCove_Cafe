@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "react-router-dom";
 
 const colorMap = {
@@ -14,7 +15,7 @@ const colorMap = {
   dark: { bg: "rgba(33, 37, 41, 0.1)", text: "#212529", border: "#212529" },
 };
 
-export default function KpiCard({
+const KpiCard = ({
   title,
   value,
   icon,
@@ -23,7 +24,7 @@ export default function KpiCard({
   trend,
   delta,
   deltaLabel,
-}) {
+}) => {
   const colors = colorMap[color] || colorMap.primary;
   const safeDelta = Number(delta ?? 0);
 
@@ -69,4 +70,5 @@ export default function KpiCard({
       {cardContent}
     </Link>
   );
-}
+};
+export default React.memo(KpiCard);

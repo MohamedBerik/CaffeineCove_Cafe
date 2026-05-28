@@ -1,3 +1,4 @@
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -7,32 +8,36 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const AppointmentsTooltip = ({ active, payload, t }) => {
+const AppointmentsTooltip = React.memo(({ active, payload, t }) => {
   if (!active || !payload?.length) return null;
+  const total = payload.find((p) => p.dataKey === "total")?.value || 0;
+  const completed = payload.find((p) => p.dataKey === "completed")?.value || 0;
+  const cancelled = payload.find((p) => p.dataKey === "cancelled")?.value || 0;
+
   return (
     <div className="custom-tooltip">
       <div className="tooltip-current">
         <span className="tooltip-label">{t("Total")}:</span>
-        <span className="tooltip-value">{payload[0]?.value || 0}</span>
+        <span className="tooltip-value">{total}</span>
       </div>
       <div className="tooltip-current">
         <span className="tooltip-label">{t("Completed")}:</span>
         <span className="tooltip-value" style={{ color: "#4caf50" }}>
-          {payload[1]?.value || 0}
+          {completed}
         </span>
       </div>
       <div className="tooltip-current">
         <span className="tooltip-label">{t("Cancelled")}:</span>
         <span className="tooltip-value" style={{ color: "#ef4444" }}>
-          {payload[2]?.value || 0}
+          {cancelled}
         </span>
       </div>
     </div>
   );
-};
+});
 
-export default function AppointmentsChartCard({ data, t }) {
-  if (!data || data.length === 0)
+const AppointmentsChartCard = ({ data, t }) => {
+  if (!data || data.length === 0) {
     return (
       <div className="chart-card">
         <div className="chart-header">
@@ -42,6 +47,7 @@ export default function AppointmentsChartCard({ data, t }) {
         <div className="chart-empty">{t("No data available")}</div>
       </div>
     );
+  }
 
   return (
     <div className="chart-card">
@@ -75,4 +81,6 @@ export default function AppointmentsChartCard({ data, t }) {
       </ResponsiveContainer>
     </div>
   );
-}
+};
+
+export default React.memo(AppointmentsChartCard);

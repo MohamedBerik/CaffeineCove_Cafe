@@ -15,10 +15,15 @@ export function useDashboardData(branchId, range, showComparison) {
   const acknowledgingRef = useRef(new Set());
   const buffer = useRef([]);
   const audioRef = useRef(null);
+  const autoFocusedRef = useRef(false); // لمنع إعادة التركيز التلقائي بعد تدخل المستخدم
 
-  const dashboardKey = getDashboardKey(branchId, range, showComparison);
+  // تثبيت المفتاح لتجنب إعادة إنشائه كل render
+  const dashboardKey = useMemo(
+    () => getDashboardKey(branchId, range, showComparison),
+    [branchId, range, showComparison],
+  );
 
-  // ---- Dashboard query (مطابقة للأصل مع staleTime 0) ----
+  // ---- Dashboard query (إعدادات محسّنة للكاش) ----
   const {
     data: dashboard,
     isLoading,
@@ -50,9 +55,9 @@ export function useDashboardData(branchId, range, showComparison) {
       return newData;
     },
     placeholderData: undefined,
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnWindowFocus: true,
+    staleTime: 30_000, // 30 ثانية قبل اعتبار البيانات قديمة
+    gcTime: 5 * 60 * 1000, // 5 دقائق للاحتفاظ بالكاش بعد unmount
+    refetchOnWindowFocus: false, // لا إعادة جلب تلقائي عند التركيز لأن الـ socket يقوم بالتحديث
     refetchInterval: false,
   });
 
@@ -71,7 +76,7 @@ export function useDashboardData(branchId, range, showComparison) {
     refetchIntervalInBackground: false,
   });
 
-  // ---- Acknowledge mutation (مع invalidate) ----
+  // ---- Acknowledge mutation ----
   const acknowledgeMutation = useMutation({
     mutationFn: (id) => axios.post(`/erp/alerts/${id}/ack`),
     onMutate: async (id) => {
@@ -117,15 +122,16 @@ export function useDashboardData(branchId, range, showComparison) {
     [acknowledgeMutation],
   );
 
-  // ---- Play sound helper ----
+  // ---- Play sound helper مع guard للمتصفح ----
   const playSound = useCallback(() => {
+    if (document.visibilityState !== "visible") return;
     if (!audioRef.current) {
       audioRef.current = new Audio("/notification.mp3");
     }
     audioRef.current?.play().catch(() => {});
   }, []);
 
-  // ---- تحديث لحظي: buffer و flush ----
+  // ---- تحديث لحظي: buffer و flush (يُحدّث الحقل الصحيح kpis.revenue.current) ----
   const flushUpdates = useCallback(() => {
     if (buffer.current.length === 0) return;
     queryClient.setQueryData(dashboardKey, (old) => {
@@ -137,9 +143,11 @@ export function useDashboardData(branchId, range, showComparison) {
           totalRevenue += event.data?.today_revenue || 0;
         }
       });
-      if (totalRevenue > 0) {
-        kpis.today_revenue = (kpis.today_revenue || 0) + totalRevenue;
-        kpis.month_revenue = (kpis.month_revenue || 0) + totalRevenue;
+      if (totalRevenue > 0 && kpis.revenue) {
+        kpis.revenue = {
+          ...kpis.revenue,
+          current: (kpis.revenue.current || 0) + totalRevenue,
+        };
       }
       return { ...old, kpis };
     });
@@ -173,12 +181,16 @@ export function useDashboardData(branchId, range, showComparison) {
           reminders: { ...old.reminders, alerts: updatedAlerts },
         };
       });
-      toast.custom((t) => (
-        <div className="custom-toast">
-          <strong>{newAlert.priority.toUpperCase()}</strong>
-          <p>{newAlert.message}</p>
-        </div>
-      ));
+      // إضافة id لمنع تراكم التوست
+      toast.custom(
+        (t) => (
+          <div className="custom-toast">
+            <strong>{newAlert.priority.toUpperCase()}</strong>
+            <p>{newAlert.message}</p>
+          </div>
+        ),
+        { id: `alert-${newAlert.id}` },
+      );
     },
     [addAlert, playSound, queryClient, dashboardKey],
   );
@@ -189,45 +201,71 @@ export function useDashboardData(branchId, range, showComparison) {
       queryClient.setQueryData(dashboardKey, (old) => {
         if (!old) return old;
         const kpis = { ...old.kpis };
+
         switch (event.type) {
           case "appointment_created":
-            kpis.today_appointments_count =
-              (kpis.today_appointments_count || 0) + 1;
-            kpis.scheduled_today_count = (kpis.scheduled_today_count || 0) + 1;
+            if (kpis.appointments)
+              kpis.appointments = {
+                ...kpis.appointments,
+                current: (kpis.appointments.current || 0) + 1,
+              };
             break;
           case "appointment_completed":
-            kpis.completed_today_count = (kpis.completed_today_count || 0) + 1;
-            kpis.scheduled_today_count = Math.max(
-              0,
-              (kpis.scheduled_today_count || 0) - 1,
-            );
+            if (kpis.completed_appointments)
+              kpis.completed_appointments = {
+                ...kpis.completed_appointments,
+                current: (kpis.completed_appointments.current || 0) + 1,
+              };
+            if (kpis.appointments)
+              kpis.appointments = {
+                ...kpis.appointments,
+                current: Math.max(0, (kpis.appointments.current || 0) - 1),
+              };
             break;
           case "appointment_cancelled":
-            kpis.cancelled_today_count = (kpis.cancelled_today_count || 0) + 1;
-            kpis.scheduled_today_count = Math.max(
-              0,
-              (kpis.scheduled_today_count || 0) - 1,
-            );
+            if (kpis.cancelled_appointments)
+              kpis.cancelled_appointments = {
+                ...kpis.cancelled_appointments,
+                current: (kpis.cancelled_appointments.current || 0) + 1,
+              };
+            if (kpis.appointments)
+              kpis.appointments = {
+                ...kpis.appointments,
+                current: Math.max(0, (kpis.appointments.current || 0) - 1),
+              };
             break;
           case "appointment_no_show":
-            kpis.no_show_today_count = (kpis.no_show_today_count || 0) + 1;
-            kpis.scheduled_today_count = Math.max(
-              0,
-              (kpis.scheduled_today_count || 0) - 1,
-            );
+            if (kpis.no_show_appointments)
+              kpis.no_show_appointments = {
+                ...kpis.no_show_appointments,
+                current: (kpis.no_show_appointments.current || 0) + 1,
+              };
+            if (kpis.appointments)
+              kpis.appointments = {
+                ...kpis.appointments,
+                current: Math.max(0, (kpis.appointments.current || 0) - 1),
+              };
             break;
           case "payment_created":
-            kpis.today_revenue =
-              (kpis.today_revenue || 0) + (event.data?.today_revenue || 0);
-            kpis.month_revenue =
-              (kpis.month_revenue || 0) + (event.data?.month_revenue || 0);
+            if (kpis.revenue)
+              kpis.revenue = {
+                ...kpis.revenue,
+                current:
+                  (kpis.revenue.current || 0) +
+                  (event.data?.today_revenue || 0),
+              };
             break;
           case "invoice_paid":
-            kpis.paid_invoices_count = (kpis.paid_invoices_count || 0) + 1;
-            kpis.unpaid_invoices_count = Math.max(
-              0,
-              (kpis.unpaid_invoices_count || 0) - 1,
-            );
+            if (kpis.paid_invoices)
+              kpis.paid_invoices = {
+                ...kpis.paid_invoices,
+                current: (kpis.paid_invoices.current || 0) + 1,
+              };
+            if (kpis.unpaid_invoices)
+              kpis.unpaid_invoices = {
+                ...kpis.unpaid_invoices,
+                current: Math.max(0, (kpis.unpaid_invoices.current || 0) - 1),
+              };
             break;
           default:
             return old;
@@ -242,12 +280,15 @@ export function useDashboardData(branchId, range, showComparison) {
     (insight) => {
       if (insight.priority === "high") {
         playSound();
-        toast.custom((toastInstance) => (
-          <div className="custom-toast toast-high">
-            <strong>🔔 Smart Insight</strong>
-            <p>{insight.message}</p>
-          </div>
-        ));
+        toast.custom(
+          (toastInstance) => (
+            <div className="custom-toast toast-high">
+              <strong>🔔 Smart Insight</strong>
+              <p>{insight.message}</p>
+            </div>
+          ),
+          { id: `insight-${insight.id || Date.now()}` },
+        );
       }
       queryClient.setQueryData(dashboardKey, (old) => {
         if (!old) return old;
@@ -296,7 +337,7 @@ export function useDashboardData(branchId, range, showComparison) {
     });
   }, [dashboard?.reminders?.alerts]);
 
-  // ---- Anomaly maps (مطابقة للأصل) ----
+  // ---- Anomaly maps ----
   const revenueAnomalyPoints = useMemo(() => {
     const insights = dashboard?.insights || [];
     return insights
@@ -311,7 +352,7 @@ export function useDashboardData(branchId, range, showComparison) {
       .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
   }, [dashboard]);
 
-  // ---- Chart data (مطابقة للأصل) ----
+  // ---- Chart data ----
   const revenueChartData = useMemo(
     () =>
       (dashboard?.charts?.revenue || []).map((item) => ({
@@ -363,15 +404,15 @@ export function useDashboardData(branchId, range, showComparison) {
     [mergedRevenueData, revenueAnomalyPoints],
   );
 
-  // focusRange يُستخدم لقص البيانات
   const visibleRevenueData = useMemo(() => {
     return focusRange
       ? revenueDataWithAnomalies.slice(focusRange[0], focusRange[1])
       : revenueDataWithAnomalies;
   }, [focusRange, revenueDataWithAnomalies]);
 
-  // تأثير تعيين focusRange تلقائياً عند وجود anomalies (كما في الأصل)
+  // تأثير تعيين focusRange تلقائياً عند وجود anomalies، مع منع التكرار بعد تدخل المستخدم
   useEffect(() => {
+    if (autoFocusedRef.current) return; // توقف تلقائي بعد أول manual interaction
     if (!revenueAnomalyPoints.length) {
       setFocusRange(null);
       return;
@@ -382,13 +423,22 @@ export function useDashboardData(branchId, range, showComparison) {
     const start = Math.max(index - 3, 0);
     const end = Math.min(index + 4, mergedRevenueData.length);
     setFocusRange([start, end]);
+    autoFocusedRef.current = true; // تم التركيز التلقائي مرة واحدة
   }, [revenueAnomalyPoints, mergedRevenueData]);
+
+  // عند إعادة تعيين المستخدم للـ focusRange، نسمح بإعادة التركيز التلقائي مرة أخرى لاحقاً
+  const handleSetFocusRange = useCallback((value) => {
+    if (value === null) {
+      autoFocusedRef.current = false; // أعد السماح بالتركيز التلقائي
+    }
+    setFocusRange(value);
+  }, []);
 
   const appointmentsChartData = useMemo(
     () =>
       (dashboard?.charts?.appointments || []).map((item) => ({
         label: item.label,
-        date: item.label, // لإمكانية ربط anomaly
+        date: item.label,
         total: item.current,
         completed: item.completed || 0,
         cancelled: item.cancelled || 0,
@@ -421,7 +471,7 @@ export function useDashboardData(branchId, range, showComparison) {
     setHiddenAlerts,
     markAllAsRead,
     focusRange,
-    setFocusRange,
+    setFocusRange: handleSetFocusRange, // نمرر الدالة المخصصة
     visibleRevenueData,
     appointmentsDataWithAnomalies,
     playSound,

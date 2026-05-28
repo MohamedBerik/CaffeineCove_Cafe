@@ -5,7 +5,6 @@ const AlertsSection = ({
   alerts,
   visibleAlerts,
   acknowledgingIds,
-  hiddenAlerts,
   setHiddenAlerts,
   markAllAsRead,
   acknowledge,
@@ -14,7 +13,8 @@ const AlertsSection = ({
 }) => {
   const { t } = useTranslation();
 
-  if (!alerts || alerts.length === 0) return null;
+  // استخدم visibleAlerts بدلاً من alerts
+  if (!visibleAlerts || visibleAlerts.length === 0) return null;
 
   return (
     <div className="alerts-container">

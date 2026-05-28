@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import {
   LineChart,
   Line,
@@ -9,6 +9,7 @@ import {
 } from "recharts";
 import { getAnomalyColor } from "../helpers";
 
+// Tooltip wrapper with memo
 const CustomTooltipWrapper = memo(({ active, payload, formatCurrency, t }) => {
   if (!active || !payload?.length) return null;
   const currentValue = payload.find((p) => p.dataKey === "current")?.value || 0;
@@ -63,6 +64,13 @@ const RevenueChartCard = ({
   setFocusRange,
   showComparison,
 }) => {
+  const renderTooltip = useCallback(
+    (props) => (
+      <CustomTooltipWrapper {...props} formatCurrency={formatCurrency} t={t} />
+    ),
+    [formatCurrency, t],
+  );
+
   if (!data || data.length === 0) {
     return (
       <div className="chart-card">
@@ -105,11 +113,7 @@ const RevenueChartCard = ({
           <YAxis
             tickFormatter={(v) => (v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v)}
           />
-          <Tooltip
-            content={
-              <CustomTooltipWrapper formatCurrency={formatCurrency} t={t} />
-            }
-          />
+          <Tooltip content={renderTooltip} />
           <Line
             type="monotone"
             dataKey="current"

@@ -2,7 +2,7 @@ import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import KpiCard from "./KpiCard";
 
-const StatsSection = ({ kpis, formatCurrency }) => {
+const StatsSection = ({ kpis, formatCurrency, pendingReminders }) => {
   const { t } = useTranslation();
 
   const totalRevenue = kpis.revenue?.current || 0;
@@ -12,7 +12,6 @@ const StatsSection = ({ kpis, formatCurrency }) => {
           100,
       )
     : 0;
-  const reminderStats = kpis.reminders?.stats || {}; // غير متوفر مباشرة، سنمرره من الخارج
 
   return (
     <>
@@ -47,9 +46,7 @@ const StatsSection = ({ kpis, formatCurrency }) => {
             <i className="fas fa-clock"></i>
           </div>
           <div className="stat-info">
-            <span className="stat-value">
-              {kpis.reminders?.stats?.pending ?? 0}
-            </span>
+            <span className="stat-value">{pendingReminders ?? 0}</span>
             <span className="stat-label">{t("Pending Reminders")}</span>
           </div>
         </div>

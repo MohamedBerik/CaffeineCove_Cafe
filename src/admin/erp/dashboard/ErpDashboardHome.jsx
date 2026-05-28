@@ -25,8 +25,9 @@ import InsightsSection from "./components/InsightsSection";
 import StatsSection from "./components/StatsSection";
 import ActivitySection from "./components/ActivitySection";
 import TablesSection from "./components/TablesSection";
-// يمكن إضافة KpisSection لو أردت نقل كل البطاقات أيضاً
-import KpiCard from "./components/KpiCard"; // سنستخدمها مباشرة لبقية المؤشرات
+import KpisSection from "./components/KpisSection";
+import PurchasesSection from "./components/PurchasesSection";
+import InventorySection from "./components/InventorySection";
 import "./ErpDashboardHome.css";
 
 export default function ErpDashboardHome() {
@@ -92,7 +93,7 @@ export default function ErpDashboardHome() {
     appointmentsDataWithAnomalies,
   } = useDashboardData(branchId, range, showComparison);
 
-  // ---- Memoized values (before any return) ----
+  // ---- Memoized values ----
   const kpis = dashboard?.kpis || {};
   const alerts = dashboard?.reminders?.alerts || [];
   const insights = dashboard?.insights || [];
@@ -125,26 +126,15 @@ export default function ErpDashboardHome() {
     }
   }, [insights]);
 
-  // ---- AnimatedDot component (passed as function) ----
+  // ---- AnimatedDot component (improved) ----
   const AnimatedDot = useCallback((props) => {
     const { cx, cy, payload } = props;
     if (!payload?.anomaly) return null;
+    const color = getAnomalyColor(payload.anomaly.priority);
     return (
       <g>
-        <circle
-          cx={cx}
-          cy={cy}
-          r={8}
-          className="pulse-dot"
-          fill={getAnomalyColor(payload.anomaly.priority)}
-        />
-        <text
-          x={cx}
-          y={cy - 12}
-          fontSize="12"
-          textAnchor="middle"
-          fill={getAnomalyColor(payload.anomaly.priority)}
-        >
+        <circle cx={cx} cy={cy} r={8} className="pulse-dot" fill={color} />
+        <text x={cx} y={cy - 12} fontSize="12" textAnchor="middle" fill={color}>
           ⚠️
         </text>
       </g>
@@ -188,7 +178,7 @@ export default function ErpDashboardHome() {
     );
   }
 
-  // Data extraction for tables & extra sections
+  // Data for tables
   const recentAppointments = dashboard.recent_appointments || [];
   const recentInvoices = dashboard.recent_invoices || [];
   const recentPayments = dashboard.recent_payments || [];
@@ -242,10 +232,8 @@ export default function ErpDashboardHome() {
 
       {/* Alerts Section */}
       <AlertsSection
-        alerts={alerts}
         visibleAlerts={visibleAlerts}
         acknowledgingIds={acknowledgingIds}
-        hiddenAlerts={hiddenAlerts}
         setHiddenAlerts={setHiddenAlerts}
         markAllAsRead={markAllAsRead}
         acknowledge={acknowledge}
@@ -271,171 +259,13 @@ export default function ErpDashboardHome() {
       />
 
       {/* Key Performance Indicators */}
-      <div className="section-header">
-        <h2>{t("Key Performance Indicators")}</h2>
-        <p>{t("Monitor your clinic's performance at a glance")}</p>
-      </div>
-      <div className="kpis-grid">
-        <KpiCard
-          title={t("Revenue")}
-          value={formatCurrency(kpis.revenue?.current || 0)}
-          icon="fas fa-money-bill-wave"
-          color="success"
-          delta={kpis.revenue?.delta}
-          deltaLabel={t("vs previous")}
-        />
-        <KpiCard
-          title={t("Appointments")}
-          value={kpis.appointments?.current || 0}
-          icon="fas fa-calendar-check"
-          color="primary"
-          delta={kpis.appointments?.delta}
-          deltaLabel={t("vs previous")}
-        />
-        <KpiCard
-          title={t("Completed")}
-          value={kpis.completed_appointments?.current || 0}
-          icon="fas fa-check-circle"
-          color="info"
-          delta={kpis.completed_appointments?.delta}
-          deltaLabel={t("vs previous")}
-        />
-        <KpiCard
-          title={t("Cancelled")}
-          value={kpis.cancelled_appointments?.current || 0}
-          icon="fas fa-times-circle"
-          color="danger"
-          delta={kpis.cancelled_appointments?.delta}
-          deltaLabel={t("vs previous")}
-        />
-        <KpiCard
-          title={t("No Show")}
-          value={kpis.no_show_appointments?.current || 0}
-          icon="fas fa-user-slash"
-          color="warning"
-          delta={kpis.no_show_appointments?.delta}
-          deltaLabel={t("vs previous")}
-        />
-        <KpiCard
-          title={t("Unpaid Invoices")}
-          value={kpis.unpaid_invoices?.current || 0}
-          icon="fas fa-file-invoice"
-          color="danger"
-          delta={kpis.unpaid_invoices?.delta}
-          deltaLabel={t("vs previous")}
-          link="/admin/erp/invoices"
-        />
-        <KpiCard
-          title={t("Paid Invoices")}
-          value={kpis.paid_invoices?.current || 0}
-          icon="fas fa-check-double"
-          color="success"
-          delta={kpis.paid_invoices?.delta}
-          deltaLabel={t("vs previous")}
-          link="/admin/erp/invoices"
-        />
-        <KpiCard
-          title={t("New Patients")}
-          value={kpis.total_patients?.current || 0}
-          icon="fas fa-user-plus"
-          color="primary"
-          delta={kpis.total_patients?.delta}
-          deltaLabel={t("vs previous")}
-          link="/admin/erp/patients"
-        />
-      </div>
+      <KpisSection kpis={kpis} formatCurrency={formatCurrency} />
 
       {/* Purchases KPIs */}
-      <div className="section-header">
-        <h2>{t("Purchases")}</h2>
-        <p>{t("Monitor your procurement and supplier payments")}</p>
-      </div>
-      <div className="kpis-grid">
-        <KpiCard
-          title={t("Purchase Total")}
-          value={formatCurrency(kpis.purchase_total?.current || 0)}
-          icon="fas fa-shopping-cart"
-          color="info"
-          delta={kpis.purchase_total?.delta}
-          deltaLabel={t("vs previous")}
-        />
-        <KpiCard
-          title={t("Orders Count")}
-          value={kpis.purchase_orders_count?.current || 0}
-          icon="fas fa-clipboard-list"
-          color="primary"
-          delta={kpis.purchase_orders_count?.delta}
-          deltaLabel={t("vs previous")}
-        />
-        <KpiCard
-          title={t("Paid to Suppliers")}
-          value={formatCurrency(kpis.supplier_payments?.current || 0)}
-          icon="fas fa-credit-card"
-          color="success"
-          delta={kpis.supplier_payments?.delta}
-          deltaLabel={t("vs previous")}
-        />
-        <KpiCard
-          title={t("Purchase Returns")}
-          value={formatCurrency(kpis.purchase_returns?.current || 0)}
-          icon="fas fa-undo-alt"
-          color="danger"
-          delta={kpis.purchase_returns?.delta}
-          deltaLabel={t("vs previous")}
-        />
-        <KpiCard
-          title={t("Net Purchases")}
-          value={formatCurrency(kpis.purchase_net?.current || 0)}
-          icon="fas fa-receipt"
-          color="primary"
-          delta={kpis.purchase_net?.delta}
-          deltaLabel={t("vs previous")}
-        />
-        <KpiCard
-          title={
-            (kpis.purchase_balance?.current || 0) < 0
-              ? t("Supplier Credits")
-              : t("Purchase Balance")
-          }
-          value={
-            (kpis.purchase_balance?.current || 0) < 0
-              ? formatCurrency(Math.abs(kpis.purchase_balance?.current || 0))
-              : formatCurrency(kpis.purchase_balance?.current || 0)
-          }
-          icon={
-            (kpis.purchase_balance?.current || 0) < 0
-              ? "fas fa-hand-holding-heart"
-              : "fas fa-balance-scale"
-          }
-          color={
-            (kpis.purchase_balance?.current || 0) < 0 ? "success" : "secondary"
-          }
-          delta={kpis.purchase_balance?.delta}
-          deltaLabel={t("vs previous")}
-        />
-      </div>
+      <PurchasesSection kpis={kpis} formatCurrency={formatCurrency} />
 
       {/* Inventory KPIs */}
-      <div className="section-header">
-        <h2>{t("Inventory")}</h2>
-        <p>{t("Stock levels and inventory valuation")}</p>
-      </div>
-      <div className="kpis-grid">
-        <KpiCard
-          title={t("Low Stock Supplies")}
-          value={kpis.low_stock_supplies?.current || 0}
-          icon="fas fa-exclamation-triangle"
-          color="warning"
-          link="/admin/erp/supplies"
-        />
-        <KpiCard
-          title={t("Inventory Value")}
-          value={formatCurrency(kpis.inventory_value?.current || 0)}
-          icon="fas fa-boxes"
-          color="info"
-          link="/admin/erp/supplies"
-        />
-      </div>
+      <InventorySection kpis={kpis} formatCurrency={formatCurrency} />
 
       {/* Charts Section */}
       <div className="section-header">

@@ -10,7 +10,7 @@ import {
   getGreeting,
   getAnomalyColor,
 } from "./dashboard/helpers";
-import { useDashboardData } from "./dashboard/hooks/useDashboardData";
+import { useDashboardData } from "./dashboard/useDashboardData";
 import { RANGE, insightIconMap } from "./dashboard/constants";
 import RevenueChartCard from "./dashboard/components/RevenueChartCard";
 import AppointmentsChartCard from "./dashboard/components/AppointmentsChartCard";
@@ -101,6 +101,21 @@ export default function ErpDashboardHome() {
     appointmentsDataWithAnomalies,
   } = useDashboardData(branchId, range, showComparison);
 
+  // ---- Memoized values (placed before any return) ----
+  const kpis = dashboard?.kpis || {};
+  const alerts = dashboard?.reminders?.alerts || [];
+  const insights = dashboard?.insights || [];
+
+  const summaryMessages = useMemo(() => {
+    if (!dashboard?.kpis) return [];
+    return generateSummary(dashboard.kpis, t);
+  }, [dashboard?.kpis, t]);
+
+  const visibleAlerts = useMemo(
+    () => alerts.filter((a) => !hiddenAlerts.has(a.id)),
+    [alerts, hiddenAlerts],
+  );
+
   // ---- التمرير عند وجود focusRange ----
   useEffect(() => {
     if (focusRange && chartRef.current) {
@@ -110,14 +125,13 @@ export default function ErpDashboardHome() {
 
   // ---- توسيع أول insight عالي الأولوية تلقائياً ----
   useEffect(() => {
-    const insights = dashboard?.insights || [];
     if (insights.length > 0) {
       const highIndex = insights.findIndex((i) => i.priority === "high");
       if (highIndex !== -1) {
         setExpandedInsight(highIndex);
       }
     }
-  }, [dashboard?.insights]);
+  }, [insights]);
 
   // ---- AnimatedDot as component (يمرر للمخطط) ----
   const AnimatedDot = useCallback((props) => {
@@ -183,28 +197,14 @@ export default function ErpDashboardHome() {
     );
   }
 
-  // ========================= Data Extraction =========================
-  const kpis = dashboard.kpis || {};
-  const summaryMessages = useMemo(() => {
-    const kpis = dashboard?.kpis;
-    if (!kpis) return [];
-    return generateSummary(kpis, t);
-  }, [dashboard?.kpis, t]);
-
+  // ========================= Data Extraction (بعد التأكد من وجود dashboard) =========================
   const recentAppointments = dashboard.recent_appointments || [];
   const recentInvoices = dashboard.recent_invoices || [];
   const recentPayments = dashboard.recent_payments || [];
   const recentPurchaseOrders = dashboard.recent_purchase_orders || [];
   const lowStockSupplies = dashboard.low_stock_supplies || [];
   const failedReminders = dashboard.reminders?.failed_recent || [];
-  const alerts = dashboard.reminders?.alerts || [];
-  const insights = dashboard.insights || [];
   const reminderStats = dashboard.reminders?.stats || {};
-
-  const visibleAlerts = useMemo(
-    () => alerts.filter((a) => !hiddenAlerts.has(a.id)),
-    [alerts, hiddenAlerts],
-  );
 
   const totalRevenue = kpis.revenue?.current || 0;
   const completionRate = kpis.appointments?.current

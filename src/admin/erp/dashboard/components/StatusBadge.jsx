@@ -1,4 +1,4 @@
-import React from "react";
+import { memo } from "react";
 import { useTranslation } from "react-i18next";
 
 const statusMap = {
@@ -33,4 +33,4 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-export default React.memo(StatusBadge);
+export default memo(StatusBadge);

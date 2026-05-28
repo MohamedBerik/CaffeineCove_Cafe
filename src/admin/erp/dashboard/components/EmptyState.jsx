@@ -1,4 +1,4 @@
-import React from "react";
+import { memo } from "react";
 
 const EmptyState = ({ text }) => (
   <div className="empty-state">
@@ -7,4 +7,4 @@ const EmptyState = ({ text }) => (
   </div>
 );
 
-export default React.memo(EmptyState);
+export default memo(EmptyState);

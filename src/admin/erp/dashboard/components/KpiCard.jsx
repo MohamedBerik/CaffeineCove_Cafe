@@ -1,4 +1,4 @@
-import React from "react";
+import { memo } from "react";
 import { Link } from "react-router-dom";
 
 const colorMap = {
@@ -64,6 +64,7 @@ const KpiCard = ({
       </div>
     </div>
   );
+
   if (!link) return cardContent;
   return (
     <Link to={link} className="kpi-link-wrapper">
@@ -71,4 +72,5 @@ const KpiCard = ({
     </Link>
   );
 };
-export default React.memo(KpiCard);
+
+export default memo(KpiCard);

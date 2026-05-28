@@ -1,4 +1,4 @@
-import React from "react";
+import { memo } from "react";
 import {
   LineChart,
   Line,
@@ -9,53 +9,49 @@ import {
 } from "recharts";
 import { getAnomalyColor } from "../helpers";
 
-// Tooltip مخصص مع memo
-const CustomTooltipWrapper = React.memo(
-  ({ active, payload, formatCurrency, t }) => {
-    if (!active || !payload?.length) return null;
-    const currentValue =
-      payload.find((p) => p.dataKey === "current")?.value || 0;
-    const previousValue =
-      payload.find((p) => p.dataKey === "previous")?.value || 0;
-    const anomaly = payload[0]?.payload?.anomaly;
-    const change =
-      previousValue !== 0
-        ? ((currentValue - previousValue) / previousValue) * 100
-        : 0;
+const CustomTooltipWrapper = memo(({ active, payload, formatCurrency, t }) => {
+  if (!active || !payload?.length) return null;
+  const currentValue = payload.find((p) => p.dataKey === "current")?.value || 0;
+  const previousValue =
+    payload.find((p) => p.dataKey === "previous")?.value || 0;
+  const anomaly = payload[0]?.payload?.anomaly;
+  const change =
+    previousValue !== 0
+      ? ((currentValue - previousValue) / previousValue) * 100
+      : 0;
 
-    return (
-      <div className="custom-tooltip">
-        <div className="tooltip-current">
-          <span className="tooltip-label">{t("Current")}:</span>
-          <span className="tooltip-value">{formatCurrency(currentValue)}</span>
-        </div>
-        <div className="tooltip-previous">
-          <span className="tooltip-label">{t("Previous")}:</span>
-          <span className="tooltip-value">{formatCurrency(previousValue)}</span>
-        </div>
-        {previousValue > 0 && (
-          <div
-            className={`tooltip-change ${change >= 0 ? "positive" : "negative"}`}
-          >
-            <span className="tooltip-label">{t("Change")}:</span>
-            <span className="tooltip-value">
-              {change >= 0 ? "↑" : "↓"} {Math.abs(change).toFixed(1)}%
-            </span>
-          </div>
-        )}
-        {anomaly && (
-          <div
-            className="tooltip-anomaly"
-            style={{ borderColor: getAnomalyColor(anomaly.priority) }}
-          >
-            <span className="anomaly-icon">⚠️</span>
-            <span className="anomaly-message">{t(anomaly.message)}</span>
-          </div>
-        )}
+  return (
+    <div className="custom-tooltip">
+      <div className="tooltip-current">
+        <span className="tooltip-label">{t("Current")}:</span>
+        <span className="tooltip-value">{formatCurrency(currentValue)}</span>
       </div>
-    );
-  },
-);
+      <div className="tooltip-previous">
+        <span className="tooltip-label">{t("Previous")}:</span>
+        <span className="tooltip-value">{formatCurrency(previousValue)}</span>
+      </div>
+      {previousValue > 0 && (
+        <div
+          className={`tooltip-change ${change >= 0 ? "positive" : "negative"}`}
+        >
+          <span className="tooltip-label">{t("Change")}:</span>
+          <span className="tooltip-value">
+            {change >= 0 ? "↑" : "↓"} {Math.abs(change).toFixed(1)}%
+          </span>
+        </div>
+      )}
+      {anomaly && (
+        <div
+          className="tooltip-anomaly"
+          style={{ borderColor: getAnomalyColor(anomaly.priority) }}
+        >
+          <span className="anomaly-icon">⚠️</span>
+          <span className="anomaly-message">{t(anomaly.message)}</span>
+        </div>
+      )}
+    </div>
+  );
+});
 
 const RevenueChartCard = ({
   data,
@@ -119,7 +115,7 @@ const RevenueChartCard = ({
             dataKey="current"
             stroke="#1a237e"
             strokeWidth={3}
-            dot={AnimatedDot} // تمرير الدالة مباشرة
+            dot={AnimatedDot}
             isAnimationActive={true}
             animationDuration={500}
           />
@@ -146,4 +142,4 @@ const RevenueChartCard = ({
   );
 };
 
-export default React.memo(RevenueChartCard);
+export default memo(RevenueChartCard);

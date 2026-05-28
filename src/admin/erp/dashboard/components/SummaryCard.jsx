@@ -1,4 +1,4 @@
-import React from "react";
+import { memo } from "react";
 
 const SummaryCard = ({ messages, t }) => {
   if (!Array.isArray(messages) || !messages.length) return null;
@@ -23,4 +23,4 @@ const SummaryCard = ({ messages, t }) => {
   );
 };
 
-export default React.memo(SummaryCard);
+export default memo(SummaryCard);

@@ -1,4 +1,4 @@
-import React from "react";
+import { memo } from "react";
 import {
   BarChart,
   Bar,
@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const AppointmentsTooltip = React.memo(({ active, payload, t }) => {
+const AppointmentsTooltip = memo(({ active, payload, t }) => {
   if (!active || !payload?.length) return null;
   const total = payload.find((p) => p.dataKey === "total")?.value || 0;
   const completed = payload.find((p) => p.dataKey === "completed")?.value || 0;
@@ -83,4 +83,4 @@ const AppointmentsChartCard = ({ data, t }) => {
   );
 };
 
-export default React.memo(AppointmentsChartCard);
+export default memo(AppointmentsChartCard);

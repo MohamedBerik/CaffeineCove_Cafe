@@ -1,4 +1,10 @@
-import { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -10,7 +16,7 @@ import {
   getGreeting,
   getAnomalyColor,
 } from "./dashboard/helpers";
-import { useDashboardData } from "./dashboard/hooks/useDashboardData";
+import { useDashboardData } from "./dashboard/useDashboardData";
 import { RANGE, insightIconMap } from "./dashboard/constants";
 import RevenueChartCard from "./dashboard/components/RevenueChartCard";
 import AppointmentsChartCard from "./dashboard/components/AppointmentsChartCard";

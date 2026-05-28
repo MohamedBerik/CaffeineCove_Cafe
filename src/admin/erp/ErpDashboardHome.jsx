@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   useFormatCurrency,
@@ -16,39 +15,22 @@ import {
   getGreeting,
   getAnomalyColor,
 } from "./dashboard/helpers";
-import { useDashboardData } from "./dashboard/useDashboardData";
-import { RANGE, insightIconMap } from "./dashboard/constants";
+import { useDashboardData } from "./dashboard/hooks/useDashboardData";
+import { RANGE } from "./dashboard/constants";
 import RevenueChartCard from "./dashboard/components/RevenueChartCard";
 import AppointmentsChartCard from "./dashboard/components/AppointmentsChartCard";
-import KpiCard from "./dashboard/components/KpiCard";
-import EmptyState from "./dashboard/components/EmptyState";
-import StatusBadge from "./dashboard/components/StatusBadge";
 import SummaryCard from "./dashboard/components/SummaryCard";
+import AlertsSection from "./dashboard/components/AlertsSection";
+import InsightsSection from "./dashboard/components/InsightsSection";
+import StatsSection from "./dashboard/components/StatsSection";
+import ActivitySection from "./dashboard/components/ActivitySection";
+import TablesSection from "./dashboard/components/TablesSection";
+// يمكن إضافة KpisSection لو أردت نقل كل البطاقات أيضاً
+import KpiCard from "./dashboard/components/KpiCard"; // سنستخدمها مباشرة لبقية المؤشرات
 import "./ErpDashboardHome.css";
-
-const formatLog = (log, t) => {
-  const type = log.subject_type;
-  const action = log.action;
-  if (type === "Appointment") {
-    if (action === "created") return t("New appointment created");
-    if (action === "updated") return t("Appointment updated");
-    if (action === "deleted") return t("Appointment deleted");
-  }
-  if (type === "Invoice") {
-    if (action === "created") return t("New invoice created");
-    if (action === "paid") return t("Invoice paid");
-  }
-  if (type === "Payment") return t("New payment recorded");
-  if (type === "Customer") return t("Customer updated");
-  return `${type} ${action}`;
-};
-
-const MemoizedRevenueChartCard = React.memo(RevenueChartCard);
-const MemoizedAppointmentsChartCard = React.memo(AppointmentsChartCard);
 
 export default function ErpDashboardHome() {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
   const formatCurrency = useFormatCurrency();
   const chartRef = useRef(null);
 
@@ -63,7 +45,7 @@ export default function ErpDashboardHome() {
   });
   const [expandedInsight, setExpandedInsight] = useState(null);
 
-  // ---- Sync branch (استخدام ?? دقيق) ----
+  // ---- Sync branch from Navbar ----
   useEffect(() => {
     const syncBranch = (event) => {
       const latestBranch =
@@ -110,10 +92,11 @@ export default function ErpDashboardHome() {
     appointmentsDataWithAnomalies,
   } = useDashboardData(branchId, range, showComparison);
 
-  // ---- Memoized values (قبل أي return) ----
+  // ---- Memoized values (before any return) ----
   const kpis = dashboard?.kpis || {};
   const alerts = dashboard?.reminders?.alerts || [];
   const insights = dashboard?.insights || [];
+  const reminderStats = dashboard?.reminders?.stats || {};
 
   const summaryMessages = useMemo(() => {
     if (!dashboard?.kpis) return [];
@@ -125,14 +108,14 @@ export default function ErpDashboardHome() {
     [alerts, hiddenAlerts],
   );
 
-  // ---- التمرير عند وجود focusRange ----
+  // ---- Scroll to chart on focusRange ----
   useEffect(() => {
     if (focusRange && chartRef.current) {
       chartRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, [focusRange]);
 
-  // ---- توسيع أول insight عالي الأولوية تلقائياً ----
+  // ---- Auto-expand first high-priority insight ----
   useEffect(() => {
     if (insights.length > 0) {
       const highIndex = insights.findIndex((i) => i.priority === "high");
@@ -142,7 +125,7 @@ export default function ErpDashboardHome() {
     }
   }, [insights]);
 
-  // ---- AnimatedDot كمكون عبر useCallback ----
+  // ---- AnimatedDot component (passed as function) ----
   const AnimatedDot = useCallback((props) => {
     const { cx, cy, payload } = props;
     if (!payload?.anomaly) return null;
@@ -205,22 +188,13 @@ export default function ErpDashboardHome() {
     );
   }
 
-  // ========================= Data Extraction =========================
+  // Data extraction for tables & extra sections
   const recentAppointments = dashboard.recent_appointments || [];
   const recentInvoices = dashboard.recent_invoices || [];
   const recentPayments = dashboard.recent_payments || [];
   const recentPurchaseOrders = dashboard.recent_purchase_orders || [];
   const lowStockSupplies = dashboard.low_stock_supplies || [];
   const failedReminders = dashboard.reminders?.failed_recent || [];
-  const reminderStats = dashboard.reminders?.stats || {};
-
-  const totalRevenue = kpis.revenue?.current || 0;
-  const completionRate = kpis.appointments?.current
-    ? Math.round(
-        (kpis.completed_appointments?.current / kpis.appointments?.current) *
-          100,
-      )
-    : 0;
 
   // ========================= UI =========================
   return (
@@ -243,6 +217,7 @@ export default function ErpDashboardHome() {
         </div>
       </div>
 
+      {/* Range & Comparison Toggle */}
       <div className="comparison-toggle-container">
         <div className="range-toggle">
           {[RANGE.DAY, RANGE.WEEK, RANGE.MONTH].map((r) => (
@@ -265,221 +240,37 @@ export default function ErpDashboardHome() {
         </label>
       </div>
 
-      {/* Alerts Section – زر explicit للمسح الكلي */}
-      {alerts.length > 0 && (
-        <div className="alerts-container">
-          {visibleAlerts.map((alert) => (
-            <div key={alert.id} className={`alert-card alert-${alert.type}`}>
-              <i
-                className={`fas ${alert.type === "warning" ? "fa-exclamation-triangle" : "fa-info-circle"}`}
-              ></i>
-              <span className={`alert-priority priority-${alert.priority}`}>
-                {alert.priority}
-              </span>
-              <span>
-                {t(alert.message)}{" "}
-                {alert.meta?.count ? `(${alert.meta.count})` : ""}
-              </span>
-              <small className="alert-time">
-                {formatDateTime(alert.time, i18n.language)}
-              </small>
-              <button
-                className="alert-close"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setHiddenAlerts((prev) => {
-                    const next = new Set(prev);
-                    next.add(alert.id);
-                    return next;
-                  });
-                }}
-              >
-                <i className="fas fa-times"></i>
-              </button>
-              <button
-                className="alert-ack"
-                disabled={acknowledgingIds.has(alert.id)}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  acknowledge(alert.id);
-                }}
-              >
-                {acknowledgingIds.has(alert.id) ? (
-                  <i className="fas fa-spinner fa-spin"></i>
-                ) : (
-                  <i className="fas fa-check"></i>
-                )}
-              </button>
-            </div>
-          ))}
-          <button
-            className="btn btn-sm btn-outline-secondary mt-2"
-            onClick={markAllAsRead}
-          >
-            {t("Mark All as Read")}
-          </button>
-        </div>
-      )}
+      {/* Alerts Section */}
+      <AlertsSection
+        alerts={alerts}
+        visibleAlerts={visibleAlerts}
+        acknowledgingIds={acknowledgingIds}
+        hiddenAlerts={hiddenAlerts}
+        setHiddenAlerts={setHiddenAlerts}
+        markAllAsRead={markAllAsRead}
+        acknowledge={acknowledge}
+        formatDateTime={formatDateTime}
+        i18n={i18n}
+      />
 
-      {/* Insights Section – مع accessibility عبر role و keyboard */}
-      {insights.length > 0 && (
-        <div className="insights-container">
-          <div className="insights-header">
-            <i className="fas fa-lightbulb"></i>
-            <h4>{t("Smart Insights")}</h4>
-          </div>
-          {insights.map((insight, i) => (
-            <div
-              key={i}
-              className={`insight-card ${insight.priority} ${insight.explanation ? "expandable" : ""} ${insight.action?.url ? "clickable" : ""}`}
-              role="button"
-              tabIndex={0}
-              onClick={() => {
-                if (insight.explanation) {
-                  setExpandedInsight(expandedInsight === i ? null : i);
-                }
-                if (insight.action?.url && !insight.explanation) {
-                  navigate(insight.action.url);
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  if (insight.explanation) {
-                    setExpandedInsight(expandedInsight === i ? null : i);
-                  }
-                  if (insight.action?.url && !insight.explanation) {
-                    navigate(insight.action.url);
-                  }
-                }
-              }}
-              style={{
-                cursor:
-                  insight.explanation || insight.action?.url
-                    ? "pointer"
-                    : "default",
-              }}
-            >
-              <div className="insight-icon">
-                {insightIconMap[insight.category] || "📊"}
-              </div>
-              <div className="insight-content">
-                <span className="insight-category">{t(insight.category)}</span>
-                <p>{t(insight.message)}</p>
-                {expandedInsight === i && insight.explanation && (
-                  <div className="insight-explanation">
-                    <p className="explanation-summary">
-                      {t(insight.explanation.summary)}
-                    </p>
-                    <ul className="explanation-factors">
-                      {insight.explanation.factors.map((factor, idx) => (
-                        <li key={idx}>
-                          <span>{t(factor.label)}</span>
-                          <strong className={factor.value > 10 ? "high" : ""}>
-                            {factor.value}
-                          </strong>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {insight.action?.label && !insight.explanation && (
-                  <span className="insight-action">
-                    {t(insight.action.label)} →
-                  </span>
-                )}
-                {insight.explanation && (
-                  <span className="expand-indicator">
-                    {expandedInsight === i ? "▲" : "▼"} {t("Show details")}
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Insights Section */}
+      <InsightsSection
+        insights={insights}
+        expandedInsight={expandedInsight}
+        setExpandedInsight={setExpandedInsight}
+      />
 
+      {/* Summary Card */}
       <SummaryCard messages={summaryMessages} t={t} />
 
-      {/* Quick Stats */}
-      <div className="quick-stats">
-        <div className="quick-stat-card">
-          <div className="stat-icon primary">
-            <i className="fas fa-calendar-check"></i>
-          </div>
-          <div className="stat-info">
-            <span className="stat-value">
-              {kpis.appointments?.current ?? 0}
-            </span>
-            <span className="stat-label">{t("Appointments")}</span>
-          </div>
-          <div className="stat-trend up">
-            <i className="fas fa-arrow-up"></i>
-            <span>{completionRate}%</span>
-          </div>
-        </div>
-        <div className="quick-stat-card">
-          <div className="stat-icon success">
-            <i className="fas fa-dollar-sign"></i>
-          </div>
-          <div className="stat-info">
-            <span className="stat-value">{formatCurrency(totalRevenue)}</span>
-            <span className="stat-label">{t("Total Revenue")}</span>
-          </div>
-        </div>
-        <div className="quick-stat-card">
-          <div className="stat-icon warning">
-            <i className="fas fa-clock"></i>
-          </div>
-          <div className="stat-info">
-            <span className="stat-value">{reminderStats.pending ?? 0}</span>
-            <span className="stat-label">{t("Pending Reminders")}</span>
-          </div>
-        </div>
-        <div className="quick-stat-card">
-          <div className="stat-icon info">
-            <i className="fas fa-users"></i>
-          </div>
-          <div className="stat-info">
-            <span className="stat-value">
-              {kpis.total_patients?.current ?? 0}
-            </span>
-            <span className="stat-label">{t("New Patients")}</span>
-          </div>
-        </div>
-      </div>
+      {/* Stats Section (Quick Stats + Financial Overview) */}
+      <StatsSection
+        kpis={kpis}
+        formatCurrency={formatCurrency}
+        pendingReminders={reminderStats.pending ?? 0}
+      />
 
-      {/* Financial Overview */}
-      <div className="section-header">
-        <h2>{t("Financial Overview")}</h2>
-        <p>{t("Key financial health indicators")}</p>
-      </div>
-      <div className="kpis-grid">
-        <KpiCard
-          title={t("Net Profit")}
-          value={formatCurrency(kpis.net_profit?.current || 0)}
-          icon="fas fa-chart-pie"
-          color={(kpis.net_profit?.current || 0) >= 0 ? "success" : "danger"}
-          delta={kpis.net_profit?.delta}
-          deltaLabel={t("vs previous")}
-        />
-        <KpiCard
-          title={t("Outstanding Receivables")}
-          value={formatCurrency(kpis.outstanding_receivables?.current || 0)}
-          icon="fas fa-hand-holding-usd"
-          color="warning"
-          link="/admin/erp/invoices"
-        />
-        <KpiCard
-          title={t("Outstanding Payables")}
-          value={formatCurrency(kpis.outstanding_payables?.current || 0)}
-          icon="fas fa-money-check-alt"
-          color="danger"
-          link="/admin/erp/purchase-orders"
-        />
-      </div>
-
-      {/* KPIs Grid */}
+      {/* Key Performance Indicators */}
       <div className="section-header">
         <h2>{t("Key Performance Indicators")}</h2>
         <p>{t("Monitor your clinic's performance at a glance")}</p>
@@ -652,7 +443,7 @@ export default function ErpDashboardHome() {
         <p>{t("Real-time insights at a glance")}</p>
       </div>
       <div className="charts-grid">
-        <MemoizedRevenueChartCard
+        <RevenueChartCard
           data={visibleRevenueData}
           t={t}
           formatCurrency={formatCurrency}
@@ -662,364 +453,30 @@ export default function ErpDashboardHome() {
           setFocusRange={setFocusRange}
           showComparison={showComparison}
         />
-        <MemoizedAppointmentsChartCard
-          data={appointmentsDataWithAnomalies}
-          t={t}
-        />
+        <AppointmentsChartCard data={appointmentsDataWithAnomalies} t={t} />
       </div>
 
-      {/* Recent Activity */}
-      <div className="section-header">
-        <h2>{t("Recent Activity")}</h2>
-        <p>{t("Latest updates from your clinic")}</p>
-      </div>
-      <div className="dashboard-card">
-        <div className="card-header-custom">
-          <div className="card-title-wrapper">
-            <i className="fas fa-history"></i>
-            <h5 className="card-title">{t("Activity Logs")}</h5>
-          </div>
-        </div>
-        <div className="card-body-custom">
-          {activityLogs.length === 0 ? (
-            <EmptyState text={t("No activity yet.")} />
-          ) : (
-            <ul className="activity-list">
-              {activityLogs.map((log) => (
-                <li key={log.id} className="activity-item">
-                  <div className="activity-text">{formatLog(log, t)}</div>
-                  <small className="activity-time">
-                    {formatDateTime(log.created_at, i18n.language)}
-                  </small>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
+      {/* Activity Section */}
+      <ActivitySection
+        activityLogs={activityLogs}
+        formatDateTime={formatDateTime}
+        i18n={i18n}
+      />
 
-      {/* Tables Grid */}
-      <div className="tables-grid">
-        {/* Recent Appointments */}
-        <div className="dashboard-card">
-          <div className="card-header-custom">
-            <div className="card-title-wrapper">
-              <i className="fas fa-calendar-alt"></i>
-              <h5 className="card-title">{t("Recent Appointments")}</h5>
-            </div>
-            <Link to="/admin/erp/appointments/calendar" className="card-link">
-              {t("View All")} <i className="fas fa-arrow-right"></i>
-            </Link>
-          </div>
-          <div className="card-body-custom">
-            {recentAppointments.length === 0 ? (
-              <EmptyState text={t("No recent appointments.")} />
-            ) : (
-              <div className="table-responsive">
-                <table className="dashboard-table">
-                  <thead>
-                    <tr>
-                      <th>{t("Patient")}</th>
-                      <th>{t("Doctor")}</th>
-                      <th>{t("Date")}</th>
-                      <th>{t("Status")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentAppointments.map((item) => (
-                      <tr key={item.id}>
-                        <td>
-                          {item.patient?.id ? (
-                            <Link
-                              to={`/admin/erp/patients/${item.patient.id}/profile`}
-                              className="patient-link"
-                            >
-                              {item.patient?.name || "-"}
-                            </Link>
-                          ) : (
-                            "-"
-                          )}
-                        </td>
-                        <td>{item.doctor?.name || item.doctor_name || "-"}</td>
-                        <td>
-                          {formatDate(item.appointment_date, i18n.language)}{" "}
-                          {formatTime(item.appointment_time)}
-                        </td>
-                        <td>
-                          <StatusBadge status={item.status} />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Recent Invoices */}
-        <div className="dashboard-card">
-          <div className="card-header-custom">
-            <div className="card-title-wrapper">
-              <i className="fas fa-file-invoice"></i>
-              <h5 className="card-title">{t("Recent Invoices")}</h5>
-            </div>
-            <Link to="/admin/erp/invoices" className="card-link">
-              {t("View All")} <i className="fas fa-arrow-right"></i>
-            </Link>
-          </div>
-          <div className="card-body-custom">
-            {recentInvoices.length === 0 ? (
-              <EmptyState text={t("No recent invoices.")} />
-            ) : (
-              <div className="table-responsive">
-                <table className="dashboard-table">
-                  <thead>
-                    <tr>
-                      <th>{t("Number")}</th>
-                      <th>{t("Total")}</th>
-                      <th>{t("Status")}</th>
-                      <th>{t("Issued")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentInvoices.map((item) => (
-                      <tr key={item.id}>
-                        <td>
-                          <Link
-                            to={`/admin/erp/invoices/${item.id}`}
-                            className="invoice-link"
-                          >
-                            {item.number}
-                          </Link>
-                        </td>
-                        <td className="fw-semibold">
-                          {formatCurrency(item.total)}
-                        </td>
-                        <td>
-                          <StatusBadge status={item.status} />
-                        </td>
-                        <td>
-                          {formatDate(
-                            item.issued_at || item.created_at,
-                            i18n.language,
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Recent Payments */}
-        <div className="dashboard-card">
-          <div className="card-header-custom">
-            <div className="card-title-wrapper">
-              <i className="fas fa-credit-card"></i>
-              <h5 className="card-title">{t("Recent Payments")}</h5>
-            </div>
-            <Link to="/admin/erp/invoices" className="card-link">
-              {t("View All")} <i className="fas fa-arrow-right"></i>
-            </Link>
-          </div>
-          <div className="card-body-custom">
-            {recentPayments.length === 0 ? (
-              <EmptyState text={t("No recent payments.")} />
-            ) : (
-              <div className="table-responsive">
-                <table className="dashboard-table">
-                  <thead>
-                    <tr>
-                      <th>{t("Invoice")}</th>
-                      <th>{t("Applied")}</th>
-                      <th>{t("Method")}</th>
-                      <th>{t("Paid At")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentPayments.map((item) => (
-                      <tr key={item.id}>
-                        <td>
-                          <Link
-                            to={`/admin/erp/invoices/${item.invoice_id}`}
-                            className="invoice-link"
-                          >
-                            #{item.invoice_id}
-                          </Link>
-                        </td>
-                        <td className="fw-semibold text-success">
-                          {formatCurrency(item.applied_amount)}
-                        </td>
-                        <td className="text-capitalize">
-                          {item.method || "-"}
-                        </td>
-                        <td>
-                          {formatDateTime(
-                            item.paid_at || item.created_at,
-                            i18n.language,
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Recent Purchase Orders */}
-        <div className="dashboard-card">
-          <div className="card-header-custom">
-            <div className="card-title-wrapper">
-              <i className="fas fa-truck"></i>
-              <h5 className="card-title">{t("Recent Purchase Orders")}</h5>
-            </div>
-            <Link to="/admin/erp/purchase-orders" className="card-link">
-              {t("View All")} <i className="fas fa-arrow-right"></i>
-            </Link>
-          </div>
-          <div className="card-body-custom">
-            {recentPurchaseOrders.length === 0 ? (
-              <EmptyState text={t("No recent purchase orders.")} />
-            ) : (
-              <div className="table-responsive">
-                <table className="dashboard-table">
-                  <thead>
-                    <tr>
-                      <th>{t("PO #")}</th>
-                      <th>{t("Supplier")}</th>
-                      <th>{t("Total")}</th>
-                      <th>{t("Paid")}</th>
-                      <th>{t("Remaining")}</th>
-                      <th>{t("Status")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentPurchaseOrders.map((po) => (
-                      <tr key={po.id}>
-                        <td>
-                          <Link
-                            to={`/admin/erp/purchase-orders/${po.id}`}
-                            className="invoice-link"
-                          >
-                            {po.number}
-                          </Link>
-                        </td>
-                        <td>{po.supplier || "-"}</td>
-                        <td>{formatCurrency(po.total)}</td>
-                        <td>{formatCurrency(po.total_paid)}</td>
-                        <td>{formatCurrency(po.remaining)}</td>
-                        <td>
-                          <StatusBadge status={po.status} />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Low Stock Supplies */}
-        {lowStockSupplies.length > 0 && (
-          <div className="dashboard-card warning-card">
-            <div className="card-header-custom">
-              <div className="card-title-wrapper">
-                <i className="fas fa-exclamation-triangle"></i>
-                <h5 className="card-title">{t("Low Stock Supplies")}</h5>
-              </div>
-              <Link to="/admin/erp/supplies" className="card-link">
-                {t("View All")} <i className="fas fa-arrow-right"></i>
-              </Link>
-            </div>
-            <div className="card-body-custom">
-              <div className="table-responsive">
-                <table className="dashboard-table">
-                  <thead>
-                    <tr>
-                      <th>{t("Name")}</th>
-                      <th>{t("In Stock")}</th>
-                      <th>{t("Unit Cost")}</th>
-                      <th>{t("Total Value")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {lowStockSupplies.map((item) => (
-                      <tr key={item.id}>
-                        <td>
-                          <Link
-                            to={`/admin/erp/supplies/${item.id}/edit`}
-                            className="invoice-link"
-                          >
-                            {item.name}
-                          </Link>
-                        </td>
-                        <td className="text-danger fw-bold">
-                          {item.stock_quantity}
-                        </td>
-                        <td>{formatCurrency(item.unit_cost)}</td>
-                        <td>{formatCurrency(item.inventory_value)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Failed Reminders */}
-        {failedReminders.length > 0 && (
-          <div className="dashboard-card warning-card">
-            <div className="card-header-custom">
-              <div className="card-title-wrapper">
-                <i className="fas fa-bell-slash"></i>
-                <h5 className="card-title">{t("Failed Reminders")}</h5>
-              </div>
-            </div>
-            <div className="card-body-custom">
-              <div className="table-responsive">
-                <table className="dashboard-table">
-                  <thead>
-                    <tr>
-                      <th>{t("Appointment")}</th>
-                      <th>{t("Doctor")}</th>
-                      <th>{t("Date")}</th>
-                      <th>{t("Retries")}</th>
-                      <th>{t("Last Attempt")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {failedReminders.map((item) => (
-                      <tr key={item.id}>
-                        <td>#{item.id}</td>
-                        <td>{item.doctor_name || "-"}</td>
-                        <td>
-                          {formatDate(item.appointment_date, i18n.language)}
-                        </td>
-                        <td className="text-danger fw-bold">
-                          {item.reminder_retry_count}
-                        </td>
-                        <td>
-                          {formatDateTime(
-                            item.reminder_last_attempt_at,
-                            i18n.language,
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Tables Section */}
+      <TablesSection
+        recentAppointments={recentAppointments}
+        recentInvoices={recentInvoices}
+        recentPayments={recentPayments}
+        recentPurchaseOrders={recentPurchaseOrders}
+        lowStockSupplies={lowStockSupplies}
+        failedReminders={failedReminders}
+        formatCurrency={formatCurrency}
+        formatDate={formatDate}
+        formatTime={formatTime}
+        formatDateTime={formatDateTime}
+        i18n={i18n}
+      />
     </div>
   );
 }

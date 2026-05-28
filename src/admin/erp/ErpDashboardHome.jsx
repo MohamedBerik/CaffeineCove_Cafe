@@ -9,7 +9,7 @@ import {
   generateSummary,
   getGreeting,
 } from "./dashboard/helpers";
-import { useDashboardData } from "./dashboard/hooks/useDashboardData";
+import { useDashboardData } from "./dashboard/useDashboardData";
 import { RANGE, insightIconMap } from "./dashboard/constants";
 import RevenueChartCard from "./dashboard/components/RevenueChartCard";
 import AppointmentsChartCard from "./dashboard/components/AppointmentsChartCard";
@@ -99,6 +99,31 @@ export default function ErpDashboardHome() {
     appointmentsDataWithAnomalies,
   } = useDashboardData(branchId, range, showComparison);
 
+  // ========================= Data Extraction =========================
+  const kpis = dashboard.kpis || {};
+  const summaryMessages = generateSummary(kpis, t);
+  const recentAppointments = dashboard.recent_appointments || [];
+  const recentInvoices = dashboard.recent_invoices || [];
+  const recentPayments = dashboard.recent_payments || [];
+  const recentPurchaseOrders = dashboard.recent_purchase_orders || [];
+  const lowStockSupplies = dashboard.low_stock_supplies || [];
+  const failedReminders = dashboard.reminders?.failed_recent || [];
+  const alerts = dashboard.reminders?.alerts || [];
+  const insights = dashboard.insights || [];
+  const reminderStats = dashboard.reminders?.stats || {};
+
+  const visibleAlerts = useMemo(
+    () => alerts.filter((a) => !hiddenAlerts.has(a.id)),
+    [alerts, hiddenAlerts],
+  );
+
+  const totalRevenue = kpis.revenue?.current || 0;
+  const completionRate = kpis.appointments?.current
+    ? Math.round(
+        (kpis.completed_appointments?.current / kpis.appointments?.current) *
+          100,
+      )
+    : 0;
   // ========================= Early Returns =========================
   if (isLoading) {
     return (
@@ -136,32 +161,6 @@ export default function ErpDashboardHome() {
       </div>
     );
   }
-
-  // ========================= Data Extraction =========================
-  const kpis = dashboard.kpis || {};
-  const summaryMessages = generateSummary(kpis, t);
-  const recentAppointments = dashboard.recent_appointments || [];
-  const recentInvoices = dashboard.recent_invoices || [];
-  const recentPayments = dashboard.recent_payments || [];
-  const recentPurchaseOrders = dashboard.recent_purchase_orders || [];
-  const lowStockSupplies = dashboard.low_stock_supplies || [];
-  const failedReminders = dashboard.reminders?.failed_recent || [];
-  const alerts = dashboard.reminders?.alerts || [];
-  const insights = dashboard.insights || [];
-  const reminderStats = dashboard.reminders?.stats || {};
-
-  const visibleAlerts = useMemo(
-    () => alerts.filter((a) => !hiddenAlerts.has(a.id)),
-    [alerts, hiddenAlerts],
-  );
-
-  const totalRevenue = kpis.revenue?.current || 0;
-  const completionRate = kpis.appointments?.current
-    ? Math.round(
-        (kpis.completed_appointments?.current / kpis.appointments?.current) *
-          100,
-      )
-    : 0;
 
   // ========================= UI =========================
   return (

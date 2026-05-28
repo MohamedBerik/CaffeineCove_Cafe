@@ -17,6 +17,7 @@ import {
 } from "./helpers";
 import { useDashboardData } from "./hooks/useDashboardData";
 import { RANGE } from "./constants";
+import { setActiveBranchId } from "../../../utils/activeBranch";
 import RevenueChartCard from "./components/RevenueChartCard";
 import AppointmentsChartCard from "./components/AppointmentsChartCard";
 import SummaryCard from "./components/SummaryCard";
@@ -53,15 +54,19 @@ export default function ErpDashboardHome() {
         event?.detail?.branchId ??
         localStorage.getItem("selectedBranchId") ??
         "all";
-      setBranchId((prev) => (prev !== latestBranch ? latestBranch : prev));
+
+      if (latestBranch !== branchId) {
+        handleBranchChange(latestBranch);
+      }
     };
+
     window.addEventListener("globalBranchChanged", syncBranch);
     window.addEventListener("storage", syncBranch);
     return () => {
       window.removeEventListener("globalBranchChanged", syncBranch);
       window.removeEventListener("storage", syncBranch);
     };
-  }, []);
+  }, [branchId, handleBranchChange]); // أضف branchId و handleBranchChange للتبعية
 
   // ---- Greeting ----
   useEffect(() => {
@@ -141,6 +146,10 @@ export default function ErpDashboardHome() {
     );
   }, []);
 
+  const handleBranchChange = useCallback((newBranchId) => {
+    setBranchId(newBranchId);
+    setActiveBranchId(newBranchId);
+  }, []);
   // ========================= Early Returns =========================
   if (isLoading) {
     return (

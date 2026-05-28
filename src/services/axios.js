@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getActiveBranchId } from "../utils/activeBranch";
 
 const api = axios.create({
   baseURL: "/api",
@@ -18,14 +19,13 @@ api.interceptors.request.use(
       let token = localStorage.getItem("token");
       const tenantId = localStorage.getItem("selectedCompany");
 
-      // 💡 لقط الـ branchId من الـ URL مباشرة لو ممرر صراحة لحل مشكلة التزامن
+      // 💡 الحصول على branchId من الـ URL الصريح أو من المصدر الموحد (وليس من localStorage مباشرة)
       const queryString = config.url.includes("?")
         ? config.url.split("?")[1]
         : "";
       const urlParams = new URLSearchParams(queryString);
       const explicitBranchId = urlParams.get("branchId");
-      const branchId =
-        explicitBranchId || localStorage.getItem("selectedBranchId");
+      const branchId = explicitBranchId || getActiveBranchId(); // ✅ مصدر واحد للحقيقة
 
       // ✅ إضافة branch_id تلقائياً
       if (branchId && branchId !== "all" && branchId !== "") {
@@ -47,7 +47,7 @@ api.interceptors.request.use(
         config.headers["X-Tenant-ID"] = tenantId;
       }
     } else {
-      // ✅ حذف أي هيدرات قد تكون عالقة في مسارات المصادقة (شغل عالي يا هندسة)
+      // ✅ حذف أي هيدرات قد تكون عالقة في مسارات المصادقة
       delete config.headers.Authorization;
       delete config.headers["X-Tenant-ID"];
       delete config.headers["X-Branch-ID"];

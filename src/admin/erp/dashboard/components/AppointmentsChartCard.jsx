@@ -6,11 +6,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { getAnomalyColor } from "../helpers";
 
 const AppointmentsTooltip = ({ active, payload, t }) => {
   if (!active || !payload?.length) return null;
-  const anomaly = payload[0]?.payload?.anomaly;
   return (
     <div className="custom-tooltip">
       <div className="tooltip-current">
@@ -29,43 +27,7 @@ const AppointmentsTooltip = ({ active, payload, t }) => {
           {payload[2]?.value || 0}
         </span>
       </div>
-      {anomaly && (
-        <div
-          className="tooltip-anomaly"
-          style={{ borderColor: getAnomalyColor(anomaly.priority) }}
-        >
-          <span className="anomaly-icon">⚠️</span>
-          <span className="anomaly-message">{t(anomaly.message)}</span>
-        </div>
-      )}
     </div>
-  );
-};
-
-const AnomalyBar = (props) => {
-  const { x, y, width, height, payload } = props;
-  if (!payload?.anomaly) return null;
-  const color = getAnomalyColor(payload.anomaly.priority);
-  return (
-    <g>
-      <rect
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        fill={color}
-        opacity={0.15}
-      />
-      <text
-        x={x + width / 2}
-        y={y - 10}
-        fontSize="14"
-        textAnchor="middle"
-        fill={color}
-      >
-        ⚠️
-      </text>
-    </g>
   );
 };
 
@@ -100,12 +62,6 @@ export default function AppointmentsChartCard({ data, t }) {
           <span className="legend-color cancelled"></span>
           <span>{t("Cancelled")}</span>
         </div>
-        {data.some((d) => d.anomaly) && (
-          <div className="legend-item">
-            <span className="legend-color anomaly"></span>
-            <span>{t("Anomaly Detected")}</span>
-          </div>
-        )}
       </div>
       <ResponsiveContainer width="100%" height={250}>
         <BarChart data={data}>
@@ -115,8 +71,6 @@ export default function AppointmentsChartCard({ data, t }) {
           <Bar dataKey="total" fill="#1a237e" radius={[8, 8, 0, 0]} />
           <Bar dataKey="completed" fill="#4caf50" radius={[8, 8, 0, 0]} />
           <Bar dataKey="cancelled" fill="#ef4444" radius={[8, 8, 0, 0]} />
-          {/* طبقة anomaly فوق جميع الأعمدة */}
-          <Bar dataKey="total" shape={<AnomalyBar />} legendType="none" />
         </BarChart>
       </ResponsiveContainer>
     </div>

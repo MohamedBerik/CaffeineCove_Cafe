@@ -68,27 +68,38 @@ export const useFormatCurrency = () => {
   return (value) => formatCurrency(value, i18n.language);
 };
 
+// نفس generateSummary الأصلية بالضبط مع مفاتيح الترجمة والترتيب والاقتصاص
 export const generateSummary = (kpis, t) => {
   const messages = [];
-  if ((kpis.revenue?.delta || 0) > 0) {
+  const priorityOrder = { negative: 3, warning: 2, positive: 1 };
+  const revenueDelta = kpis.revenue?.delta || 0;
+  if (revenueDelta > 10) {
+    messages.push({ type: "positive", message: t("summary_revenue_up") });
+  } else if (revenueDelta < -10) {
+    messages.push({ type: "negative", message: t("summary_revenue_down") });
+  }
+  const appointmentsDelta = kpis.appointments?.delta || 0;
+  if (appointmentsDelta > 15) {
     messages.push({
       type: "positive",
-      message: t("Revenue increased compared to previous period"),
+      message: t("summary_appointments_up"),
     });
   }
-  if ((kpis.cancelled_appointments?.current || 0) > 10) {
-    messages.push({
-      type: "negative",
-      message: t("High appointment cancellation rate detected"),
-    });
+  const noShowCount = kpis.no_show_appointments?.current || 0;
+  if (noShowCount > 5) {
+    messages.push({ type: "warning", message: t("summary_no_show_high") });
   }
-  if ((kpis.unpaid_invoices?.current || 0) > 0) {
-    messages.push({
-      type: "warning",
-      message: t("There are unpaid invoices requiring attention"),
-    });
+  const unpaidCount = kpis.unpaid_invoices?.current || 0;
+  if (unpaidCount > 10) {
+    messages.push({ type: "warning", message: t("summary_unpaid_high") });
   }
-  return messages;
+  const cancelledDelta = kpis.cancelled_appointments?.delta || 0;
+  if (cancelledDelta > 20) {
+    messages.push({ type: "warning", message: t("summary_cancelled_up") });
+  }
+  return messages
+    .sort((a, b) => priorityOrder[b.type] - priorityOrder[a.type])
+    .slice(0, 3);
 };
 
 export const safeNumber = (v) => Number(v || 0);

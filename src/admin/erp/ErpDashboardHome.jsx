@@ -1,5 +1,5 @@
-import { useEffect, useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   useFormatCurrency,
@@ -8,8 +8,9 @@ import {
   formatTime,
   generateSummary,
   getGreeting,
+  getAnomalyColor,
 } from "./dashboard/helpers";
-import { useDashboardData } from "./dashboard/useDashboardData";
+import { useDashboardData } from "./dashboard/hooks/useDashboardData";
 import { RANGE, insightIconMap } from "./dashboard/constants";
 import RevenueChartCard from "./dashboard/components/RevenueChartCard";
 import AppointmentsChartCard from "./dashboard/components/AppointmentsChartCard";
@@ -19,7 +20,6 @@ import StatusBadge from "./dashboard/components/StatusBadge";
 import SummaryCard from "./dashboard/components/SummaryCard";
 import "./ErpDashboardHome.css";
 
-// Helper function for activity log formatting (kept local as it's small)
 const formatLog = (log, t) => {
   const type = log.subject_type;
   const action = log.action;
@@ -39,9 +39,10 @@ const formatLog = (log, t) => {
 
 export default function ErpDashboardHome() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const formatCurrency = useFormatCurrency();
+  const chartRef = useRef(null);
 
-  // ========================= Local State =========================
   const [greeting, setGreeting] = useState("");
   const [range, setRange] = useState(RANGE.DAY);
   const [branchId, setBranchId] = useState(
@@ -53,8 +54,7 @@ export default function ErpDashboardHome() {
   });
   const [expandedInsight, setExpandedInsight] = useState(null);
 
-  // ========================= Effects =========================
-  // Sync branch from Navbar
+  // ---- Sync branch ----
   useEffect(() => {
     const syncBranch = (event) => {
       const latestBranch =
@@ -71,19 +71,19 @@ export default function ErpDashboardHome() {
     };
   }, []);
 
-  // Greeting (باستخدام helper)
+  // ---- Greeting ----
   useEffect(() => {
     setGreeting(getGreeting(t));
     const interval = setInterval(() => setGreeting(getGreeting(t)), 60000);
     return () => clearInterval(interval);
   }, [t]);
 
-  // Store comparison preference
+  // ---- Store comparison preference ----
   useEffect(() => {
     localStorage.setItem("showComparison", showComparison);
   }, [showComparison]);
 
-  // ========================= Data Hook =========================
+  // ---- Data hook ----
   const {
     dashboard,
     isLoading,
@@ -95,36 +95,56 @@ export default function ErpDashboardHome() {
     hiddenAlerts,
     setHiddenAlerts,
     markAllAsRead,
-    revenueDataWithAnomalies,
+    focusRange,
+    setFocusRange,
+    visibleRevenueData,
     appointmentsDataWithAnomalies,
   } = useDashboardData(branchId, range, showComparison);
 
-  // ========================= Data Extraction =========================
-  // ✅ استخدم ?. دائماً مع dashboard
-  const kpis = dashboard?.kpis ?? {};
-  const summaryMessages = generateSummary(kpis, t);
-  const recentAppointments = dashboard?.recent_appointments ?? [];
-  const recentInvoices = dashboard?.recent_invoices ?? [];
-  const recentPayments = dashboard?.recent_payments ?? [];
-  const recentPurchaseOrders = dashboard?.recent_purchase_orders ?? [];
-  const lowStockSupplies = dashboard?.low_stock_supplies ?? [];
-  const failedReminders = dashboard?.reminders?.failed_recent ?? [];
-  const alerts = dashboard?.reminders?.alerts ?? [];
-  const insights = dashboard?.insights ?? [];
-  const reminderStats = dashboard?.reminders?.stats ?? {};
+  // ---- التمرير عند وجود focusRange ----
+  useEffect(() => {
+    if (focusRange && chartRef.current) {
+      chartRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [focusRange]);
 
-  const visibleAlerts = useMemo(
-    () => alerts.filter((a) => !hiddenAlerts.has(a.id)),
-    [alerts, hiddenAlerts],
-  );
+  // ---- توسيع أول insight عالي الأولوية تلقائياً ----
+  useEffect(() => {
+    const insights = dashboard?.insights || [];
+    if (insights.length > 0) {
+      const highIndex = insights.findIndex((i) => i.priority === "high");
+      if (highIndex !== -1) {
+        setExpandedInsight(highIndex);
+      }
+    }
+  }, [dashboard?.insights]);
 
-  const totalRevenue = kpis.revenue?.current ?? 0;
-  const completionRate = kpis.appointments?.current
-    ? Math.round(
-        (kpis.completed_appointments?.current / kpis.appointments?.current) *
-          100,
-      )
-    : 0;
+  // ---- AnimatedDot as component (يمرر للمخطط) ----
+  const AnimatedDot = useCallback((props) => {
+    const { cx, cy, payload } = props;
+    if (!payload?.anomaly) return null;
+    return (
+      <g>
+        <circle
+          cx={cx}
+          cy={cy}
+          r={8}
+          className="pulse-dot"
+          fill={getAnomalyColor(payload.anomaly.priority)}
+        />
+        <text
+          x={cx}
+          y={cy - 12}
+          fontSize="12"
+          textAnchor="middle"
+          fill={getAnomalyColor(payload.anomaly.priority)}
+        >
+          ⚠️
+        </text>
+      </g>
+    );
+  }, []);
+
   // ========================= Early Returns =========================
   if (isLoading) {
     return (
@@ -163,6 +183,37 @@ export default function ErpDashboardHome() {
     );
   }
 
+  // ========================= Data Extraction =========================
+  const kpis = dashboard.kpis || {};
+  const summaryMessages = useMemo(() => {
+    const kpis = dashboard?.kpis;
+    if (!kpis) return [];
+    return generateSummary(kpis, t);
+  }, [dashboard?.kpis, t]);
+
+  const recentAppointments = dashboard.recent_appointments || [];
+  const recentInvoices = dashboard.recent_invoices || [];
+  const recentPayments = dashboard.recent_payments || [];
+  const recentPurchaseOrders = dashboard.recent_purchase_orders || [];
+  const lowStockSupplies = dashboard.low_stock_supplies || [];
+  const failedReminders = dashboard.reminders?.failed_recent || [];
+  const alerts = dashboard.reminders?.alerts || [];
+  const insights = dashboard.insights || [];
+  const reminderStats = dashboard.reminders?.stats || {};
+
+  const visibleAlerts = useMemo(
+    () => alerts.filter((a) => !hiddenAlerts.has(a.id)),
+    [alerts, hiddenAlerts],
+  );
+
+  const totalRevenue = kpis.revenue?.current || 0;
+  const completionRate = kpis.appointments?.current
+    ? Math.round(
+        (kpis.completed_appointments?.current / kpis.appointments?.current) *
+          100,
+      )
+    : 0;
+
   // ========================= UI =========================
   return (
     <div className="erp-dashboard">
@@ -180,7 +231,7 @@ export default function ErpDashboardHome() {
         </div>
         <div className="date-badge">
           <i className="fas fa-calendar-alt"></i>
-          <span>{formatDate(new Date(), i18n)}</span>
+          <span>{formatDate(new Date(), i18n.language)}</span>
         </div>
       </div>
 
@@ -206,9 +257,9 @@ export default function ErpDashboardHome() {
         </label>
       </div>
 
-      {/* Alerts Section */}
+      {/* Alerts Section – النقر على الحاوية يعلّم الكل كمقروء */}
       {alerts.length > 0 && (
-        <div className="alerts-container">
+        <div className="alerts-container" onClick={markAllAsRead}>
           {visibleAlerts.map((alert) => (
             <div key={alert.id} className={`alert-card alert-${alert.type}`}>
               <i
@@ -222,7 +273,7 @@ export default function ErpDashboardHome() {
                 {alert.meta?.count ? `(${alert.meta.count})` : ""}
               </span>
               <small className="alert-time">
-                {formatDateTime(alert.time, i18n)}
+                {formatDateTime(alert.time, i18n.language)}
               </small>
               <button
                 className="alert-close"
@@ -245,20 +296,18 @@ export default function ErpDashboardHome() {
                   acknowledge(alert.id);
                 }}
               >
-                <i className="fas fa-check"></i>
+                {acknowledgingIds.has(alert.id) ? (
+                  <i className="fas fa-spinner fa-spin"></i>
+                ) : (
+                  <i className="fas fa-check"></i>
+                )}
               </button>
             </div>
           ))}
-          <button
-            className="btn btn-sm btn-outline-secondary mt-2"
-            onClick={markAllAsRead}
-          >
-            {t("Mark All as Read")}
-          </button>
         </div>
       )}
 
-      {/* Insights Section */}
+      {/* Insights Section مع التنقل ومؤشر التوسيع */}
       {insights.length > 0 && (
         <div className="insights-container">
           <div className="insights-header">
@@ -268,11 +317,20 @@ export default function ErpDashboardHome() {
           {insights.map((insight, i) => (
             <div
               key={i}
-              className={`insight-card ${insight.priority} ${insight.explanation ? "expandable" : ""}`}
+              className={`insight-card ${insight.priority} ${insight.explanation ? "expandable" : ""} ${insight.action?.url ? "clickable" : ""}`}
               onClick={() => {
                 if (insight.explanation) {
                   setExpandedInsight(expandedInsight === i ? null : i);
                 }
+                if (insight.action?.url && !insight.explanation) {
+                  navigate(insight.action.url);
+                }
+              }}
+              style={{
+                cursor:
+                  insight.explanation || insight.action?.url
+                    ? "pointer"
+                    : "default",
               }}
             >
               <div className="insight-icon">
@@ -297,6 +355,16 @@ export default function ErpDashboardHome() {
                       ))}
                     </ul>
                   </div>
+                )}
+                {insight.action?.label && !insight.explanation && (
+                  <span className="insight-action">
+                    {t(insight.action.label)} →
+                  </span>
+                )}
+                {insight.explanation && (
+                  <span className="expand-indicator">
+                    {expandedInsight === i ? "▲" : "▼"} {t("Show details")}
+                  </span>
                 )}
               </div>
             </div>
@@ -558,9 +626,13 @@ export default function ErpDashboardHome() {
       </div>
       <div className="charts-grid">
         <RevenueChartCard
-          data={revenueDataWithAnomalies}
+          data={visibleRevenueData}
           t={t}
           formatCurrency={formatCurrency}
+          AnimatedDot={AnimatedDot}
+          chartRef={chartRef}
+          focusRange={focusRange}
+          setFocusRange={setFocusRange}
           showComparison={showComparison}
         />
         <AppointmentsChartCard data={appointmentsDataWithAnomalies} t={t} />
@@ -587,7 +659,7 @@ export default function ErpDashboardHome() {
                 <li key={log.id} className="activity-item">
                   <div className="activity-text">{formatLog(log, t)}</div>
                   <small className="activity-time">
-                    {formatDateTime(log.created_at, i18n)}
+                    {formatDateTime(log.created_at, i18n.language)}
                   </small>
                 </li>
               ))}
@@ -642,7 +714,7 @@ export default function ErpDashboardHome() {
                           {item.doctor?.name || item.doctor_name || "-"}
                         </td>
                         <td data-label={t("Date")}>
-                          {formatDate(item.appointment_date, i18n)}{" "}
+                          {formatDate(item.appointment_date, i18n.language)}{" "}
                           {formatTime(item.appointment_time)}
                         </td>
                         <td data-label={t("Status")}>
@@ -700,7 +772,10 @@ export default function ErpDashboardHome() {
                           <StatusBadge status={item.status} />
                         </td>
                         <td data-label={t("Issued")}>
-                          {formatDate(item.issued_at || item.created_at, i18n)}
+                          {formatDate(
+                            item.issued_at || item.created_at,
+                            i18n.language,
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -762,7 +837,7 @@ export default function ErpDashboardHome() {
                         <td data-label={t("Paid At")}>
                           {formatDateTime(
                             item.paid_at || item.created_at,
-                            i18n,
+                            i18n.language,
                           )}
                         </td>
                       </tr>
@@ -918,7 +993,7 @@ export default function ErpDashboardHome() {
                           {item.doctor_name || "-"}
                         </td>
                         <td data-label={t("Date")}>
-                          {formatDate(item.appointment_date, i18n)}
+                          {formatDate(item.appointment_date, i18n.language)}
                         </td>
                         <td
                           data-label={t("Retries")}
@@ -927,7 +1002,10 @@ export default function ErpDashboardHome() {
                           {item.reminder_retry_count}
                         </td>
                         <td data-label={t("Last Attempt")}>
-                          {formatDateTime(item.reminder_last_attempt_at, i18n)}
+                          {formatDateTime(
+                            item.reminder_last_attempt_at,
+                            i18n.language,
+                          )}
                         </td>
                       </tr>
                     ))}

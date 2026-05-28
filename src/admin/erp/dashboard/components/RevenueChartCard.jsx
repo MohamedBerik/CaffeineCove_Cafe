@@ -6,14 +6,13 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { getAnomalyColor } from "../helpers"; // التصحيح
+import { getAnomalyColor } from "../helpers";
 
 const CustomTooltipWrapper = ({ active, payload, formatCurrency, t }) => {
   if (!active || !payload?.length) return null;
-  const currentItem = payload?.find?.((p) => p.dataKey === "current");
-  const previousItem = payload?.find?.((p) => p.dataKey === "previous");
-  const currentValue = currentItem?.value || 0;
-  const previousValue = previousItem?.value || 0;
+  const currentValue = payload.find((p) => p.dataKey === "current")?.value || 0;
+  const previousValue =
+    payload.find((p) => p.dataKey === "previous")?.value || 0;
   const anomaly = payload[0]?.payload?.anomaly;
   const change =
     previousValue !== 0
@@ -53,35 +52,14 @@ const CustomTooltipWrapper = ({ active, payload, formatCurrency, t }) => {
   );
 };
 
-const AnimatedDot = (props) => {
-  const { cx, cy, payload } = props;
-  if (!payload?.anomaly) return null;
-  return (
-    <g>
-      <circle
-        cx={cx}
-        cy={cy}
-        r={8}
-        className="pulse-dot"
-        fill={getAnomalyColor(payload.anomaly.priority)}
-      />
-      <text
-        x={cx}
-        y={cy - 12}
-        fontSize="12"
-        textAnchor="middle"
-        fill={getAnomalyColor(payload.anomaly.priority)}
-      >
-        ⚠️
-      </text>
-    </g>
-  );
-};
-
 export default function RevenueChartCard({
   data,
   t,
   formatCurrency,
+  AnimatedDot,
+  chartRef,
+  focusRange,
+  setFocusRange,
   showComparison,
 }) {
   if (!data || data.length === 0)
@@ -96,7 +74,7 @@ export default function RevenueChartCard({
     );
 
   return (
-    <div className="chart-card">
+    <div className="chart-card" ref={chartRef}>
       <div className="chart-header">
         <i className="fas fa-chart-line"></i>
         <h4>{t("Revenue Overview")}</h4>
@@ -122,7 +100,7 @@ export default function RevenueChartCard({
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={data}>
           <XAxis dataKey="label" />
-          <YAxis tickFormatter={(v) => formatCurrency(v)} />
+          <YAxis />
           <Tooltip
             content={
               <CustomTooltipWrapper formatCurrency={formatCurrency} t={t} />
@@ -151,6 +129,11 @@ export default function RevenueChartCard({
           )}
         </LineChart>
       </ResponsiveContainer>
+      {focusRange && (
+        <button className="reset-view-btn" onClick={() => setFocusRange(null)}>
+          <i className="fas fa-expand"></i> {t("Reset View")}
+        </button>
+      )}
     </div>
   );
 }

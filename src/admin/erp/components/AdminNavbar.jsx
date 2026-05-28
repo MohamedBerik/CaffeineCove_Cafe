@@ -135,11 +135,12 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   // ✅ تبديل الفرع (المصدر الموحد)
   const handleBranchChange = (e) => {
     const value = e.target.value;
+    if (value === selectedBranch) return;
     setSelectedBranch(value);
-    setActiveBranchId(value); // ✅ يغني عن localStorage و globalBranchChanged
-    queryClient.resetQueries({ queryKey: ["dashboard"] });
-    queryClient.resetQueries({ queryKey: ["activityLogs"] });
-    queryClient.resetQueries({ queryKey: ["subscription-status"] });
+    setActiveBranchId(value);
+    queryClient.invalidateQueries({
+      predicate: (query) => query.queryKey[0] === "dashboard",
+    });
   };
 
   // ✅ تجميع الشركات حسب الحالة

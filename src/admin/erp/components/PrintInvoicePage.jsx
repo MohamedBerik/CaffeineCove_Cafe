@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../../services/axios";
+import api from "../../../services/axios";
 import { useTranslation } from "react-i18next";
-import "./PrintPurchaseOrderPage.css";
+import "./PrintInvoicePage.css";
 
-export default function PrintPurchaseOrderPage() {
+export default function PrintInvoicePage() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const [po, setPo] = useState(null);
+  const [invoice, setInvoice] = useState(null);
   const [clinicSettings, setClinicSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const printRef = useRef();
 
   useEffect(() => {
     loadData();
@@ -23,17 +23,18 @@ export default function PrintPurchaseOrderPage() {
       setLoading(true);
       setError("");
 
-      const [poRes, clinicRes] = await Promise.all([
-        api.get(`/erp/purchase-orders/${id}`),
+      const [invoiceRes, clinicRes] = await Promise.all([
+        api.get(`/erp/invoices/${id}`),
         api.get("/erp/clinic-settings"),
       ]);
 
-      setPo(poRes.data || poRes.data?.data || poRes);
-      setClinicSettings(clinicRes.data?.data || clinicRes.data || {});
+      const invoicePayload = invoiceRes.data || {};
+      const clinicPayload = clinicRes.data || {};
+
+      setInvoice(invoicePayload.data || invoicePayload);
+      setClinicSettings(clinicPayload.data || clinicPayload);
     } catch (err) {
-      setError(
-        err?.response?.data?.message || t("Failed to load purchase order"),
-      );
+      setError(err?.response?.data?.message || t("Failed to load invoice"));
     } finally {
       setLoading(false);
     }
@@ -46,7 +47,7 @@ export default function PrintPurchaseOrderPage() {
   const formatCurrency = (value) => {
     return new Intl.NumberFormat(i18n.language === "ar" ? "ar-EG" : "en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "EGP",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(Number(value || 0));
@@ -60,6 +61,7 @@ export default function PrintPurchaseOrderPage() {
     );
   };
 
+  // ✅ استخراج بيانات العيادة من الإعدادات
   const clinicName =
     clinicSettings?.clinic_name || clinicSettings?.name || t("Dental Clinic");
   const clinicAddress = clinicSettings?.address || "";
@@ -79,11 +81,11 @@ export default function PrintPurchaseOrderPage() {
     );
   }
 
-  if (error || !po) {
+  if (error || !invoice) {
     return (
       <div className="text-center py-5">
         <i className="fas fa-exclamation-circle fa-3x text-muted mb-3"></i>
-        <h4>{error || t("Purchase order not found")}</h4>
+        <h4>{error || t("Invoice not found")}</h4>
         <button className="btn btn-primary" onClick={() => navigate(-1)}>
           <i className="fas fa-arrow-left me-2"></i>
           {t("Go Back")}
@@ -92,15 +94,13 @@ export default function PrintPurchaseOrderPage() {
     );
   }
 
-  const totalPaid = po.total_paid || 0;
-  const remaining = po.remaining || 0;
-
   return (
-    <div className="print-po-page">
+    <div className="print-invoice-page">
+      {/* أزرار التحكم (تختفي عند الطباعة) */}
       <div className="no-print print-controls">
         <button className="btn btn-primary me-2" onClick={handlePrint}>
           <i className="fas fa-print me-2"></i>
-          {t("Print Purchase Order")}
+          {t("Print Invoice")}
         </button>
         <button
           className="btn btn-outline-secondary"
@@ -111,8 +111,9 @@ export default function PrintPurchaseOrderPage() {
         </button>
       </div>
 
-      <div className="po-container">
-        <div className="po-header">
+      {/* محتوى الفاتورة */}
+      <div className="invoice-container" ref={printRef}>
+        <div className="invoice-header">
           <div className="clinic-info">
             <h2>{clinicName}</h2>
             {clinicAddress && <p>{clinicAddress}</p>}
@@ -127,55 +128,61 @@ export default function PrintPurchaseOrderPage() {
               </p>
             )}
           </div>
-          <div className="po-title">
-            <h1>{t("PURCHASE ORDER")}</h1>
-            <p>#{po.number || po.id}</p>
+          <div className="invoice-title">
+            <h1>{t("INVOICE")}</h1>
+            <p>#{invoice.number || invoice.id}</p>
           </div>
         </div>
 
-        <div className="po-meta">
+        <div className="invoice-meta">
           <div className="meta-item">
-            <span className="meta-label">{t("Supplier")}:</span>
-            <span className="meta-value">{po.supplier?.name || "-"}</span>
+            <span className="meta-label">{t("Patient")}:</span>
+            <span className="meta-value">
+              {invoice.customer?.name || invoice.patient?.name || "-"}
+            </span>
           </div>
           <div className="meta-item">
             <span className="meta-label">{t("Date")}:</span>
-            <span className="meta-value">{formatDate(po.created_at)}</span>
+            <span className="meta-value">
+              {formatDate(invoice.issued_at || invoice.created_at)}
+            </span>
           </div>
           <div className="meta-item">
             <span className="meta-label">{t("Status")}:</span>
             <span
-              className={`meta-value badge-status-${(po.status || "").toLowerCase()}`}
+              className={`meta-value badge-status-${(invoice.status || "").toLowerCase()}`}
             >
-              {t(po.status)}
+              {t(invoice.status)}
             </span>
           </div>
         </div>
 
-        <table className="po-items-table">
+        <table className="invoice-items-table">
           <thead>
             <tr>
-              <th>#</th>
-              <th>{t("Supply")}</th>
+              <th>{t("Item")}</th>
               <th>{t("Quantity")}</th>
-              <th>{t("Unit Cost")}</th>
+              <th>{t("Unit Price")}</th>
               <th>{t("Total")}</th>
             </tr>
           </thead>
           <tbody>
-            {po.items && po.items.length > 0 ? (
-              po.items.map((item, index) => (
+            {invoice.items && invoice.items.length > 0 ? (
+              invoice.items.map((item, index) => (
                 <tr key={item.id || index}>
-                  <td>{index + 1}</td>
-                  <td>{item.supply?.name || `#${item.supply_id}`}</td>
+                  <td>
+                    {item.product?.title ||
+                      item.description ||
+                      `${t("Item")} ${index + 1}`}
+                  </td>
                   <td>{item.quantity}</td>
-                  <td>{formatCurrency(item.unit_cost)}</td>
+                  <td>{formatCurrency(item.unit_price)}</td>
                   <td>{formatCurrency(item.total)}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="text-center">
+                <td colSpan="4" className="text-center">
                   {t("No items found")}
                 </td>
               </tr>
@@ -183,29 +190,33 @@ export default function PrintPurchaseOrderPage() {
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan="4" className="text-end fw-bold">
+              <td colSpan="3" className="text-end fw-bold">
                 {t("Subtotal")}
               </td>
-              <td className="fw-bold">{formatCurrency(po.total)}</td>
+              <td className="fw-bold">{formatCurrency(invoice.total)}</td>
             </tr>
-            <tr>
-              <td colSpan="4" className="text-end">
-                {t("Total Paid")}
-              </td>
-              <td>{formatCurrency(totalPaid)}</td>
-            </tr>
+            {invoice.discount > 0 && (
+              <tr>
+                <td colSpan="3" className="text-end">
+                  {t("Discount")}
+                </td>
+                <td>{formatCurrency(invoice.discount)}</td>
+              </tr>
+            )}
             <tr className="total-row">
-              <td colSpan="4" className="text-end fw-bold">
-                {t("Remaining")}
+              <td colSpan="3" className="text-end fw-bold">
+                {t("Total")}
               </td>
-              <td className="fw-bold">{formatCurrency(remaining)}</td>
+              <td className="fw-bold">
+                {formatCurrency(invoice.total - (invoice.discount || 0))}
+              </td>
             </tr>
           </tfoot>
         </table>
 
-        <div className="po-footer">
-          <p>{t("Thank you for your business!")}</p>
-          <p>{t("This purchase order was generated electronically.")}</p>
+        <div className="invoice-footer">
+          <p>{t("Thank you for your trust!")}</p>
+          <p>{t("This invoice was generated electronically.")}</p>
         </div>
       </div>
     </div>

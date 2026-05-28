@@ -28,11 +28,20 @@ export function useDashboardData(branchId, range, showComparison) {
     dashboardKeyRef.current = getDashboardKey(branchId, range, showComparison);
   }, [branchId, range, showComparison]);
 
-  // companyId ثابت – لا حاجة لتغيره داخل الجلسة لأن تبديل الشركة يعيد تحميل الصفحة
-  const companyId = useMemo(
-    () => localStorage.getItem("selectedCompany") || null,
-    [],
+  // companyId تفاعلي
+  const [companyId, setCompanyId] = useState(
+    localStorage.getItem("selectedCompany") || null,
   );
+  useEffect(() => {
+    const sync = () =>
+      setCompanyId(localStorage.getItem("selectedCompany") || null);
+    window.addEventListener("storage", sync);
+    window.addEventListener("companyChanged", sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("companyChanged", sync);
+    };
+  }, []);
 
   const dashboardKey = useMemo(
     () => getDashboardKey(branchId, range, showComparison),

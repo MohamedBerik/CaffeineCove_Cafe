@@ -15,15 +15,30 @@ export function useDashboardData(branchId, range, showComparison) {
   const acknowledgingRef = useRef(new Set());
   const buffer = useRef([]);
   const audioRef = useRef(null);
-  const autoFocusedRef = useRef(false); // لمنع إعادة التركيز التلقائي بعد تدخل المستخدم
+  const autoFocusedRef = useRef(false);
 
-  // تثبيت المفتاح لتجنب إعادة إنشائه كل render
+  // ---- refs للبيانات الحساسة لمنع stale closure ----
+  const currentBranchRef = useRef(branchId);
+  const dashboardKeyRef = useRef(
+    getDashboardKey(branchId, range, showComparison),
+  );
+
+  useEffect(() => {
+    currentBranchRef.current = branchId;
+    dashboardKeyRef.current = getDashboardKey(branchId, range, showComparison);
+  }, [branchId, range, showComparison]);
+
+  const companyId = useMemo(
+    () => localStorage.getItem("selectedCompany") || null,
+    [],
+  );
+
   const dashboardKey = useMemo(
     () => getDashboardKey(branchId, range, showComparison),
     [branchId, range, showComparison],
   );
 
-  // ---- Dashboard query (إعدادات محسّنة للكاش) ----
+  // ---- Dashboard query ----
   const {
     data: dashboard,
     isLoading,
@@ -55,9 +70,9 @@ export function useDashboardData(branchId, range, showComparison) {
       return newData;
     },
     placeholderData: undefined,
-    staleTime: 30_000, // 30 ثانية قبل اعتبار البيانات قديمة
-    gcTime: 5 * 60 * 1000, // 5 دقائق للاحتفاظ بالكاش بعد unmount
-    refetchOnWindowFocus: false, // لا إعادة جلب تلقائي عند التركيز لأن الـ socket يقوم بالتحديث
+    staleTime: 30_000,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
     refetchInterval: false,
   });
 
@@ -122,7 +137,7 @@ export function useDashboardData(branchId, range, showComparison) {
     [acknowledgeMutation],
   );
 
-  // ---- Play sound helper مع guard للمتصفح ----
+  // ---- تأثيرات صوتية (تظل في طبقة UI عبر toast) ----
   const playSound = useCallback(() => {
     if (document.visibilityState !== "visible") return;
     if (!audioRef.current) {
@@ -131,7 +146,7 @@ export function useDashboardData(branchId, range, showComparison) {
     audioRef.current?.play().catch(() => {});
   }, []);
 
-  // ---- تحديث لحظي: buffer و flush (يُحدّث الحقل الصحيح kpis.revenue.current) ----
+  // ---- تحديث الإيرادات عبر buffer ----
   const flushUpdates = useCallback(() => {
     if (buffer.current.length === 0) return;
     queryClient.setQueryData(dashboardKey, (old) => {
@@ -159,7 +174,7 @@ export function useDashboardData(branchId, range, showComparison) {
     return () => clearInterval(interval);
   }, [flushUpdates]);
 
-  // ---- WebSocket handlers ----
+  // ---- معالجات الأحداث ----
   const handleNewAlert = useCallback(
     (newAlert) => {
       if (document.visibilityState === "visible") playSound();
@@ -181,7 +196,7 @@ export function useDashboardData(branchId, range, showComparison) {
           reminders: { ...old.reminders, alerts: updatedAlerts },
         };
       });
-      // إضافة id لمنع تراكم التوست
+      // تنبيه منبثق مرة واحدة فقط (لأن useAlertsSocket لم يعد يظهره)
       toast.custom(
         (t) => (
           <div className="custom-toast">
@@ -201,7 +216,6 @@ export function useDashboardData(branchId, range, showComparison) {
       queryClient.setQueryData(dashboardKey, (old) => {
         if (!old) return old;
         const kpis = { ...old.kpis };
-
         switch (event.type) {
           case "appointment_created":
             if (kpis.appointments)
@@ -281,7 +295,7 @@ export function useDashboardData(branchId, range, showComparison) {
       if (insight.priority === "high") {
         playSound();
         toast.custom(
-          (toastInstance) => (
+          () => (
             <div className="custom-toast toast-high">
               <strong>🔔 Smart Insight</strong>
               <p>{insight.message}</p>
@@ -301,8 +315,29 @@ export function useDashboardData(branchId, range, showComparison) {
     [playSound, queryClient, dashboardKey],
   );
 
+  // معالج الأحداث عبر WebSocket مع guard إضافي لمنع التلوث
   const socketHandler = useCallback(
     (payload) => {
+      // استخراج معرف الفرع من الحمولة
+      const payloadBranchId =
+        payload.branch_id ??
+        payload.branchId ??
+        payload.data?.branch_id ??
+        payload.alert?.branch_id;
+
+      const activeBranch = currentBranchRef.current;
+
+      // إذا كان لدينا فرع نشط والحمولة تحمل فرعًا مختلفًا (ولسنا في وضع "all") تجاهل الحدث
+      if (
+        activeBranch &&
+        activeBranch !== "all" &&
+        payloadBranchId != null &&
+        String(payloadBranchId) !== String(activeBranch)
+      ) {
+        return;
+      }
+
+      // توجيه الحدث إلى المعالجات المتخصصة
       if (payload.type === "insight" || payload.insight) {
         handleNewInsight(payload.insight || payload);
       }
@@ -323,9 +358,10 @@ export function useDashboardData(branchId, range, showComparison) {
     [handleNewInsight, handleNewAlert, handleDashboardEvent],
   );
 
-  useAlertsSocket(socketHandler);
+  // ✅ استخدام الـ hook بالشركة والفرع (تم إصلاحه)
+  useAlertsSocket(socketHandler, companyId, branchId);
 
-  // ---- Clean hiddenAlerts ----
+  // ---- تنظيف hiddenAlerts ----
   useEffect(() => {
     const alerts = dashboard?.reminders?.alerts || [];
     setHiddenAlerts((prev) => {
@@ -352,7 +388,7 @@ export function useDashboardData(branchId, range, showComparison) {
       .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
   }, [dashboard]);
 
-  // ---- Chart data ----
+  // ---- Chart data (دون تغيير) ----
   const revenueChartData = useMemo(
     () =>
       (dashboard?.charts?.revenue || []).map((item) => ({
@@ -410,9 +446,8 @@ export function useDashboardData(branchId, range, showComparison) {
       : revenueDataWithAnomalies;
   }, [focusRange, revenueDataWithAnomalies]);
 
-  // تأثير تعيين focusRange تلقائياً عند وجود anomalies، مع منع التكرار بعد تدخل المستخدم
   useEffect(() => {
-    if (autoFocusedRef.current) return; // توقف تلقائي بعد أول manual interaction
+    if (autoFocusedRef.current) return;
     if (!revenueAnomalyPoints.length) {
       setFocusRange(null);
       return;
@@ -423,14 +458,11 @@ export function useDashboardData(branchId, range, showComparison) {
     const start = Math.max(index - 3, 0);
     const end = Math.min(index + 4, mergedRevenueData.length);
     setFocusRange([start, end]);
-    autoFocusedRef.current = true; // تم التركيز التلقائي مرة واحدة
+    autoFocusedRef.current = true;
   }, [revenueAnomalyPoints, mergedRevenueData]);
 
-  // عند إعادة تعيين المستخدم للـ focusRange، نسمح بإعادة التركيز التلقائي مرة أخرى لاحقاً
   const handleSetFocusRange = useCallback((value) => {
-    if (value === null) {
-      autoFocusedRef.current = false; // أعد السماح بالتركيز التلقائي
-    }
+    if (value === null) autoFocusedRef.current = false;
     setFocusRange(value);
   }, []);
 
@@ -471,7 +503,7 @@ export function useDashboardData(branchId, range, showComparison) {
     setHiddenAlerts,
     markAllAsRead,
     focusRange,
-    setFocusRange: handleSetFocusRange, // نمرر الدالة المخصصة
+    setFocusRange: handleSetFocusRange,
     visibleRevenueData,
     appointmentsDataWithAnomalies,
     playSound,

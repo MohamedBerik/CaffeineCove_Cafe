@@ -328,6 +328,8 @@ export function useDashboardData(branchId, range, showComparison) {
     [playSound, queryClient, dashboardKey],
   );
 
+  const processedAlertsRef = useRef(new Set());
+
   // socketHandler مع payload normalization وإضافة المعالجات المفقودة
   const socketHandler = useCallback(
     (payload) => {
@@ -354,6 +356,12 @@ export function useDashboardData(branchId, range, showComparison) {
         (payload.type === "alert" ? payload.data : null);
 
       if (alertPayload && alertPayload.id) {
+        // Dedupe لمنع تكرار التوست
+        if (processedAlertsRef.current.has(alertPayload.id)) {
+          return;
+        }
+        processedAlertsRef.current.add(alertPayload.id);
+
         handleNewAlert(alertPayload);
       }
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "../../../services/axios";
+import api from "../../../services/axios";
 import toast from "react-hot-toast";
 import "./BillingPage.css";
 import { Link } from "react-router";
@@ -29,7 +29,7 @@ export default function BillingPage() {
   const { data: subscription, isLoading: loadingSub } = useQuery({
     queryKey: ["current-subscription"],
     queryFn: async () => {
-      const res = await axios.get("/erp/billing/subscription");
+      const res = await api.get("/erp/billing/subscription");
       return res.data.data;
     },
   });
@@ -53,7 +53,7 @@ export default function BillingPage() {
   const { data: plans, isLoading: loadingPlans } = useQuery({
     queryKey: ["available-plans"],
     queryFn: async () => {
-      const res = await axios.get("/erp/billing/plans");
+      const res = await api.get("/erp/billing/plans");
       return res.data.data;
     },
     enabled: showPlansModal,
@@ -62,7 +62,7 @@ export default function BillingPage() {
   const { data: paymentMethods } = useQuery({
     queryKey: ["payment-methods"],
     queryFn: async () => {
-      const res = await axios.get("/erp/billing/payment-methods");
+      const res = await api.get("/erp/billing/payment-methods");
       return res.data.data;
     },
   });
@@ -70,7 +70,7 @@ export default function BillingPage() {
   // ========================= Mutations =========================
   const subscribeMutation = useMutation({
     mutationFn: ({ planId, cycle }) =>
-      axios.post("/erp/billing/subscribe", {
+      api.post("/erp/billing/subscribe", {
         plan_id: planId,
         billing_cycle: cycle,
       }),
@@ -93,7 +93,7 @@ export default function BillingPage() {
   });
 
   const cancelMutation = useMutation({
-    mutationFn: () => axios.post("/erp/billing/cancel"),
+    mutationFn: () => api.post("/erp/billing/cancel"),
     onSuccess: () => {
       queryClient.invalidateQueries(["current-subscription"]);
       toast.success(t("Subscription cancelled successfully"));
@@ -107,7 +107,7 @@ export default function BillingPage() {
 
   const changeMutation = useMutation({
     mutationFn: ({ planId, cycle }) =>
-      axios.post("/erp/billing/change", {
+      api.post("/erp/billing/change", {
         plan_id: planId,
         billing_cycle: cycle,
       }),
@@ -124,7 +124,7 @@ export default function BillingPage() {
   });
 
   const addPaymentMethodMutation = useMutation({
-    mutationFn: (data) => axios.post("/erp/billing/payment-methods", data),
+    mutationFn: (data) => api.post("/erp/billing/payment-methods", data),
     onSuccess: () => {
       queryClient.invalidateQueries(["payment-methods"]);
       toast.success(t("Payment method added successfully"));
@@ -139,7 +139,7 @@ export default function BillingPage() {
   });
 
   const removePaymentMethodMutation = useMutation({
-    mutationFn: (id) => axios.delete(`/erp/billing/payment-methods/${id}`),
+    mutationFn: (id) => api.delete(`/erp/billing/payment-methods/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries(["payment-methods"]);
       toast.success(t("Payment method removed"));
@@ -206,7 +206,7 @@ export default function BillingPage() {
 
     // إلغاء الاشتراك المعلق
     if (pendingSubscriptionId) {
-      axios
+      api
         .post(`/erp/billing/cancel-pending/${pendingSubscriptionId}`)
         .catch(console.error);
       setPendingSubscriptionId(null);

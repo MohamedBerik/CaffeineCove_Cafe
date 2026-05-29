@@ -7,7 +7,11 @@ import { AuthProvider } from "./context/AuthContext";
 import { AlertProvider } from "./context/AlertContext";
 import App from "./App";
 import "./i18n";
-
+// ================= Route Guards =================
+import { AdminRoute } from "./admin/routes/ProtectedRoute";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Toaster } from "react-hot-toast";
 // ================= Lazy Loaded Pages =================
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
@@ -135,7 +139,32 @@ const ActivityLogs = lazy(
 const ClinicSettingsPage = lazy(
   () => import("./admin/erp/settings/ClinicSettingsPage"),
 );
-
+const BranchFormPage = lazy(() => import("./admin/saas/BranchFormPage"));
+const BranchesListPage = lazy(() => import("./admin/saas/BranchesListPage"));
+const ReportsDashboardPage = lazy(
+  () => import("./admin/erp/reports/ReportsDashboardPage"),
+);
+const RevenueReportPage = lazy(
+  () => import("./admin/erp/reports/RevenueReportPage"),
+);
+const AppointmentsReportPage = lazy(
+  () => import("./admin/erp/reports/AppointmentsReportPage"),
+);
+const DoctorPerformanceReportPage = lazy(
+  () => import("./admin/erp/reports/DoctorPerformanceReportPage"),
+);
+const AnalyticsDashboardPage = lazy(
+  () => import("./admin/erp/reports/AnalyticsDashboardPage"),
+);
+const PaymentsReportPage = lazy(
+  () => import("./admin/erp/reports/PaymentsReportPage"),
+);
+const TreatmentPlansReportPage = lazy(
+  () => import("./admin/erp/reports/TreatmentPlansReportPage"),
+);
+const PatientsReportPage = lazy(
+  () => import("./admin/erp/reports/PatientsReportPage"),
+);
 // ================= SaaS Lazy =================
 const SaaSDashboard = lazy(() => import("./admin/saas/SaaSDashboard"));
 const CompaniesList = lazy(() => import("./admin/saas/CompaniesList"));
@@ -183,12 +212,6 @@ const PrintPatientsReportPage = lazy(
 const PrintSaaSReportsPage = lazy(
   () => import("./admin/saas/PrintSaaSReportsPage"),
 );
-
-// ================= Route Guards =================
-import { AdminRoute } from "./admin/routes/ProtectedRoute";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { Toaster } from "react-hot-toast";
 
 // ✅ إنشاء QueryClient مع استراتيجية ذكية للـ staleTime
 const queryClient = new QueryClient({

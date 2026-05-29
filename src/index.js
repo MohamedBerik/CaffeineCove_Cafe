@@ -12,6 +12,7 @@ import { AdminRoute } from "./admin/routes/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Toaster } from "react-hot-toast";
+
 // ================= Lazy Loaded Pages =================
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));

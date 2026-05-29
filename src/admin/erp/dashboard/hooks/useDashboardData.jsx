@@ -80,7 +80,7 @@ export function useDashboardData(branchId, range, showComparison) {
       return newData;
     },
     placeholderData: undefined,
-    staleTime: 30_000,
+    staleTime: 0,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchInterval: false,

@@ -126,7 +126,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
       setActiveBranchId("all"); // ✅ بدلاً من localStorage.removeItem("selectedBranchId")
 
       await queryClient.invalidateQueries(["me"]);
-      await queryClient.refetchQueries(["me"]);
+      // await queryClient.refetchQueries(["me"]);
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["activityLogs"] });
       queryClient.invalidateQueries({ queryKey: ["subscription-status"] });
@@ -264,7 +264,8 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
       return res.data.data;
     },
     retry: (failureCount, error) => {
-      if (error.response?.status === 403) return false;
+      if (error.response?.status === 403 || error.response?.status === 429)
+        return false;
       return failureCount < 3;
     },
     refetchInterval: 300000,

@@ -32,6 +32,11 @@ export default function BillingPage() {
       const res = await api.get("/erp/billing/subscription");
       return res.data.data;
     },
+    retry: (failureCount, error) => {
+      if (error.response?.status === 429) return false;
+      return failureCount < 2;
+    },
+    staleTime: 5 * 60 * 1000, // 5 دقائق كافية لبيانات الاشتراك
   });
 
   const { data: invoices, isLoading: loadingInvoices } = useQuery({
@@ -41,10 +46,10 @@ export default function BillingPage() {
       return res.data;
     },
     retry: (failureCount, error) => {
-      // لا تحاول مجدداً عند 429
       if (error.response?.status === 429) return false;
       return failureCount < 2;
     },
+    staleTime: 5 * 60 * 1000,
     enabled:
       !!localStorage.getItem("token") &&
       !!localStorage.getItem("selectedCompany"),
@@ -56,6 +61,11 @@ export default function BillingPage() {
       const res = await api.get("/erp/billing/plans");
       return res.data.data;
     },
+    retry: (failureCount, error) => {
+      if (error.response?.status === 429) return false;
+      return failureCount < 2;
+    },
+    staleTime: 10 * 60 * 1000, // الخطط لا تتغير كثيراً
     enabled: showPlansModal,
   });
 
@@ -65,6 +75,11 @@ export default function BillingPage() {
       const res = await api.get("/erp/billing/payment-methods");
       return res.data.data;
     },
+    retry: (failureCount, error) => {
+      if (error.response?.status === 429) return false;
+      return failureCount < 2;
+    },
+    staleTime: 5 * 60 * 1000,
   });
 
   // ========================= Mutations =========================

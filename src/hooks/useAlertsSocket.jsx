@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import echoService from "../services/echo";
 
 export default function useAlertsSocket(onNewAlert, companyId, branchId) {
-  const { user, loading } = useAuth(); // ✅ loading مهم جدًا
+  const { user, loading } = useAuth(); // ✅ استخدم loading
   const onNewAlertRef = useRef(onNewAlert);
   const previousChannelRef = useRef(null);
 
@@ -21,7 +21,7 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
       userSuperAdmin: user?.is_super_admin,
     });
 
-    // ✅ انتظر حتى ينتهي AuthContext من تحميل المستخدم
+    // انتظر حتى ينتهي Auth من تحميل المستخدم
     if (loading) {
       console.log("⏳ Auth still loading...");
       return;
@@ -44,7 +44,6 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
       return;
     }
 
-    // ✅ اسم القناة الصحيح مع alerts
     const channelName =
       branchId === "all"
         ? `company.${companyId}.alerts`
@@ -87,5 +86,5 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
       console.log("🧹 CLEANUP – stopping listener on", channelName);
       channel.stopListening(".alert.created", alertListener);
     };
-  }, [companyId, branchId, user?.role, user?.is_super_admin, loading]);
+  }, [companyId, branchId, user?.role, user?.is_super_admin, loading]); // ✅ loading في التبعيات
 }

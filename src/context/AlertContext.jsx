@@ -4,7 +4,6 @@ import React, {
   useContext,
   useEffect,
   useCallback,
-  useMemo,
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "./AuthContext";
@@ -15,23 +14,40 @@ const AlertStateContext = createContext();
 const AlertActionsContext = createContext();
 
 export const AlertProvider = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // استخراج معرف الشركة والفرع من localStorage مع guard
-  const companyId = useMemo(
+  // ✅ جعل companyId و branchId تفاعليين (state) مع مستمعين للتغيير
+  const [companyId, setCompanyId] = useState(
     () => localStorage.getItem("selectedCompany") || null,
-    [],
   );
-  const branchId = useMemo(
+  const [branchId, setBranchId] = useState(
     () => localStorage.getItem("selectedBranchId") || null,
-    [],
   );
 
-  // ✅ add from socket - يحدث React Query Cache
+  useEffect(() => {
+    const syncStorage = () => {
+      setCompanyId(localStorage.getItem("selectedCompany") || null);
+      setBranchId(localStorage.getItem("selectedBranchId") || null);
+    };
+    window.addEventListener("storage", syncStorage);
+    window.addEventListener("branchChanged", syncStorage);
+    return () => {
+      window.removeEventListener("storage", syncStorage);
+      window.removeEventListener("branchChanged", syncStorage);
+    };
+  }, []);
+
+  // ✅ إضافة alerts و loading إلى stateValue لتجنب undefined في AdminNavbar
+  const [alertsList, setAlertsList] = useState([]);
+  const [alertsLoading, setAlertsLoading] = useState(false);
+
   const addAlert = useCallback(
     (newAlert) => {
+      // تحديث alerts محليًا
+      setAlertsList((prev) => [newAlert, ...prev]);
+      // تحديث React Query cache
       const filters = ["all", "unread", "high"];
       filters.forEach((filter) => {
         if (filter === "unread" && newAlert.read) return;
@@ -147,50 +163,46 @@ export const AlertProvider = ({ children }) => {
 
   // ✅ تحميل العداد الأولي مع guard صارم
   useEffect(() => {
-    // تأكد من وجود مستخدم، شركة، فرع، ودور مناسب
-    if (
-      !user ||
-      !companyId ||
-      !branchId ||
-      (user.role !== "admin" && !user.is_super_admin)
-    ) {
+    if (authLoading) return;
+    if (!user || !companyId || !branchId) {
       setUnreadCount(0);
       return;
     }
+    if (user.role !== "admin" && !user.is_super_admin) return;
 
     let cancelled = false;
-
-    const loadUnreadCount = async () => {
-      try {
-        const res = await api.get("/erp/alerts/unread-count");
+    setAlertsLoading(true);
+    api
+      .get("/erp/alerts/unread-count")
+      .then((res) => {
         if (!cancelled) {
           setUnreadCount(res?.data?.count || 0);
         }
-      } catch (error) {
-        if (!cancelled && error.response?.status !== 429) {
-          console.error("❌ Error fetching unread count:", error);
-        }
-      }
-    };
-
-    loadUnreadCount();
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setAlertsLoading(false);
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [user?.id, user?.role, user?.is_super_admin, companyId, branchId]);
-
-  // ✅ الاستماع للإشعارات الجديدة - تمرير companyId و branchId
-  useAlertsSocket(
-    (newAlert) => {
-      addAlert(newAlert);
-    },
+  }, [
+    user?.id,
+    user?.role,
+    user?.is_super_admin,
     companyId,
     branchId,
-  );
+    authLoading,
+  ]);
+
+  // ✅ الاشتراك في socket – يبدأ فقط عندما تكون جميع البيانات جاهزة
+  useAlertsSocket((newAlert) => addAlert(newAlert), companyId, branchId);
 
   const stateValue = {
     unreadCount,
+    alerts: alertsList, // ✅ تم توفير alerts
+    loading: alertsLoading, // ✅ تم توفير loading
   };
 
   const actionsValue = {

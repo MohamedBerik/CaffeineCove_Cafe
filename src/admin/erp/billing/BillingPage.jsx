@@ -37,9 +37,17 @@ export default function BillingPage() {
   const { data: invoices, isLoading: loadingInvoices } = useQuery({
     queryKey: ["billing-invoices"],
     queryFn: async () => {
-      const res = await axios.get("/erp/billing/invoices");
-      return res.data.data;
+      const res = await api.get("/erp/billing/invoices");
+      return res.data;
     },
+    retry: (failureCount, error) => {
+      // لا تحاول مجدداً عند 429
+      if (error.response?.status === 429) return false;
+      return failureCount < 2;
+    },
+    enabled:
+      !!localStorage.getItem("token") &&
+      !!localStorage.getItem("selectedCompany"),
   });
 
   const { data: plans, isLoading: loadingPlans } = useQuery({

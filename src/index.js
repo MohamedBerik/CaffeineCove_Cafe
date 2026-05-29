@@ -101,12 +101,20 @@ import ContactMessagesListPage from "./admin/saas/ContactMessagesListPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 
-// ✅ إنشاء QueryClient
+// ✅ إنشاء QueryClient مع استراتيجية إعادة محاولة ذكية
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 دقائق
+      staleTime: 5 * 60 * 1000, // 5 دقائق
       refetchOnWindowFocus: false,
+      retry: (failureCount, error) => {
+        // لا تحاول مجدداً عند 429 Too Many Requests
+        if (error?.response?.status === 429) return false;
+        return failureCount < 3;
+      },
+    },
+    mutations: {
+      retry: false,
     },
   },
 });

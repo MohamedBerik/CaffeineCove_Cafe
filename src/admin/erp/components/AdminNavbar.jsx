@@ -55,52 +55,63 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   }, [user]);
 
   // ✅ جلب الفروع وتعيين الفرع الافتراضي
+  // داخل المكون، استبدل useEffect الخاص بجلب الفروع بهذا:
   useEffect(() => {
-    if (!user || user.is_super_admin) {
-      setBranches([]);
-      return;
-    }
-    if (!selectedCompany || selectedCompany === "global") {
+    if (
+      !user ||
+      user.is_super_admin ||
+      !selectedCompany ||
+      selectedCompany === "global"
+    ) {
       setBranches([]);
       return;
     }
 
+    let cancelled = false;
+
     api
       .get("/branches")
       .then((res) => {
+        if (cancelled) return;
         const branchList = Array.isArray(res.data) ? res.data : [];
         setBranches(branchList);
 
         const currentStoredBranch = localStorage.getItem("selectedBranchId");
 
-        // أدمن يمكنه التنقل
         if (user?.can_switch_branch || user?.role === "admin") {
+          // مدير يمكنه التنقل بين الفروع
           if (!currentStoredBranch) {
-            setSelectedBranch("all");
-            setActiveBranchId("all"); // ✅ المصدر الموحد
-          } else {
-            setSelectedBranch(currentStoredBranch);
-            setActiveBranchId(currentStoredBranch); // ✅ تأكيد القيمة
+            setActiveBranchId("all");
+          } else if (
+            !branchList.some(
+              (b) => String(b.id) === String(currentStoredBranch),
+            )
+          ) {
+            // إذا كان الفرع المخزن غير موجود في القائمة الجديدة، استخدم "all"
+            setActiveBranchId("all");
           }
+          // إذا كان الفرع المخزن موجوداً، لا تفعل شيئاً (احتفظ به)
         } else {
-          // موظف مرتبط بفرع
+          // موظف عادي مربوط بفرع معين
           if (
             branchList.length > 0 &&
-            (!currentStoredBranch ||
-              currentStoredBranch === "all" ||
-              currentStoredBranch === "")
+            (!currentStoredBranch || currentStoredBranch === "all")
           ) {
-            const defaultBranchId = String(branchList[0].id);
-            setSelectedBranch(defaultBranchId);
-            setActiveBranchId(defaultBranchId); // ✅ المصدر الموحد
+            setActiveBranchId(String(branchList[0].id));
           }
         }
       })
       .catch((err) => {
-        console.error("Branches error:", err);
-        setBranches([]);
+        if (!cancelled) {
+          console.error("Failed to fetch branches", err);
+          setBranches([]);
+        }
       });
-  }, [user, selectedCompany]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCompany, user?.id, user?.is_super_admin]); // ✅ تبعيات مستقرة تماماً
 
   // ✅ تبديل الشركة
   const handleSwitch = async (companyId) => {

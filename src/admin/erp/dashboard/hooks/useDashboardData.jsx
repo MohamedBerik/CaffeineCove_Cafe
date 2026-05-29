@@ -353,7 +353,7 @@ export function useDashboardData(branchId, range, showComparison) {
         payload.data?.alert ??
         (payload.type === "alert" ? payload.data : null);
 
-      if (alertPayload) {
+      if (alertPayload && alertPayload.id) {
         handleNewAlert(alertPayload);
       }
 

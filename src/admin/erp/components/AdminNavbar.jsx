@@ -135,11 +135,22 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   // ✅ تبديل الفرع (المصدر الموحد)
   const handleBranchChange = (e) => {
     const value = e.target.value;
+    // ✅ تجنب الاستدعاء إذا لم تتغير القيمة
+    if (value === selectedBranch) return;
+
     setSelectedBranch(value);
-    setActiveBranchId(value); // ✅ يغني عن localStorage و globalBranchChanged
-    queryClient.resetQueries({ queryKey: ["dashboard"] });
-    queryClient.resetQueries({ queryKey: ["activityLogs"] });
-    queryClient.resetQueries({ queryKey: ["subscription-status"] });
+    setActiveBranchId(value);
+
+    // استخدم invalidate بدلاً من reset – مع predicate لتغطية كل dashboard keys
+    queryClient.invalidateQueries({
+      predicate: (query) => query.queryKey[0] === "dashboard",
+    });
+    queryClient.invalidateQueries({
+      predicate: (query) => query.queryKey[0] === "activityLogs",
+    });
+    queryClient.invalidateQueries({
+      predicate: (query) => query.queryKey[0] === "subscription-status",
+    });
   };
 
   // ✅ تجميع الشركات حسب الحالة

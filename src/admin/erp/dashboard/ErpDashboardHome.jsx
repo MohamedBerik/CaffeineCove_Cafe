@@ -53,6 +53,7 @@ export default function ErpDashboardHome() {
   }, []);
 
   // ---- Sync branch from Navbar ----
+  // داخل المكون
   useEffect(() => {
     const syncBranch = (event) => {
       const latestBranch =
@@ -65,13 +66,11 @@ export default function ErpDashboardHome() {
       }
     };
 
-    // استخدم الحدث الموحد "activeBranchChanged" بدلاً من "globalBranchChanged"
+    // ✅ نستمع فقط للحدث المخصص "activeBranchChanged"
     window.addEventListener("activeBranchChanged", syncBranch);
-    window.addEventListener("storage", syncBranch);
 
     return () => {
       window.removeEventListener("activeBranchChanged", syncBranch);
-      window.removeEventListener("storage", syncBranch);
     };
   }, [branchId, handleBranchChange]);
 

@@ -12,14 +12,15 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
   }, [onNewAlert]);
 
   useEffect(() => {
-    if (!companyId || !branchId) return;
-    if (user?.role !== "admin" && !user?.is_super_admin) return;
+    const isAdmin = user?.role === "admin" || user?.is_super_admin;
+    if (!companyId || !branchId || !isAdmin) return;
 
     const channelName =
       branchId === "all"
         ? `company.${companyId}`
         : `company.${companyId}.branch.${branchId}`;
 
+    // ترك القناة السابقة فقط عند تغييرها
     if (
       previousChannelRef.current &&
       previousChannelRef.current !== channelName
@@ -29,9 +30,6 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
     previousChannelRef.current = channelName;
 
     const channel = echo.private(channelName);
-
-    // منع تكرار الاشتراك (خاصة في StrictMode)
-    channel.stopListening(".alert.created");
 
     const alertListener = (e) => {
       const eventBranchId =
@@ -48,16 +46,16 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
       ) {
         return;
       }
-
-      // إرسال الحدث بالكامل ليتم تحليله في useDashboardData
       onNewAlertRef.current(e);
     };
 
+    // منع تكرار المستمعات (مهم مع StrictMode)
+    channel.stopListening(".alert.created");
     channel.listen(".alert.created", alertListener);
 
     return () => {
       channel.stopListening(".alert.created");
-      echo.leave(channelName);
+      // لا نغادر القناة هنا – سنغادر فقط عند تغيير القناة في effect التالي
     };
-  }, [companyId, branchId, user]);
+  }, [companyId, branchId, user?.role, user?.is_super_admin]); // ✅ تبعيات آمنة
 }

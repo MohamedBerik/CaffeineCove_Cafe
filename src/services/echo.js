@@ -4,30 +4,32 @@ import { getActiveBranchId } from "../utils/activeBranch";
 
 window.Pusher = Pusher;
 
-let echoInstance = null;
-let currentToken = null;
-let currentBranchId = null;
+class EchoService {
+  instance = null;
+  token = null;
+  branchId = null;
 
-export function getEcho() {
-  const token = localStorage.getItem("token");
-  const branchId = getActiveBranchId();
+  getInstance() {
+    const token = localStorage.getItem("token");
+    const branchId = getActiveBranchId();
 
-  // إعادة إنشاء Echo إذا تغير التوكن أو الفرع
-  if (
-    echoInstance &&
-    (token !== currentToken || branchId !== currentBranchId)
-  ) {
-    echoInstance.disconnect();
-    echoInstance = null;
-    currentToken = null;
-    currentBranchId = null;
-  }
+    if (!token) return null;
 
-  if (!echoInstance) {
-    currentToken = token;
-    currentBranchId = branchId;
+    // إذا كان هناك instance موجود والتوكن والفرع لم يتغيرا، أرجع الموجود
+    if (this.instance && this.token === token && this.branchId === branchId) {
+      return this.instance;
+    }
 
-    echoInstance = new Echo({
+    // إذا تغير التوكن أو الفرع، افصل القديم
+    if (this.instance) {
+      this.instance.disconnect();
+      this.instance = null;
+    }
+
+    this.token = token;
+    this.branchId = branchId;
+
+    this.instance = new Echo({
       broadcaster: "pusher",
       key: "9b85ecf4278b5add7a38",
       cluster: "mt1",
@@ -38,23 +40,25 @@ export function getEcho() {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
-          "X-Branch-Id": branchId, // ✅ يُمكّن الـ backend من عزل الفروع
+          "X-Branch-Id": branchId,
         },
       },
     });
 
     console.log("✅ Echo initialized", { branchId });
+    return this.instance;
   }
 
-  return echoInstance;
-}
-
-export function disconnectEcho() {
-  if (echoInstance) {
-    echoInstance.disconnect();
-    echoInstance = null;
-    currentToken = null;
-    currentBranchId = null;
-    console.log("❌ Echo disconnected");
+  disconnect() {
+    if (this.instance) {
+      this.instance.disconnect();
+      this.instance = null;
+      this.token = null;
+      this.branchId = null;
+      console.log("❌ Echo disconnected");
+    }
   }
 }
+
+const echoService = new EchoService();
+export default echoService;

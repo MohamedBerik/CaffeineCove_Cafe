@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
-import { getEcho } from "../services/echo";
+import echoService from "../services/echo";
 
 export default function useAlertsSocket(onNewAlert, companyId, branchId) {
   const { user } = useAuth();
@@ -41,13 +41,13 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
     ) {
       const prevChannelFull = `private-${previousChannelRef.current}`;
       console.log("🚪 LEAVING previous channel:", prevChannelFull);
-      const echo = getEcho();
+      const echo = echoService.getInstance();
       echo.leave(prevChannelFull);
     }
 
     previousChannelRef.current = channelName;
 
-    const echo = getEcho();
+    const echo = echoService.getInstance();
     const channel = echo.private(channelName);
 
     // لتشخيص الاشتراك

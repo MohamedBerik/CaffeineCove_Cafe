@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAlertState, useAlertActions } from "../../../context/AlertContext";
@@ -11,9 +11,8 @@ import "./AdminNavbar.css";
 const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   const { alerts, loading } = useAlertState();
   const { markAsRead, markAllAsRead } = useAlertActions();
-  const { logout, user, refreshUser } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const { t, i18n } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
@@ -36,9 +35,18 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   // ✅ جلب قائمة الشركات
   useEffect(() => {
     if (user?.is_super_admin || user?.role === "admin") {
-      api.get("/companies").then((res) => setCompanies(res.data));
+      let cancelled = false;
+      api
+        .get("/companies")
+        .then((res) => {
+          if (!cancelled) setCompanies(res.data);
+        })
+        .catch(() => {});
+      return () => {
+        cancelled = true;
+      };
     }
-  }, [user]);
+  }, [user?.id, user?.is_super_admin, user?.role]);
 
   // ✅ تعيين selectedCompany تلقائيًا
   useEffect(() => {
@@ -52,10 +60,9 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
       setSelectedCompany(companyId);
       localStorage.setItem("selectedCompany", companyId);
     }
-  }, [user]);
+  }, [user?.company_id, selectedCompany]);
 
   // ✅ جلب الفروع وتعيين الفرع الافتراضي
-  // داخل المكون، استبدل useEffect الخاص بجلب الفروع بهذا:
   useEffect(() => {
     if (
       !user ||
@@ -79,20 +86,16 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
         const currentStoredBranch = localStorage.getItem("selectedBranchId");
 
         if (user?.can_switch_branch || user?.role === "admin") {
-          // مدير يمكنه التنقل بين الفروع
-          if (!currentStoredBranch) {
-            setActiveBranchId("all");
-          } else if (
+          if (
+            !currentStoredBranch ||
             !branchList.some(
               (b) => String(b.id) === String(currentStoredBranch),
             )
           ) {
-            // إذا كان الفرع المخزن غير موجود في القائمة الجديدة، استخدم "all"
             setActiveBranchId("all");
           }
-          // إذا كان الفرع المخزن موجوداً، لا تفعل شيئاً (احتفظ به)
+          // else: حافظ على القيمة المخزنة (لا تفعل شيئاً)
         } else {
-          // موظف عادي مربوط بفرع معين
           if (
             branchList.length > 0 &&
             (!currentStoredBranch || currentStoredBranch === "all")
@@ -102,16 +105,18 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
         }
       })
       .catch((err) => {
-        if (!cancelled) {
-          console.error("Failed to fetch branches", err);
-          setBranches([]);
-        }
+        if (!cancelled) console.error("Failed to fetch branches", err);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [selectedCompany, user?.id, user?.is_super_admin]); // ✅ تبعيات مستقرة تماماً
+  }, [
+    selectedCompany,
+    user?.id,
+    user?.is_super_admin,
+    user?.can_switch_branch,
+  ]);
 
   // ✅ تبديل الشركة
   const handleSwitch = async (companyId) => {
@@ -123,19 +128,21 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
       setSelectedCompany(valueToStore);
       localStorage.setItem("selectedCompany", valueToStore);
       setSelectedBranch("all");
-      setActiveBranchId("all"); // ✅ بدلاً من localStorage.removeItem("selectedBranchId")
+      setActiveBranchId("all");
 
-      await queryClient.invalidateQueries(["me"]);
-      // await queryClient.refetchQueries(["me"]);
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-      queryClient.invalidateQueries({ queryKey: ["activityLogs"] });
-      queryClient.invalidateQueries({ queryKey: ["subscription-status"] });
+      // ✅ استخدم invalidate فقط بدلاً من refetch
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey[0] === "dashboard",
+      });
+      queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey[0] === "activityLogs",
+      });
+      queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey[0] === "subscription-status",
+      });
 
-      if (!companyId || companyId === "") {
-        navigate("/admin/saas");
-      } else {
-        navigate("/admin/erp");
-      }
+      navigate(companyId ? "/admin/erp" : "/admin/saas");
     } catch (error) {
       console.error("Failed to switch company", error);
     } finally {
@@ -144,15 +151,14 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   };
 
   // ✅ تبديل الفرع (المصدر الموحد)
+  // ✅ تبديل الفرع (مع منع duplicate dispatch)
   const handleBranchChange = (e) => {
     const value = e.target.value;
-    // ✅ تجنب الاستدعاء إذا لم تتغير القيمة
     if (value === selectedBranch) return;
 
     setSelectedBranch(value);
     setActiveBranchId(value);
 
-    // استخدم invalidate بدلاً من reset – مع predicate لتغطية كل dashboard keys
     queryClient.invalidateQueries({
       predicate: (query) => query.queryKey[0] === "dashboard",
     });
@@ -257,9 +263,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     queryKey: ["subscription-status"],
     queryFn: async () => {
       const tenantId = localStorage.getItem("selectedCompany");
-      if (!tenantId || tenantId === "global" || tenantId === "") {
-        return null;
-      }
+      if (!tenantId || tenantId === "global" || tenantId === "") return null;
       const res = await api.get("/erp/billing/status");
       return res.data.data;
     },
@@ -268,7 +272,8 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
         return false;
       return failureCount < 3;
     },
-    refetchInterval: 300000,
+    refetchInterval: 600000, // كل 10 دقائق بدلاً من 5 دقائق
+    staleTime: 10 * 60 * 1000,
   });
 
   // ✅ شروط عرض Branch Selector (مدير الشركة فقط + وجود فروع)

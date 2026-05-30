@@ -69,13 +69,26 @@ api.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
     const data = error.response?.data || {};
+    const isMeRoute = error.config?.url?.includes("/me"); // 🎯 فحص إذا كان المسار هو طلب الملف الشخصي
 
-    // 🔐 [إضافة] إذا انتهت صلاحية الجلسة أو التوكن (401 Unauthorized)
+    // 🔐 إذا انتهت صلاحية الجلسة أو التوكن (401 Unauthorized)
     if (status === 401) {
+      // إذا كان الطلب الفاشل هو /me، اتركه للـ AuthContext تماماً لمنع الـ Loop والتحديث اللانهائي
+      if (isMeRoute) {
+        return Promise.reject(error);
+      }
+
       console.warn("🔒 Session expired or unauthenticated. Cleaning up...");
       localStorage.removeItem("token");
-      // يمكنك توجيهه لصفحة اللوجن هنا إذا لم تكن تتم معالجتها في AuthContext
-      // window.location.href = "/login";
+      localStorage.removeItem("user");
+      localStorage.removeItem("selectedCompany");
+      localStorage.removeItem("selectedBranchId");
+
+      // التوجيه الناعم لصفحة اللوجن إذا لم يكن مسار /me
+      if (!window.location.pathname.includes("/login")) {
+        window.location.href = "/login";
+      }
+
       return Promise.reject(error);
     }
 
@@ -94,6 +107,11 @@ api.interceptors.response.use(
       ];
 
       if (subscriptionErrors.includes(data.code)) {
+        // إذا كان مسار /me هو الذي تسبب في خطأ الاشتراك، نكتفي بتمرير الخطأ للـ AuthContext للتعامل معه دون عمل Hard Reload مفاجئ
+        if (isMeRoute) {
+          return Promise.reject(error);
+        }
+
         const redirectTo = data.redirect_to || "/admin/erp/billing";
         window.location.href = redirectTo; // Hard reload لأمان الـ SaaS
         return Promise.reject(error);

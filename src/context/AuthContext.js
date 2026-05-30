@@ -54,36 +54,42 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (userData, token) => {
+    // 1️⃣ تخزين التوكن فوراً ليعتمده الأكسيوس
     localStorage.setItem("token", token);
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
+    // 2️⃣ [تعديل حاسم] تخزين معرفات الشركة والفرع فوراً من بيانات اللوجن الأولية
+    // لمنع ميدياوير الباك إند من رفض طلب /me القادم
+    const initialCompany = userData?.company_id || "global";
+    const initialBranch = userData?.branch_id ?? "all";
+
+    localStorage.setItem("selectedCompany", initialCompany);
+    localStorage.setItem("selectedBranchId", initialBranch);
+    localStorage.setItem("user", JSON.stringify(userData));
+
+    // تعيين المستخدم مبدئياً لفتح الواجهة فوراً ومنع تعليق الـ UI
+    setUser(userData);
     setLoading(true);
-    const fullUser = await loadUser();
 
-    if (fullUser) {
-      // إزالة أي قيم قديمة لتجنب إرسالها في الطلبات التالية
-      localStorage.removeItem("selectedCompany");
-      localStorage.removeItem("selectedBranchId");
+    try {
+      // 3️⃣ الآن نطلب البيانات الكاملة والمحدثة من السيرفر بأمان وبأعلى درجات العزل
+      const fullUser = await loadUser();
 
-      // تعيين القيم الجديدة بناءً على بيانات الباك إند المحدثة والـ Tenant الموثق
-      const targetCompany = fullUser.company_id || "global";
-      const targetBranch = fullUser.branch_id ?? "all";
-
-      localStorage.setItem("selectedCompany", targetCompany);
-      localStorage.setItem("selectedBranchId", targetBranch);
-    } else {
-      // Fallback في حال فشل جلب /me لسبب عارض
-      localStorage.setItem("user", JSON.stringify(userData));
-      setUser(userData);
-
-      const targetCompany = userData.company_id || "global";
-      const targetBranch = userData.branch_id ?? "all";
-
-      localStorage.setItem("selectedCompany", targetCompany);
-      localStorage.setItem("selectedBranchId", targetBranch);
+      if (fullUser) {
+        // تحديث القيم بالبيانات الأكثر دقة القادمة من الباك إند
+        localStorage.setItem(
+          "selectedCompany",
+          fullUser.company_id || "global",
+        );
+        localStorage.setItem("selectedBranchId", fullUser.branch_id ?? "all");
+        setUser(fullUser);
+      }
+    } catch (e) {
+      console.error("Error fetching full user profile after login:", e);
+    } finally {
+      // 4️⃣ إغلاق الـ Loading بشكل حتمي ومؤكد في كل الحالات لتثبيت الشاشة
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const logout = async () => {

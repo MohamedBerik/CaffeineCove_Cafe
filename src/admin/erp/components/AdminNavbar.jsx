@@ -77,7 +77,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     let cancelled = false;
 
     api
-      .get("/erp/branches")
+      .get("/branches")
       .then((res) => {
         if (cancelled) return;
         const branchList = Array.isArray(res.data) ? res.data : [];

@@ -10,6 +10,8 @@ export function AuthProvider({ children }) {
   const logoutLocal = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("selectedCompany");
+    localStorage.removeItem("selectedBranchId");
     setUser(null);
   };
 
@@ -28,6 +30,9 @@ export function AuthProvider({ children }) {
     } catch (err) {
       console.error("Failed to load user", err);
 
+      // ✅ تصفير الـ state فوراً لمنع تعليق الفرونت إند
+      setUser(null);
+
       // ✅ لو 401، يبقى التوكين مش صالح
       if (err.response?.status === 401) {
         logoutLocal();
@@ -43,6 +48,7 @@ export function AuthProvider({ children }) {
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       loadUser().finally(() => setLoading(false));
     } else {
+      logoutLocal(); // تأكيد تنظيف أي بقايا هيدرات قديمة
       setLoading(false);
     }
   }, []);
@@ -53,20 +59,31 @@ export function AuthProvider({ children }) {
 
     setLoading(true);
     const fullUser = await loadUser();
-    setLoading(false);
 
     if (fullUser) {
       // إزالة أي قيم قديمة لتجنب إرسالها في الطلبات التالية
       localStorage.removeItem("selectedCompany");
       localStorage.removeItem("selectedBranchId");
 
-      // تعيين القيم الجديدة
-      localStorage.setItem("selectedCompany", fullUser.company_id);
-      localStorage.setItem("selectedBranchId", fullUser.branch_id ?? "all");
+      // تعيين القيم الجديدة بناءً على بيانات الباك إند المحدثة والـ Tenant الموثق
+      const targetCompany = fullUser.company_id || "global";
+      const targetBranch = fullUser.branch_id ?? "all";
+
+      localStorage.setItem("selectedCompany", targetCompany);
+      localStorage.setItem("selectedBranchId", targetBranch);
     } else {
+      // Fallback في حال فشل جلب /me لسبب عارض
       localStorage.setItem("user", JSON.stringify(userData));
       setUser(userData);
+
+      const targetCompany = userData.company_id || "global";
+      const targetBranch = userData.branch_id ?? "all";
+
+      localStorage.setItem("selectedCompany", targetCompany);
+      localStorage.setItem("selectedBranchId", targetBranch);
     }
+
+    setLoading(false);
   };
 
   const logout = async () => {

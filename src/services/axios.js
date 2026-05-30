@@ -19,16 +19,22 @@ api.interceptors.request.use(
       let token = localStorage.getItem("token");
       const tenantId = localStorage.getItem("selectedCompany");
 
-      // 💡 الحصول على branchId من الـ URL الصريح أو من المصدر الموحد (وليس من localStorage مباشرة)
+      // ✅ [تعديل حاسم] الحصول على branchId الموحد
       const queryString = config.url.includes("?")
         ? config.url.split("?")[1]
         : "";
       const urlParams = new URLSearchParams(queryString);
       const explicitBranchId = urlParams.get("branchId");
-      const branchId = explicitBranchId || getActiveBranchId(); // ✅ مصدر واحد للحقيقة
 
-      // ✅ إضافة branch_id تلقائياً
-      if (branchId && branchId !== "all" && branchId !== "") {
+      // إذا لم يكن هناك فرع صريح، جلب الفرع المخزن أو افتراض "all" للمدراء
+      const branchId =
+        explicitBranchId ||
+        getActiveBranchId() ||
+        localStorage.getItem("selectedBranchId") ||
+        "all";
+
+      // 🎯 نرسل الهيدر دائماً! إذا كان "all" نرسله كـ "all" ليفهمه ميدياوير لارفيل ولا ينهار بـ 401
+      if (branchId && branchId !== "") {
         config.headers["X-Branch-ID"] = branchId;
       }
 

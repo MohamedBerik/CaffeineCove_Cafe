@@ -67,9 +67,19 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 403) {
-      const data = error.response?.data || {};
+    const status = error.response?.status;
+    const data = error.response?.data || {};
 
+    // 🔐 [إضافة] إذا انتهت صلاحية الجلسة أو التوكن (401 Unauthorized)
+    if (status === 401) {
+      console.warn("🔒 Session expired or unauthenticated. Cleaning up...");
+      localStorage.removeItem("token");
+      // يمكنك توجيهه لصفحة اللوجن هنا إذا لم تكن تتم معالجتها في AuthContext
+      // window.location.href = "/login";
+      return Promise.reject(error);
+    }
+
+    if (status === 403) {
       if (error.config.url.includes("/login")) {
         return Promise.reject(error);
       }

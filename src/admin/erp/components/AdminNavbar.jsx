@@ -36,38 +36,30 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   const branchesJsonRef = useRef("");
 
   // ✅ جلب قائمة الشركات (مرة واحدة عند تغير الـ Role أو المعرف)
+  // ✅ تثبيت التبعيات لمنع الـ re‑render loop
+  const canSwitchBranch = useMemo(
+    () => user?.can_switch_branch ?? false,
+    [user?.can_switch_branch],
+  );
+  const userRole = useMemo(() => user?.role, [user?.role]);
+
+  // ✅ جلب قائمة الشركات
   useEffect(() => {
     if (user?.is_super_admin || user?.role === "admin") {
       let cancelled = false;
       api
         .get("/companies")
         .then((res) => {
-          if (!cancelled && res.data) {
-            setCompanies(res.data);
-          }
+          if (!cancelled) setCompanies(res.data);
         })
         .catch(() => {});
       return () => {
         cancelled = true;
       };
     }
-  }, [user?.id, user?.is_super_admin, user?.role]);
+  }, [user?.id, user?.is_super_admin, userRole]);
 
-  // ✅ تعيين selectedCompany تلقائيًا دون إحداث رندر مكرر
-  useEffect(() => {
-    if (
-      user?.company_id &&
-      (!selectedCompany ||
-        selectedCompany === "" ||
-        selectedCompany === "global")
-    ) {
-      const companyId = String(user.company_id);
-      setSelectedCompany(companyId);
-      localStorage.setItem("selectedCompany", companyId);
-    }
-  }, [user?.company_id, selectedCompany]);
-
-  // ✅ جلب الفروع وتعيين الفرع الافتراضي [محمي 100% ضد الـ Loop]
+  // ✅ جلب الفروع وتعيين الافتراضي (باستخدام التبعيات المستقرة)
   useEffect(() => {
     if (
       !user ||
@@ -87,7 +79,6 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
         if (cancelled) return;
         const branchList = Array.isArray(res.data) ? res.data : [];
 
-        // 🛡️ منع الـ Loop الصامت: لا تقم بعمل setBranches إلا إذا تغيرت الداتا فعلياً من السيرفر
         const currentBranchesJson = JSON.stringify(branchList);
         if (branchesJsonRef.current !== currentBranchesJson) {
           branchesJsonRef.current = currentBranchesJson;
@@ -96,18 +87,12 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
 
         const currentStoredBranch = localStorage.getItem("selectedBranchId");
 
-        if (user?.can_switch_branch || user?.role === "admin") {
-          // إذا كانت مخزنة كـ "all" وهي مستقرة، لا تلمس الـ States أبداً لمنع الدوران اللانهائي
-          if (currentStoredBranch === "all" && selectedBranch === "all") {
-            return;
-          }
-
+        if (canSwitchBranch || userRole === "admin") {
+          if (currentStoredBranch === "all" && selectedBranch === "all") return;
           if (currentStoredBranch === "all") {
             setSelectedBranch("all");
             return;
           }
-
-          // إذا كانت القيمة فارغة أو غير موجودة في الفروع المتاحة
           if (
             !currentStoredBranch ||
             !branchList.some(
@@ -122,7 +107,6 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
             setSelectedBranch(currentStoredBranch);
           }
         } else {
-          // للموظفين والأطباء المثبتين على فرع معين
           if (
             branchList.length > 0 &&
             (!currentStoredBranch || currentStoredBranch === "all")
@@ -145,8 +129,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     return () => {
       cancelled = true;
     };
-    // 🛡️ قمنا بتقليص التبعيات هنا لمنع الحركات العنيفة الناتجة عن الـ Auth Context رندر
-  }, [selectedCompany, user?.can_switch_branch, user?.role]);
+  }, [selectedCompany, canSwitchBranch, userRole]);
 
   // ✅ تبديل الشركة
   const handleSwitch = async (companyId) => {

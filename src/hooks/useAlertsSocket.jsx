@@ -16,8 +16,11 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
     if (loading) return;
     if (!user) return;
 
-    const isAdmin = user.role === "admin" || user.is_super_admin === true;
-    if (!isAdmin) return;
+    const isAllowed =
+      ["admin", "doctor", "receptionist"].includes(user.role) ||
+      user.is_super_admin === true;
+
+    if (!isAllowed) return;
 
     if (!companyId || !branchId) return;
 

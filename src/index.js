@@ -310,266 +310,279 @@ createRoot(document.getElementById("root")).render(
                 element={<PrintSaaSReportsPage />}
               />
 
-              {/* ERP Routes */}
-              <Route
-                path="/admin/erp/*"
-                element={
-                  <AdminRoute>
+              {/* ================= ERP Routes ================= */}
+              <Route element={<AdminRoute />}>
+                <Route
+                  path="/admin/erp/*"
+                  element={
                     <Suspense fallback={<PageLoader />}>
                       <ERPDashboard />
                     </Suspense>
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<ErpDashboardHome />} />
-                <Route path="orders" element={<OrdersList />} />
-                <Route path="orders/create" element={<CreateOrder />} />
-                <Route path="orders/:id" element={<OrderDetails />} />
-                <Route path="invoices" element={<InvoicesList />} />
-                <Route path="invoices/:id" element={<InvoiceDetails />} />
-                <Route
-                  path="purchase-orders/create"
-                  element={<PurchaseOrderCreate />}
-                />
-                <Route
-                  path="purchase-orders"
-                  element={<PurchaseOrdersList />}
-                />
-                <Route
-                  path="purchase-orders/:id"
-                  element={<PurchaseOrderDetails />}
-                />
-                <Route
-                  path="purchase-orders/:id/returns"
-                  element={<PurchaseOrderReturns />}
-                />
-                <Route
-                  path="purchase-orders/:id/returns-history"
-                  element={<PurchaseOrderReturnsHistory />}
-                />
-                <Route path="suppliers" element={<SuppliersListPage />} />
-                <Route path="suppliers/create" element={<SupplierFormPage />} />
-                <Route
-                  path="suppliers/:id/edit"
-                  element={<SupplierFormPage />}
-                />
-                <Route
-                  path="suppliers/:id/statement"
-                  element={<SupplierStatementPage />}
-                />
-                <Route path="supplies" element={<SuppliesListPage />} />
-                <Route path="supplies/create" element={<SupplyFormPage />} />
-                <Route path="supplies/:id/edit" element={<SupplyFormPage />} />
-                <Route
-                  path="patients/:id/statement"
-                  element={<PatientStatement />}
-                />
-                <Route path="patients" element={<PatientsList />} />
-                <Route
-                  path="patients/:id/profile"
-                  element={<PatientProfilePage />}
-                />
-                <Route
-                  path="patients/:id/timeline"
-                  element={<PatientTimelinePage />}
-                />
-                <Route path="patients/create" element={<PatientFormPage />} />
-                <Route path="patients/:id/edit" element={<PatientFormPage />} />
-                <Route path="appointments" element={<AppointmentsListPage />} />
-                <Route
-                  path="appointments/:id/activity"
-                  element={<AppointmentActivityPage />}
-                />
-                <Route
-                  path="appointments/create"
-                  element={<BookAppointmentPage />}
-                />
-                <Route
-                  path="appointments/calendar"
-                  element={<AppointmentCalendarPage />}
-                />
-                <Route
-                  path="treatment-plans"
-                  element={<TreatmentPlansListPage />}
-                />
-                <Route
-                  path="treatment-plans/:id"
-                  element={<TreatmentPlanDetailsPage />}
-                />
-                <Route
-                  path="treatment-plans/create"
-                  element={<CreateTreatmentPlanPage />}
-                />
-                <Route
-                  path="dental-records"
-                  element={<DentalRecordsListPage />}
-                />
-                <Route
-                  path="dental-records/create"
-                  element={<CreateDentalRecordPage />}
-                />
-                <Route
-                  path="settings/clinic"
-                  element={<ClinicSettingsPage />}
-                />
-                <Route path="doctors/create" element={<DoctorFormPage />} />
-                <Route path="doctors/:id/edit" element={<DoctorFormPage />} />
-                <Route path="doctors" element={<DoctorsListPage />} />
-                <Route
-                  path="doctors/:id/availability"
-                  element={<DoctorAvailabilityPage />}
-                />
-                <Route path="employees" element={<EmployeeListPage />} />
-                <Route path="employees/create" element={<EmployeeFormPage />} />
-                <Route
-                  path="employees/:id/edit"
-                  element={<EmployeeFormPage />}
-                />
-                <Route path="branches" element={<BranchesListPage />} />
-                <Route path="branches/create" element={<BranchFormPage />} />
-                <Route path="branches/:id/edit" element={<BranchFormPage />} />
-                <Route path="reports" element={<ReportsDashboardPage />} />
-                <Route path="reports/revenue" element={<RevenueReportPage />} />
-                <Route
-                  path="reports/appointments"
-                  element={<AppointmentsReportPage />}
-                />
-                <Route
-                  path="reports/doctors"
-                  element={<DoctorPerformanceReportPage />}
-                />
-                <Route
-                  path="reports/analytics"
-                  element={<AnalyticsDashboardPage />}
-                />
-                <Route
-                  path="reports/payments"
-                  element={<PaymentsReportPage />}
-                />
-                <Route
-                  path="reports/treatment-plans"
-                  element={<TreatmentPlansReportPage />}
-                />
-                <Route
-                  path="reports/patients"
-                  element={<PatientsReportPage />}
-                />
-                <Route path="procedures" element={<ProceduresListPage />} />
-                <Route
-                  path="procedures/create"
-                  element={<ProcedureFormPage />}
-                />
-                <Route
-                  path="procedures/:id/edit"
-                  element={<ProcedureFormPage />}
-                />
-                <Route path="products" element={<ProductsListPage />} />
-                <Route path="products/create" element={<ProductFormPage />} />
-                <Route path="products/:id/edit" element={<ProductFormPage />} />
-                <Route path="visits/start" element={<StartVisitPage />} />
-                <Route path="notifications" element={<NotificationsPage />} />
-                <Route path="billing" element={<BillingPage />} />
-              </Route>
+                  }
+                >
+                  <Route index element={<ErpDashboardHome />} />
+                  <Route path="orders" element={<OrdersList />} />
+                  <Route path="orders/create" element={<CreateOrder />} />
+                  <Route path="orders/:id" element={<OrderDetails />} />
+                  <Route path="invoices" element={<InvoicesList />} />
+                  <Route path="invoices/:id" element={<InvoiceDetails />} />
+                  <Route
+                    path="purchase-orders/create"
+                    element={<PurchaseOrderCreate />}
+                  />
+                  <Route
+                    path="purchase-orders"
+                    element={<PurchaseOrdersList />}
+                  />
+                  <Route
+                    path="purchase-orders/:id"
+                    element={<PurchaseOrderDetails />}
+                  />
+                  <Route
+                    path="purchase-orders/:id/returns"
+                    element={<PurchaseOrderReturns />}
+                  />
+                  <Route
+                    path="purchase-orders/:id/returns-history"
+                    element={<PurchaseOrderReturnsHistory />}
+                  />
+                  <Route path="suppliers" element={<SuppliersListPage />} />
+                  <Route
+                    path="suppliers/create"
+                    element={<SupplierFormPage />}
+                  />
+                  <Route
+                    path="suppliers/:id/edit"
+                    element={<SupplierFormPage />}
+                  />
+                  <Route
+                    path="suppliers/:id/statement"
+                    element={<SupplierStatementPage />}
+                  />
+                  <Route path="supplies" element={<SuppliesListPage />} />
+                  <Route path="supplies/create" element={<SupplyFormPage />} />
+                  <Route
+                    path="supplies/:id/edit"
+                    element={<SupplyFormPage />}
+                  />
+                  <Route
+                    path="patients/:id/statement"
+                    element={<PatientStatement />}
+                  />
+                  <Route path="patients" element={<PatientsList />} />
+                  <Route
+                    path="patients/:id/profile"
+                    element={<PatientProfilePage />}
+                  />
+                  <Route
+                    path="patients/:id/timeline"
+                    element={<PatientTimelinePage />}
+                  />
+                  <Route path="patients/create" element={<PatientFormPage />} />
+                  <Route
+                    path="patients/:id/edit"
+                    element={<PatientFormPage />}
+                  />
+                  <Route
+                    path="appointments"
+                    element={<AppointmentsListPage />}
+                  />
+                  <Route
+                    path="appointments/:id/activity"
+                    element={<AppointmentActivityPage />}
+                  />
+                  <Route
+                    path="appointments/create"
+                    element={<BookAppointmentPage />}
+                  />
+                  <Route
+                    path="appointments/calendar"
+                    element={<AppointmentCalendarPage />}
+                  />
+                  <Route
+                    path="treatment-plans"
+                    element={<TreatmentPlansListPage />}
+                  />
+                  <Route
+                    path="treatment-plans/:id"
+                    element={<TreatmentPlanDetailsPage />}
+                  />
+                  <Route
+                    path="treatment-plans/create"
+                    element={<CreateTreatmentPlanPage />}
+                  />
+                  <Route
+                    path="dental-records"
+                    element={<DentalRecordsListPage />}
+                  />
+                  <Route
+                    path="dental-records/create"
+                    element={<CreateDentalRecordPage />}
+                  />
+                  <Route
+                    path="settings/clinic"
+                    element={<ClinicSettingsPage />}
+                  />
+                  <Route path="doctors/create" element={<DoctorFormPage />} />
+                  <Route path="doctors/:id/edit" element={<DoctorFormPage />} />
+                  <Route path="doctors" element={<DoctorsListPage />} />
+                  <Route
+                    path="doctors/:id/availability"
+                    element={<DoctorAvailabilityPage />}
+                  />
+                  <Route path="employees" element={<EmployeeListPage />} />
+                  <Route
+                    path="employees/create"
+                    element={<EmployeeFormPage />}
+                  />
+                  <Route
+                    path="employees/:id/edit"
+                    element={<EmployeeFormPage />}
+                  />
+                  <Route path="branches" element={<BranchesListPage />} />
+                  <Route path="branches/create" element={<BranchFormPage />} />
+                  <Route
+                    path="branches/:id/edit"
+                    element={<BranchFormPage />}
+                  />
+                  <Route path="reports" element={<ReportsDashboardPage />} />
+                  <Route
+                    path="reports/revenue"
+                    element={<RevenueReportPage />}
+                  />
+                  <Route
+                    path="reports/appointments"
+                    element={<AppointmentsReportPage />}
+                  />
+                  <Route
+                    path="reports/doctors"
+                    element={<DoctorPerformanceReportPage />}
+                  />
+                  <Route
+                    path="reports/analytics"
+                    element={<AnalyticsDashboardPage />}
+                  />
+                  <Route
+                    path="reports/payments"
+                    element={<PaymentsReportPage />}
+                  />
+                  <Route
+                    path="reports/treatment-plans"
+                    element={<TreatmentPlansReportPage />}
+                  />
+                  <Route
+                    path="reports/patients"
+                    element={<PatientsReportPage />}
+                  />
+                  <Route path="procedures" element={<ProceduresListPage />} />
+                  <Route
+                    path="procedures/create"
+                    element={<ProcedureFormPage />}
+                  />
+                  <Route
+                    path="procedures/:id/edit"
+                    element={<ProcedureFormPage />}
+                  />
+                  <Route path="products" element={<ProductsListPage />} />
+                  <Route path="products/create" element={<ProductFormPage />} />
+                  <Route
+                    path="products/:id/edit"
+                    element={<ProductFormPage />}
+                  />
+                  <Route path="visits/start" element={<StartVisitPage />} />
+                  <Route path="notifications" element={<NotificationsPage />} />
+                  <Route path="billing" element={<BillingPage />} />
+                </Route>
 
-              {/* SaaS Routes */}
-              <Route
-                path="/admin/saas"
-                element={
-                  <AdminRoute>
+                {/* ================= SaaS Routes ================= */}
+                <Route
+                  path="/admin/saas"
+                  element={
                     <Suspense fallback={<PageLoader />}>
-                      <ERPDashboard />
+                      <SaaSDashboard />
                     </Suspense>
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<SaaSDashboard />} />
-              </Route>
-              <Route
-                path="/admin/companies"
-                element={
-                  <AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/companies"
+                  element={
                     <Suspense fallback={<PageLoader />}>
-                      <ERPDashboard />
+                      <CompaniesList />
                     </Suspense>
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<CompaniesList />} />
-                <Route path="create" element={<CompanyForm />} />
-                <Route path=":id/edit" element={<CompanyForm />} />
-                <Route path=":id" element={<CompanyDetails />} />
-              </Route>
-              <Route
-                path="/admin/plans"
-                element={
-                  <AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/companies/create"
+                  element={
                     <Suspense fallback={<PageLoader />}>
-                      <ERPDashboard />
+                      <CompanyForm />
                     </Suspense>
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<PlansList />} />
-              </Route>
-              <Route
-                path="/admin/subscriptions"
-                element={
-                  <AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/companies/:id/edit"
+                  element={
                     <Suspense fallback={<PageLoader />}>
-                      <ERPDashboard />
+                      <CompanyForm />
                     </Suspense>
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<SubscriptionsList />} />
-              </Route>
-              <Route
-                path="/admin/reports/saas"
-                element={
-                  <AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/companies/:id"
+                  element={
                     <Suspense fallback={<PageLoader />}>
-                      <ERPDashboard />
+                      <CompanyDetails />
                     </Suspense>
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<SaaSReports />} />
-              </Route>
-              <Route
-                path="/admin/settings/saas"
-                element={
-                  <AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/plans"
+                  element={
                     <Suspense fallback={<PageLoader />}>
-                      <ERPDashboard />
+                      <PlansList />
                     </Suspense>
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<PlatformSettings />} />
-              </Route>
-              <Route
-                path="/admin/activity-logs"
-                element={
-                  <AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/subscriptions"
+                  element={
                     <Suspense fallback={<PageLoader />}>
-                      <ERPDashboard />
+                      <SubscriptionsList />
                     </Suspense>
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<ActivityLogs />} />
-              </Route>
-              <Route
-                path="/admin/saas/contact-messages"
-                element={
-                  <AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/reports/saas"
+                  element={
                     <Suspense fallback={<PageLoader />}>
-                      <ERPDashboard />
+                      <SaaSReports />
                     </Suspense>
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<ContactMessagesListPage />} />
+                  }
+                />
+                <Route
+                  path="/admin/settings/saas"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <PlatformSettings />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/admin/activity-logs"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ActivityLogs />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/admin/saas/contact-messages"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ContactMessagesListPage />
+                    </Suspense>
+                  }
+                />
               </Route>
 
               <Route

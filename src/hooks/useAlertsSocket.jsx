@@ -5,57 +5,46 @@ import echoService from "../services/echo";
 export default function useAlertsSocket(onNewAlert, companyId, branchId) {
   const { user, loading } = useAuth();
   const onNewAlertRef = useRef(onNewAlert);
-  const previousChannelRef = useRef(null);
+
+  // حماية صارمة لمنع التكرار بأي شكل
+  const currentConnectionKeyRef = useRef("");
 
   useEffect(() => {
     onNewAlertRef.current = onNewAlert;
   }, [onNewAlert]);
 
   useEffect(() => {
-    // 1️⃣ حماية التحميل والأصالة
-    if (loading) return;
-    if (!user) return;
+    if (loading || !user) return;
 
-    const isAllowed =
-      ["admin", "doctor", "receptionist"].includes(user.role) ||
-      user.is_super_admin === true;
-
-    if (!isAllowed) return;
-
+    // الأدمن والموظفين يدخلون السوكيت بشكل طبيعي حسب صلاحياتهم
     if (!companyId || !branchId) return;
 
-    // 2️⃣ تحديد اسم القناة بشكل مستقر
+    // تركيب مفتاح فريد ومستقر للاتصال الحالي
+    const connectionKey = `${companyId}-${branchId}-${user.id}`;
+
+    // 🛡️ إذا كان الاتصال الحالي هو نفس الاتصال النشط، اخرج فوراً ولا تلمس السوكيت!
+    if (currentConnectionKeyRef.current === connectionKey) {
+      return;
+    }
+
     const channelName =
       branchId === "all"
         ? `company.${companyId}.alerts`
         : `company.${companyId}.branch.${branchId}.alerts`;
 
-    // 🛡️ منع التكرار: إذا كنا متصلين بالفعل بنفس القناة، لا تفعل شيئاً واخرج بأمان
-    if (previousChannelRef.current === channelName) {
-      return;
-    }
-
-    console.log("📡 [Socket] Connecting to safe channel:", channelName);
-
-    // مغادرة القناة القديمة إن وجدت
-    if (
-      previousChannelRef.current &&
-      previousChannelRef.current !== channelName
-    ) {
-      const prevChannelFull = `private-${previousChannelRef.current}`;
-      const echo = echoService.getInstance();
-      try {
-        echo.leave(prevChannelFull);
-        console.log("🚪 [Socket] Left channel:", prevChannelFull);
-      } catch (e) {
-        console.error("Failed to leave channel gracefully", e);
-      }
-    }
-
-    // حفظ القناة الحالية كمرجع ثابت لمنع الـ Loop
-    previousChannelRef.current = channelName;
+    console.log(
+      "📡 [Socket] Triggered connection for key:",
+      connectionKey,
+      "Channel:",
+      channelName,
+    );
 
     const echo = echoService.getInstance();
+
+    // حفظ المفتاح لمنع الـ Loop قبل البدء بالربط
+    const oldKey = currentConnectionKeyRef.current;
+    currentConnectionKeyRef.current = connectionKey;
+
     const channel = echo.private(channelName);
 
     channel.subscribed(() => {
@@ -64,23 +53,30 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
 
     channel.error((err) => {
       console.error("❌ [Socket] CHANNEL ERROR on", channelName, err);
+      // في حال حدوث خطأ 500 لا نريد تدمير المفتاح حتى لا يدخل في لولب محاولات مستمر
     });
 
     const alertListener = (e) => {
-      console.log("📨 [Socket] EVENT RECEIVED on", channelName, e);
-      onNewAlertRef.current(e);
+      console.log("📨 [Socket] EVENT RECEIVED:", e);
+      if (onNewAlertRef.current) {
+        onNewAlertRef.current(e);
+      }
     };
 
-    channel.stopListening(".alert.created", alertListener);
     channel.listen(".alert.created", alertListener);
 
     return () => {
-      // التنظيف يحدث فقط عندما تتغير القناة فعلياً أو يخرج المستخدم
-      if (previousChannelRef.current !== channelName) {
-        console.log("🧹 [Socket] CLEANUP listener on channel:", channelName);
-        channel.stopListening(".alert.created", alertListener);
+      // لا تقم بمغادرة القناة إلا إذا تغيرت الصلاحية أو الـ ID فعلياً!
+      if (currentConnectionKeyRef.current !== connectionKey) {
+        console.log("🧹 [Socket] Safe Cleanup for channel:", channelName);
+        try {
+          channel.stopListening(".alert.created", alertListener);
+          echo.leave(`private-${channelName}`);
+        } catch (e) {
+          console.empty();
+        }
       }
     };
-    // 🛡️ مصفوفة التبعيات الآن ترصد المتغيرات التشغيلية الحقيقية فقط بنظام عزل صارم
+    // تم عزل التبعيات تماماً والاعتماد على السيطرة الداخلية عبر الـ Ref
   }, [companyId, branchId, user?.id, loading]);
 }

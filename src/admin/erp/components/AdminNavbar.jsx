@@ -9,9 +9,6 @@ import { setActiveBranchId } from "../../../utils/activeBranch";
 import "./AdminNavbar.css";
 
 const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
-  let renderCount = 0;
-  renderCount++;
-  console.log(`🔁 AdminNavbar render #${renderCount}`);
   const { alerts, loading } = useAlertState();
   const { markAsRead, markAllAsRead } = useAlertActions();
   const { logout, user } = useAuth();

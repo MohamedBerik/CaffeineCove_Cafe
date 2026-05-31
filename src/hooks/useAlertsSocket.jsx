@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import echoService from "../services/echo";
 
 export default function useAlertsSocket(onNewAlert, companyId, branchId) {
-  const { user, loading } = useAuth(); // ✅ استخدم loading
+  const { user, loading } = useAuth();
   const onNewAlertRef = useRef(onNewAlert);
   const previousChannelRef = useRef(null);
 
@@ -12,70 +12,59 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
   }, [onNewAlert]);
 
   useEffect(() => {
-    console.log("🧪 SOCKET CHECK", {
-      loading,
-      user: !!user,
-      companyId,
-      branchId,
-      userRole: user?.role,
-      userSuperAdmin: user?.is_super_admin,
-    });
-
-    // انتظر حتى ينتهي Auth من تحميل المستخدم
-    if (loading) {
-      console.log("⏳ Auth still loading...");
-      return;
-    }
-
-    if (!user) {
-      console.log("🚫 No authenticated user");
-      return;
-    }
+    // 1️⃣ حماية التحميل والأصالة
+    if (loading) return;
+    if (!user) return;
 
     const isAdmin = user.role === "admin" || user.is_super_admin === true;
+    if (!isAdmin) return;
 
-    if (!companyId || !branchId) {
-      console.log("⏭️ Missing company or branch");
-      return;
-    }
+    if (!companyId || !branchId) return;
 
-    if (!isAdmin) {
-      console.log("🚫 User is not admin – socket subscription skipped");
-      return;
-    }
-
+    // 2️⃣ تحديد اسم القناة بشكل مستقر
     const channelName =
       branchId === "all"
         ? `company.${companyId}.alerts`
         : `company.${companyId}.branch.${branchId}.alerts`;
 
-    console.log("📡 SUBSCRIBING TO:", channelName);
+    // 🛡️ منع التكرار: إذا كنا متصلين بالفعل بنفس القناة، لا تفعل شيئاً واخرج بأمان
+    if (previousChannelRef.current === channelName) {
+      return;
+    }
 
+    console.log("📡 [Socket] Connecting to safe channel:", channelName);
+
+    // مغادرة القناة القديمة إن وجدت
     if (
       previousChannelRef.current &&
       previousChannelRef.current !== channelName
     ) {
       const prevChannelFull = `private-${previousChannelRef.current}`;
-      console.log("🚪 LEAVING previous channel:", prevChannelFull);
       const echo = echoService.getInstance();
-      echo.leave(prevChannelFull);
+      try {
+        echo.leave(prevChannelFull);
+        console.log("🚪 [Socket] Left channel:", prevChannelFull);
+      } catch (e) {
+        console.error("Failed to leave channel gracefully", e);
+      }
     }
 
+    // حفظ القناة الحالية كمرجع ثابت لمنع الـ Loop
     previousChannelRef.current = channelName;
 
     const echo = echoService.getInstance();
     const channel = echo.private(channelName);
 
     channel.subscribed(() => {
-      console.log("✅ SUBSCRIBED to", channelName);
+      console.log("✅ [Socket] SUBSCRIBED successfully to", channelName);
     });
 
     channel.error((err) => {
-      console.error("❌ CHANNEL ERROR on", channelName, err);
+      console.error("❌ [Socket] CHANNEL ERROR on", channelName, err);
     });
 
     const alertListener = (e) => {
-      console.log("📨 EVENT RECEIVED on", channelName, e);
+      console.log("📨 [Socket] EVENT RECEIVED on", channelName, e);
       onNewAlertRef.current(e);
     };
 
@@ -83,8 +72,12 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
     channel.listen(".alert.created", alertListener);
 
     return () => {
-      console.log("🧹 CLEANUP – stopping listener on", channelName);
-      channel.stopListening(".alert.created", alertListener);
+      // التنظيف يحدث فقط عندما تتغير القناة فعلياً أو يخرج المستخدم
+      if (previousChannelRef.current !== channelName) {
+        console.log("🧹 [Socket] CLEANUP listener on channel:", channelName);
+        channel.stopListening(".alert.created", alertListener);
+      }
     };
-  }, [companyId, branchId, user?.role, user?.is_super_admin, loading]); // ✅ loading في التبعيات
+    // 🛡️ مصفوفة التبعيات الآن ترصد المتغيرات التشغيلية الحقيقية فقط بنظام عزل صارم
+  }, [companyId, branchId, user?.id, loading]);
 }

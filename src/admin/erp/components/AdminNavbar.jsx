@@ -62,7 +62,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     }
   }, [user?.company_id, selectedCompany]);
 
-  // ✅ جلب الفروع وتعيين الفرع الافتراضي
+  // ✅ جلب الفروع وتعيين الفرع الافتراضي [نسخة محصنة من الـ Loop]
   useEffect(() => {
     if (
       !user ||
@@ -86,6 +86,12 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
         const currentStoredBranch = localStorage.getItem("selectedBranchId");
 
         if (user?.can_switch_branch || user?.role === "admin") {
+          // 🛡️ التعديل الجوهري: إذا كانت القيمة "all" لا تفعل شيئاً واتركها مستقرة
+          if (currentStoredBranch === "all") {
+            return;
+          }
+
+          // إذا لم تكن "all" وليست موجودة بالفروع (قيمة قديمة تالفة مثلاً) -> اضبطها "all"
           if (
             !currentStoredBranch ||
             !branchList.some(
@@ -93,14 +99,17 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
             )
           ) {
             setActiveBranchId("all");
+            setSelectedBranch("all");
           }
-          // else: حافظ على القيمة المخزنة (لا تفعل شيئاً)
         } else {
+          // للموظفين والأطباء العاديين
           if (
             branchList.length > 0 &&
             (!currentStoredBranch || currentStoredBranch === "all")
           ) {
-            setActiveBranchId(String(branchList[0].id));
+            const defaultBranch = String(branchList[0].id);
+            setActiveBranchId(defaultBranch);
+            setSelectedBranch(defaultBranch);
           }
         }
       })
@@ -116,6 +125,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     user?.id,
     user?.is_super_admin,
     user?.can_switch_branch,
+    user?.role, // أضفنا الـ role للتبعيات لضمان دقة الفحص لمرة واحدة
   ]);
 
   // ✅ تبديل الشركة

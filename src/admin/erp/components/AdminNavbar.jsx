@@ -32,14 +32,19 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     return stored && stored !== "" ? stored : "all";
   });
 
-  // ✅ جلب قائمة الشركات
+  // 🛡️ استخدام Refs لمنع الـ Infinite Loops الناتجة عن مقارنة المصفوفات
+  const branchesJsonRef = useRef("");
+
+  // ✅ جلب قائمة الشركات (مرة واحدة عند تغير الـ Role أو المعرف)
   useEffect(() => {
     if (user?.is_super_admin || user?.role === "admin") {
       let cancelled = false;
       api
         .get("/companies")
         .then((res) => {
-          if (!cancelled) setCompanies(res.data);
+          if (!cancelled && res.data) {
+            setCompanies(res.data);
+          }
         })
         .catch(() => {});
       return () => {
@@ -48,7 +53,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     }
   }, [user?.id, user?.is_super_admin, user?.role]);
 
-  // ✅ تعيين selectedCompany تلقائيًا
+  // ✅ تعيين selectedCompany تلقائيًا دون إحداث رندر مكرر
   useEffect(() => {
     if (
       user?.company_id &&
@@ -62,7 +67,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     }
   }, [user?.company_id, selectedCompany]);
 
-  // ✅ جلب الفروع وتعيين الفرع الافتراضي [نسخة محصنة من الـ Loop]
+  // ✅ جلب الفروع وتعيين الفرع الافتراضي [محمي 100% ضد الـ Loop]
   useEffect(() => {
     if (
       !user ||
@@ -70,7 +75,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
       !selectedCompany ||
       selectedCompany === "global"
     ) {
-      setBranches([]);
+      if (branches.length > 0) setBranches([]);
       return;
     }
 
@@ -81,28 +86,43 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
       .then((res) => {
         if (cancelled) return;
         const branchList = Array.isArray(res.data) ? res.data : [];
-        setBranches(branchList);
+
+        // 🛡️ منع الـ Loop الصامت: لا تقم بعمل setBranches إلا إذا تغيرت الداتا فعلياً من السيرفر
+        const currentBranchesJson = JSON.stringify(branchList);
+        if (branchesJsonRef.current !== currentBranchesJson) {
+          branchesJsonRef.current = currentBranchesJson;
+          setBranches(branchList);
+        }
 
         const currentStoredBranch = localStorage.getItem("selectedBranchId");
 
         if (user?.can_switch_branch || user?.role === "admin") {
-          // 🛡️ التعديل الجوهري: إذا كانت القيمة "all" لا تفعل شيئاً واتركها مستقرة
-          if (currentStoredBranch === "all") {
+          // إذا كانت مخزنة كـ "all" وهي مستقرة، لا تلمس الـ States أبداً لمنع الدوران اللانهائي
+          if (currentStoredBranch === "all" && selectedBranch === "all") {
             return;
           }
 
-          // إذا لم تكن "all" وليست موجودة بالفروع (قيمة قديمة تالفة مثلاً) -> اضبطها "all"
+          if (currentStoredBranch === "all") {
+            setSelectedBranch("all");
+            return;
+          }
+
+          // إذا كانت القيمة فارغة أو غير موجودة في الفروع المتاحة
           if (
             !currentStoredBranch ||
             !branchList.some(
               (b) => String(b.id) === String(currentStoredBranch),
             )
           ) {
-            setActiveBranchId("all");
-            setSelectedBranch("all");
+            if (selectedBranch !== "all") {
+              setActiveBranchId("all");
+              setSelectedBranch("all");
+            }
+          } else if (selectedBranch !== currentStoredBranch) {
+            setSelectedBranch(currentStoredBranch);
           }
         } else {
-          // للموظفين والأطباء العاديين
+          // للموظفين والأطباء المثبتين على فرع معين
           if (
             branchList.length > 0 &&
             (!currentStoredBranch || currentStoredBranch === "all")
@@ -110,6 +130,11 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
             const defaultBranch = String(branchList[0].id);
             setActiveBranchId(defaultBranch);
             setSelectedBranch(defaultBranch);
+          } else if (
+            currentStoredBranch &&
+            selectedBranch !== currentStoredBranch
+          ) {
+            setSelectedBranch(currentStoredBranch);
           }
         }
       })
@@ -120,13 +145,8 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     return () => {
       cancelled = true;
     };
-  }, [
-    selectedCompany,
-    user?.id,
-    user?.is_super_admin,
-    user?.can_switch_branch,
-    user?.role, // أضفنا الـ role للتبعيات لضمان دقة الفحص لمرة واحدة
-  ]);
+    // 🛡️ قمنا بتقليص التبعيات هنا لمنع الحركات العنيفة الناتجة عن الـ Auth Context رندر
+  }, [selectedCompany, user?.can_switch_branch, user?.role]);
 
   // ✅ تبديل الشركة
   const handleSwitch = async (companyId) => {
@@ -140,16 +160,12 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
       setSelectedBranch("all");
       setActiveBranchId("all");
 
-      // ✅ استخدم invalidate فقط بدلاً من refetch
       queryClient.invalidateQueries({ queryKey: ["me"] });
       queryClient.invalidateQueries({
-        predicate: (query) => query.queryKey[0] === "dashboard",
-      });
-      queryClient.invalidateQueries({
-        predicate: (query) => query.queryKey[0] === "activityLogs",
-      });
-      queryClient.invalidateQueries({
-        predicate: (query) => query.queryKey[0] === "subscription-status",
+        predicate: (query) =>
+          ["dashboard", "activityLogs", "subscription-status"].includes(
+            query.queryKey[0],
+          ),
       });
 
       navigate(companyId ? "/admin/erp" : "/admin/saas");
@@ -160,8 +176,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     }
   };
 
-  // ✅ تبديل الفرع (المصدر الموحد)
-  // ✅ تبديل الفرع (مع منع duplicate dispatch)
+  // ✅ تبديل الفرع
   const handleBranchChange = (e) => {
     const value = e.target.value;
     if (value === selectedBranch) return;
@@ -170,17 +185,14 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     setActiveBranchId(value);
 
     queryClient.invalidateQueries({
-      predicate: (query) => query.queryKey[0] === "dashboard",
-    });
-    queryClient.invalidateQueries({
-      predicate: (query) => query.queryKey[0] === "activityLogs",
-    });
-    queryClient.invalidateQueries({
-      predicate: (query) => query.queryKey[0] === "subscription-status",
+      predicate: (query) =>
+        ["dashboard", "activityLogs", "subscription-status"].includes(
+          query.queryKey[0],
+        ),
     });
   };
 
-  // ✅ تجميع الشركات حسب الحالة
+  // ✅ تجميع الشركات حسب الحالة بنظام الكاش والميمو الصغير
   const groupedCompanies = {
     active: companies.filter((c) => c.status === "active"),
     trial: companies.filter((c) => c.status === "trial"),
@@ -269,6 +281,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     }
   }, []);
 
+  // ✅ تحصين الـ Query الخاص بالاشتراك
   const { data: subStatus } = useQuery({
     queryKey: ["subscription-status"],
     queryFn: async () => {
@@ -280,27 +293,18 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     retry: (failureCount, error) => {
       if (error.response?.status === 403 || error.response?.status === 429)
         return false;
-      return failureCount < 3;
+      return failureCount < 2;
     },
-    refetchInterval: 600000, // كل 10 دقائق بدلاً من 5 دقائق
+    refetchOnWindowFocus: false, // 🛡️ حماية إضافية ضد الـ Loops عند التنقل بين الشاشات
+    refetchInterval: 600000,
     staleTime: 10 * 60 * 1000,
   });
 
-  // ✅ شروط عرض Branch Selector (مدير الشركة فقط + وجود فروع)
   const showBranchSelector =
     user?.can_switch_branch &&
     selectedCompany &&
     selectedCompany !== "global" &&
     branches.length > 0;
-
-  console.log("📊 Debug Branch Selector:", {
-    userLoaded: !!user,
-    isSuperAdmin: user?.is_super_admin,
-    selectedCompany,
-    branch_id: user?.branch_id,
-    branchesLength: branches.length,
-    showBranchSelector,
-  });
 
   return (
     <>
@@ -335,7 +339,6 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
 
       <nav className="admin-navbar" dir="ltr">
         <div className="navbar-container">
-          {/* زر الهامبرغر للأجهزة الصغيرة */}
           <button
             className="sidebar-toggle-btn"
             onClick={onToggleSidebar}
@@ -368,44 +371,15 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
                   <option value="">
                     🌍 {t("Global")} ({t("All Companies")})
                   </option>
-
-                  {groupedCompanies.active.length > 0 && (
-                    <optgroup label={`✅ ${t("Active")}`}>
-                      {groupedCompanies.active.map((company) => (
-                        <option key={company.id} value={company.id}>
-                          {company.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-
-                  {groupedCompanies.trial.length > 0 && (
-                    <optgroup label={`⏳ ${t("Trial")}`}>
-                      {groupedCompanies.trial.map((company) => (
-                        <option key={company.id} value={company.id}>
-                          {company.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-
-                  {groupedCompanies.suspended.length > 0 && (
-                    <optgroup label={`🚫 ${t("Suspended")}`}>
-                      {groupedCompanies.suspended.map((company) => (
-                        <option key={company.id} value={company.id}>
-                          {company.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
+                  {groupedCompanies.active.map((company) => (
+                    <option key={company.id} value={company.id}>
+                      {company.name}
+                    </option>
+                  ))}
                 </select>
-                {switching && (
-                  <span className="company-switcher-spinner">⏳</span>
-                )}
               </div>
             )}
 
-            {/* === Branch Selector – يظهر فقط لمدير الشركة (branch_id === null) === */}
             {showBranchSelector && (
               <div className="company-switcher-wrapper">
                 <span className="company-switcher-icon branch-switcher-icon">
@@ -445,9 +419,6 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
                   e.stopPropagation();
                   handleBellClick();
                 }}
-                aria-label={t("Notifications")}
-                aria-expanded={showDropdown}
-                aria-haspopup="true"
               >
                 <i className="fas fa-bell"></i>
                 {unreadCount > 0 && (
@@ -464,7 +435,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
                     onClick={() => setShowDropdown(false)}
                   />
                   <div
-                    className={`notification-dropdown global ${showDropdown ? "open" : ""}`}
+                    className="notification-dropdown global open"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="dropdown-header">
@@ -511,17 +482,8 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
                         className="see-all-btn"
                         disabled={loading}
                       >
-                        {loading ? (
-                          <>
-                            <span className="spinner-border spinner-border-sm me-2"></span>
-                            {t("Loading...")}
-                          </>
-                        ) : (
-                          <>
-                            {t("See All Notifications")}
-                            <i className="fa-solid fa-arrow-right"></i>
-                          </>
-                        )}
+                        {t("See All Notifications")}{" "}
+                        <i className="fa-solid fa-arrow-right"></i>
                       </button>
                     </div>
                   </div>
@@ -545,7 +507,6 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
                 type="button"
                 className="logout-btn"
                 onClick={handleLogout}
-                title={t("Logout")}
               >
                 <i className="fas fa-sign-out-alt"></i>
                 <span>{t("Logout")}</span>

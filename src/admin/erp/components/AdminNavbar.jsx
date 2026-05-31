@@ -9,6 +9,9 @@ import { setActiveBranchId } from "../../../utils/activeBranch";
 import "./AdminNavbar.css";
 
 const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
+  let renderCount = 0;
+  renderCount++;
+  console.log(`🔁 AdminNavbar render #${renderCount}`);
   const { alerts, loading } = useAlertState();
   const { markAsRead, markAllAsRead } = useAlertActions();
   const { logout, user } = useAuth();
@@ -19,9 +22,9 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   const queryClient = useQueryClient();
 
   // --- Company Switcher State ---
-  const [selectedCompany, setSelectedCompany] = useState(
-    () => localStorage.getItem("selectedCompany") || "",
-  );
+  const [selectedCompany, setSelectedCompany] = useState(() => {
+    return localStorage.getItem("selectedCompany") || "";
+  });
   const [companies, setCompanies] = useState([]);
   const [switching, setSwitching] = useState(false);
 
@@ -32,17 +35,20 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     return stored && stored !== "" ? stored : "all";
   });
 
+  // 🛡️ استخدام Refs لمنع الـ Infinite Loops الناتجة عن مقارنة المصفوفات
   const branchesJsonRef = useRef("");
 
-  // ✅ تثبيت القيم المستخدمة كتبعيات لمنع إعادة التشغيل غير الضرورية
-  const userId = user?.id;
-  const isSuperAdmin = user?.is_super_admin;
-  const userRole = user?.role;
-  const canSwitchBranch = user?.can_switch_branch;
+  // ✅ جلب قائمة الشركات (مرة واحدة عند تغير الـ Role أو المعرف)
+  // ✅ تثبيت التبعيات لمنع الـ re‑render loop
+  const canSwitchBranch = useMemo(
+    () => user?.can_switch_branch ?? false,
+    [user?.can_switch_branch],
+  );
+  const userRole = useMemo(() => user?.role, [user?.role]);
 
-  // ✅ جلب الشركات
+  // ✅ جلب قائمة الشركات
   useEffect(() => {
-    if (isSuperAdmin || userRole === "admin") {
+    if (user?.is_super_admin || user?.role === "admin") {
       let cancelled = false;
       api
         .get("/companies")
@@ -54,27 +60,13 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
         cancelled = true;
       };
     }
-  }, [userId, isSuperAdmin, userRole]);
+  }, [user?.id, user?.is_super_admin, userRole]);
 
-  // ✅ تعيين selectedCompany تلقائيًا
-  useEffect(() => {
-    if (
-      user?.company_id &&
-      (!selectedCompany ||
-        selectedCompany === "" ||
-        selectedCompany === "global")
-    ) {
-      const companyId = String(user.company_id);
-      setSelectedCompany(companyId);
-      localStorage.setItem("selectedCompany", companyId);
-    }
-  }, [user?.company_id, selectedCompany]);
-
-  // ✅ جلب الفروع (مع حماية كاملة)
+  // ✅ جلب الفروع وتعيين الافتراضي (باستخدام التبعيات المستقرة)
   useEffect(() => {
     if (
       !user ||
-      isSuperAdmin ||
+      user.is_super_admin ||
       !selectedCompany ||
       selectedCompany === "global"
     ) {

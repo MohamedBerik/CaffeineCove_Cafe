@@ -39,12 +39,15 @@ export const AlertProvider = ({ children }) => {
     };
   }, []);
 
+  // ✅ إضافة alerts و loading إلى stateValue لتجنب undefined في AdminNavbar
   const [alertsList, setAlertsList] = useState([]);
   const [alertsLoading, setAlertsLoading] = useState(false);
 
   const addAlert = useCallback(
     (newAlert) => {
+      // تحديث alerts محليًا
       setAlertsList((prev) => [newAlert, ...prev]);
+      // تحديث React Query cache
       const filters = ["all", "unread", "high"];
       filters.forEach((filter) => {
         if (filter === "unread" && newAlert.read) return;
@@ -72,9 +75,11 @@ export const AlertProvider = ({ children }) => {
     [queryClient],
   );
 
+  // ✅ mark one - مع optimistic update + rollback
   const markAsRead = useCallback(
     async (alertId) => {
       const filters = ["all", "unread", "high"];
+      // Optimistic update
       filters.forEach((filter) => {
         queryClient.setQueryData(["alerts", filter], (oldData) => {
           if (!oldData) return oldData;
@@ -106,7 +111,7 @@ export const AlertProvider = ({ children }) => {
         filters.forEach((filter) => {
           queryClient.setQueryData(["alerts", filter], (oldData) => {
             if (!oldData) return oldData;
-            if (filter === "unread") return oldData;
+            if (filter === "unread") return oldData; // نحتاج refetch لاستعادة الحذف
             return {
               ...oldData,
               pages: oldData.pages.map((page) => ({
@@ -124,6 +129,7 @@ export const AlertProvider = ({ children }) => {
     [queryClient],
   );
 
+  // ✅ mark all - مع تحديث كل الفلاتر
   const markAllAsRead = useCallback(async () => {
     const filters = ["all", "unread", "high"];
     filters.forEach((filter) => {
@@ -155,38 +161,41 @@ export const AlertProvider = ({ children }) => {
     }
   }, [queryClient]);
 
-  // ✅ تحميل العداد الأولي مع إضافة Guard لحماية مسار السوبر أدمن والـ Global
+  // ✅ تحميل العداد الأولي مع guard صارم
   useEffect(() => {
     if (authLoading) return;
 
-    // 🛡️ حماية (Guard): إذا كان الأدمن في حالة Global أو البيانات لم تكتمل، لا ترسل طلب الـ API لمنع الـ 403
-    if (!user || !companyId || companyId === "global" || !branchId) {
+    if (window.location.pathname.startsWith("/admin/erp/billing")) {
+      return;
+    }
+
+    if (!user || !companyId || !branchId) {
       setUnreadCount(0);
       return;
     }
 
-    // الفحص الأساسي للأدمن
-    if (user.role !== "admin" && !user.is_super_admin) return;
+    if (user.role !== "admin" && !user.is_super_admin) {
+      return;
+    }
 
     let cancelled = false;
+
     setAlertsLoading(true);
 
-    // نمرر الـ branchId كـ Query Parameter اختياري للتأكيد للباك إند
     api
-      .get(`/erp/alerts/unread-count?branch_id=${branchId}`)
+      .get("/erp/alerts/unread-count")
       .then((res) => {
         if (!cancelled) {
           setUnreadCount(res?.data?.count || 0);
         }
       })
       .catch((err) => {
-        console.warn(
-          "⚠️ [Alerts Context] Failed to fetch unread count:",
-          err.response?.status,
-        );
+        console.warn("Unread alerts skipped:", err.response?.status);
       })
       .finally(() => {
-        if (!cancelled) setAlertsLoading(false);
+        if (!cancelled) {
+          setAlertsLoading(false);
+        }
       });
 
     return () => {
@@ -201,13 +210,20 @@ export const AlertProvider = ({ children }) => {
     authLoading,
   ]);
 
-  // ✅ استدعاء السوكيت الآمن
-  useAlertsSocket((newAlert) => addAlert(newAlert), companyId, branchId);
+  // ✅ الاشتراك في socket – يبدأ فقط عندما تكون جميع البيانات جاهزة
+  const isBillingPage =
+    window.location.pathname.startsWith("/admin/erp/billing");
+
+  useAlertsSocket(
+    (newAlert) => addAlert(newAlert),
+    isBillingPage ? null : companyId,
+    isBillingPage ? null : branchId,
+  );
 
   const stateValue = {
     unreadCount,
-    alerts: alertsList,
-    loading: alertsLoading,
+    alerts: alertsList, // ✅ تم توفير alerts
+    loading: alertsLoading, // ✅ تم توفير loading
   };
 
   const actionsValue = {

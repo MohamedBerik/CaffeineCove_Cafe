@@ -69,59 +69,71 @@ api.interceptors.request.use(
 
 // ✅ Response Interceptor
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
+
   (error) => {
     const status = error.response?.status;
     const data = error.response?.data || {};
-    const isMeRoute = error.config?.url?.includes("/me"); // 🎯 فحص إذا كان المسار هو طلب الملف الشخصي
+    const requestUrl = error.config?.url || "";
+    const currentPath = window.location.pathname;
 
-    // 🔐 إذا انتهت صلاحية الجلسة أو التوكن (401 Unauthorized)
+    const isMeRoute = requestUrl.includes("/me");
+    const isLoginRoute = requestUrl.includes("/login");
+
+    const isSubscriptionError = [
+      "SUBSCRIPTION_INACTIVE",
+      "SUBSCRIPTION_EXPIRED",
+      "SUBSCRIPTION_PAST_DUE",
+      "TRIAL_EXPIRED",
+      "COMPANY_SUSPENDED",
+      "COMPANY_CANCELLED",
+    ].includes(data.code);
+
+    // =========================
+    // 401 Unauthorized
+    // =========================
     if (status === 401) {
-      // إذا كان الطلب الفاشل هو /me، اتركه للـ AuthContext تماماً لمنع الـ Loop والتحديث اللانهائي
       if (isMeRoute) {
         return Promise.reject(error);
       }
 
-      console.warn("🔒 Session expired or unauthenticated. Cleaning up...");
+      console.warn("🔒 Session expired.");
+
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       localStorage.removeItem("selectedCompany");
       localStorage.removeItem("selectedBranchId");
 
-      // التوجيه الناعم لصفحة اللوجن إذا لم يكن مسار /me
-      if (!window.location.pathname.includes("/login")) {
-        window.location.href = "/login";
+      if (!currentPath.startsWith("/login")) {
+        window.location.replace("/login");
       }
 
       return Promise.reject(error);
     }
 
-    if (status === 403) {
-      if (error.config.url.includes("/login")) {
-        return Promise.reject(error);
+    // =========================
+    // 403 Subscription Errors
+    // =========================
+    if (status === 403 && isSubscriptionError) {
+      const billingPath = "/admin/erp/billing";
+
+      console.warn("💳 Subscription restriction detected:", data.code);
+
+      // مهم جداً لمنع الـ Loop
+      if (currentPath !== billingPath) {
+        window.location.replace(billingPath);
       }
 
-      // ✅ أخطاء الاشتراك – إعادة توجيه فورية
-      const subscriptionErrors = [
-        "SUBSCRIPTION_INACTIVE",
-        "SUBSCRIPTION_EXPIRED",
-        "SUBSCRIPTION_PAST_DUE",
-        "TRIAL_EXPIRED",
-        "COMPANY_SUSPENDED",
-      ];
+      return Promise.reject(error);
+    }
 
-      if (subscriptionErrors.includes(data.code)) {
-        // إذا كان مسار /me هو الذي تسبب في خطأ الاشتراك، نكتفي بتمرير الخطأ للـ AuthContext للتعامل معه دون عمل Hard Reload مفاجئ
-        if (isMeRoute) {
-          return Promise.reject(error);
-        }
+    // =========================
+    // 403 Permission Errors
+    // =========================
+    if (status === 403 && !isSubscriptionError) {
+      console.warn("⛔ Permission denied:", requestUrl, data);
 
-        const redirectTo = data.redirect_to || "/admin/erp/billing";
-        window.location.href = redirectTo; // Hard reload لأمان الـ SaaS
-        return Promise.reject(error);
-      }
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);

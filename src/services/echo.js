@@ -7,27 +7,22 @@ window.Pusher = Pusher;
 class EchoService {
   instance = null;
   token = null;
-  branchId = null;
 
   getInstance() {
     const token = localStorage.getItem("token");
-    const branchId = getActiveBranchId();
 
     if (!token) return null;
 
-    // إذا كان هناك instance موجود والتوكن والفرع لم يتغيرا، أرجع الموجود
-    if (this.instance && this.token === token && this.branchId === branchId) {
+    if (this.instance && this.token === token) {
       return this.instance;
     }
 
-    // إذا تغير التوكن أو الفرع، افصل القديم
     if (this.instance) {
       this.instance.disconnect();
       this.instance = null;
     }
 
     this.token = token;
-    this.branchId = branchId;
 
     this.instance = new Echo({
       broadcaster: "pusher",
@@ -40,23 +35,22 @@ class EchoService {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
-          "X-Branch-Id": branchId,
         },
       },
     });
 
-    console.log("✅ Echo initialized", { branchId });
+    console.log("✅ Echo initialized");
+
     return this.instance;
   }
 
   disconnect() {
     if (this.instance) {
       this.instance.disconnect();
-      this.instance = null;
-      this.token = null;
-      this.branchId = null;
-      console.log("❌ Echo disconnected");
     }
+
+    this.instance = null;
+    this.token = null;
   }
 }
 

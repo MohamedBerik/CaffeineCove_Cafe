@@ -38,11 +38,6 @@ export default function ErpDashboardHome() {
   const [greeting, setGreeting] = useState("");
   const [range, setRange] = useState(RANGE.DAY);
 
-  // قراءة القيمة الأولية بأمان
-  const [branchId, setBranchId] = useState(
-    () => localStorage.getItem("selectedBranchId") || "all",
-  );
-
   const [showComparison, setShowComparison] = useState(() => {
     const saved = localStorage.getItem("showComparison");
     return saved === "true";

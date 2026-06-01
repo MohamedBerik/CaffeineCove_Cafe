@@ -227,6 +227,7 @@ export const AlertProvider = ({ children }) => {
   };
 
   const actionsValue = {
+    addAlert,
     markAsRead,
     markAllAsRead,
   };

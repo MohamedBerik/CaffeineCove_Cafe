@@ -140,6 +140,11 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
       const valueToStore = companyId || "global";
       setSelectedCompany(valueToStore);
       localStorage.setItem("selectedCompany", valueToStore);
+      window.dispatchEvent(
+        new CustomEvent("companyChanged", {
+          detail: { companyId: valueToStore },
+        }),
+      );
       setSelectedBranch("all");
       setActiveBranchId("all");
 

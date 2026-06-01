@@ -28,6 +28,7 @@ import TablesSection from "./components/TablesSection";
 import KpisSection from "./components/KpisSection";
 import PurchasesSection from "./components/PurchasesSection";
 import InventorySection from "./components/InventorySection";
+import useActiveBranch from "../hooks/useActiveBranch";
 import "./ErpDashboardHome.css";
 
 export default function ErpDashboardHome() {
@@ -44,35 +45,8 @@ export default function ErpDashboardHome() {
   });
   const [expandedInsight, setExpandedInsight] = useState(null);
 
-  // ✅ تعديل الدالة: إضافة حماية تمنع التحديث إذا كان الفرع لم يتغير فعلياً في التخزين
   // قراءة القيمة الأولية
-  const [branchId, setBranchId] = useState(
-    () => localStorage.getItem("selectedBranchId") || "all",
-  );
-
-  // مزامنة الفرع القادم من الـ Navbar
-  useEffect(() => {
-    const syncBranch = (event) => {
-      const latestBranch =
-        event?.detail?.branchId ??
-        localStorage.getItem("selectedBranchId") ??
-        "all";
-
-      setBranchId((current) => {
-        if (String(current) === String(latestBranch)) {
-          return current;
-        }
-
-        return latestBranch;
-      });
-    };
-
-    window.addEventListener("activeBranchChanged", syncBranch);
-
-    return () => {
-      window.removeEventListener("activeBranchChanged", syncBranch);
-    };
-  }, []);
+  const branchId = useActiveBranch();
 
   // ---- Greeting ----
   useEffect(() => {

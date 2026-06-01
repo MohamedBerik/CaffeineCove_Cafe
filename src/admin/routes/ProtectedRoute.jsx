@@ -5,12 +5,18 @@ export function AdminRoute({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
   const tenantId = localStorage.getItem("selectedCompany");
-  console.log("🛡 AdminRoute", {
-    loading,
-    user,
-  });
-  if (loading) return <p>Loading...</p>;
 
+  if (isLoading) {
+    return (
+      <div
+        className="d-flex flex-column justify-content-center align-items-center"
+        style={{ minHeight: "60vh" }}
+      >
+        <i className="fas fa-chart-line fa-3x fa-spin text-primary mb-3"></i>
+        <p className="text-muted fw-semibold">{t("Loading ...")}</p>
+      </div>
+    );
+  }
   if (!user) return <Navigate to="/login" replace />;
 
   // ✅ السماح للأدمن، السوبر أدمن، الدكتور، وموظف الاستقبال

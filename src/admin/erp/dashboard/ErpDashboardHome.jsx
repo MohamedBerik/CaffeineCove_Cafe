@@ -17,7 +17,6 @@ import {
 } from "./helpers";
 import { useDashboardData } from "./hooks/useDashboardData";
 import { RANGE } from "./constants";
-import { setActiveBranchId } from "../../../utils/activeBranch";
 import RevenueChartCard from "./components/RevenueChartCard";
 import AppointmentsChartCard from "./components/AppointmentsChartCard";
 import SummaryCard from "./components/SummaryCard";
@@ -51,20 +50,12 @@ export default function ErpDashboardHome() {
   const [expandedInsight, setExpandedInsight] = useState(null);
 
   // ✅ تعديل الدالة: إضافة حماية تمنع التحديث إذا كان الفرع لم يتغير فعلياً في التخزين
-  const handleBranchChange = useCallback((newBranchId) => {
-    const currentStored = localStorage.getItem("selectedBranchId") || "all";
+  // قراءة القيمة الأولية
+  const [branchId, setBranchId] = useState(
+    () => localStorage.getItem("selectedBranchId") || "all",
+  );
 
-    // إذا كانت القيمة الجديدة هي نفس القيمة المخزنة، نتوقف فوراً لنكسر الـ Loop
-    if (String(currentStored) === String(newBranchId)) {
-      setBranchId(newBranchId); // للتأكد من مزامنة الـ State المحلية فقط دون تفعيل الـ Utils
-      return;
-    }
-
-    setBranchId(newBranchId);
-    setActiveBranchId(newBranchId);
-  }, []);
-
-  // ---- Sync branch from Navbar ----
+  // مزامنة الفرع القادم من الـ Navbar
   useEffect(() => {
     const syncBranch = (event) => {
       const latestBranch =
@@ -72,21 +63,21 @@ export default function ErpDashboardHome() {
         localStorage.getItem("selectedBranchId") ??
         "all";
 
-      // 🛡️ حماية إضافية: المقارنة الصارمة مع القيمة الحالية في الـ State والتخزين
-      const currentStored = localStorage.getItem("selectedBranchId") || "all";
+      setBranchId((current) => {
+        if (String(current) === String(latestBranch)) {
+          return current;
+        }
 
-      if (latestBranch !== branchId || latestBranch !== currentStored) {
-        handleBranchChange(latestBranch);
-      }
+        return latestBranch;
+      });
     };
 
-    // الاستماع للحدث المخصص
     window.addEventListener("activeBranchChanged", syncBranch);
 
     return () => {
       window.removeEventListener("activeBranchChanged", syncBranch);
     };
-  }, [branchId, handleBranchChange]);
+  }, []);
 
   // ---- Greeting ----
   useEffect(() => {

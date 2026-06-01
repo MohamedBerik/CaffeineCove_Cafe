@@ -168,7 +168,12 @@ export const AlertProvider = ({ children }) => {
     }
 
     // 🛡️ حماية (Guard): التحقق من القيم العشوائية أو الـ Global والـ Nulls لمنع الـ 403
-    if (!user || !companyId || companyId === "global" || !branchId) {
+    if (!user || !companyId || companyId === "global") {
+      setUnreadCount(0);
+      return;
+    }
+
+    if (branchId === null || branchId === undefined) {
       setUnreadCount(0);
       return;
     }
@@ -213,14 +218,7 @@ export const AlertProvider = ({ children }) => {
   ]);
 
   // ✅ الاشتراك في socket – يبدأ فقط عندما تكون جميع البيانات جاهزة واستثناء صفحة الفواتير
-  const isBillingPage =
-    window.location.pathname.startsWith("/admin/erp/billing");
-
-  useAlertsSocket(
-    (newAlert) => addAlert(newAlert),
-    isBillingPage ? null : companyId,
-    isBillingPage ? null : branchId,
-  );
+  useAlertsSocket((newAlert) => addAlert(newAlert), companyId, branchId);
 
   const stateValue = {
     unreadCount,

@@ -1,10 +1,12 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export function AdminRoute({ children }) {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const location = useLocation();
   const tenantId = localStorage.getItem("selectedCompany");
+  const { t } = useTranslation();
 
   if (isLoading) {
     return (

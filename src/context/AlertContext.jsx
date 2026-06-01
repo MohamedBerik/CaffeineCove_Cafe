@@ -45,9 +45,7 @@ export const AlertProvider = ({ children }) => {
 
   const addAlert = useCallback(
     (newAlert) => {
-      // تحديث alerts محليًا
       setAlertsList((prev) => [newAlert, ...prev]);
-      // تحديث React Query cache
       const filters = ["all", "unread", "high"];
       filters.forEach((filter) => {
         if (filter === "unread" && newAlert.read) return;
@@ -79,7 +77,6 @@ export const AlertProvider = ({ children }) => {
   const markAsRead = useCallback(
     async (alertId) => {
       const filters = ["all", "unread", "high"];
-      // Optimistic update
       filters.forEach((filter) => {
         queryClient.setQueryData(["alerts", filter], (oldData) => {
           if (!oldData) return oldData;
@@ -111,7 +108,7 @@ export const AlertProvider = ({ children }) => {
         filters.forEach((filter) => {
           queryClient.setQueryData(["alerts", filter], (oldData) => {
             if (!oldData) return oldData;
-            if (filter === "unread") return oldData; // نحتاج refetch لاستعادة الحذف
+            if (filter === "unread") return oldData;
             return {
               ...oldData,
               pages: oldData.pages.map((page) => ({
@@ -161,15 +158,17 @@ export const AlertProvider = ({ children }) => {
     }
   }, [queryClient]);
 
-  // ✅ تحميل العداد الأولي مع guard صارم
+  // ✅ تحميل العداد الأولي مع guards صارمة وتمرير الـ branch_id بأمان
   useEffect(() => {
     if (authLoading) return;
 
+    // 🛡️ استثناء صفحة الفواتير كما أضفتها أنت بكل ذكاء
     if (window.location.pathname.startsWith("/admin/erp/billing")) {
       return;
     }
 
-    if (!user || !companyId || !branchId) {
+    // 🛡️ حماية (Guard): التحقق من القيم العشوائية أو الـ Global والـ Nulls لمنع الـ 403
+    if (!user || !companyId || companyId === "global" || !branchId) {
       setUnreadCount(0);
       return;
     }
@@ -179,18 +178,21 @@ export const AlertProvider = ({ children }) => {
     }
 
     let cancelled = false;
-
     setAlertsLoading(true);
 
+    // 💡 التحديث الهام: إرسال الـ branchId كـ Query Parameter ليتوافق مع تعديل الباك إند المفتوح للـ "all"
     api
-      .get("/erp/alerts/unread-count")
+      .get(`/erp/alerts/unread-count?branch_id=${branchId}`)
       .then((res) => {
         if (!cancelled) {
           setUnreadCount(res?.data?.count || 0);
         }
       })
       .catch((err) => {
-        console.warn("Unread alerts skipped:", err.response?.status);
+        console.warn(
+          "⚠️ Unread alerts skipped or failed:",
+          err.response?.status,
+        );
       })
       .finally(() => {
         if (!cancelled) {
@@ -210,7 +212,7 @@ export const AlertProvider = ({ children }) => {
     authLoading,
   ]);
 
-  // ✅ الاشتراك في socket – يبدأ فقط عندما تكون جميع البيانات جاهزة
+  // ✅ الاشتراك في socket – يبدأ فقط عندما تكون جميع البيانات جاهزة واستثناء صفحة الفواتير
   const isBillingPage =
     window.location.pathname.startsWith("/admin/erp/billing");
 
@@ -222,8 +224,8 @@ export const AlertProvider = ({ children }) => {
 
   const stateValue = {
     unreadCount,
-    alerts: alertsList, // ✅ تم توفير alerts
-    loading: alertsLoading, // ✅ تم توفير loading
+    alerts: alertsList,
+    loading: alertsLoading,
   };
 
   const actionsValue = {

@@ -160,20 +160,20 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   };
 
   // ✅ تبديل الفرع
-  // const handleBranchChange = (e) => {
-  //   const value = e.target.value;
-  //   if (value === selectedBranch) return;
+  const handleBranchChange = (e) => {
+    const value = e.target.value;
+    if (value === selectedBranch) return;
 
-  //   setSelectedBranch(value);
-  //   setActiveBranchId(value);
+    setSelectedBranch(value);
+    setActiveBranchId(value);
 
-  //   queryClient.invalidateQueries({
-  //     predicate: (query) =>
-  //       ["dashboard", "activityLogs", "subscription-status"].includes(
-  //         query.queryKey[0],
-  //       ),
-  //   });
-  // };
+    queryClient.invalidateQueries({
+      predicate: (query) =>
+        ["dashboard", "activityLogs", "subscription-status"].includes(
+          query.queryKey[0],
+        ),
+    });
+  };
 
   // ✅ تجميع الشركات حسب الحالة بنظام الكاش والميمو الصغير
   const groupedCompanies = {

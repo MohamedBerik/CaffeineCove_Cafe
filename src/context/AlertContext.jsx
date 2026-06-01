@@ -39,15 +39,12 @@ export const AlertProvider = ({ children }) => {
     };
   }, []);
 
-  // ✅ إضافة alerts و loading إلى stateValue لتجنب undefined في AdminNavbar
   const [alertsList, setAlertsList] = useState([]);
   const [alertsLoading, setAlertsLoading] = useState(false);
 
   const addAlert = useCallback(
     (newAlert) => {
-      // تحديث alerts محليًا
       setAlertsList((prev) => [newAlert, ...prev]);
-      // تحديث React Query cache
       const filters = ["all", "unread", "high"];
       filters.forEach((filter) => {
         if (filter === "unread" && newAlert.read) return;
@@ -75,11 +72,9 @@ export const AlertProvider = ({ children }) => {
     [queryClient],
   );
 
-  // ✅ mark one - مع optimistic update + rollback
   const markAsRead = useCallback(
     async (alertId) => {
       const filters = ["all", "unread", "high"];
-      // Optimistic update
       filters.forEach((filter) => {
         queryClient.setQueryData(["alerts", filter], (oldData) => {
           if (!oldData) return oldData;
@@ -111,7 +106,7 @@ export const AlertProvider = ({ children }) => {
         filters.forEach((filter) => {
           queryClient.setQueryData(["alerts", filter], (oldData) => {
             if (!oldData) return oldData;
-            if (filter === "unread") return oldData; // نحتاج refetch لاستعادة الحذف
+            if (filter === "unread") return oldData;
             return {
               ...oldData,
               pages: oldData.pages.map((page) => ({
@@ -129,7 +124,6 @@ export const AlertProvider = ({ children }) => {
     [queryClient],
   );
 
-  // ✅ mark all - مع تحديث كل الفلاتر
   const markAllAsRead = useCallback(async () => {
     const filters = ["all", "unread", "high"];
     filters.forEach((filter) => {
@@ -161,25 +155,36 @@ export const AlertProvider = ({ children }) => {
     }
   }, [queryClient]);
 
-  // ✅ تحميل العداد الأولي مع guard صارم
+  // ✅ تحميل العداد الأولي مع إضافة Guard لحماية مسار السوبر أدمن والـ Global
   useEffect(() => {
     if (authLoading) return;
-    if (!user || !companyId || !branchId) {
+
+    // 🛡️ حماية (Guard): إذا كان الأدمن في حالة Global أو البيانات لم تكتمل، لا ترسل طلب الـ API لمنع الـ 403
+    if (!user || !companyId || companyId === "global" || !branchId) {
       setUnreadCount(0);
       return;
     }
+
+    // الفحص الأساسي للأدمن
     if (user.role !== "admin" && !user.is_super_admin) return;
 
     let cancelled = false;
     setAlertsLoading(true);
+
+    // نمرر الـ branchId كـ Query Parameter اختياري للتأكيد للباك إند
     api
-      .get("/erp/alerts/unread-count")
+      .get(`/erp/alerts/unread-count?branch_id=${branchId}`)
       .then((res) => {
         if (!cancelled) {
           setUnreadCount(res?.data?.count || 0);
         }
       })
-      .catch(() => {})
+      .catch((err) => {
+        console.warn(
+          "⚠️ [Alerts Context] Failed to fetch unread count:",
+          err.response?.status,
+        );
+      })
       .finally(() => {
         if (!cancelled) setAlertsLoading(false);
       });
@@ -196,13 +201,13 @@ export const AlertProvider = ({ children }) => {
     authLoading,
   ]);
 
-  // ✅ الاشتراك في socket – يبدأ فقط عندما تكون جميع البيانات جاهزة
+  // ✅ استدعاء السوكيت الآمن
   useAlertsSocket((newAlert) => addAlert(newAlert), companyId, branchId);
 
   const stateValue = {
     unreadCount,
-    alerts: alertsList, // ✅ تم توفير alerts
-    loading: alertsLoading, // ✅ تم توفير loading
+    alerts: alertsList,
+    loading: alertsLoading,
   };
 
   const actionsValue = {

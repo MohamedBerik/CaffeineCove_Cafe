@@ -29,6 +29,7 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
     console.log("📡 [Socket] Connecting:", channelName);
 
     const echo = echoService.getInstance();
+    if (!echo) return;
 
     const channel = echo.private(channelName);
 

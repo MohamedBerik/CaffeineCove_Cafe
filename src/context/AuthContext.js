@@ -17,28 +17,26 @@ export function AuthProvider({ children }) {
 
   const loadUser = async () => {
     try {
-      console.log("🔥 CALLING /me");
-
       const res = await api.get("/me");
 
-      console.log("✅ /me SUCCESS", res.data);
-
+      // ✅ البيانات اللي بترجع من /me
       const userData = res.data.user || res.data;
 
+      // ✅ خزن البيانات كاملة
       localStorage.setItem("user", JSON.stringify(userData));
 
       setUser(userData);
-
       return userData;
     } catch (err) {
-      console.log("❌ /me FAILED", err.response?.status, err.response?.data);
+      console.error("Failed to load user", err);
 
+      // ✅ تصفير الـ state فوراً لمنع تعليق الفرونت إند
       setUser(null);
 
+      // ✅ لو 401، يبقى التوكين مش صالح
       if (err.response?.status === 401) {
         logoutLocal();
       }
-
       return null;
     }
   };

@@ -8,7 +8,13 @@ import api from "../../../services/axios";
 import { setActiveBranchId } from "../../../utils/activeBranch";
 import "./AdminNavbar.css";
 
+// 🔍 عداد التصيير العام
+let renderCount = 0;
+
 const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
+  renderCount++;
+  console.log(`🔁 AdminNavbar render #${renderCount}`);
+
   const { alerts, loading } = useAlertState();
   const { markAsRead, markAllAsRead } = useAlertActions();
   const { logout, user } = useAuth();
@@ -32,16 +38,31 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     return stored && stored !== "" ? stored : "all";
   });
 
-  // 🛡️ استخدام Refs لمنع الـ Infinite Loops الناتجة عن مقارنة المصفوفات
   const branchesJsonRef = useRef("");
 
-  // ✅ جلب قائمة الشركات (مرة واحدة عند تغير الـ Role أو المعرف)
   // ✅ تثبيت التبعيات لمنع الـ re‑render loop
   const canSwitchBranch = useMemo(
     () => user?.can_switch_branch ?? false,
     [user?.can_switch_branch],
   );
   const userRole = useMemo(() => user?.role, [user?.role]);
+
+  // 🔍 مراقبة تغيرات الحالات الرئيسية
+  useEffect(() => {
+    console.log("🔄 user changed:", user);
+  }, [user]);
+
+  useEffect(() => {
+    console.log("🔄 selectedBranch changed:", selectedBranch);
+  }, [selectedBranch]);
+
+  useEffect(() => {
+    console.log("🔄 selectedCompany changed:", selectedCompany);
+  }, [selectedCompany]);
+
+  useEffect(() => {
+    console.log("🔄 branches changed:", branches);
+  }, [branches]);
 
   // ✅ جلب قائمة الشركات
   useEffect(() => {
@@ -59,8 +80,9 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     }
   }, [user?.id, user?.is_super_admin, userRole]);
 
-  // ✅ جلب الفروع وتعيين الافتراضي (باستخدام التبعيات المستقرة)
+  // ✅ جلب الفروع وتعيين الافتراضي (مع try-catch)
   useEffect(() => {
+    console.log("🌿 Branch fetch effect running");
     if (
       !user ||
       user.is_super_admin ||
@@ -73,63 +95,70 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
 
     let cancelled = false;
 
-    api
-      .get("/branches")
-      .then((res) => {
-        if (cancelled) return;
-        const branchList = Array.isArray(res.data) ? res.data : [];
+    try {
+      api
+        .get("/branches")
+        .then((res) => {
+          if (cancelled) return;
+          const branchList = Array.isArray(res.data) ? res.data : [];
 
-        const currentBranchesJson = JSON.stringify(branchList);
-        if (branchesJsonRef.current !== currentBranchesJson) {
-          branchesJsonRef.current = currentBranchesJson;
-          setBranches(branchList);
-        }
-
-        const currentStoredBranch = localStorage.getItem("selectedBranchId");
-
-        if (canSwitchBranch || userRole === "admin") {
-          if (currentStoredBranch === "all" && selectedBranch === "all") return;
-          if (currentStoredBranch === "all") {
-            setSelectedBranch("all");
-            return;
+          const currentBranchesJson = JSON.stringify(branchList);
+          if (branchesJsonRef.current !== currentBranchesJson) {
+            branchesJsonRef.current = currentBranchesJson;
+            setBranches(branchList);
           }
-          if (
-            !currentStoredBranch ||
-            !branchList.some(
-              (b) => String(b.id) === String(currentStoredBranch),
-            )
-          ) {
-            if (selectedBranch !== "all") {
-              setActiveBranchId("all");
+
+          const currentStoredBranch = localStorage.getItem("selectedBranchId");
+
+          if (canSwitchBranch || userRole === "admin") {
+            if (currentStoredBranch === "all" && selectedBranch === "all")
+              return;
+            if (currentStoredBranch === "all") {
               setSelectedBranch("all");
+              return;
             }
-          } else if (selectedBranch !== currentStoredBranch) {
-            setSelectedBranch(currentStoredBranch);
+            if (
+              !currentStoredBranch ||
+              !branchList.some(
+                (b) => String(b.id) === String(currentStoredBranch),
+              )
+            ) {
+              if (selectedBranch !== "all") {
+                setActiveBranchId("all");
+                setSelectedBranch("all");
+              }
+            } else if (selectedBranch !== currentStoredBranch) {
+              setSelectedBranch(currentStoredBranch);
+            }
+          } else {
+            if (
+              branchList.length > 0 &&
+              (!currentStoredBranch || currentStoredBranch === "all")
+            ) {
+              const defaultBranch = String(branchList[0].id);
+              setActiveBranchId(defaultBranch);
+              setSelectedBranch(defaultBranch);
+            } else if (
+              currentStoredBranch &&
+              selectedBranch !== currentStoredBranch
+            ) {
+              setSelectedBranch(currentStoredBranch);
+            }
           }
-        } else {
-          if (
-            branchList.length > 0 &&
-            (!currentStoredBranch || currentStoredBranch === "all")
-          ) {
-            const defaultBranch = String(branchList[0].id);
-            setActiveBranchId(defaultBranch);
-            setSelectedBranch(defaultBranch);
-          } else if (
-            currentStoredBranch &&
-            selectedBranch !== currentStoredBranch
-          ) {
-            setSelectedBranch(currentStoredBranch);
-          }
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) console.error("Failed to fetch branches", err);
-      });
+        })
+        .catch((err) => {
+          if (!cancelled) console.error("Failed to fetch branches", err);
+        });
+    } catch (error) {
+      console.error("Branch fetch error:", error);
+    }
 
     return () => {
       cancelled = true;
     };
   }, [selectedCompany, canSwitchBranch, userRole]);
+
+  // (باقي الكود دون تغيير: handleSwitch, handleBranchChange, ... إلخ)
 
   // ✅ تبديل الشركة
   const handleSwitch = async (companyId) => {

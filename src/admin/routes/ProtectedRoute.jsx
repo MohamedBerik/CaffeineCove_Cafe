@@ -5,7 +5,10 @@ export function AdminRoute({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
   const tenantId = localStorage.getItem("selectedCompany");
-
+  console.log("🛡 AdminRoute", {
+    loading,
+    user,
+  });
   if (loading) return <p>Loading...</p>;
 
   if (!user) return <Navigate to="/login" replace />;

@@ -30,6 +30,7 @@ export default function BillingPage() {
     queryKey: ["current-subscription"],
     queryFn: async () => {
       const res = await api.get("/erp/billing/subscription");
+      console.log("📄 BillingPage mounted");
       return res.data.data;
     },
     retry: (failureCount, error) => {

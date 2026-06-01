@@ -28,7 +28,7 @@ import TablesSection from "./components/TablesSection";
 import KpisSection from "./components/KpisSection";
 import PurchasesSection from "./components/PurchasesSection";
 import InventorySection from "./components/InventorySection";
-import useActiveBranch from "../hooks/useActiveBranch";
+import useActiveBranch from "./hooks/useActiveBranch";
 import "./ErpDashboardHome.css";
 
 export default function ErpDashboardHome() {

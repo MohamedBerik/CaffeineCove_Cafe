@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../../services/axios";
@@ -6,13 +6,7 @@ import toast from "react-hot-toast";
 import "./BillingPage.css";
 import { Link } from "react-router";
 
-// 🔍 عداد التصيير العام
-let billingRenderCount = 0;
-
 export default function BillingPage() {
-  billingRenderCount++;
-  console.log(`💰 BillingPage render #${billingRenderCount}`);
-
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const [showPlansModal, setShowPlansModal] = useState(false);
@@ -31,69 +25,25 @@ export default function BillingPage() {
   const [paymentUrl, setPaymentUrl] = useState("");
   const [pendingSubscriptionId, setPendingSubscriptionId] = useState(null);
 
-  // لتتبع الأخطاء المحتملة
-  const errorRef = useRef(null);
-
-  // 🔍 مراقبة تغيرات الحالة الرئيسية
-  useEffect(() => {
-    console.log("🔄 BillingPage: showPlansModal changed:", showPlansModal);
-  }, [showPlansModal]);
-
-  useEffect(() => {
-    console.log("🔄 BillingPage: showPaymentModal changed:", showPaymentModal);
-  }, [showPaymentModal]);
-
-  useEffect(() => {
-    console.log("🔄 BillingPage: selectedPlan changed:", selectedPlan);
-  }, [selectedPlan]);
-
   // ========================= Queries =========================
-  const {
-    data: subscription,
-    isLoading: loadingSub,
-    error: subError,
-  } = useQuery({
+  const { data: subscription, isLoading: loadingSub } = useQuery({
     queryKey: ["current-subscription"],
     queryFn: async () => {
-      try {
-        console.log("📡 Fetching current subscription...");
-        const res = await api.get("/erp/billing/subscription");
-        console.log("✅ Subscription loaded:", res.data?.data);
-        return res.data.data;
-      } catch (error) {
-        console.error("❌ Subscription fetch error:", {
-          status: error.response?.status,
-          message: error.message,
-          data: error.response?.data,
-        });
-        throw error;
-      }
+      const res = await api.get("/erp/billing/subscription");
+      return res.data.data;
     },
     retry: (failureCount, error) => {
-      console.log(
-        `🔄 Subscription retry #${failureCount}, status: ${error.response?.status}`,
-      );
       if (error.response?.status === 429) return false;
       return failureCount < 2;
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // 5 دقائق كافية لبيانات الاشتراك
   });
 
   const { data: invoices, isLoading: loadingInvoices } = useQuery({
     queryKey: ["billing-invoices"],
     queryFn: async () => {
-      try {
-        console.log("📡 Fetching billing invoices...");
-        const res = await api.get("/erp/billing/invoices");
-        console.log("✅ Invoices loaded:", res.data?.length || 0);
-        return res.data;
-      } catch (error) {
-        console.error("❌ Invoices fetch error:", {
-          status: error.response?.status,
-          message: error.message,
-        });
-        throw error;
-      }
+      const res = await api.get("/erp/billing/invoices");
+      return res.data;
     },
     retry: (failureCount, error) => {
       if (error.response?.status === 429) return false;
@@ -108,42 +58,22 @@ export default function BillingPage() {
   const { data: plans, isLoading: loadingPlans } = useQuery({
     queryKey: ["available-plans"],
     queryFn: async () => {
-      try {
-        console.log("📡 Fetching available plans...");
-        const res = await api.get("/erp/billing/plans");
-        console.log("✅ Plans loaded:", res.data?.data?.length || 0);
-        return res.data.data;
-      } catch (error) {
-        console.error("❌ Plans fetch error:", {
-          status: error.response?.status,
-          message: error.message,
-        });
-        throw error;
-      }
+      const res = await api.get("/erp/billing/plans");
+      return res.data.data;
     },
     retry: (failureCount, error) => {
       if (error.response?.status === 429) return false;
       return failureCount < 2;
     },
-    staleTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000, // الخطط لا تتغير كثيراً
     enabled: showPlansModal,
   });
 
   const { data: paymentMethods } = useQuery({
     queryKey: ["payment-methods"],
     queryFn: async () => {
-      try {
-        console.log("📡 Fetching payment methods...");
-        const res = await api.get("/erp/billing/payment-methods");
-        console.log("✅ Payment methods loaded:", res.data?.data?.length || 0);
-        return res.data.data;
-      } catch (error) {
-        console.error("❌ Payment methods fetch error:", {
-          status: error.response?.status,
-          message: error.message,
-        });
-        throw error;
-      }
+      const res = await api.get("/erp/billing/payment-methods");
+      return res.data.data;
     },
     retry: (failureCount, error) => {
       if (error.response?.status === 429) return false;
@@ -154,34 +84,23 @@ export default function BillingPage() {
 
   // ========================= Mutations =========================
   const subscribeMutation = useMutation({
-    mutationFn: async ({ planId, cycle }) => {
-      try {
-        console.log("📡 Subscribing to plan:", { planId, cycle });
-        const res = await api.post("/erp/billing/subscribe", {
-          plan_id: planId,
-          billing_cycle: cycle,
-        });
-        console.log("✅ Subscription response:", res.data);
-        return res.data;
-      } catch (error) {
-        console.error("❌ Subscribe mutation error:", {
-          status: error.response?.status,
-          message: error.message,
-          data: error.response?.data,
-        });
-        throw error;
-      }
-    },
+    mutationFn: ({ planId, cycle }) =>
+      api.post("/erp/billing/subscribe", {
+        plan_id: planId,
+        billing_cycle: cycle,
+      }),
     onSuccess: (response) => {
-      const { payment_url, subscription_id } = response;
+      const { payment_url, subscription_id } = response.data;
+
+      // ✅ افتح iframe PayMob
       setPaymentUrl(payment_url);
       setPendingSubscriptionId(subscription_id);
       setShowPaymentIframe(true);
       setShowPlansModal(false);
+
       toast.success(t("Redirecting to payment gateway..."));
     },
     onError: (error) => {
-      console.error("❌ Subscribe failed:", error);
       toast.error(
         error.response?.data?.message || t("Failed to initiate payment"),
       );
@@ -189,26 +108,12 @@ export default function BillingPage() {
   });
 
   const cancelMutation = useMutation({
-    mutationFn: async () => {
-      try {
-        console.log("📡 Cancelling subscription...");
-        const res = await api.post("/erp/billing/cancel");
-        console.log("✅ Cancel response:", res.data);
-        return res.data;
-      } catch (error) {
-        console.error("❌ Cancel mutation error:", {
-          status: error.response?.status,
-          message: error.message,
-        });
-        throw error;
-      }
-    },
+    mutationFn: () => api.post("/erp/billing/cancel"),
     onSuccess: () => {
       queryClient.invalidateQueries(["current-subscription"]);
       toast.success(t("Subscription cancelled successfully"));
     },
     onError: (error) => {
-      console.error("❌ Cancel failed:", error);
       toast.error(
         error.response?.data?.message || t("Failed to cancel subscription"),
       );
@@ -216,23 +121,11 @@ export default function BillingPage() {
   });
 
   const changeMutation = useMutation({
-    mutationFn: async ({ planId, cycle }) => {
-      try {
-        console.log("📡 Changing plan:", { planId, cycle });
-        const res = await api.post("/erp/billing/change", {
-          plan_id: planId,
-          billing_cycle: cycle,
-        });
-        console.log("✅ Change response:", res.data);
-        return res.data;
-      } catch (error) {
-        console.error("❌ Change mutation error:", {
-          status: error.response?.status,
-          message: error.message,
-        });
-        throw error;
-      }
-    },
+    mutationFn: ({ planId, cycle }) =>
+      api.post("/erp/billing/change", {
+        plan_id: planId,
+        billing_cycle: cycle,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries(["current-subscription"]);
       queryClient.invalidateQueries(["billing-invoices"]);
@@ -241,26 +134,12 @@ export default function BillingPage() {
       setSelectedPlan(null);
     },
     onError: (error) => {
-      console.error("❌ Change plan failed:", error);
       toast.error(error.response?.data?.message || t("Failed to change plan"));
     },
   });
 
   const addPaymentMethodMutation = useMutation({
-    mutationFn: async (data) => {
-      try {
-        console.log("📡 Adding payment method...");
-        const res = await api.post("/erp/billing/payment-methods", data);
-        console.log("✅ Payment method added:", res.data);
-        return res.data;
-      } catch (error) {
-        console.error("❌ Add payment method error:", {
-          status: error.response?.status,
-          message: error.message,
-        });
-        throw error;
-      }
-    },
+    mutationFn: (data) => api.post("/erp/billing/payment-methods", data),
     onSuccess: () => {
       queryClient.invalidateQueries(["payment-methods"]);
       toast.success(t("Payment method added successfully"));
@@ -268,7 +147,6 @@ export default function BillingPage() {
       resetCardForm();
     },
     onError: (error) => {
-      console.error("❌ Add payment method failed:", error);
       toast.error(
         error.response?.data?.message || t("Failed to add payment method"),
       );
@@ -276,30 +154,12 @@ export default function BillingPage() {
   });
 
   const removePaymentMethodMutation = useMutation({
-    mutationFn: async (id) => {
-      try {
-        console.log("📡 Removing payment method:", id);
-        const res = await api.delete(`/erp/billing/payment-methods/${id}`);
-        console.log("✅ Payment method removed:", res.data);
-        return res.data;
-      } catch (error) {
-        console.error("❌ Remove payment method error:", {
-          status: error.response?.status,
-          message: error.message,
-        });
-        throw error;
-      }
-    },
+    mutationFn: (id) => api.delete(`/erp/billing/payment-methods/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries(["payment-methods"]);
       toast.success(t("Payment method removed"));
     },
   });
-
-  // (باقي الكود يبقى كما هو: handlers، JSX، sub-components)
-  // ...
-
-  // (باقي المكونات الفرعية StatusBadge, PlansModal, getCardIcon تبقى كما هي)
 
   // ========================= Handlers =========================
   const handleSelectPlan = (plan) => {

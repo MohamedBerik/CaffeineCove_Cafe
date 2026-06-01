@@ -1,6 +1,5 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useTranslation } from "react-i18next";
 
 export function AdminRoute({ children }) {
   const { user, isLoading } = useAuth();

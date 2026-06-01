@@ -26,36 +26,41 @@ export const AlertProvider = ({ children }) => {
     () => localStorage.getItem("selectedBranchId") || null,
   );
 
+  // تعريف الحالات المطلوبة (alertsList, alertsLoading)
+  const [alertsList, setAlertsList] = useState([]);
+  const [alertsLoading, setAlertsLoading] = useState(false);
+
   useEffect(() => {
     const syncStorage = () => {
       setCompanyId(localStorage.getItem("selectedCompany") || null);
       setBranchId(localStorage.getItem("selectedBranchId") || null);
     };
     window.addEventListener("storage", syncStorage);
-    window.addEventListener("branchChanged", syncStorage);
+    // ✅ تم تغيير اسم الحدث إلى activeBranchChanged
+    window.addEventListener("activeBranchChanged", syncStorage);
     return () => {
       window.removeEventListener("storage", syncStorage);
-      window.removeEventListener("branchChanged", syncStorage);
+      window.removeEventListener("activeBranchChanged", syncStorage);
     };
   }, []);
 
-  // ✅ إضافة alerts و loading إلى stateValue لتجنب undefined في AdminNavbar
-  const [alertsList, setAlertsList] = useState([]);
-  const [alertsLoading, setAlertsLoading] = useState(false);
-
   const addAlert = useCallback(
     (newAlert) => {
+      // ✅ استخرج التنبيه الفعلي من الحدث
+      const alert = newAlert.alert || newAlert;
+
       // تحديث alerts محليًا
-      setAlertsList((prev) => [newAlert, ...prev]);
+      setAlertsList((prev) => [alert, ...prev]);
+
       // تحديث React Query cache
       const filters = ["all", "unread", "high"];
       filters.forEach((filter) => {
-        if (filter === "unread" && newAlert.read) return;
-        if (filter === "high" && newAlert.priority !== "high") return;
+        if (filter === "unread" && alert.read) return;
+        if (filter === "high" && alert.priority !== "high") return;
         queryClient.setQueryData(["alerts", filter], (oldData) => {
           if (!oldData) return oldData;
           const alreadyExists = oldData.pages.some((page) =>
-            page.data.some((a) => a.id === newAlert.id),
+            page.data.some((a) => a.id === alert.id),
           );
           if (alreadyExists) return oldData;
           return {
@@ -63,7 +68,7 @@ export const AlertProvider = ({ children }) => {
             pages: [
               {
                 ...oldData.pages[0],
-                data: [newAlert, ...oldData.pages[0].data],
+                data: [alert, ...oldData.pages[0].data],
               },
               ...oldData.pages.slice(1),
             ],
@@ -79,7 +84,6 @@ export const AlertProvider = ({ children }) => {
   const markAsRead = useCallback(
     async (alertId) => {
       const filters = ["all", "unread", "high"];
-      // Optimistic update
       filters.forEach((filter) => {
         queryClient.setQueryData(["alerts", filter], (oldData) => {
           if (!oldData) return oldData;
@@ -111,7 +115,7 @@ export const AlertProvider = ({ children }) => {
         filters.forEach((filter) => {
           queryClient.setQueryData(["alerts", filter], (oldData) => {
             if (!oldData) return oldData;
-            if (filter === "unread") return oldData; // نحتاج refetch لاستعادة الحذف
+            if (filter === "unread") return oldData;
             return {
               ...oldData,
               pages: oldData.pages.map((page) => ({
@@ -201,8 +205,8 @@ export const AlertProvider = ({ children }) => {
 
   const stateValue = {
     unreadCount,
-    alerts: alertsList, // ✅ تم توفير alerts
-    loading: alertsLoading, // ✅ تم توفير loading
+    alerts: alertsList,
+    loading: alertsLoading,
   };
 
   const actionsValue = {

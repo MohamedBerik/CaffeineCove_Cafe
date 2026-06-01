@@ -38,22 +38,33 @@ export default function ErpDashboardHome() {
 
   const [greeting, setGreeting] = useState("");
   const [range, setRange] = useState(RANGE.DAY);
+
+  // قراءة القيمة الأولية بأمان
   const [branchId, setBranchId] = useState(
     () => localStorage.getItem("selectedBranchId") || "all",
   );
+
   const [showComparison, setShowComparison] = useState(() => {
     const saved = localStorage.getItem("showComparison");
     return saved === "true";
   });
   const [expandedInsight, setExpandedInsight] = useState(null);
 
+  // ✅ تعديل الدالة: إضافة حماية تمنع التحديث إذا كان الفرع لم يتغير فعلياً في التخزين
   const handleBranchChange = useCallback((newBranchId) => {
+    const currentStored = localStorage.getItem("selectedBranchId") || "all";
+
+    // إذا كانت القيمة الجديدة هي نفس القيمة المخزنة، نتوقف فوراً لنكسر الـ Loop
+    if (String(currentStored) === String(newBranchId)) {
+      setBranchId(newBranchId); // للتأكد من مزامنة الـ State المحلية فقط دون تفعيل الـ Utils
+      return;
+    }
+
     setBranchId(newBranchId);
     setActiveBranchId(newBranchId);
   }, []);
 
   // ---- Sync branch from Navbar ----
-  // داخل المكون
   useEffect(() => {
     const syncBranch = (event) => {
       const latestBranch =
@@ -61,12 +72,15 @@ export default function ErpDashboardHome() {
         localStorage.getItem("selectedBranchId") ??
         "all";
 
-      if (latestBranch !== branchId) {
+      // 🛡️ حماية إضافية: المقارنة الصارمة مع القيمة الحالية في الـ State والتخزين
+      const currentStored = localStorage.getItem("selectedBranchId") || "all";
+
+      if (latestBranch !== branchId || latestBranch !== currentStored) {
         handleBranchChange(latestBranch);
       }
     };
 
-    // ✅ نستمع فقط للحدث المخصص "activeBranchChanged"
+    // الاستماع للحدث المخصص
     window.addEventListener("activeBranchChanged", syncBranch);
 
     return () => {

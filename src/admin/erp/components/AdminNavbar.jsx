@@ -60,76 +60,76 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   }, [user?.id, user?.is_super_admin, userRole]);
 
   // ✅ جلب الفروع وتعيين الافتراضي (باستخدام التبعيات المستقرة)
-  // useEffect(() => {
-  //   if (
-  //     !user ||
-  //     user.is_super_admin ||
-  //     !selectedCompany ||
-  //     selectedCompany === "global"
-  //   ) {
-  //     if (branches.length > 0) setBranches([]);
-  //     return;
-  //   }
+  useEffect(() => {
+    if (
+      !user ||
+      user.is_super_admin ||
+      !selectedCompany ||
+      selectedCompany === "global"
+    ) {
+      if (branches.length > 0) setBranches([]);
+      return;
+    }
 
-  //   let cancelled = false;
+    let cancelled = false;
 
-  //   api
-  //     .get("/branches")
-  //     .then((res) => {
-  //       if (cancelled) return;
-  //       const branchList = Array.isArray(res.data) ? res.data : [];
+    api
+      .get("/branches")
+      .then((res) => {
+        if (cancelled) return;
+        const branchList = Array.isArray(res.data) ? res.data : [];
 
-  //       const currentBranchesJson = JSON.stringify(branchList);
-  //       if (branchesJsonRef.current !== currentBranchesJson) {
-  //         branchesJsonRef.current = currentBranchesJson;
-  //         setBranches(branchList);
-  //       }
+        const currentBranchesJson = JSON.stringify(branchList);
+        if (branchesJsonRef.current !== currentBranchesJson) {
+          branchesJsonRef.current = currentBranchesJson;
+          setBranches(branchList);
+        }
 
-  //       const currentStoredBranch = localStorage.getItem("selectedBranchId");
+        const currentStoredBranch = localStorage.getItem("selectedBranchId");
 
-  //       if (canSwitchBranch || userRole === "admin") {
-  //         if (currentStoredBranch === "all" && selectedBranch === "all") return;
-  //         if (currentStoredBranch === "all") {
-  //           setSelectedBranch("all");
-  //           return;
-  //         }
-  //         if (
-  //           !currentStoredBranch ||
-  //           !branchList.some(
-  //             (b) => String(b.id) === String(currentStoredBranch),
-  //           )
-  //         ) {
-  //           if (selectedBranch !== "all") {
-  //             setActiveBranchId("all");
-  //             setSelectedBranch("all");
-  //           }
-  //         } else if (selectedBranch !== currentStoredBranch) {
-  //           setSelectedBranch(currentStoredBranch);
-  //         }
-  //       } else {
-  //         if (
-  //           branchList.length > 0 &&
-  //           (!currentStoredBranch || currentStoredBranch === "all")
-  //         ) {
-  //           const defaultBranch = String(branchList[0].id);
-  //           setActiveBranchId(defaultBranch);
-  //           setSelectedBranch(defaultBranch);
-  //         } else if (
-  //           currentStoredBranch &&
-  //           selectedBranch !== currentStoredBranch
-  //         ) {
-  //           setSelectedBranch(currentStoredBranch);
-  //         }
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       if (!cancelled) console.error("Failed to fetch branches", err);
-  //     });
+        if (canSwitchBranch || userRole === "admin") {
+          if (currentStoredBranch === "all" && selectedBranch === "all") return;
+          if (currentStoredBranch === "all") {
+            setSelectedBranch("all");
+            return;
+          }
+          if (
+            !currentStoredBranch ||
+            !branchList.some(
+              (b) => String(b.id) === String(currentStoredBranch),
+            )
+          ) {
+            if (selectedBranch !== "all") {
+              setActiveBranchId("all");
+              setSelectedBranch("all");
+            }
+          } else if (selectedBranch !== currentStoredBranch) {
+            setSelectedBranch(currentStoredBranch);
+          }
+        } else {
+          if (
+            branchList.length > 0 &&
+            (!currentStoredBranch || currentStoredBranch === "all")
+          ) {
+            const defaultBranch = String(branchList[0].id);
+            setActiveBranchId(defaultBranch);
+            setSelectedBranch(defaultBranch);
+          } else if (
+            currentStoredBranch &&
+            selectedBranch !== currentStoredBranch
+          ) {
+            setSelectedBranch(currentStoredBranch);
+          }
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) console.error("Failed to fetch branches", err);
+      });
 
-  //   return () => {
-  //     cancelled = true;
-  //   };
-  // }, [selectedCompany, canSwitchBranch, userRole]);
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCompany, canSwitchBranch, userRole]);
 
   // ✅ تبديل الشركة
   const handleSwitch = async (companyId) => {

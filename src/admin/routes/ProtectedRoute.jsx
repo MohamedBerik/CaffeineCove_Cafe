@@ -1,24 +1,13 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useTranslation } from "react-i18next";
 
 export function AdminRoute({ children }) {
-  const { user, isLoading } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   const tenantId = localStorage.getItem("selectedCompany");
-  const { t } = useTranslation();
 
-  if (isLoading) {
-    return (
-      <div
-        className="d-flex flex-column justify-content-center align-items-center"
-        style={{ minHeight: "60vh" }}
-      >
-        <i className="fas fa-chart-line fa-3x fa-spin text-primary mb-3"></i>
-        <p className="text-muted fw-semibold">{t("Loading ...")}</p>
-      </div>
-    );
-  }
+  if (loading) return <p>Loading...</p>;
+
   if (!user) return <Navigate to="/login" replace />;
 
   // ✅ السماح للأدمن، السوبر أدمن، الدكتور، وموظف الاستقبال

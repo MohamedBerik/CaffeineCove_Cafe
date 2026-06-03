@@ -49,7 +49,10 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
       }
     };
 
-    channel.listen(".alert.created", alertListener);
+    channel.listenToAll((event, data) => {
+      console.log("🔥 ALL EVENTS", event);
+      console.log("🔥 DATA", data);
+    });
 
     return () => {
       console.log("🧹 [Socket] Leaving:", channelName);

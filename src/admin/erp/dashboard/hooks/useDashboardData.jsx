@@ -124,7 +124,9 @@ export function useDashboardData(branchId, range, showComparison) {
       console.error("Failed to acknowledge alert", err);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: dashboardKey });
+      queryClient.invalidateQueries({
+        queryKey: dashboardKeyRef.current,
+      });
     },
   });
 
@@ -220,7 +222,7 @@ export function useDashboardData(branchId, range, showComparison) {
         { id: `alert-${newAlert.id}` },
       );
     },
-    [addAlert, playSound, queryClient, dashboardKey],
+    [addAlert, playSound, queryClient],
   );
 
   const handleDashboardEvent = useCallback(
@@ -273,15 +275,15 @@ export function useDashboardData(branchId, range, showComparison) {
                 current: Math.max(0, (kpis.appointments.current || 0) - 1),
               };
             break;
-          case "payment_created":
-            if (kpis.revenue)
-              kpis.revenue = {
-                ...kpis.revenue,
-                current:
-                  (kpis.revenue.current || 0) +
-                  (event.data?.today_revenue || 0),
-              };
-            break;
+          // case "payment_created":
+          //   if (kpis.revenue)
+          //     kpis.revenue = {
+          //       ...kpis.revenue,
+          //       current:
+          //         (kpis.revenue.current || 0) +
+          //         (event.data?.today_revenue || 0),
+          //     };
+          //   break;
           case "invoice_paid":
             if (kpis.paid_invoices)
               kpis.paid_invoices = {
@@ -300,7 +302,7 @@ export function useDashboardData(branchId, range, showComparison) {
         return { ...old, kpis };
       });
     },
-    [queryClient, dashboardKey, range],
+    [queryClient, range],
   );
 
   const handleNewInsight = useCallback(
@@ -325,7 +327,7 @@ export function useDashboardData(branchId, range, showComparison) {
         };
       });
     },
-    [playSound, queryClient, dashboardKey],
+    [playSound, queryClient],
   );
 
   const processedAlertsRef = useRef(new Set());
@@ -341,13 +343,9 @@ export function useDashboardData(branchId, range, showComparison) {
         payload.branch?.id ??
         payload.data?.branch?.id;
 
-      if (
-        currentBranchRef.current &&
-        currentBranchRef.current !== "all" &&
-        payloadBranchId != null &&
-        String(payloadBranchId) !== String(currentBranchRef.current)
-      )
+      if (currentBranchRef.current !== "all" && !payloadBranchId) {
         return;
+      }
 
       // توحيد alert
       const alertPayload =
@@ -361,6 +359,10 @@ export function useDashboardData(branchId, range, showComparison) {
           return;
         }
         processedAlertsRef.current.add(alertPayload.id);
+
+        setTimeout(() => {
+          processedAlertsRef.current.delete(alertPayload.id);
+        }, 60000);
 
         handleNewAlert(alertPayload);
       }

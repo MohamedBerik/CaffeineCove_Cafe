@@ -169,26 +169,10 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     const value = e.target.value;
     if (value === selectedBranch) return;
 
-    queryClient.cancelQueries({
-      predicate: (query) => query.queryKey[0] === "dashboard",
-    });
-
-    queryClient.cancelQueries({
-      predicate: (query) => query.queryKey[0] === "activityLogs",
-    });
-
-    queryClient.removeQueries({
-      predicate: (query) => query.queryKey[0] === "dashboard",
-    });
-
-    queryClient.removeQueries({
-      predicate: (query) => query.queryKey[0] === "activityLogs",
-    });
-
     setSelectedBranch(value);
     setActiveBranchId(value);
 
-    queryClient.invalidateQueries({
+    queryClient.removeQueries({
       predicate: (query) =>
         ["dashboard", "activityLogs", "subscription-status"].includes(
           query.queryKey[0],
@@ -197,11 +181,14 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   };
 
   // ✅ تجميع الشركات حسب الحالة بنظام الكاش والميمو الصغير
-  const groupedCompanies = {
-    active: companies.filter((c) => c.status === "active"),
-    trial: companies.filter((c) => c.status === "trial"),
-    suspended: companies.filter((c) => c.status === "suspended"),
-  };
+  const groupedCompanies = useMemo(
+    () => ({
+      active: companies.filter((c) => c.status === "active"),
+      trial: companies.filter((c) => c.status === "trial"),
+      suspended: companies.filter((c) => c.status === "suspended"),
+    }),
+    [companies],
+  );
 
   useEffect(() => {
     const handleClickOutside = (event) => {

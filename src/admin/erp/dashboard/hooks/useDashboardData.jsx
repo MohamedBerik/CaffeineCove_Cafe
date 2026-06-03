@@ -275,15 +275,15 @@ export function useDashboardData(branchId, range, showComparison) {
                 current: Math.max(0, (kpis.appointments.current || 0) - 1),
               };
             break;
-          // case "payment_created":
-          //   if (kpis.revenue)
-          //     kpis.revenue = {
-          //       ...kpis.revenue,
-          //       current:
-          //         (kpis.revenue.current || 0) +
-          //         (event.data?.today_revenue || 0),
-          //     };
-          //   break;
+          case "payment_created":
+            if (kpis.revenue)
+              kpis.revenue = {
+                ...kpis.revenue,
+                current:
+                  (kpis.revenue.current || 0) +
+                  (event.data?.today_revenue || 0),
+              };
+            break;
           case "invoice_paid":
             if (kpis.paid_invoices)
               kpis.paid_invoices = {
@@ -343,7 +343,12 @@ export function useDashboardData(branchId, range, showComparison) {
         payload.branch?.id ??
         payload.data?.branch?.id;
 
-      if (currentBranchRef.current !== "all" && !payloadBranchId) {
+      if (
+        currentBranchRef.current &&
+        currentBranchRef.current !== "all" &&
+        payloadBranchId != null &&
+        String(payloadBranchId) !== String(currentBranchRef.current)
+      ) {
         return;
       }
 

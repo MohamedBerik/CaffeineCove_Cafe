@@ -107,7 +107,7 @@ export function useDashboardData(branchId, range, showComparison) {
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: dashboardKey });
       const prev = queryClient.getQueryData(dashboardKey);
-      queryClient.setQueryData(dashboardKey, (old) => {
+      queryClient.setQueryData(dashboardKeyRef.current, (old) => {
         if (!old) return old;
         return {
           ...old,
@@ -120,7 +120,7 @@ export function useDashboardData(branchId, range, showComparison) {
       return { prev };
     },
     onError: (err, id, context) => {
-      queryClient.setQueryData(dashboardKey, context.prev);
+      queryClient.setQueryData(dashboardKeyRef.current, context.prev);
       console.error("Failed to acknowledge alert", err);
     },
     onSettled: () => {
@@ -193,7 +193,7 @@ export function useDashboardData(branchId, range, showComparison) {
     (newAlert) => {
       if (document.visibilityState === "visible") playSound();
       addAlert(newAlert);
-      queryClient.setQueryData(dashboardKey, (old) => {
+      queryClient.setQueryData(dashboardKeyRef.current, (old) => {
         if (!old) return old;
         const currentAlerts = old.reminders?.alerts || [];
         let updatedAlerts = [
@@ -226,7 +226,7 @@ export function useDashboardData(branchId, range, showComparison) {
   const handleDashboardEvent = useCallback(
     (event) => {
       if (range !== "day") return;
-      queryClient.setQueryData(dashboardKey, (old) => {
+      queryClient.setQueryData(dashboardKeyRef.current, (old) => {
         if (!old) return old;
         const kpis = { ...old.kpis };
         switch (event.type) {
@@ -317,7 +317,7 @@ export function useDashboardData(branchId, range, showComparison) {
           { id: `insight-${insight.id || Date.now()}` },
         );
       }
-      queryClient.setQueryData(dashboardKey, (old) => {
+      queryClient.setQueryData(dashboardKeyRef.current, (old) => {
         if (!old) return old;
         return {
           ...old,

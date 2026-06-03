@@ -169,6 +169,22 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     const value = e.target.value;
     if (value === selectedBranch) return;
 
+    queryClient.cancelQueries({
+      predicate: (query) => query.queryKey[0] === "dashboard",
+    });
+
+    queryClient.cancelQueries({
+      predicate: (query) => query.queryKey[0] === "activityLogs",
+    });
+
+    queryClient.removeQueries({
+      predicate: (query) => query.queryKey[0] === "dashboard",
+    });
+
+    queryClient.removeQueries({
+      predicate: (query) => query.queryKey[0] === "activityLogs",
+    });
+
     setSelectedBranch(value);
     setActiveBranchId(value);
 

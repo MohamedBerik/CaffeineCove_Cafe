@@ -2,14 +2,17 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import api from "../../../services/axios";
+import { useAuth } from "../../../context/AuthContext";
+import useActivityLogsSocket from "../../../hooks/useActivityLogsSocket";
 import "./ActivityLogs.css";
 
 export default function ActivityLogs() {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [actionFilter, setActionFilter] = useState("");
   const [page, setPage] = useState(1);
-
+  const [realtimeLogs, setRealtimeLogs] = useState([]);
   // ========================= Queries =========================
   const {
     data: logsData,
@@ -33,6 +36,15 @@ export default function ActivityLogs() {
     keepPreviousData: true,
   });
 
+  useActivityLogsSocket(user?.company_id, (newLog) => {
+    setRealtimeLogs((prev) => {
+      if (prev.some((l) => l.id === newLog.id)) {
+        return prev;
+      }
+
+      return [newLog, ...prev];
+    });
+  });
   // ========================= Helpers =========================
   const formatDateTime = (value) => {
     if (!value) return "-";
@@ -91,6 +103,10 @@ export default function ActivityLogs() {
   };
 
   const logs = logsData?.data || [];
+  const mergedLogs = [
+    ...realtimeLogs,
+    ...logs.filter((l) => !realtimeLogs.some((r) => r.id === l.id)),
+  ];
   const meta = logsData?.meta || {};
 
   // ========================= Loading State =========================
@@ -175,7 +191,7 @@ export default function ActivityLogs() {
             <p>{t("No activity logs found")}</p>
           </div>
         ) : (
-          logs.map((log) => (
+          mergedLogs.map((log) => (
             <div
               key={log.id}
               className={`log-item log-${getActionColor(log.action)}`}

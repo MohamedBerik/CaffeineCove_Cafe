@@ -4,6 +4,7 @@ import axios from "../../../../services/axios";
 import { PRIORITY_MAP, getDashboardKey } from "../constants";
 import { useAlertActions } from "../../../../context/AlertContext";
 import useAlertsSocket from "../../../../hooks/useAlertsSocket";
+import echoService from "../../../../services/echo";
 import toast from "react-hot-toast";
 
 export function useDashboardData(branchId, range, showComparison) {
@@ -22,6 +23,7 @@ export function useDashboardData(branchId, range, showComparison) {
   const dashboardKeyRef = useRef(
     getDashboardKey(branchId, range, showComparison),
   );
+  const previousActivityChannelRef = useRef(null);
 
   useEffect(() => {
     currentBranchRef.current = branchId;
@@ -47,6 +49,43 @@ export function useDashboardData(branchId, range, showComparison) {
     () => getDashboardKey(branchId, range, showComparison),
     [branchId, range, showComparison],
   );
+
+  // ✅ الاشتراك في قناة سجل النشاط الحي
+  useEffect(() => {
+    if (!companyId || !branchId) return;
+
+    const channelName =
+      branchId === "all"
+        ? `company.${companyId}.activity-logs`
+        : `company.${companyId}.branch.${branchId}.activity-logs`;
+
+    const echo = echoService.getInstance();
+
+    // مغادرة القناة السابقة إذا اختلفت
+    if (
+      previousActivityChannelRef.current &&
+      previousActivityChannelRef.current !== channelName
+    ) {
+      echo.leave(`private-${previousActivityChannelRef.current}`);
+    }
+    previousActivityChannelRef.current = channelName;
+
+    const channel = echo.private(channelName);
+
+    channel.listen(".activity-log.created", (event) => {
+      queryClient.setQueryData(
+        ["activityLogs", branchId], // يجب أن يطابق queryKey الأصلي
+        (oldData) => {
+          if (!oldData) return [event];
+          return [event, ...oldData.slice(0, 49)]; // آخر 50 سجل
+        },
+      );
+    });
+
+    return () => {
+      channel.stopListening(".activity-log.created");
+    };
+  }, [companyId, branchId, queryClient]);
 
   // ---- Dashboard query ----
   const {

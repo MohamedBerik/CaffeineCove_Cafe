@@ -11,7 +11,17 @@ export default function useActivityLogsSocket(companyId, onNewLog) {
 
     const channelName = `company.${companyId}.activity-logs`;
 
+    console.log("📡 Activity Logs Socket:", channelName);
+
     const channel = echo.private(channelName);
+
+    channel.subscribed(() => {
+      console.log("✅ Activity Logs Subscribed");
+    });
+
+    channel.error((err) => {
+      console.error("❌ Activity Logs Error", err);
+    });
 
     channel.listen(".activity-log.created", (event) => {
       console.log("📜 Activity Log Received", event);

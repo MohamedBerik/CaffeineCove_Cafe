@@ -130,10 +130,17 @@ export function useDashboardData(branchId, range, showComparison) {
   const { data: activityLogs = [] } = useQuery({
     queryKey: activityLogsKey,
     queryFn: async ({ signal }) => {
-      const res = await axios.get(
-        `/erp/activity-logs?branch_id=${branchId}&limit=5`,
-        { signal },
-      );
+      const params = { limit: 5 };
+
+      if (branchId !== "all") {
+        params.branch_id = branchId;
+      }
+
+      const res = await axios.get("/erp/activity-logs", {
+        params,
+        signal,
+      });
+
       return res.data?.data || [];
     },
     refetchInterval: 30000,

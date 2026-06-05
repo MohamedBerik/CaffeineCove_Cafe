@@ -63,17 +63,6 @@ import NotificationsPage from "./admin/erp/notifications/NotificationsPage";
 import EmployeeListPage from "./admin/erp/employees/EmployeeListPage";
 import EmployeeFormPage from "./admin/erp/employees/EmployeeFormPage";
 import ProductsListPage from "./admin/erp/products/ProductsListPage";
-
-// ================= SaaS Routes =================
-import SaaSDashboard from "./admin/saas/SaaSDashboard";
-import CompaniesList from "./admin/saas/CompaniesList";
-import CompanyForm from "./admin/saas/CompanyForm";
-import CompanyDetails from "./admin/saas/CompanyDetails";
-import PlansList from "./admin/saas/PlansList";
-import SubscriptionsList from "./admin/saas/SubscriptionsList";
-import SaaSReports from "./admin/saas/SaaSReports";
-import PlatformSettings from "./admin/saas/PlatformSettings";
-import ActivityLogs from "./admin/erp/activity-logs/ActivityLogs";
 import BillingPage from "./admin/erp/billing/BillingPage";
 import ProductFormPage from "./admin/erp/products/ProductFormPage";
 import SuppliersListPage from "./admin/erp/suppliers/SuppliersListPage";
@@ -83,8 +72,6 @@ import SuppliesListPage from "./admin/erp/supplies/SuppliesListPage";
 import SupplyFormPage from "./admin/erp/supplies/SupplyFormPage";
 import PrintInvoicePage from "./admin/erp/components/PrintInvoicePage";
 import PrintPurchaseOrderPage from "./admin/erp/components/PrintPurchaseOrderPage";
-import BranchesListPage from "./admin/saas/BranchesListPage";
-import BranchFormPage from "./admin/saas/BranchFormPage";
 import PrintBillingInvoicePage from "./admin/erp/components/PrintBillingInvoicePage";
 import PrintAnalyticsDashboardPage from "./admin/erp/reports/PrintAnalyticsDashboardPage";
 import PrintAppointmentsReportPage from "./admin/erp/reports/PrintAppointmentsReportPage";
@@ -96,10 +83,22 @@ import TreatmentPlansReportPage from "./admin/erp/reports/TreatmentPlansReportPa
 import PrintTreatmentPlansReportPage from "./admin/erp/reports/PrintTreatmentPlansReportPage";
 import PrintPatientsReportPage from "./admin/erp/reports/PrintPatientsReportPage";
 import PatientsReportPage from "./admin/erp/reports/PatientsReportPage";
-import PrintSaaSReportsPage from "./admin/saas/PrintSaaSReportsPage";
-import ContactMessagesListPage from "./admin/saas/ContactMessagesListPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
+// ================= SaaS Routes =================
+import SaaSDashboard from "./admin/saas/SaaSDashboard";
+import CompaniesList from "./admin/saas/CompaniesList";
+import CompanyForm from "./admin/saas/CompanyForm";
+import CompanyDetails from "./admin/saas/CompanyDetails";
+import PlansList from "./admin/saas/PlansList";
+import SubscriptionsList from "./admin/saas/SubscriptionsList";
+import SaaSReports from "./admin/saas/SaaSReports";
+import PlatformSettings from "./admin/saas/PlatformSettings";
+import ActivityLogs from "./admin/saas/activity-logs/ActivityLogs";
+import BranchesListPage from "./admin/saas/BranchesListPage";
+import BranchFormPage from "./admin/saas/BranchFormPage";
+import ContactMessagesListPage from "./admin/saas/ContactMessagesListPage";
+import PrintSaaSReportsPage from "./admin/saas/PrintSaaSReportsPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({

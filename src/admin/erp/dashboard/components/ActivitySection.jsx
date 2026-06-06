@@ -23,8 +23,8 @@ const ActivitySection = ({
   activityLogs,
   formatDateTime,
   i18n,
-  categoryFilter, // ✅ استقبال الفلتر
-  setCategoryFilter, // ✅ استقبال دالة التغيير
+  categoryFilter,
+  setCategoryFilter,
 }) => {
   const { t } = useTranslation();
 
@@ -34,7 +34,6 @@ const ActivitySection = ({
         <h2>{t("Recent Activity")}</h2>
         <div className="flex items-center gap-3">
           <p>{t("Latest updates from your clinic")}</p>
-          {/* ✅ قائمة التصنيف بجانب العنوان */}
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}

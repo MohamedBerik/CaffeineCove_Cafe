@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import api from "../../../services/axios";
 import { useAuth } from "../../../context/AuthContext";
-import useActivityLogsSocket from "../../../hooks/useActivityLogsSocket";
+import useSaasActivityLogsSocket from "../../../hooks/useSaasActivityLogsSocket";
 import "./ActivityLogs.css";
 
 export default function ActivityLogs() {
@@ -36,7 +36,7 @@ export default function ActivityLogs() {
     keepPreviousData: true,
   });
 
-  useActivityLogsSocket(user?.company_id, (newLog) => {
+  useSaasActivityLogsSocket((newLog) => {
     setRealtimeLogs((prev) => {
       if (prev.some((l) => l.id === newLog.id)) {
         return prev;

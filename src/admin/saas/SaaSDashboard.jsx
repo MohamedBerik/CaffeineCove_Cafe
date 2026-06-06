@@ -465,7 +465,7 @@ function SaaSDashboard() {
           <i className="fas fa-tags"></i>
           <span>{t("Manage Plans")}</span>
         </Link>
-        <Link to="/admin/reports" className="saas-action-card">
+        <Link to="/admin/reports/saas" className="saas-action-card">
           <i className="fas fa-file-alt"></i>
           <span>{t("SaaS Reports")}</span>
         </Link>

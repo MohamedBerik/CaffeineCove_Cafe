@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import echoService from "../services/echo";
 
-export default function useActivityLogsSocket(companyId, onNewLog) {
+export default function useActivityLogsSocket(companyId, branchId, onNewLog) {
   useEffect(() => {
     if (!companyId) return;
 
@@ -9,7 +9,10 @@ export default function useActivityLogsSocket(companyId, onNewLog) {
 
     if (!echo) return;
 
-    const channelName = `company.${companyId}.activity-logs`;
+    const channelName =
+      branchId === "all"
+        ? `company.${companyId}.activity-logs`
+        : `company.${companyId}.branch.${branchId}.activity-logs`;
 
     console.log("📡 Activity Logs Socket:", channelName);
 

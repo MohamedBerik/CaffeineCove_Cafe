@@ -49,6 +49,8 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
       }
     };
 
+    channel.listen(".alert.created", alertListener);
+
     channel.listenToAll((event, data) => {
       console.log("🔥 ALL EVENTS", event);
       console.log("🔥 DATA", data);
@@ -61,7 +63,7 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
         channel.stopListening(".alert.created");
 
         // مهم جداً
-        echo.leave(`private-${channelName}`);
+        echo.leave(channelName);
       } catch (err) {
         console.error("Socket cleanup error:", err);
       }

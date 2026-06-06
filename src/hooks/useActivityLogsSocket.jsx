@@ -28,6 +28,8 @@ export default function useActivityLogsSocket(companyId, branchId, onNewLog) {
 
     channel.listen(".activity-log.created", (event) => {
       console.log("📜 Activity Log Received", event);
+
+      onNewLog?.(event);
     });
 
     return () => {

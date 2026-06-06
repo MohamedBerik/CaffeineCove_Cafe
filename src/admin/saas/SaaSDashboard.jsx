@@ -453,19 +453,19 @@ function SaaSDashboard() {
         <p>{t("Manage your platform efficiently")}</p>
       </div>
       <div className="saas-quick-actions">
-        <Link to="/saas/companies/create" className="saas-action-card">
+        <Link to="/admin/companies/create" className="saas-action-card">
           <i className="fas fa-plus-circle"></i>
           <span>{t("Add New Company")}</span>
         </Link>
-        <Link to="/saas/companies" className="saas-action-card">
+        <Link to="/admin/companies" className="saas-action-card">
           <i className="fas fa-list"></i>
           <span>{t("Manage Companies")}</span>
         </Link>
-        <Link to="/saas/plans" className="saas-action-card">
+        <Link to="/admin/plans" className="saas-action-card">
           <i className="fas fa-tags"></i>
           <span>{t("Manage Plans")}</span>
         </Link>
-        <Link to="/saas/reports" className="saas-action-card">
+        <Link to="/admin/reports" className="saas-action-card">
           <i className="fas fa-file-alt"></i>
           <span>{t("SaaS Reports")}</span>
         </Link>

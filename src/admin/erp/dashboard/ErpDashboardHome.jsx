@@ -76,8 +76,6 @@ export default function ErpDashboardHome() {
     setFocusRange,
     visibleRevenueData,
     appointmentsDataWithAnomalies,
-    categoryFilter, // ✅ استخرجه
-    setCategoryFilter, // ✅ استخرجه
   } = useDashboardData(branchId, range, showComparison);
 
   // ---- Memoized values ----
@@ -273,13 +271,11 @@ export default function ErpDashboardHome() {
         <AppointmentsChartCard data={appointmentsDataWithAnomalies} t={t} />
       </div>
 
-      {/* Activity Section مع فلتر التصنيف */}
+      {/* Activity Section */}
       <ActivitySection
         activityLogs={activityLogs}
         formatDateTime={formatDateTime}
         i18n={i18n}
-        categoryFilter={categoryFilter}
-        setCategoryFilter={setCategoryFilter}
       />
 
       {/* Tables Section */}

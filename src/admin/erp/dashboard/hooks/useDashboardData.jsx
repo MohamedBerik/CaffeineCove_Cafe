@@ -24,7 +24,6 @@ export function useDashboardData(branchId, range, showComparison) {
     getDashboardKey(branchId, range, showComparison),
   );
   const previousActivityChannelRef = useRef(null);
-  const [categoryFilter, setCategoryFilter] = useState("all"); // 'all', 'admin', 'billing', 'user', 'system'
 
   useEffect(() => {
     currentBranchRef.current = branchId;
@@ -74,16 +73,11 @@ export function useDashboardData(branchId, range, showComparison) {
     const channel = echo.private(channelName);
 
     channel.listen(".activity-log.created", (event) => {
-      // ✅ لا نضيف السجل إلا إذا تطابق التصنيف أو كان الفلتر "all"
-      if (categoryFilter !== "all" && event.category !== categoryFilter) {
-        return;
-      }
-
       queryClient.setQueryData(
-        activityLogsKey, // استخدم المفتاح الموحد
+        ["activityLogs", branchId], // يجب أن يطابق queryKey الأصلي
         (oldData) => {
           if (!oldData) return [event];
-          return [event, ...oldData.slice(0, 49)];
+          return [event, ...oldData.slice(0, 49)]; // آخر 50 سجل
         },
       );
     });
@@ -132,11 +126,7 @@ export function useDashboardData(branchId, range, showComparison) {
   });
 
   // ---- Activity logs query ----
-  const activityLogsKey = useMemo(
-    () => ["activityLogs", branchId, categoryFilter],
-    [branchId, categoryFilter],
-  );
-
+  const activityLogsKey = useMemo(() => ["activityLogs", branchId], [branchId]);
   const { data: activityLogs = [] } = useQuery({
     queryKey: activityLogsKey,
     queryFn: async ({ signal }) => {
@@ -145,19 +135,16 @@ export function useDashboardData(branchId, range, showComparison) {
       if (branchId !== "all") {
         params.branch_id = branchId;
       }
-      // ✅ إرسال categoryFilter إذا لم تكن "all"
-      if (categoryFilter !== "all") {
-        params.category = categoryFilter;
-      }
 
       const res = await axios.get("/erp/activity-logs", {
         params,
         signal,
       });
+
       return res.data?.data || [];
     },
-    // (اختياري) نزيل refetchInterval لأن البث الحي سيتولى التحديث
-    // refetchInterval: 30000,
+    refetchInterval: 30000,
+    refetchIntervalInBackground: false,
   });
 
   // ---- Acknowledge mutation ----

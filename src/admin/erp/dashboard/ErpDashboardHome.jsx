@@ -273,30 +273,15 @@ export default function ErpDashboardHome() {
         <AppointmentsChartCard data={appointmentsDataWithAnomalies} t={t} />
       </div>
 
-      {/* === قسم النشاط مع إمكانية التصنيف === */}
-      <div className="section-header">
-        <h2>{t("Recent Activity")}</h2>
-        <div className="flex items-center gap-3">
-          <p>{t("Latest updates from your clinic")}</p>
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="border rounded px-3 py-1 text-sm"
-          >
-            <option value="all">{t("All Activities")}</option>
-            <option value="admin">{t("Admin Actions")}</option>
-            <option value="billing">{t("Billing")}</option>
-            <option value="user">{t("User Actions")}</option>
-            <option value="system">{t("System")}</option>
-          </select>
-        </div>
-      </div>
-
+      {/* Activity Section مع فلتر التصنيف */}
       <ActivitySection
         activityLogs={activityLogs}
         formatDateTime={formatDateTime}
         i18n={i18n}
+        categoryFilter={categoryFilter}
+        setCategoryFilter={setCategoryFilter}
       />
+
       {/* Tables Section */}
       <TablesSection
         recentAppointments={recentAppointments}

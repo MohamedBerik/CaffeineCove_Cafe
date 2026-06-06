@@ -19,14 +19,34 @@ const formatLog = (log, t) => {
   return `${type} ${action}`;
 };
 
-const ActivitySection = ({ activityLogs, formatDateTime, i18n }) => {
+const ActivitySection = ({
+  activityLogs,
+  formatDateTime,
+  i18n,
+  categoryFilter, // ✅ استقبال الفلتر
+  setCategoryFilter, // ✅ استقبال دالة التغيير
+}) => {
   const { t } = useTranslation();
 
   return (
     <>
       <div className="section-header">
         <h2>{t("Recent Activity")}</h2>
-        <p>{t("Latest updates from your clinic")}</p>
+        <div className="flex items-center gap-3">
+          <p>{t("Latest updates from your clinic")}</p>
+          {/* ✅ قائمة التصنيف بجانب العنوان */}
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="border rounded px-3 py-1 text-sm"
+          >
+            <option value="all">{t("All Activities")}</option>
+            <option value="admin">{t("Admin Actions")}</option>
+            <option value="billing">{t("Billing")}</option>
+            <option value="user">{t("User Actions")}</option>
+            <option value="system">{t("System")}</option>
+          </select>
+        </div>
       </div>
       <div className="dashboard-card">
         <div className="card-header-custom">
@@ -42,7 +62,9 @@ const ActivitySection = ({ activityLogs, formatDateTime, i18n }) => {
             <ul className="activity-list">
               {activityLogs.map((log) => (
                 <li key={log.id} className="activity-item">
-                  <div className="activity-text">{formatLog(log, t)}</div>
+                  <div className="activity-text">
+                    {log.subject_type} {log.action}
+                  </div>
                   <small className="activity-time">
                     {formatDateTime(log.created_at, i18n.language)}
                   </small>

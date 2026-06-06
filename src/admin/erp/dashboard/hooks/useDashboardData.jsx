@@ -130,7 +130,7 @@ export function useDashboardData(branchId, range, showComparison) {
   const { data: activityLogs = [] } = useQuery({
     queryKey: activityLogsKey,
     queryFn: async ({ signal }) => {
-      const params = { limit: 15 };
+      const params = { limit: 5 };
 
       if (branchId !== "all") {
         params.branch_id = branchId;

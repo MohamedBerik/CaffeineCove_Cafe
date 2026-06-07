@@ -4,6 +4,7 @@ import axios from "../../../../services/axios";
 import { PRIORITY_MAP, getDashboardKey } from "../constants";
 import { useAlertActions } from "../../../../context/AlertContext";
 import useAlertsSocket from "../../../../hooks/useAlertsSocket";
+import useDashboardSocket from "../../../../hooks/useDashboardSocket";
 import echoService from "../../../../services/echo";
 import toast from "react-hot-toast";
 
@@ -34,6 +35,7 @@ export function useDashboardData(branchId, range, showComparison) {
   const [companyId, setCompanyId] = useState(
     localStorage.getItem("selectedCompany") || null,
   );
+  useDashboardSocket(companyId, branchId, handleDashboardEvent);
   useEffect(() => {
     const sync = () =>
       setCompanyId(localStorage.getItem("selectedCompany") || null);
@@ -271,85 +273,42 @@ export function useDashboardData(branchId, range, showComparison) {
     [addAlert, playSound, queryClient],
   );
 
-  const handleDashboardEvent = useCallback(
-    (event) => {
-      if (range !== "day") return;
-      queryClient.setQueryData(dashboardKeyRef.current, (old) => {
-        if (!old) return old;
-        const kpis = { ...old.kpis };
-        switch (event.type) {
-          case "appointment_created":
-            if (kpis.appointments)
-              kpis.appointments = {
-                ...kpis.appointments,
-                current: (kpis.appointments.current || 0) + 1,
-              };
-            break;
-          case "appointment_completed":
-            if (kpis.completed_appointments)
-              kpis.completed_appointments = {
-                ...kpis.completed_appointments,
-                current: (kpis.completed_appointments.current || 0) + 1,
-              };
-            if (kpis.appointments)
-              kpis.appointments = {
-                ...kpis.appointments,
-                current: Math.max(0, (kpis.appointments.current || 0) - 1),
-              };
-            break;
-          case "appointment_cancelled":
-            if (kpis.cancelled_appointments)
-              kpis.cancelled_appointments = {
-                ...kpis.cancelled_appointments,
-                current: (kpis.cancelled_appointments.current || 0) + 1,
-              };
-            if (kpis.appointments)
-              kpis.appointments = {
-                ...kpis.appointments,
-                current: Math.max(0, (kpis.appointments.current || 0) - 1),
-              };
-            break;
-          case "appointment_no_show":
-            if (kpis.no_show_appointments)
-              kpis.no_show_appointments = {
-                ...kpis.no_show_appointments,
-                current: (kpis.no_show_appointments.current || 0) + 1,
-              };
-            if (kpis.appointments)
-              kpis.appointments = {
-                ...kpis.appointments,
-                current: Math.max(0, (kpis.appointments.current || 0) - 1),
-              };
-            break;
-          case "payment_created":
-            if (kpis.revenue)
-              kpis.revenue = {
-                ...kpis.revenue,
-                current:
-                  (kpis.revenue.current || 0) +
-                  (event.data?.today_revenue || 0),
-              };
-            break;
-          case "invoice_paid":
-            if (kpis.paid_invoices)
-              kpis.paid_invoices = {
-                ...kpis.paid_invoices,
-                current: (kpis.paid_invoices.current || 0) + 1,
-              };
-            if (kpis.unpaid_invoices)
-              kpis.unpaid_invoices = {
-                ...kpis.unpaid_invoices,
-                current: Math.max(0, (kpis.unpaid_invoices.current || 0) - 1),
-              };
-            break;
-          default:
-            return old;
-        }
-        return { ...old, kpis };
-      });
-    },
-    [queryClient, range],
-  );
+  useDashboardSocket(companyId, branchId, (event) => {
+    queryClient.setQueryData(dashboardKeyRef.current, (old) => {
+      if (!old) return old;
+
+      const kpis = { ...old.kpis };
+
+      switch (event.type) {
+        case "payment_created":
+          if (kpis.revenue) {
+            kpis.revenue = {
+              ...kpis.revenue,
+              current:
+                (kpis.revenue.current || 0) + (event.data?.today_revenue || 0),
+            };
+          }
+          break;
+
+        case "invoice_paid":
+          if (kpis.paid_invoices) {
+            kpis.paid_invoices = {
+              ...kpis.paid_invoices,
+              current: (kpis.paid_invoices.current || 0) + 1,
+            };
+          }
+          break;
+
+        default:
+          return old;
+      }
+
+      return {
+        ...old,
+        kpis,
+      };
+    });
+  });
 
   const handleNewInsight = useCallback(
     (insight) => {

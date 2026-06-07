@@ -15,7 +15,6 @@ export function useDashboardData(branchId, range, showComparison) {
   const [acknowledgingIds, setAcknowledgingIds] = useState(new Set());
   const [focusRange, setFocusRange] = useState(null);
   const acknowledgingRef = useRef(new Set());
-  const buffer = useRef([]);
   const audioRef = useRef(null);
   const autoFocusedRef = useRef(false);
 
@@ -35,7 +34,7 @@ export function useDashboardData(branchId, range, showComparison) {
   const [companyId, setCompanyId] = useState(
     localStorage.getItem("selectedCompany") || null,
   );
-  useDashboardSocket(companyId, branchId, handleDashboardEvent);
+
   useEffect(() => {
     const sync = () =>
       setCompanyId(localStorage.getItem("selectedCompany") || null);
@@ -86,6 +85,7 @@ export function useDashboardData(branchId, range, showComparison) {
 
     return () => {
       channel.stopListening(".activity-log.created");
+      echo.leave(`private-${channelName}`);
     };
   }, [companyId, branchId, queryClient]);
 
@@ -206,38 +206,6 @@ export function useDashboardData(branchId, range, showComparison) {
     audioRef.current?.play().catch(() => {});
   }, []);
 
-  // ---- تحديث الإيرادات عبر buffer (يستخدم dashboardKeyRef.current) ----
-  const flushUpdates = useCallback(() => {
-    if (buffer.current.length === 0) return;
-    queryClient.setQueryData(dashboardKeyRef.current, (old) => {
-      if (!old) return old;
-      const kpis = { ...old.kpis };
-      let totalRevenue = 0;
-      buffer.current.forEach((event) => {
-        if (event.type === "payment_created") {
-          totalRevenue += event.data?.today_revenue || 0;
-        }
-      });
-      if (totalRevenue > 0 && kpis.revenue) {
-        kpis.revenue = {
-          ...kpis.revenue,
-          current: (kpis.revenue.current || 0) + totalRevenue,
-        };
-      }
-      return { ...old, kpis };
-    });
-    buffer.current = [];
-  }, [queryClient]);
-
-  const flushRef = useRef(flushUpdates);
-  useEffect(() => {
-    flushRef.current = flushUpdates;
-  }, [flushUpdates]);
-  useEffect(() => {
-    const interval = setInterval(() => flushRef.current(), 2000);
-    return () => clearInterval(interval);
-  }, []);
-
   // ---- معالجات الأحداث ----
   const handleNewAlert = useCallback(
     (newAlert) => {
@@ -273,42 +241,86 @@ export function useDashboardData(branchId, range, showComparison) {
     [addAlert, playSound, queryClient],
   );
 
-  useDashboardSocket(companyId, branchId, (event) => {
-    queryClient.setQueryData(dashboardKeyRef.current, (old) => {
-      if (!old) return old;
-
-      const kpis = { ...old.kpis };
-
-      switch (event.type) {
-        case "payment_created":
-          if (kpis.revenue) {
-            kpis.revenue = {
-              ...kpis.revenue,
-              current:
-                (kpis.revenue.current || 0) + (event.data?.today_revenue || 0),
-            };
-          }
-          break;
-
-        case "invoice_paid":
-          if (kpis.paid_invoices) {
-            kpis.paid_invoices = {
-              ...kpis.paid_invoices,
-              current: (kpis.paid_invoices.current || 0) + 1,
-            };
-          }
-          break;
-
-        default:
-          return old;
-      }
-
-      return {
-        ...old,
-        kpis,
-      };
-    });
-  });
+  const handleDashboardEvent = useCallback(
+    (event) => {
+      console.log("dashboard event", payload.type);
+      if (range !== "day") return;
+      queryClient.setQueryData(dashboardKeyRef.current, (old) => {
+        if (!old) return old;
+        const kpis = { ...old.kpis };
+        switch (event.type) {
+          case "appointment_created":
+            if (kpis.appointments)
+              kpis.appointments = {
+                ...kpis.appointments,
+                current: (kpis.appointments.current || 0) + 1,
+              };
+            break;
+          case "appointment_completed":
+            if (kpis.completed_appointments)
+              kpis.completed_appointments = {
+                ...kpis.completed_appointments,
+                current: (kpis.completed_appointments.current || 0) + 1,
+              };
+            if (kpis.appointments)
+              kpis.appointments = {
+                ...kpis.appointments,
+                current: Math.max(0, (kpis.appointments.current || 0) - 1),
+              };
+            break;
+          case "appointment_cancelled":
+            if (kpis.cancelled_appointments)
+              kpis.cancelled_appointments = {
+                ...kpis.cancelled_appointments,
+                current: (kpis.cancelled_appointments.current || 0) + 1,
+              };
+            if (kpis.appointments)
+              kpis.appointments = {
+                ...kpis.appointments,
+                current: Math.max(0, (kpis.appointments.current || 0) - 1),
+              };
+            break;
+          case "appointment_no_show":
+            if (kpis.no_show_appointments)
+              kpis.no_show_appointments = {
+                ...kpis.no_show_appointments,
+                current: (kpis.no_show_appointments.current || 0) + 1,
+              };
+            if (kpis.appointments)
+              kpis.appointments = {
+                ...kpis.appointments,
+                current: Math.max(0, (kpis.appointments.current || 0) - 1),
+              };
+            break;
+          case "payment_created":
+            if (kpis.revenue)
+              kpis.revenue = {
+                ...kpis.revenue,
+                current:
+                  (kpis.revenue.current || 0) +
+                  (event.data?.today_revenue || 0),
+              };
+            break;
+          case "invoice_paid":
+            if (kpis.paid_invoices)
+              kpis.paid_invoices = {
+                ...kpis.paid_invoices,
+                current: (kpis.paid_invoices.current || 0) + 1,
+              };
+            if (kpis.unpaid_invoices)
+              kpis.unpaid_invoices = {
+                ...kpis.unpaid_invoices,
+                current: Math.max(0, (kpis.unpaid_invoices.current || 0) - 1),
+              };
+            break;
+          default:
+            return old;
+        }
+        return { ...old, kpis };
+      });
+    },
+    [queryClient, range],
+  );
 
   const handleNewInsight = useCallback(
     (insight) => {
@@ -398,6 +410,7 @@ export function useDashboardData(branchId, range, showComparison) {
   );
 
   useAlertsSocket(socketHandler, companyId, branchId);
+  useDashboardSocket(companyId, branchId, handleDashboardEvent);
 
   // invalidate باستخدام predicate (للتبديلات)
   const invalidateAllDashboardQueries = useCallback(() => {

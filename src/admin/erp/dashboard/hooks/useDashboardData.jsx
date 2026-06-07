@@ -243,7 +243,6 @@ export function useDashboardData(branchId, range, showComparison) {
 
   const handleDashboardEvent = useCallback(
     (event) => {
-      console.log("dashboard event", payload.type);
       if (range !== "day") return;
       queryClient.setQueryData(dashboardKeyRef.current, (old) => {
         if (!old) return old;

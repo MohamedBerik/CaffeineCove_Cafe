@@ -232,6 +232,29 @@ export const AlertProvider = ({ children }) => {
     markAllAsRead,
   };
 
+  useEffect(() => {
+    if (!user || !user.id) return;
+
+    const channel = echoService.getInstance().private(`user.${user.id}`);
+
+    channel.listen(".user.notification", (notification) => {
+      // إضافة الإشعار إلى سياق التنبيهات عبر addAlert (الذي يضيفه إلى alertsList و unreadCount)
+      addAlert({
+        id: notification.appointment_id ?? Date.now(), // استخدم معرف فريد
+        type: "info",
+        priority: "medium",
+        message: notification.title,
+        meta: notification,
+        time: new Date().toISOString(),
+        read: false,
+      });
+    });
+
+    return () => {
+      channel.stopListening(".user.notification");
+    };
+  }, [user, addAlert]);
+
   return (
     <AlertStateContext.Provider value={stateValue}>
       <AlertActionsContext.Provider value={actionsValue}>

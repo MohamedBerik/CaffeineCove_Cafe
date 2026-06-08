@@ -41,7 +41,19 @@ class EchoService {
     window.Echo = this.instance;
 
     console.log("✅ Echo initialized");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
 
+    if (user?.id) {
+      this.instance
+        .private(`user.${user.id}`)
+        .listen(".notification.created", (e) => {
+          console.log("🔔 USER NOTIFICATION", e);
+
+          alert(`Notification: ${e.title || "No title"}`);
+        });
+
+      console.log(`✅ Listening on user.${user.id}`);
+    }
     return this.instance;
   }
 

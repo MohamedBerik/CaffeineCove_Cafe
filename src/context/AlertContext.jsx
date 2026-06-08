@@ -9,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "./AuthContext";
 import useAlertsSocket from "../hooks/useAlertsSocket";
 import api from "../services/axios";
+import echoService from "../services/echo";
 
 const AlertStateContext = createContext();
 const AlertActionsContext = createContext();

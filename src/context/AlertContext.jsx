@@ -46,6 +46,7 @@ export const AlertProvider = ({ children }) => {
 
   const addAlert = useCallback(
     (newAlert) => {
+      console.log("➕ addAlert called with:", newAlert);
       setAlertsList((prev) => [newAlert, ...prev]);
       const filters = ["all", "unread", "high"];
       filters.forEach((filter) => {

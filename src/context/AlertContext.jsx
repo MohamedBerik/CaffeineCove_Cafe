@@ -46,7 +46,6 @@ export const AlertProvider = ({ children }) => {
 
   const addAlert = useCallback(
     (newAlert) => {
-      console.log("➕ addAlert called with:", newAlert);
       setAlertsList((prev) => [newAlert, ...prev]);
       const filters = ["all", "unread", "high"];
       filters.forEach((filter) => {
@@ -235,27 +234,28 @@ export const AlertProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (!user || !user.id) return;
+    if (!user?.id) return;
 
     const channel = echoService.getInstance().private(`user.${user.id}`);
 
-    channel.listen(".user.notification", (notification) => {
-      // إضافة الإشعار إلى سياق التنبيهات عبر addAlert (الذي يضيفه إلى alertsList و unreadCount)
+    channel.listen(".notification.created", (notification) => {
+      console.log("🔔 USER NOTIFICATION", notification);
+
       addAlert({
-        id: notification.appointment_id ?? Date.now(), // استخدم معرف فريد
-        type: "info",
-        priority: "medium",
-        message: notification.title,
+        id: notification.id ?? Date.now(),
+        type: notification.type || "info",
+        priority: notification.priority || "medium",
+        message: notification.message || notification.title,
         meta: notification,
-        time: new Date().toISOString(),
+        time: notification.created_at || new Date().toISOString(),
         read: false,
       });
     });
 
     return () => {
-      channel.stopListening(".user.notification");
+      channel.stopListening(".notification.created");
     };
-  }, [user, addAlert]);
+  }, [user?.id, addAlert]);
 
   return (
     <AlertStateContext.Provider value={stateValue}>

@@ -24,7 +24,7 @@ const NotificationsPage = () => {
     isLoading,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ["alerts", filter],
+    queryKey: ["alerts", filter, user?.company_id, branchId],
     queryFn: async ({ pageParam = 1 }) => {
       const res = await api.get(
         `/erp/alerts?page=${pageParam}&filter=${filter}`,
@@ -39,10 +39,13 @@ const NotificationsPage = () => {
   const { data: insightsData } = useQuery({
     queryKey: ["insights"],
     queryFn: async () => {
-      const res = await api.get("/erp/dashboard");
-      return res.data?.data?.insights || [];
+      try {
+        const res = await api.get("/erp/dashboard");
+        return res.data?.data?.insights || [];
+      } catch {
+        return [];
+      }
     },
-    staleTime: 1000 * 60 * 5,
   });
 
   const alerts = alertsData?.pages.flatMap((page) => page.data) || [];

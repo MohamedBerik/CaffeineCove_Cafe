@@ -15,8 +15,27 @@ const NotificationsPage = () => {
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null); // ✅ أضف هنا
-  const selectedCompany = localStorage.getItem("selectedCompany");
-  const selectedBranch = localStorage.getItem("selectedBranchId");
+  const [selectedCompany, setSelectedCompany] = useState(
+    localStorage.getItem("selectedCompany"),
+  );
+  const [selectedBranch, setSelectedBranch] = useState(
+    localStorage.getItem("selectedBranchId"),
+  );
+
+  useEffect(() => {
+    const sync = () => {
+      setSelectedBranch(localStorage.getItem("selectedBranchId"));
+      setSelectedCompany(localStorage.getItem("selectedCompany"));
+    };
+
+    window.addEventListener("branchChanged", sync);
+    window.addEventListener("companyChanged", sync);
+
+    return () => {
+      window.removeEventListener("branchChanged", sync);
+      window.removeEventListener("companyChanged", sync);
+    };
+  }, []);
 
   const {
     data: alertsData,
@@ -106,7 +125,9 @@ const NotificationsPage = () => {
   };
 
   const acknowledgeGroup = async (group) => {
-    const ids = group.items.map((i) => i.id);
+    const ids = group.items
+      .filter((i) => i.notificationType !== "insight")
+      .map((i) => i.id);
     await Promise.all(ids.map((id) => markAsRead(id)));
     setSelectedGroup(null);
   };

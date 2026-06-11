@@ -44,9 +44,21 @@ export const AlertProvider = ({ children }) => {
   const [alertsList, setAlertsList] = useState([]);
   const [alertsLoading, setAlertsLoading] = useState(false);
 
+  useEffect(() => {
+    setAlertsList([]);
+    setUnreadCount(0);
+
+    queryClient.removeQueries({
+      queryKey: ["alerts"],
+    });
+
+    queryClient.removeQueries({
+      queryKey: ["insights"],
+    });
+  }, [companyId, branchId, queryClient]);
+
   const addAlert = useCallback(
     (newAlert) => {
-      setAlertsList((prev) => [newAlert, ...prev]);
       const filters = ["all", "unread", "high"];
       filters.forEach((filter) => {
         if (filter === "unread" && newAlert.read) return;

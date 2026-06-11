@@ -132,7 +132,7 @@ api.interceptors.response.use(
     // =========================
     if (status === 403 && !isSubscriptionError) {
       console.warn("⛔ Permission denied:", requestUrl, data);
-
+      console.log(error.response.data);
       return Promise.reject(error);
     }
 

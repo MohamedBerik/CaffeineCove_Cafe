@@ -63,23 +63,26 @@ export const AlertProvider = ({ children }) => {
       filters.forEach((filter) => {
         if (filter === "unread" && newAlert.read) return;
         if (filter === "high" && newAlert.priority !== "high") return;
-        queryClient.setQueryData(["alerts", filter], (oldData) => {
-          if (!oldData) return oldData;
-          const alreadyExists = oldData.pages.some((page) =>
-            page.data.some((a) => a.id === newAlert.id),
-          );
-          if (alreadyExists) return oldData;
-          return {
-            ...oldData,
-            pages: [
-              {
-                ...oldData.pages[0],
-                data: [newAlert, ...oldData.pages[0].data],
-              },
-              ...oldData.pages.slice(1),
-            ],
-          };
-        });
+        queryClient.setQueryData(
+          ["alerts", filter, companyId, branchId],
+          (oldData) => {
+            if (!oldData) return oldData;
+            const alreadyExists = oldData.pages.some((page) =>
+              page.data.some((a) => a.id === newAlert.id),
+            );
+            if (alreadyExists) return oldData;
+            return {
+              ...oldData,
+              pages: [
+                {
+                  ...oldData.pages[0],
+                  data: [newAlert, ...oldData.pages[0].data],
+                },
+                ...oldData.pages.slice(1),
+              ],
+            };
+          },
+        );
       });
       setUnreadCount((prev) => prev + 1);
     },
@@ -91,27 +94,30 @@ export const AlertProvider = ({ children }) => {
     async (alertId) => {
       const filters = ["all", "unread", "high"];
       filters.forEach((filter) => {
-        queryClient.setQueryData(["alerts", filter], (oldData) => {
-          if (!oldData) return oldData;
-          if (filter === "unread") {
+        queryClient.setQueryData(
+          ["alerts", filter, companyId, branchId],
+          (oldData) => {
+            if (!oldData) return oldData;
+            if (filter === "unread") {
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page) => ({
+                  ...page,
+                  data: page.data.filter((a) => a.id !== alertId),
+                })),
+              };
+            }
             return {
               ...oldData,
               pages: oldData.pages.map((page) => ({
                 ...page,
-                data: page.data.filter((a) => a.id !== alertId),
+                data: page.data.map((a) =>
+                  a.id === alertId ? { ...a, read: true } : a,
+                ),
               })),
             };
-          }
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page) => ({
-              ...page,
-              data: page.data.map((a) =>
-                a.id === alertId ? { ...a, read: true } : a,
-              ),
-            })),
-          };
-        });
+          },
+        );
       });
       setUnreadCount((prev) => Math.max(prev - 1, 0));
       try {
@@ -119,19 +125,22 @@ export const AlertProvider = ({ children }) => {
       } catch (err) {
         console.error("❌ rollback markAsRead:", err);
         filters.forEach((filter) => {
-          queryClient.setQueryData(["alerts", filter], (oldData) => {
-            if (!oldData) return oldData;
-            if (filter === "unread") return oldData;
-            return {
-              ...oldData,
-              pages: oldData.pages.map((page) => ({
-                ...page,
-                data: page.data.map((a) =>
-                  a.id === alertId ? { ...a, read: false } : a,
-                ),
-              })),
-            };
-          });
+          queryClient.setQueryData(
+            ["alerts", filter, companyId, branchId],
+            (oldData) => {
+              if (!oldData) return oldData;
+              if (filter === "unread") return oldData;
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page) => ({
+                  ...page,
+                  data: page.data.map((a) =>
+                    a.id === alertId ? { ...a, read: false } : a,
+                  ),
+                })),
+              };
+            },
+          );
         });
         setUnreadCount((prev) => prev + 1);
       }
@@ -143,25 +152,28 @@ export const AlertProvider = ({ children }) => {
   const markAllAsRead = useCallback(async () => {
     const filters = ["all", "unread", "high"];
     filters.forEach((filter) => {
-      queryClient.setQueryData(["alerts", filter], (oldData) => {
-        if (!oldData) return oldData;
-        if (filter === "unread") {
+      queryClient.setQueryData(
+        ["alerts", filter, companyId, branchId],
+        (oldData) => {
+          if (!oldData) return oldData;
+          if (filter === "unread") {
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                data: [],
+              })),
+            };
+          }
           return {
             ...oldData,
             pages: oldData.pages.map((page) => ({
               ...page,
-              data: [],
+              data: page.data.map((a) => ({ ...a, read: true })),
             })),
           };
-        }
-        return {
-          ...oldData,
-          pages: oldData.pages.map((page) => ({
-            ...page,
-            data: page.data.map((a) => ({ ...a, read: true })),
-          })),
-        };
-      });
+        },
+      );
     });
     setUnreadCount(0);
     try {

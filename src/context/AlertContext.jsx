@@ -34,6 +34,7 @@ export const AlertProvider = ({ children }) => {
     };
     window.addEventListener("storage", syncStorage);
     window.addEventListener("branchChanged", syncStorage);
+    window.addEventListener("companyChanged", syncStorage);
     return () => {
       window.removeEventListener("storage", syncStorage);
       window.removeEventListener("branchChanged", syncStorage);

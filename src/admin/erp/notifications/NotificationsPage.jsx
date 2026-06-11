@@ -58,6 +58,8 @@ const NotificationsPage = () => {
       lastPage.meta?.has_more ? lastPage.meta.current_page + 1 : undefined,
 
     staleTime: 1000 * 60 * 5,
+
+    placeholderData: undefined,
   });
 
   const { data: insightsData } = useQuery({
@@ -92,6 +94,16 @@ const NotificationsPage = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    queryClient.invalidateQueries({
+      queryKey: ["alerts"],
+    });
+
+    queryClient.invalidateQueries({
+      queryKey: ["insights"],
+    });
+  }, [selectedCompany, selectedBranch]);
 
   const formatDateTime = useCallback(
     (value) => {

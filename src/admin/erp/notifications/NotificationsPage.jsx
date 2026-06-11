@@ -40,6 +40,7 @@ const NotificationsPage = () => {
     },
     staleTime: 1000 * 60 * 5,
   });
+
   const { data: insightsData } = useQuery({
     queryKey: ["insights"],
     queryFn: async () => {

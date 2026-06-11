@@ -15,7 +15,8 @@ const NotificationsPage = () => {
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null); // ✅ أضف هنا
-
+  const { user } = useAuth();
+  const branchId = user?.branch_id; // تعريف المتغير هنا
   // ✅ React Query - useInfiniteQuery
   const {
     data: alertsData,
@@ -24,7 +25,7 @@ const NotificationsPage = () => {
     isLoading,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ["alerts", filter, user?.company_id, user?.branch_id],
+    queryKey: ["alerts", filter, user?.company_id, branchId],
     queryFn: async ({ pageParam = 1 }) => {
       const res = await api.get(
         `/erp/alerts?page=${pageParam}&filter=${filter}`,

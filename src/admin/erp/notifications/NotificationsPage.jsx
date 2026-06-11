@@ -24,7 +24,7 @@ const NotificationsPage = () => {
     isLoading,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ["alerts", filter, user?.company_id, branchId],
+    queryKey: ["alerts", filter, user?.company_id, user?.branch_id],
     queryFn: async ({ pageParam = 1 }) => {
       const res = await api.get(
         `/erp/alerts?page=${pageParam}&filter=${filter}`,

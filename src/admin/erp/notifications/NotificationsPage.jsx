@@ -1,6 +1,10 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useAuth } from "../../../context/AuthContext";
 import { useAlertActions } from "../../../context/AlertContext";
 import api from "../../../services/axios";
@@ -10,6 +14,7 @@ const NotificationsPage = () => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { markAsRead } = useAlertActions();
+  const queryClient = useQueryClient();
 
   const [filter, setFilter] = useState("all");
   const [selectedAlert, setSelectedAlert] = useState(null);

@@ -26,16 +26,20 @@ const NotificationsPage = () => {
     isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ["alerts", filter, selectedCompany, selectedBranch],
-
     queryFn: async ({ pageParam = 1 }) => {
       const res = await api.get(
         `/erp/alerts?page=${pageParam}&filter=${filter}`,
       );
-
-      return res.data;
+      return res.data; // يجب أن يحتوي على { data: [], meta: { has_more, current_page } }
     },
+    getNextPageParam: (lastPage) => {
+      // lastPage هو آخر استجابة تم جلبها
+      return lastPage.meta?.has_more
+        ? lastPage.meta.current_page + 1
+        : undefined;
+    },
+    staleTime: 1000 * 60 * 5,
   });
-
   const { data: insightsData } = useQuery({
     queryKey: ["insights"],
     queryFn: async () => {

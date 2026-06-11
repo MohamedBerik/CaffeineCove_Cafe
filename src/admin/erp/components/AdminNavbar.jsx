@@ -172,6 +172,14 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     setSelectedBranch(value);
     setActiveBranchId(value);
 
+    queryClient.invalidateQueries({
+      queryKey: ["alerts"],
+    });
+
+    queryClient.invalidateQueries({
+      queryKey: ["unreadCount"],
+    });
+
     queryClient.removeQueries({
       predicate: (query) =>
         ["dashboard", "activityLogs", "subscription-status"].includes(

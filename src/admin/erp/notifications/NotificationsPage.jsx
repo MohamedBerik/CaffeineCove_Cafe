@@ -15,10 +15,9 @@ const NotificationsPage = () => {
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null); // ✅ أضف هنا
-  // ✅ التعديل: جلب الـ branchId الحركي (يفضل قراءته مباشرة لضمان اللحظية)
-  const branchId = user?.branch_id || localStorage.getItem("selectedBranchId");
+  const selectedCompany = localStorage.getItem("selectedCompany");
+  const selectedBranch = localStorage.getItem("selectedBranchId");
 
-  // ✅ React Query - useInfiniteQuery
   const {
     data: alertsData,
     fetchNextPage,
@@ -26,32 +25,27 @@ const NotificationsPage = () => {
     isLoading,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    // المفتاح يتغير بتغير الفرع لتفادي تداخل الكاش
-    queryKey: ["alerts", filter, user?.company_id, branchId],
+    queryKey: ["alerts", filter, selectedCompany, selectedBranch],
+
     queryFn: async ({ pageParam = 1 }) => {
-      // 🚀 الإصلاح هنا: تمرير branch_id في الرابط بشكل صريح للسيرفر
       const res = await api.get(
-        `/erp/alerts?page=${pageParam}&filter=${filter}&branch_id=${branchId}`,
+        `/erp/alerts?page=${pageParam}&filter=${filter}`,
       );
+
       return res.data;
     },
-    // تقليل الـ staleTime أو إلغاؤه أثناء التنقل النشط بين الفروع يضمن جلب بيانات جديدة فورا
-    staleTime: 0,
-    getNextPageParam: (lastPage) =>
-      lastPage.meta?.has_more ? lastPage.meta.current_page + 1 : undefined,
   });
 
   const { data: insightsData } = useQuery({
-    queryKey: ["insights", branchId], // 🚀 إضافة branchId للكاش كي
+    queryKey: ["insights"],
     queryFn: async () => {
       try {
-        const res = await api.get(`/erp/dashboard?branch_id=${branchId}`); // 🚀 تمريره للباك إند
+        const res = await api.get("/erp/dashboard");
         return res.data?.data?.insights || [];
       } catch {
         return [];
       }
     },
-    staleTime: 0,
   });
 
   const alerts = alertsData?.pages.flatMap((page) => page.data) || [];

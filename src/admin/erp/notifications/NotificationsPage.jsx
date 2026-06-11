@@ -15,7 +15,6 @@ const NotificationsPage = () => {
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null); // ✅ أضف هنا
-  const { user } = useAuth();
   const branchId = user?.branch_id; // تعريف المتغير هنا
   // ✅ React Query - useInfiniteQuery
   const {

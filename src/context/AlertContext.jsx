@@ -38,6 +38,7 @@ export const AlertProvider = ({ children }) => {
     return () => {
       window.removeEventListener("storage", syncStorage);
       window.removeEventListener("branchChanged", syncStorage);
+      window.removeEventListener("companyChanged", syncStorage);
     };
   }, []);
 
@@ -87,7 +88,7 @@ export const AlertProvider = ({ children }) => {
       });
       setUnreadCount((prev) => prev + 1);
     },
-    [queryClient],
+    [queryClient, companyId, branchId],
   );
 
   // ✅ mark one - مع optimistic update + rollback
@@ -146,7 +147,7 @@ export const AlertProvider = ({ children }) => {
         setUnreadCount((prev) => prev + 1);
       }
     },
-    [queryClient],
+    [queryClient, companyId, branchId],
   );
 
   // ✅ mark all - مع تحديث كل الفلاتر
@@ -182,7 +183,7 @@ export const AlertProvider = ({ children }) => {
     } catch (err) {
       console.error("❌ markAllAsRead failed:", err);
     }
-  }, [queryClient]);
+  }, [queryClient, companyId, branchId]);
 
   // ✅ تحميل العداد الأولي مع guards صارمة وتمرير الـ branch_id بأمان
   useEffect(() => {

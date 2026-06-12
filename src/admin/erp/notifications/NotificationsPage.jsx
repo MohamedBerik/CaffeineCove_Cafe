@@ -101,11 +101,11 @@ const NotificationsPage = () => {
   }, []);
 
   useEffect(() => {
-    queryClient.removeQueries({
+    queryClient.invalidateQueries({
       queryKey: ["alerts"],
     });
 
-    queryClient.removeQueries({
+    queryClient.invalidateQueries({
       queryKey: ["insights"],
     });
   }, [selectedCompany, selectedBranch]);

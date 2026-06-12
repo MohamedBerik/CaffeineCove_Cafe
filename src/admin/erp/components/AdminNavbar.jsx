@@ -172,7 +172,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
     setSelectedBranch(value);
     setActiveBranchId(value);
 
-    queryClient.removeQueries({
+    queryClient.invalidateQueries({
       queryKey: ["alerts"],
     });
 

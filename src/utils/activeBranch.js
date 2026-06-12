@@ -9,12 +9,7 @@ export const setActiveBranchId = (branchId) => {
 
   window.__ACTIVE_BRANCH_ID__ = branchId;
 
-  window.dispatchEvent(
-    new CustomEvent("activeBranchChanged", {
-      detail: { branchId },
-    }),
-  );
-
+  // مهم
   window.dispatchEvent(
     new CustomEvent("branchChanged", {
       detail: { branchId },

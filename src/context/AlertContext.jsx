@@ -47,17 +47,11 @@ export const AlertProvider = ({ children }) => {
   const [alertsLoading, setAlertsLoading] = useState(false);
 
   useEffect(() => {
+    queryClient.removeQueries({ queryKey: ["alerts"] });
+    queryClient.removeQueries({ queryKey: ["insights"] });
     setAlertsList([]);
     setUnreadCount(0);
-
-    queryClient.removeQueries({
-      queryKey: ["alerts"],
-    });
-
-    queryClient.removeQueries({
-      queryKey: ["insights"],
-    });
-  }, [companyId, branchId, queryClient]);
+  }, [user?.id, queryClient]);
 
   const addAlert = useCallback(
     (newAlert) => {

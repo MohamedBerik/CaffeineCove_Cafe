@@ -6,6 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom"; // 🚀 إضافة حاسمة لقراءة الـ URL الحية
 import {
   useFormatCurrency,
   formatDate,
@@ -28,13 +29,13 @@ import TablesSection from "./components/TablesSection";
 import KpisSection from "./components/KpisSection";
 import PurchasesSection from "./components/PurchasesSection";
 import InventorySection from "./components/InventorySection";
-import useActiveBranch from "./hooks/useActiveBranch";
 import "./ErpDashboardHome.css";
 
 export default function ErpDashboardHome() {
   const { t, i18n } = useTranslation();
   const formatCurrency = useFormatCurrency();
   const chartRef = useRef(null);
+  const [searchParams] = useSearchParams(); // 🚀 الإمساك بمتغيرات الـ URL الحية فوراً
 
   const [greeting, setGreeting] = useState("");
   const [range, setRange] = useState(RANGE.DAY);
@@ -45,8 +46,15 @@ export default function ErpDashboardHome() {
   });
   const [expandedInsight, setExpandedInsight] = useState(null);
 
-  // قراءة القيمة الأولية
-  const branchId = useActiveBranch();
+  // 🎯 [التعديل الذهبي]: قراءة حية ومباشرة من الـ URL المتغير الموحد (branch_id)
+  // إذا لم يكن موجوداً في الـ URL، نقرأ المخزن محلياً، وإلا نفترض "all"
+  const branchId = useMemo(() => {
+    return (
+      searchParams.get("branch_id") ||
+      localStorage.getItem("selectedBranchId") ||
+      "all"
+    );
+  }, [searchParams]);
 
   // ---- Greeting ----
   useEffect(() => {
@@ -61,6 +69,7 @@ export default function ErpDashboardHome() {
   }, [showComparison]);
 
   // ---- Data hook ----
+  // 🚀 الآن بمجرد تغير الـ branchId المستخرج من الـ URL، سيعمل هذا الـ Hook تلقائياً ويجلب بيانات الفرع الجديد
   const {
     dashboard,
     isLoading,
@@ -77,6 +86,15 @@ export default function ErpDashboardHome() {
     visibleRevenueData,
     appointmentsDataWithAnomalies,
   } = useDashboardData(branchId, range, showComparison);
+
+  // ---- الاستماع لحدث تبديل الفروع الخارجي كأمان إضافي لتحديث الطلب ----
+  useEffect(() => {
+    const handleBranchEvent = () => {
+      refetch();
+    };
+    window.addEventListener("branchChanged", handleBranchEvent);
+    return () => window.removeEventListener("branchChanged", handleBranchEvent);
+  }, [refetch]);
 
   // ---- Memoized values ----
   const kpis = dashboard?.kpis || {};
@@ -111,7 +129,7 @@ export default function ErpDashboardHome() {
     }
   }, [insights]);
 
-  // ---- AnimatedDot component (improved) ----
+  // ---- AnimatedDot component ----
   const AnimatedDot = useCallback((props) => {
     const { cx, cy, payload } = props;
     if (!payload?.anomaly) return null;
@@ -236,7 +254,7 @@ export default function ErpDashboardHome() {
       {/* Summary Card */}
       <SummaryCard messages={summaryMessages} t={t} />
 
-      {/* Stats Section (Quick Stats + Financial Overview) */}
+      {/* Stats Section */}
       <StatsSection
         kpis={kpis}
         formatCurrency={formatCurrency}

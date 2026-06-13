@@ -8,14 +8,15 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const logoutLocal = () => {
+    // 🚀 مسح شامل وكامل لكل أنواع الكاش في المتصفح تخص الفروع
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("selectedCompany");
     localStorage.removeItem("selectedBranchId");
+    localStorage.removeItem("active_branch_id"); // تنظيف الـ utility التابع لـ activeBranch
 
-    // 🚀 [حماية الأدمن]: مسح كاش الـ activeBranch المساعد تماماً إذا كان له ملف تعريف منفصل
-    localStorage.removeItem("active_branch_id");
-    sessionStorage.clear(); // تأمين إضافي لتصفير الـ session
+    // تصفير الـ session تماماً لضمان عدم تعليق أي متغير بالذاكرة
+    sessionStorage.clear();
 
     setUser(null);
   };

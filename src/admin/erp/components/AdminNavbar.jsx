@@ -166,41 +166,41 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
 
   // ✅ تبديل الفرع
   // ✅ تبديل الفرع ديناميكياً مع تحديث الـ URL والنظام كاملاً
+  // ✅ تبديل الفرع وتحديث المتصفح فوراً بالصيغة الموحدة branch_id
   const handleBranchChange = (e) => {
     const value = e.target.value;
     if (value === selectedBranch) return;
 
     setSelectedBranch(value);
-    setActiveBranchId(value);
-    localStorage.setItem("selectedBranchId", value); // تأكيد الحفظ في الـ سياق المحلي
+    localStorage.setItem("selectedBranchId", value);
 
-    // 🚀 [التعديل الذهبي]: تحديث الـ URL الحالي في المتصفح ليواكب الفرع الجديد فوراً بدون ريفريش
+    // 🚀 إذا كنت تستخدم دالة setActiveBranchId قم بتحديثها هنا أيضاً
+    if (typeof setActiveBranchId === "function") {
+      setActiveBranchId(value);
+    }
+
+    // 🎯 تحديث الرابط في شريط المتصفح فوراً بالصيغة الموحدة branch_id
     const currentPath = window.location.pathname;
     const searchParams = new URLSearchParams(window.location.search);
 
     if (value && value !== "all") {
-      searchParams.set("branch_id", value);
-      navigate(`${currentPath}?${searchParams.toString()}`, { replace: true });
+      searchParams.set("branch_id", value); // 🌟 توحيد الاسم
     } else {
       searchParams.delete("branch_id");
-      const searchStr = searchParams.toString();
-      navigate(searchStr ? `${currentPath}?${searchStr}` : currentPath, {
-        replace: true,
-      });
     }
 
-    // 🚀 بث حدث عام لتنبيه أي صفحة داشبورد نشطة بضرورة قراءة الفرع الجديد
+    // سحب الرابط الجديد في الـ Router ليعيد رندرة مكونات الصفحة الحالية بالباراميتر الجديد
+    navigate(`${currentPath}?${searchParams.toString()}`, { replace: true });
+
+    // بث الحدث لتحديث الاستعلامات
     window.dispatchEvent(
       new CustomEvent("branchChanged", { detail: { branchId: value } }),
     );
 
-    // تنظيف الكاش وإعادة جلب البيانات لكل الاستعلامات الحية بالفرع الجديد
-    queryClient.removeQueries({ queryKey: ["alerts"] });
-    queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
-
+    // تنظيف كاش التانستاك كويري لإجبار الداشبورد والعدادات على جلب بيانات الفرع الجديد فوراً
     queryClient.invalidateQueries({
       predicate: (query) =>
-        ["dashboard", "activityLogs", "subscription-status"].includes(
+        ["dashboard", "unreadCount", "alerts", "activityLogs"].includes(
           query.queryKey[0],
         ),
     });

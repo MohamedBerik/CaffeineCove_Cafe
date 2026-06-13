@@ -78,6 +78,9 @@ api.interceptors.response.use(
     const currentPath = window.location.pathname;
 
     const isMeRoute = requestUrl.includes("/me");
+
+    const isBroadcastAuth = requestUrl.includes("/broadcasting/auth");
+
     const isLoginRoute = requestUrl.includes("/login");
 
     const isSubscriptionError = [
@@ -93,7 +96,7 @@ api.interceptors.response.use(
     // 401 Unauthorized
     // =========================
     if (status === 401) {
-      if (isMeRoute) {
+      if (isMeRoute || isBroadcastAuth) {
         return Promise.reject(error);
       }
 

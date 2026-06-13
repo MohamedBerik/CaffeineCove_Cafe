@@ -20,12 +20,9 @@ export const AlertProvider = ({ children }) => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   // ✅ جعل companyId و branchId تفاعليين (state) مع مستمعين للتغيير
-  const [companyId, setCompanyId] = useState(
-    () => localStorage.getItem("selectedCompany") || null,
-  );
-  const [branchId, setBranchId] = useState(
-    () => localStorage.getItem("selectedBranchId") || null,
-  );
+  const companyId = user?.company_id ?? localStorage.getItem("selectedCompany");
+
+  const branchId = user?.branch_id ?? localStorage.getItem("selectedBranchId");
 
   useEffect(() => {
     const syncStorage = () => {

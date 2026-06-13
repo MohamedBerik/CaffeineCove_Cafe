@@ -19,11 +19,15 @@ export const AlertProvider = ({ children }) => {
   const queryClient = useQueryClient();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // ✅ جعل companyId و branchId تفاعليين (state) مع مستمعين للتغيير
-  const companyId = user?.company_id ?? localStorage.getItem("selectedCompany");
+  // ✅ حالات تفاعلية للشركة والفرع
+  const [companyId, setCompanyId] = useState(
+    () => user?.company_id ?? localStorage.getItem("selectedCompany") ?? null,
+  );
+  const [branchId, setBranchId] = useState(
+    () => user?.branch_id ?? localStorage.getItem("selectedBranchId") ?? null,
+  );
 
-  const branchId = user?.branch_id ?? localStorage.getItem("selectedBranchId");
-
+  // مزامنة أي تغيير خارجي على localStorage
   useEffect(() => {
     const syncStorage = () => {
       setCompanyId(localStorage.getItem("selectedCompany") || null);
@@ -39,22 +43,16 @@ export const AlertProvider = ({ children }) => {
     };
   }, []);
 
-  // ✅ إضافة alerts و loading إلى stateValue لتجنب undefined في AdminNavbar
+  // ✅ عند تغير المستخدم، نعيد ضبط الحالة المحلية والكاش
   const [alertsList, setAlertsList] = useState([]);
   const [alertsLoading, setAlertsLoading] = useState(false);
 
   useEffect(() => {
     setAlertsList([]);
     setUnreadCount(0);
-
-    queryClient.removeQueries({
-      queryKey: ["alerts"],
-    });
-
-    queryClient.removeQueries({
-      queryKey: ["insights"],
-    });
-  }, [companyId, branchId, queryClient]);
+    queryClient.removeQueries({ queryKey: ["alerts"] });
+    queryClient.removeQueries({ queryKey: ["insights"] });
+  }, [user?.id, companyId, branchId, queryClient]);
 
   const addAlert = useCallback(
     (newAlert) => {
@@ -88,7 +86,7 @@ export const AlertProvider = ({ children }) => {
     [queryClient, companyId, branchId],
   );
 
-  // ✅ mark one - مع optimistic update + rollback
+  // ✅ mark one – مع optimistic update + rollback
   const markAsRead = useCallback(
     async (alertId) => {
       const filters = ["all", "unread", "high"];
@@ -147,7 +145,7 @@ export const AlertProvider = ({ children }) => {
     [queryClient, companyId, branchId],
   );
 
-  // ✅ mark all - مع تحديث كل الفلاتر
+  // ✅ mark all – مع تحديث كل الفلاتر
   const markAllAsRead = useCallback(async () => {
     const filters = ["all", "unread", "high"];
     filters.forEach((filter) => {
@@ -182,53 +180,33 @@ export const AlertProvider = ({ children }) => {
     }
   }, [queryClient, companyId, branchId]);
 
-  // ✅ تحميل العداد الأولي مع guards صارمة وتمرير الـ branch_id بأمان
+  // ✅ تحميل العداد الأولي
   useEffect(() => {
     if (authLoading) return;
-
-    // 🛡️ استثناء صفحة الفواتير كما أضفتها أنت بكل ذكاء
-    if (window.location.pathname.startsWith("/admin/erp/billing")) {
-      return;
-    }
-
-    // 🛡️ حماية (Guard): التحقق من القيم العشوائية أو الـ Global والـ Nulls لمنع الـ 403
+    if (window.location.pathname.startsWith("/admin/erp/billing")) return;
     if (!user || !companyId || companyId === "global") {
       setUnreadCount(0);
       return;
     }
-
     if (branchId === null || branchId === undefined) {
       setUnreadCount(0);
       return;
     }
-
-    if (user.role !== "admin" && !user.is_super_admin) {
-      return;
-    }
+    if (user.role !== "admin" && !user.is_super_admin) return;
 
     let cancelled = false;
     setAlertsLoading(true);
-
-    // 💡 التحديث الهام: إرسال الـ branchId كـ Query Parameter ليتوافق مع تعديل الباك إند المفتوح للـ "all"
     api
       .get(`/erp/alerts/unread-count?branch_id=${branchId}`)
       .then((res) => {
-        if (!cancelled) {
-          setUnreadCount(res?.data?.count || 0);
-        }
+        if (!cancelled) setUnreadCount(res?.data?.count || 0);
       })
       .catch((err) => {
-        console.warn(
-          "⚠️ Unread alerts skipped or failed:",
-          err.response?.status,
-        );
+        console.warn("⚠️ Unread alerts failed:", err.response?.status);
       })
       .finally(() => {
-        if (!cancelled) {
-          setAlertsLoading(false);
-        }
+        if (!cancelled) setAlertsLoading(false);
       });
-
     return () => {
       cancelled = true;
     };
@@ -241,7 +219,7 @@ export const AlertProvider = ({ children }) => {
     authLoading,
   ]);
 
-  // ✅ الاشتراك في socket – يبدأ فقط عندما تكون جميع البيانات جاهزة واستثناء صفحة الفواتير
+  // ✅ الاشتراك في التنبيهات العامة
   useAlertsSocket((newAlert) => addAlert(newAlert), companyId, branchId);
 
   const stateValue = {
@@ -256,14 +234,12 @@ export const AlertProvider = ({ children }) => {
     markAllAsRead,
   };
 
+  // ✅ الاستماع إلى الإشعارات الشخصية
   useEffect(() => {
     if (!user?.id) return;
-
     const channel = echoService.getInstance().private(`user.${user.id}`);
-
     channel.listen(".notification.created", (notification) => {
       console.log("🔔 USER NOTIFICATION", notification);
-
       addAlert({
         id: notification.id ?? Date.now(),
         type: notification.type || "info",
@@ -274,10 +250,7 @@ export const AlertProvider = ({ children }) => {
         read: false,
       });
     });
-
-    return () => {
-      channel.stopListening(".notification.created");
-    };
+    return () => channel.stopListening(".notification.created");
   }, [user?.id, addAlert]);
 
   return (

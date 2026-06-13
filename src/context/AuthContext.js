@@ -98,7 +98,6 @@ export function AuthProvider({ children }) {
     } catch (e) {
       // فشل logout - عادي
     }
-    echoService.disconnect();
 
     logoutLocal();
     delete api.defaults.headers.common["Authorization"];

@@ -12,6 +12,11 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("user");
     localStorage.removeItem("selectedCompany");
     localStorage.removeItem("selectedBranchId");
+
+    // 🚀 [حماية الأدمن]: مسح كاش الـ activeBranch المساعد تماماً إذا كان له ملف تعريف منفصل
+    localStorage.removeItem("active_branch_id");
+    sessionStorage.clear(); // تأمين إضافي لتصفير الـ session
+
     setUser(null);
   };
 
@@ -54,42 +59,39 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (userData, token) => {
-    // 1️⃣ تخزين التوكن فوراً ليعتمده الأكسيوس
     localStorage.setItem("token", token);
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    // 2️⃣ [تعديل حاسم] تخزين معرفات الشركة والفرع فوراً من بيانات اللوجن الأولية
-    // لمنع ميدياوير الباك إند من رفض طلب /me القادم
+    // 🚀 إذا كان أدمن لا نضع له فرعاً مسبقاً، نجعله "all" نظيفاً لتظهر له كل الفروع افتراضياً
+    const isAdmin = userData?.is_super_admin || userData?.role === "admin";
     const initialCompany = userData?.company_id || "global";
-    console.log("LOGIN USER DATA", userData);
-    console.log("LOGIN BRANCH", userData?.branch_id);
-    const initialBranch = userData?.branch_id ?? "all";
+    const initialBranch = isAdmin ? "all" : (userData?.branch_id ?? "all");
 
     localStorage.setItem("selectedCompany", initialCompany);
     localStorage.setItem("selectedBranchId", initialBranch);
     localStorage.setItem("user", JSON.stringify(userData));
 
-    // تعيين المستخدم مبدئياً لفتح الواجهة فوراً ومنع تعليق الـ UI
     setUser(userData);
     setLoading(true);
 
     try {
-      // 3️⃣ الآن نطلب البيانات الكاملة والمحدثة من السيرفر بأمان وبأعلى درجات العزل
       const fullUser = await loadUser();
-
       if (fullUser) {
-        // تحديث القيم بالبيانات الأكثر دقة القادمة من الباك إند
+        const finalIsAdmin =
+          fullUser.is_super_admin || fullUser.role === "admin";
         localStorage.setItem(
           "selectedCompany",
           fullUser.company_id || "global",
         );
-        localStorage.setItem("selectedBranchId", fullUser.branch_id ?? "all");
+        localStorage.setItem(
+          "selectedBranchId",
+          finalIsAdmin ? "all" : (fullUser.branch_id ?? "all"),
+        );
         setUser(fullUser);
       }
     } catch (e) {
       console.error("Error fetching full user profile after login:", e);
     } finally {
-      // 4️⃣ إغلاق الـ Loading بشكل حتمي ومؤكد في كل الحالات لتثبيت الشاشة
       setLoading(false);
     }
   };

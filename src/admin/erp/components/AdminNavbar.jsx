@@ -165,22 +165,40 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   };
 
   // ✅ تبديل الفرع
+  // ✅ تبديل الفرع ديناميكياً مع تحديث الـ URL والنظام كاملاً
   const handleBranchChange = (e) => {
     const value = e.target.value;
     if (value === selectedBranch) return;
 
     setSelectedBranch(value);
     setActiveBranchId(value);
+    localStorage.setItem("selectedBranchId", value); // تأكيد الحفظ في الـ سياق المحلي
 
-    queryClient.removeQueries({
-      queryKey: ["alerts"],
-    });
+    // 🚀 [التعديل الذهبي]: تحديث الـ URL الحالي في المتصفح ليواكب الفرع الجديد فوراً بدون ريفريش
+    const currentPath = window.location.pathname;
+    const searchParams = new URLSearchParams(window.location.search);
+
+    if (value && value !== "all") {
+      searchParams.set("branch_id", value);
+      navigate(`${currentPath}?${searchParams.toString()}`, { replace: true });
+    } else {
+      searchParams.delete("branch_id");
+      const searchStr = searchParams.toString();
+      navigate(searchStr ? `${currentPath}?${searchStr}` : currentPath, {
+        replace: true,
+      });
+    }
+
+    // 🚀 بث حدث عام لتنبيه أي صفحة داشبورد نشطة بضرورة قراءة الفرع الجديد
+    window.dispatchEvent(
+      new CustomEvent("branchChanged", { detail: { branchId: value } }),
+    );
+
+    // تنظيف الكاش وإعادة جلب البيانات لكل الاستعلامات الحية بالفرع الجديد
+    queryClient.removeQueries({ queryKey: ["alerts"] });
+    queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
 
     queryClient.invalidateQueries({
-      queryKey: ["unreadCount"],
-    });
-
-    queryClient.removeQueries({
       predicate: (query) =>
         ["dashboard", "activityLogs", "subscription-status"].includes(
           query.queryKey[0],

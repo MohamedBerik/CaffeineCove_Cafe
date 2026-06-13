@@ -61,6 +61,8 @@ export function AuthProvider({ children }) {
     // 2️⃣ [تعديل حاسم] تخزين معرفات الشركة والفرع فوراً من بيانات اللوجن الأولية
     // لمنع ميدياوير الباك إند من رفض طلب /me القادم
     const initialCompany = userData?.company_id || "global";
+    console.log("LOGIN USER DATA", userData);
+    console.log("LOGIN BRANCH", userData?.branch_id);
     const initialBranch = userData?.branch_id ?? "all";
 
     localStorage.setItem("selectedCompany", initialCompany);

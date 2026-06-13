@@ -3,19 +3,17 @@ import api from "../services/axios";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query"; // 🚀 استيراد لتنظيف الكاش فور الدخول
 import "./Login.css";
 
 function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const queryClient = useQueryClient(); // 🚀 استخدام كاش الـ query لتصفيره
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null); // كائن { message, showSubscribe }
+  const [error, setError] = useState(null); // ✅ تغيير إلى كائن { message, showSubscribe }
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e) => {
@@ -26,14 +24,7 @@ function Login() {
     try {
       const res = await api.post("/login", { email, password });
 
-      // 🌟 [الخطوة الذهبية الأولى]: تصفير وتهيئة حالة الفروع فوراً لمنع التداخل مع الحسابات القديمة
-      localStorage.setItem("selectedBranchId", "all");
-      localStorage.setItem("active_branch_id", "all");
-
-      // مسح أي كاش مخزن مؤقتاً في TanStack Query لتبدأ الجلسة ببيانات طازجة
-      queryClient.clear();
-
-      // استخدم البيانات اللي رجعت من الـ API
+      // ✅ استخدم البيانات اللي رجعت من الـ API
       login(res.data.user, res.data.token);
 
       if (res.data.requires_subscription) {
@@ -42,16 +33,16 @@ function Login() {
         return;
       }
 
-      // 🎯 [الخطوة الذهبية الثانية]: التوجيه الذكي المدعوم بباراميتر الفرع الموحد branch_id=all
+      // ✅ توجيه ذكي بناءً على نوع المستخدم والـ Tenant
       if (res.data.user.is_super_admin) {
         const savedCompany = localStorage.getItem("selectedCompany");
         if (!savedCompany || savedCompany === "" || savedCompany === "global") {
           navigate("/admin/saas");
         } else {
-          navigate("/admin/erp?branch_id=all"); // 🚀 حماية وتوحيد
+          navigate("/admin/erp");
         }
       } else if (res.data.user.role === "admin") {
-        navigate("/admin/erp?branch_id=all"); // 🚀 حماية وتوحيد
+        navigate("/admin/erp");
       } else if (res.data.user.role === "doctor") {
         navigate("/admin/erp/appointments");
       } else if (res.data.user.role === "receptionist") {
@@ -67,7 +58,7 @@ function Login() {
         t("Login failed. Please check your email and password.");
       let showSubscribe = false;
 
-      // إذا كان الخطأ متعلقًا بالاشتراك (403 من AuthController أو Middleware)
+      // ✅ إذا كان الخطأ متعلقًا بالاشتراك (403 من AuthController أو Middleware)
       if (
         data.code === "TRIAL_EXPIRED" ||
         data.code === "COMPANY_SUSPENDED" ||
@@ -86,7 +77,7 @@ function Login() {
   };
 
   const handleGoToBilling = () => {
-    // يمكن للمستخدم الانتقال إلى صفحة الفوترة حتى بدون تسجيل الدخول
+    // ✅ يمكن للمستخدم الانتقال إلى صفحة الفوترة حتى بدون تسجيل الدخول
     window.location.href = "/admin/erp/billing";
   };
 
@@ -97,9 +88,11 @@ function Login() {
         <div className="login-brand">
           <div className="brand-content">
             <div className="brand-icon">
-              <i className="fas fa-chart-line"></i>
+              <i className="fas fa-chart-line"></i>{" "}
+              {/* أيقونة تحليلية بدل السن */}
             </div>
-            <h1>{t("Clinic Management Platform")}</h1>
+            <h1>{t("Clinic Management Platform")}</h1>{" "}
+            {/* بدل Dental Care Clinic */}
             <p>
               {t(
                 "The smart way to manage your dental clinic – appointments, invoices, inventory, and more.",
@@ -108,7 +101,8 @@ function Login() {
             <div className="brand-features">
               <div className="feature">
                 <i className="fas fa-check-circle"></i>
-                <span>{t("Appointment Management")}</span>
+                <span>{t("Appointment Management")}</span>{" "}
+                {/* بدل Expert Dentists */}
               </div>
               <div className="feature">
                 <i className="fas fa-check-circle"></i>

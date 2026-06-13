@@ -19,12 +19,13 @@ const NotificationsPage = () => {
   const [filter, setFilter] = useState("all");
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState(null); // ✅ أضف هنا
+  const [selectedGroup, setSelectedGroup] = useState(null);
+
   const [selectedCompany, setSelectedCompany] = useState(
-    localStorage.getItem("selectedCompany"),
+    () => localStorage.getItem("selectedCompany") || user?.company_id || null,
   );
   const [selectedBranch, setSelectedBranch] = useState(
-    localStorage.getItem("selectedBranchId"),
+    () => localStorage.getItem("selectedBranchId") || user?.branch_id || null,
   );
 
   useEffect(() => {
@@ -42,6 +43,7 @@ const NotificationsPage = () => {
     };
   }, []);
 
+  // ✅ React Query - useInfiniteQuery (إرسال الفرع الحالي إجبارياً)
   const {
     data: alertsData,
     fetchNextPage,
@@ -52,31 +54,37 @@ const NotificationsPage = () => {
     queryKey: ["alerts", filter, selectedCompany, selectedBranch],
 
     queryFn: async ({ pageParam = 1 }) => {
+      // 🚀 [تعديل حاسم] تمرير الـ branch_id في الـ URL لمنع تداخل الفروع
       const res = await api.get(
-        `/erp/alerts?page=${pageParam}&filter=${filter}`,
+        `/erp/alerts?page=${pageParam}&filter=${filter}&branch_id=${selectedBranch || ""}`,
       );
-
       return res.data;
     },
 
     getNextPageParam: (lastPage) =>
       lastPage.meta?.has_more ? lastPage.meta.current_page + 1 : undefined,
 
-    staleTime: 1000 * 60 * 5,
+    // 🚀 [تعديل حاسم] جعلها 0 لكي يتم جلب إشعارات الفرع الجديد فوراً عند التبديل
+    staleTime: 0,
 
     placeholderData: undefined,
   });
 
+  // ✅ جلب الـ Insights المخصصة للفرع الحالي
   const { data: insightsData } = useQuery({
     queryKey: ["insights", selectedCompany, selectedBranch],
     queryFn: async () => {
       try {
-        const res = await api.get("/erp/dashboard");
+        // 🚀 [تعديل حاسم] تمرير الـ branch_id إلى داشبورد الإحصائيات
+        const res = await api.get(
+          `/erp/dashboard?branch_id=${selectedBranch || ""}`,
+        );
         return res.data?.data?.insights || [];
       } catch {
         return [];
       }
     },
+    staleTime: 0,
   });
 
   const alerts = alertsData?.pages.flatMap((page) => page.data) || [];
@@ -89,7 +97,7 @@ const NotificationsPage = () => {
       ...insight,
       notificationType: "insight",
       id: `insight-${insight.category}`,
-      read: true, // Insights مش بتتقرأ
+      read: true,
     })),
   ];
 
@@ -100,15 +108,15 @@ const NotificationsPage = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // 🚀 تنظيف الكاش وإعادة جلب البيانات فوراً عند تغير الشركة أو الفرع
   useEffect(() => {
     queryClient.invalidateQueries({
       queryKey: ["alerts"],
     });
-
     queryClient.invalidateQueries({
       queryKey: ["insights"],
     });
-  }, [selectedCompany, selectedBranch]);
+  }, [selectedCompany, selectedBranch, queryClient]);
 
   const formatDateTime = useCallback(
     (value) => {
@@ -130,7 +138,6 @@ const NotificationsPage = () => {
   );
 
   const handleAcknowledge = async (alertId) => {
-    // ✅ Insights مش بتتأكد
     if (typeof alertId === "string" && alertId.startsWith("insight-")) return;
 
     try {
@@ -187,7 +194,6 @@ const NotificationsPage = () => {
   const groupAlerts = (items) => {
     const groups = {};
     items.forEach((item) => {
-      // ✅ نستخدم category للـ insights، و type للـ alerts
       const category =
         item.notificationType === "insight"
           ? `insight-${item.category}`
@@ -264,7 +270,7 @@ const NotificationsPage = () => {
         appointments: "📅",
         invoices: "🧾",
         patients: "👥",
-        doctors: "👨‍⚕️", // ✅ أضف
+        doctors: "👨‍⚕️",
       };
       return iconMap[item.category] || "📊";
     }
@@ -383,7 +389,6 @@ const NotificationsPage = () => {
                   className={`smart-alert-card ${categorize(group)}`}
                 >
                   <div className="alert-header">
-                    {/* ✅ رقم 9: أيقونة مخصصة لكل نوع */}
                     <span className="alert-icon-large">
                       {getNotificationIcon(group)}
                     </span>
@@ -400,7 +405,6 @@ const NotificationsPage = () => {
                     )}
                   </div>
 
-                  {/* ✅ رقم 9: Metadata (الوقت للـ Alerts فقط) */}
                   {group.notificationType !== "insight" && group.time && (
                     <div className="alert-time">
                       <i className="fas fa-clock"></i>
@@ -416,7 +420,6 @@ const NotificationsPage = () => {
                       {t("View Details")}
                     </button>
 
-                    {/* ✅ رقم 10: زر Acknowledge للـ Alerts فقط */}
                     {group.notificationType !== "insight" && (
                       <button
                         className="btn-ack-group"
@@ -470,7 +473,6 @@ const NotificationsPage = () => {
             <div className="modal-body">
               {selectedGroup.items.map((item) => (
                 <div key={item.id} className="group-item">
-                  {/* ✅ أيقونة للـ Insight في Modal */}
                   <span className="group-item-icon">
                     {getNotificationIcon(item)}
                   </span>
@@ -483,7 +485,6 @@ const NotificationsPage = () => {
               ))}
             </div>
             <div className="modal-footer">
-              {/* ✅ رقم 10: زر Acknowledge للـ Alerts فقط */}
               {selectedGroup.notificationType !== "insight" && (
                 <button
                   className="btn-acknowledge"

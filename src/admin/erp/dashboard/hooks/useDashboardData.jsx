@@ -51,7 +51,7 @@ export function useDashboardData(branchId, range, showComparison) {
     [branchId, range, showComparison],
   );
 
-  // ✅ الاشتراك في قناة سجل النشاط الحي
+  // ✅ الاشتراك في قناة سجل النشاط الحي (مُحدّث بالـ branchId الفعلي الحقيقي)
   useEffect(() => {
     if (!companyId || !branchId) return;
 
@@ -75,10 +75,10 @@ export function useDashboardData(branchId, range, showComparison) {
 
     channel.listen(".activity-log.created", (event) => {
       queryClient.setQueryData(
-        ["activityLogs", branchId], // يجب أن يطابق queryKey الأصلي
+        ["activityLogs", branchId], // يطابق الفرع الحالي المفتوح بالظبط
         (oldData) => {
           if (!oldData) return [event];
-          return [event, ...oldData.slice(0, 49)]; // آخر 50 سجل
+          return [event, ...oldData.slice(0, 49)];
         },
       );
     });
@@ -98,8 +98,9 @@ export function useDashboardData(branchId, range, showComparison) {
   } = useQuery({
     queryKey: dashboardKey,
     queryFn: async ({ signal }) => {
+      // 🎯 [تعديل حاسم]: توحيد اسم الباراميتر ليكون branch_id بدلاً من branchId المتضارب
       const res = await axios.get(
-        `/erp/dashboard?branchId=${branchId}&range=${range}&compare=${showComparison}`,
+        `/erp/dashboard?branch_id=${branchId}&range=${range}&compare=${showComparison}`,
         { signal },
       );
       let newData = res.data?.data ?? null;
@@ -121,7 +122,7 @@ export function useDashboardData(branchId, range, showComparison) {
       return newData;
     },
     placeholderData: undefined,
-    staleTime: 0,
+    staleTime: 0, // لضمان الإطلاق الفوري بدون تكييش قديم
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchInterval: false,
@@ -349,7 +350,6 @@ export function useDashboardData(branchId, range, showComparison) {
 
   const processedAlertsRef = useRef(new Set());
 
-  // socketHandler مع payload normalization وإضافة المعالجات المفقودة
   const socketHandler = useCallback(
     (payload) => {
       const payloadBranchId =
@@ -369,14 +369,12 @@ export function useDashboardData(branchId, range, showComparison) {
         return;
       }
 
-      // توحيد alert
       const alertPayload =
         payload.alert ??
         payload.data?.alert ??
         (payload.type === "alert" ? payload.data : null);
 
       if (alertPayload && alertPayload.id) {
-        // Dedupe لمنع تكرار التوست
         if (processedAlertsRef.current.has(alertPayload.id)) {
           return;
         }
@@ -389,12 +387,10 @@ export function useDashboardData(branchId, range, showComparison) {
         handleNewAlert(alertPayload);
       }
 
-      // معالجة insight
       if (payload.type === "insight" || payload.insight) {
         handleNewInsight(payload.insight || payload);
       }
 
-      // معالجة dashboard events
       if (
         payload.type === "appointment_created" ||
         payload.type === "appointment_completed" ||
@@ -412,14 +408,12 @@ export function useDashboardData(branchId, range, showComparison) {
   useAlertsSocket(socketHandler, companyId, branchId);
   useDashboardSocket(companyId, branchId, handleDashboardEvent);
 
-  // invalidate باستخدام predicate (للتبديلات)
   const invalidateAllDashboardQueries = useCallback(() => {
     queryClient.invalidateQueries({
       predicate: (query) => query.queryKey[0] === "dashboard",
     });
   }, [queryClient]);
 
-  // ---- تنظيف hiddenAlerts ----
   useEffect(() => {
     const alerts = dashboard?.reminders?.alerts || [];
     setHiddenAlerts((prev) => {
@@ -431,7 +425,6 @@ export function useDashboardData(branchId, range, showComparison) {
     });
   }, [dashboard?.reminders?.alerts]);
 
-  // ---- Anomaly maps ----
   const revenueAnomalyPoints = useMemo(() => {
     const insights = dashboard?.insights || [];
     return insights
@@ -446,7 +439,6 @@ export function useDashboardData(branchId, range, showComparison) {
       .map((i) => ({ ...i.point, message: i.message, priority: i.priority }));
   }, [dashboard]);
 
-  // ---- Chart data ----
   const revenueChartData = useMemo(
     () =>
       (dashboard?.charts?.revenue || []).map((item) => ({
@@ -565,6 +557,6 @@ export function useDashboardData(branchId, range, showComparison) {
     visibleRevenueData,
     appointmentsDataWithAnomalies,
     playSound,
-    invalidateAllDashboardQueries, // متاح للمكونات الخارجية
+    invalidateAllDashboardQueries,
   };
 }

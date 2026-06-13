@@ -1,20 +1,23 @@
-// hooks/useActiveBranch.js
-
 import { useEffect, useState } from "react";
-import { getActiveBranchId } from "../../../../utils/activeBranch";
 
 export default function useActiveBranch() {
-  const [branchId, setBranchId] = useState(getActiveBranchId());
+  // 🚀 يفضل البدء بأحدث قيمة مباشرة مخزنة محلياً لضمان عدم حدوث تجميد بيانات قديمة
+  const [branchId, setBranchId] = useState(
+    () => localStorage.getItem("selectedBranchId") || "all",
+  );
 
   useEffect(() => {
+    // 🎯 الاستماع للاسم الصحيح للحدث الذي يطلقه الـ Navbar وهو branchChanged
     const handler = (e) => {
-      setBranchId(e.detail.branchId);
+      if (e.detail && e.detail.branchId) {
+        setBranchId(e.detail.branchId);
+      }
     };
 
-    window.addEventListener("activeBranchChanged", handler);
+    window.addEventListener("branchChanged", handler);
 
     return () => {
-      window.removeEventListener("activeBranchChanged", handler);
+      window.removeEventListener("branchChanged", handler);
     };
   }, []);
 

@@ -19,29 +19,40 @@ export const AlertProvider = ({ children }) => {
   const queryClient = useQueryClient();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // ✅ حالات تفاعلية للشركة والفرع
+  // 1️⃣ جعل الحالة الابتدائية تقرأ بذكاء الكاش أولاً أو المتاح من الـ user
   const [companyId, setCompanyId] = useState(
-    () => user?.company_id ?? localStorage.getItem("selectedCompany") ?? null,
+    () => localStorage.getItem("selectedCompany") ?? user?.company_id ?? null,
   );
   const [branchId, setBranchId] = useState(
-    () => user?.branch_id ?? localStorage.getItem("selectedBranchId") ?? null,
+    () => localStorage.getItem("selectedBranchId") ?? user?.branch_id ?? null,
   );
 
-  // مزامنة أي تغيير خارجي على localStorage
+  // 2️⃣ 🚀 [التعديل السحري الحاسم]: مزامنة الحالات المحلية فور تغير الـ user (تسجيل الدخول) أو أحداث تبديل الفروع
   useEffect(() => {
     const syncStorage = () => {
-      setCompanyId(localStorage.getItem("selectedCompany") || null);
-      setBranchId(localStorage.getItem("selectedBranchId") || null);
+      setCompanyId(
+        localStorage.getItem("selectedCompany") || user?.company_id || null,
+      );
+      setBranchId(
+        localStorage.getItem("selectedBranchId") || user?.branch_id || null,
+      );
     };
+
+    // مزامنة فورية عند اكتمال تحميل المستخدم بعد الـ Login مباشرة
+    if (!authLoading && user) {
+      syncStorage();
+    }
+
     window.addEventListener("storage", syncStorage);
     window.addEventListener("branchChanged", syncStorage);
     window.addEventListener("companyChanged", syncStorage);
+
     return () => {
       window.removeEventListener("storage", syncStorage);
       window.removeEventListener("branchChanged", syncStorage);
       window.removeEventListener("companyChanged", syncStorage);
     };
-  }, []);
+  }, [user, authLoading]); // 🚀 يراقب الـ user لكي يحدث القيم بمجرد الدخول
 
   // ✅ عند تغير المستخدم، نعيد ضبط الحالة المحلية والكاش
   const [alertsList, setAlertsList] = useState([]);
@@ -181,10 +192,13 @@ export const AlertProvider = ({ children }) => {
   }, [queryClient, companyId, branchId]);
 
   // ✅ تحميل العداد الأولي
+  // ✅ تحميل العداد الأولي المحدث
   useEffect(() => {
     if (authLoading) return;
     if (window.location.pathname.startsWith("/admin/erp/billing")) return;
-    if (!user || !companyId || companyId === "global") {
+
+    // 🛡️ صمام أمان حرج: لا ترسل الطلب إذا كانت القيم لم تتحدث بعد في الـ State
+    if (!user || !companyId || companyId === "global" || companyId === null) {
       setUnreadCount(0);
       return;
     }
@@ -196,6 +210,7 @@ export const AlertProvider = ({ children }) => {
 
     let cancelled = false;
     setAlertsLoading(true);
+
     api
       .get(`/erp/alerts/unread-count?branch_id=${branchId}`)
       .then((res) => {
@@ -207,6 +222,7 @@ export const AlertProvider = ({ children }) => {
       .finally(() => {
         if (!cancelled) setAlertsLoading(false);
       });
+
     return () => {
       cancelled = true;
     };
@@ -214,8 +230,8 @@ export const AlertProvider = ({ children }) => {
     user?.id,
     user?.role,
     user?.is_super_admin,
-    companyId,
-    branchId,
+    companyId, // 🚀 سيقوم بإعادة الطلب فور تغير الـ state من null إلى القيمة الحقيقية
+    branchId, // 🚀 سيقوم بإعادة الطلب فور تغير الـ state من null إلى القيمة الحقيقية
     authLoading,
   ]);
 

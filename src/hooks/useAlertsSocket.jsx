@@ -8,6 +8,12 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
   const onNewAlertRef = useRef(onNewAlert);
 
   useEffect(() => {
+    console.log("SOCKET EFFECT", {
+      companyId,
+      branchId,
+      userId: user?.id,
+      loading,
+    });
     onNewAlertRef.current = onNewAlert;
   }, [onNewAlert]);
 

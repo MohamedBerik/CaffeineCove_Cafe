@@ -268,6 +268,30 @@ export const AlertProvider = ({ children }) => {
     });
     return () => channel.stopListening(".notification.created");
   }, [user?.id, addAlert]);
+  // ✅ الاستماع إلى إشعارات الدور
+  useEffect(() => {
+    if (!user?.role) return;
+
+    const channel = echoService.getInstance().private(`role.${user.role}`);
+
+    channel.listen(".notification.created", (notification) => {
+      console.log("🔔 ROLE NOTIFICATION", notification);
+      console.log("📡 [Role Socket] Subscribing:", `role.${user.role}`);
+      addAlert({
+        id: notification.id ?? Date.now(),
+        type: notification.type || "info",
+        priority: notification.priority || "medium",
+        message: notification.message || notification.title,
+        meta: notification,
+        time: notification.created_at || new Date().toISOString(),
+        read: false,
+      });
+    });
+
+    return () => {
+      channel.stopListening(".notification.created");
+    };
+  }, [user?.role, addAlert]);
 
   return (
     <AlertStateContext.Provider value={stateValue}>

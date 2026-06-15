@@ -5,6 +5,15 @@ import EmptyState from "./EmptyState";
 const formatLog = (log, t) => {
   const type = log.subject_type;
   const action = log.action;
+
+  // 🌟 إضافة فحص محاولة تسجيل الدخول الفاشلة
+  if (action === "auth.failed_login") {
+    // نمرر الإيميل كـ المتغير email لملف الترجمة
+    return t("Failed login attempt on account: {{email}}", {
+      email: log.email_attempted || "Unknown",
+    });
+  }
+
   if (type === "Appointment") {
     if (action === "created") return t("New appointment created");
     if (action === "updated") return t("Appointment updated");
@@ -16,6 +25,7 @@ const formatLog = (log, t) => {
   }
   if (type === "Payment") return t("New payment recorded");
   if (type === "Customer") return t("Customer updated");
+
   return `${type} ${action}`;
 };
 

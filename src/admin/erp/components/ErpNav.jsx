@@ -176,6 +176,7 @@ const saasNavItems = [
     to: "/admin/security-feed",
     labelKey: "Security Feed",
     icon: "fas fa-shield-alt",
+    permission: "activity_logs.view",
   },
   {
     to: "/admin/settings/saas",

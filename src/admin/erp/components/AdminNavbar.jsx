@@ -13,6 +13,7 @@ const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   const { alerts, loading } = useAlertState();
   const { markAsRead, markAllAsRead } = useAlertActions();
   const { logout, user } = useAuth();
+  console.log("CURRENT USER", user);
   useUserNotificationSocket(user?.id, (event) => {
     console.log("🔔 USER NOTIFICATION", event);
   });

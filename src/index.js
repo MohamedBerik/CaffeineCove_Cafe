@@ -181,7 +181,7 @@ createRoot(document.getElementById("root")).render(
               element={<PrintSaaSReportsPage />}
             />
             <Route
-              path="/admin/erp/security-feed"
+              path="/admin/erp/security/security-feed"
               element={<SecurityFeedPage />}
             />
 

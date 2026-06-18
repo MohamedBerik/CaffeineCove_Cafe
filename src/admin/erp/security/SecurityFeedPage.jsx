@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import api from "../../../services/axios";
@@ -17,7 +17,7 @@ export default function SecurityFeedPage() {
     dateTo: "",
   });
   const [page, setPage] = useState(1);
-  const [events, setEvents] = useState([]);
+  const [liveEvents, setLiveEvents] = useState([]);
 
   // ✅ جلب البيانات من الـ API
   const { data, isLoading, isError, error } = useQuery({
@@ -31,8 +31,15 @@ export default function SecurityFeedPage() {
   });
 
   // ✅ تحديث الأحداث عبر WebSocket
-  useSecurityFeedSocket((newEvent) => {
-    setEvents((prev) => [newEvent, ...prev]);
+  useSecurityFeedSocket((event) => {
+    setLiveEvents((prev) => [
+      {
+        ...event,
+        id: `live-${Date.now()}`,
+        created_at: new Date().toISOString(),
+      },
+      ...prev,
+    ]);
   });
 
   const handleFilterChange = (newFilters) => {
@@ -43,17 +50,17 @@ export default function SecurityFeedPage() {
   // ✅ دمج البيانات الواردة من الـ socket مع البيانات القادمة من الـ API
   const displayedEvents = useMemo(() => {
     const apiEvents = data?.data ?? [];
-    // دمج مع الحفاظ على الترتيب الزمني ومنع التكرار
-    const merged = [...events];
-    apiEvents.forEach((apiEvent) => {
-      if (!merged.some((e) => e.id === apiEvent.id)) {
-        merged.push(apiEvent);
-      }
+
+    const map = new Map();
+
+    [...liveEvents, ...apiEvents].forEach((event) => {
+      map.set(event.id, event);
     });
-    return merged.sort(
+
+    return [...map.values()].sort(
       (a, b) => new Date(b.created_at) - new Date(a.created_at),
     );
-  }, [data, events]);
+  }, [data, liveEvents]);
 
   return (
     <div className="container py-4">

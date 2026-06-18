@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import echoService from "../services/echo";
 
-export default function useSecurityFeedSocket(onNewEvent) {
+export default function useSecurityFeedSocket(onEvent) {
   useEffect(() => {
     const echo = echoService.getInstance();
 
@@ -10,12 +10,13 @@ export default function useSecurityFeedSocket(onNewEvent) {
     const channel = echo.channel("security-feed");
 
     channel.listen(".security.updated", (event) => {
-      onNewEvent?.(event);
+      console.log("🚨 SECURITY EVENT", event);
+      onEvent?.(event);
     });
 
     return () => {
       channel.stopListening(".security.updated");
       echo.leave("security-feed");
     };
-  }, [onNewEvent]);
+  }, [onEvent]);
 }

@@ -99,6 +99,7 @@ import BranchesListPage from "./admin/saas/BranchesListPage";
 import BranchFormPage from "./admin/saas/BranchFormPage";
 import ContactMessagesListPage from "./admin/saas/ContactMessagesListPage";
 import PrintSaaSReportsPage from "./admin/saas/PrintSaaSReportsPage";
+import SecurityFeedPage from "./admin/erp/security/SecurityFeedPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -322,6 +323,8 @@ createRoot(document.getElementById("root")).render(
               <Route path="visits/start" element={<StartVisitPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="billing" element={<BillingPage />} />
+
+              <Route path="security-feed" element={<SecurityFeedPage />} />
             </Route>
 
             {/* ================= SaaS Dashboard (NEW) ================= */}

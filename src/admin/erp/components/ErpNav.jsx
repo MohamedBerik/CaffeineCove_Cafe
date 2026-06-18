@@ -173,6 +173,11 @@ const saasNavItems = [
     permission: "contact_messages.manage",
   },
   {
+    to: "/admin/security-feed",
+    labelKey: "Security Feed",
+    icon: "fas fa-shield-alt",
+  },
+  {
     to: "/admin/settings/saas",
     labelKey: "Platform Settings",
     icon: "fas fa-cog",

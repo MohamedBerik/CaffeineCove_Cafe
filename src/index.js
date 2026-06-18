@@ -324,7 +324,7 @@ createRoot(document.getElementById("root")).render(
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="billing" element={<BillingPage />} />
 
-              <Route path="security-feed" element={<SecurityFeedPage />} />
+              <Route path="erp/security-feed" element={<SecurityFeedPage />} />
             </Route>
 
             {/* ================= SaaS Dashboard (NEW) ================= */}

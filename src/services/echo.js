@@ -56,4 +56,13 @@ class EchoService {
 }
 
 const echoService = new EchoService();
+
+const echo = echoService.getInstance();
+
+if (echo) {
+  echo.channel("security-feed").listen(".security.updated", (e) => {
+    console.log("🚨 SECURITY EVENT", e);
+  });
+}
+
 export default echoService;

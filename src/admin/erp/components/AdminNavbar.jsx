@@ -6,12 +6,16 @@ import { useAlertState, useAlertActions } from "../../../context/AlertContext";
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../services/axios";
 import { setActiveBranchId } from "../../../utils/activeBranch";
+import useUserNotificationSocket from "../../../hooks/useUserNotificationSocket";
 import "./AdminNavbar.css";
 
 const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   const { alerts, loading } = useAlertState();
   const { markAsRead, markAllAsRead } = useAlertActions();
   const { logout, user } = useAuth();
+  useUserNotificationSocket(user?.id, (event) => {
+    console.log("🔔 USER NOTIFICATION", event);
+  });
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);

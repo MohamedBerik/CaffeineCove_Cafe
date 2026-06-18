@@ -6,7 +6,7 @@
   background: #f8fafc;
 }
 
-.page-header {
+.security-feed-page .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -17,19 +17,19 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.page-title {
+.security-feed-page .page-title {
   font-size: 1.8rem;
   font-weight: 700;
   color: #1a237e;
   margin: 0;
 }
 
-.page-subtitle {
+.security-feed-page .page-subtitle {
   color: #666;
   margin: 0.5rem 0 0;
 }
 
-.stats-badge {
+.security-feed-page .stats-badge {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -40,7 +40,7 @@
   color: #1a237e;
 }
 
-.security-filters {
+.security-feed-page .security-filters {
   display: flex;
   gap: 1rem;
   margin-bottom: 1.5rem;
@@ -52,28 +52,28 @@
   flex-wrap: wrap;
 }
 
-.filter-group {
+.security-feed-page .filter-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   min-width: 200px;
 }
 
-.filter-group label {
+.security-feed-page .filter-group label {
   font-weight: 600;
   color: #444;
   font-size: 0.9rem;
 }
 
-.filter-group select,
-.filter-group input {
+.security-feed-page .filter-group select,
+.security-feed-page .filter-group input {
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 0.9rem;
 }
 
-.btn-clear-filters {
+.security-feed-page .btn-clear-filters {
   background: #ef4444;
   color: white;
   border: none;
@@ -84,13 +84,13 @@
   margin-left: auto;
 }
 
-.security-events-list {
+.security-feed-page .security-events-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.security-card {
+.security-feed-page .security-card {
   background: white;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -98,7 +98,7 @@
   overflow: hidden;
 }
 
-.security-card .card-header {
+.security-feed-page .security-card .card-header {
   display: flex;
   align-items: center;
   padding: 1rem;
@@ -106,7 +106,7 @@
   background: #f9fafb;
 }
 
-.card-icon {
+.security-feed-page .card-icon {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -118,51 +118,51 @@
   font-size: 1.2rem;
 }
 
-.card-title-wrapper {
+.security-feed-page .card-title-wrapper {
   flex: 1;
 }
 
-.card-title {
+.security-feed-page .card-title {
   margin: 0;
   font-size: 1rem;
   color: #333;
 }
 
-.event-time {
+.security-feed-page .event-time {
   color: #999;
   font-size: 0.85rem;
 }
 
-.security-card .card-body {
+.security-feed-page .security-card .card-body {
   padding: 1rem;
 }
 
-.event-details {
+.security-feed-page .event-details {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 0.75rem;
   margin-bottom: 1rem;
 }
 
-.detail-item {
+.security-feed-page .detail-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   color: #555;
 }
 
-.detail-item i {
+.security-feed-page .detail-item i {
   color: #1a237e;
   width: 20px;
 }
 
-.event-payload {
+.security-feed-page .event-payload {
   margin-top: 1rem;
   border-top: 1px solid #eee;
   padding-top: 1rem;
 }
 
-.payload-content {
+.security-feed-page .payload-content {
   background: #f5f5f5;
   padding: 1rem;
   border-radius: 4px;
@@ -171,7 +171,7 @@
   margin-top: 0.5rem;
 }
 
-.pagination-controls {
+.security-feed-page .pagination-controls {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -180,32 +180,35 @@
   padding: 1rem;
 }
 
-.page-info {
+.security-feed-page .page-info {
   font-weight: 500;
   color: #666;
 }
 
-.loading-spinner {
+.security-feed-page .loading-spinner {
   text-align: center;
   padding: 3rem;
   color: #666;
 }
 
 /* توافق مع ألوان النظام */
-.border-danger {
+.security-feed-page .border-danger {
   border-left-color: #ef4444;
 }
-.border-warning {
+
+.security-feed-page .border-warning {
   border-left-color: #f59e0b;
 }
-.border-info {
+
+.security-feed-page .border-info {
   border-left-color: #3b82f6;
 }
-.border-secondary {
+
+.security-feed-page .border-secondary {
   border-left-color: #6b7280;
 }
 
-.badge {
+.security-feed-page .badge {
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
   font-size: 0.8rem;
@@ -213,19 +216,22 @@
   display: inline-block;
 }
 
-.badge-danger {
+.security-feed-page .badge-danger {
   background: #fee2e2;
   color: #dc2626;
 }
-.badge-warning {
+
+.security-feed-page .badge-warning {
   background: #fef3c7;
   color: #d97706;
 }
-.badge-info {
+
+.security-feed-page .badge-info {
   background: #dbeafe;
   color: #2563eb;
 }
-.badge-secondary {
+
+.security-feed-page .badge-secondary {
   background: #e5e7eb;
   color: #4b5563;
 }

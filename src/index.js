@@ -83,6 +83,7 @@ import TreatmentPlansReportPage from "./admin/erp/reports/TreatmentPlansReportPa
 import PrintTreatmentPlansReportPage from "./admin/erp/reports/PrintTreatmentPlansReportPage";
 import PrintPatientsReportPage from "./admin/erp/reports/PrintPatientsReportPage";
 import PatientsReportPage from "./admin/erp/reports/PatientsReportPage";
+import SecurityFeedPage from "./admin/erp/security/SecurityFeedPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 // ================= SaaS Routes =================
@@ -99,7 +100,6 @@ import BranchesListPage from "./admin/saas/BranchesListPage";
 import BranchFormPage from "./admin/saas/BranchFormPage";
 import ContactMessagesListPage from "./admin/saas/ContactMessagesListPage";
 import PrintSaaSReportsPage from "./admin/saas/PrintSaaSReportsPage";
-import SecurityFeedPage from "./admin/erp/security/SecurityFeedPage";
 
 // ✅ إنشاء QueryClient
 const queryClient = new QueryClient({
@@ -180,6 +180,12 @@ createRoot(document.getElementById("root")).render(
               path="/admin/saas/reports/print"
               element={<PrintSaaSReportsPage />}
             />
+            <Route
+              path="/admin/erp/security-feed"
+              element={<SecurityFeedPage />}
+            />
+
+            {/* ================= ERP Dashboard (NEW SYSTEM) ================= */}
 
             <Route
               path="/admin/erp/*"
@@ -323,8 +329,6 @@ createRoot(document.getElementById("root")).render(
               <Route path="visits/start" element={<StartVisitPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="billing" element={<BillingPage />} />
-
-              <Route path="erp/security-feed" element={<SecurityFeedPage />} />
             </Route>
 
             {/* ================= SaaS Dashboard (NEW) ================= */}

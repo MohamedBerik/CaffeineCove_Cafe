@@ -56,40 +56,44 @@ export default function SecurityFeedPage() {
   }, [data, events]);
 
   return (
-    <div className="security-feed-page">
-      {" "}
-      {/* ✅ الحاوية المخصصة */}
+    <div className="container py-4">
       <div className="page-header mb-4">
-        <h2 className="page-title">🚨 {t("Security Feed")}</h2>
-        <p className="page-subtitle text-muted">
+        <h2>🚨 {t("Security Feed")}</h2>
+        <p className="text-muted">
           {t("Monitor all security-related events in real-time")}
         </p>
       </div>
+
       <SecurityFilters filters={filters} onChange={handleFilterChange} />
+
       {isLoading && (
-        <div className="loading-spinner">
+        <div className="text-center py-5">
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">{t("Loading...")}</span>
           </div>
         </div>
       )}
+
       {isError && (
         <div className="alert alert-danger">
           {t("Failed to load security events")}: {error.message}
         </div>
       )}
+
       {!isLoading && !isError && displayedEvents.length === 0 && (
         <EmptyState text={t("No security events found.")} />
       )}
-      <div className="security-events-list">
+
+      <div className="row">
         {displayedEvents.map((event) => (
           <div className="col-12 mb-3" key={event.id}>
             <SecurityCard event={event} />
           </div>
         ))}
       </div>
+
       {data?.meta && data.meta.last_page > 1 && (
-        <div className="pagination-controls">
+        <div className="d-flex justify-content-center mt-4">
           <button
             className="btn btn-outline-primary me-2"
             disabled={page <= 1}
@@ -97,7 +101,7 @@ export default function SecurityFeedPage() {
           >
             {t("Previous")}
           </button>
-          <span className="page-info">
+          <span className="align-self-center">
             {t("Page {{current}} of {{total}}", {
               current: page,
               total: data.meta.last_page,

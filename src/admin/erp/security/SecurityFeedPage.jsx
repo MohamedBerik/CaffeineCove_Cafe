@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import api from "../../../services/axios";
-import SecurityCard from "../components/SecurityCard";
-import SecurityFilters from "../components/SecurityFilters";
-import EmptyState from "../components/EmptyState";
+import SecurityCard from "./components/SecurityCard";
+import SecurityFilters from "./components/SecurityFilters";
+import EmptyState from "../dashboard/components/EmptyState";
 import { useAuth } from "../../../context/AuthContext";
 import "./SecurityFeedPage.css";
 

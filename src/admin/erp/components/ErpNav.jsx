@@ -120,6 +120,12 @@ const erpNavItems = [
     icon: "fas fa-credit-card",
     permission: "finance.view",
   },
+  {
+    to: "/admin/security-feed",
+    labelKey: "Security Feed",
+    icon: "fas fa-shield-alt",
+    permission: "activity_logs.view",
+  },
 ];
 
 const saasNavItems = [
@@ -171,12 +177,6 @@ const saasNavItems = [
     labelKey: "Contact Messages",
     icon: "fas fa-envelope",
     permission: "contact_messages.manage",
-  },
-  {
-    to: "/admin/security-feed",
-    labelKey: "Security Feed",
-    icon: "fas fa-shield-alt",
-    permission: "activity_logs.view",
   },
   {
     to: "/admin/settings/saas",

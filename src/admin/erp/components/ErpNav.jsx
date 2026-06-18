@@ -121,7 +121,7 @@ const erpNavItems = [
     permission: "finance.view",
   },
   {
-    to: "/admin/security-feed",
+    to: "/admin/erp/security-feed",
     labelKey: "Security Feed",
     icon: "fas fa-shield-alt",
     permission: "activity_logs.view",

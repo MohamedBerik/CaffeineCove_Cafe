@@ -1,131 +1,118 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import api from "../../../services/axios";
 import SecurityCard from "./components/SecurityCard";
 import SecurityFilters from "./components/SecurityFilters";
+import useSecurityFeedSocket from "../../../hooks/useSecurityFeedSocket";
 import EmptyState from "../dashboard/components/EmptyState";
-import { useAuth } from "../../../context/AuthContext";
 import "./SecurityFeedPage.css";
 
 export default function SecurityFeedPage() {
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     type: "",
     email: "",
-    date: "",
+    dateFrom: "",
+    dateTo: "",
   });
-  const [pagination, setPagination] = useState({
-    current_page: 1,
-    last_page: 1,
-    total: 0,
-  });
+  const [page, setPage] = useState(1);
+  const [events, setEvents] = useState([]);
 
-  const fetchEvents = useCallback(
-    async (page = 1) => {
-      setLoading(true);
-      try {
-        const params = { limit: 10, page };
-        if (filters.type) params.type = filters.type;
-        if (filters.email) params.email = filters.email;
-        if (filters.date) params.date = filters.date;
-
-        const res = await api.get("/erp/security-events", { params });
-        setEvents(res.data.data || []);
-        setPagination({
-          current_page: res.data.meta.current_page,
-          last_page: res.data.meta.last_page,
-          total: res.data.meta.total,
-        });
-      } catch (error) {
-        console.error("Failed to fetch security events", error);
-        setEvents([]);
-      } finally {
-        setLoading(false);
-      }
+  // ✅ جلب البيانات من الـ API
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["security-events", page, filters],
+    queryFn: async () => {
+      const params = { page, limit: 10, ...filters };
+      const res = await api.get("/erp/security-events", { params });
+      return res.data;
     },
-    [filters],
-  );
+    keepPreviousData: true,
+  });
 
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+  // ✅ تحديث الأحداث عبر WebSocket
+  useSecurityFeedSocket((newEvent) => {
+    setEvents((prev) => [newEvent, ...prev]);
+  });
 
-  const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+    setPage(1);
   };
 
-  const handlePageChange = (page) => {
-    fetchEvents(page);
-  };
-
-  // التحقق من صلاحية الوصول
-  if (!user?.is_super_admin && user?.role !== "admin") {
-    return (
-      <div className="security-feed-page">
-        <EmptyState text={t("You don't have permission to view this page")} />
-      </div>
+  // ✅ دمج البيانات الواردة من الـ socket مع البيانات القادمة من الـ API
+  const displayedEvents = useMemo(() => {
+    const apiEvents = data?.data ?? [];
+    // دمج مع الحفاظ على الترتيب الزمني ومنع التكرار
+    const merged = [...events];
+    apiEvents.forEach((apiEvent) => {
+      if (!merged.some((e) => e.id === apiEvent.id)) {
+        merged.push(apiEvent);
+      }
+    });
+    return merged.sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at),
     );
-  }
+  }, [data, events]);
 
   return (
-    <div className="security-feed-page">
-      {/* Header */}
-      <div className="page-header">
-        <div className="header-content">
-          <h1 className="page-title">🚨 {t("Security Feed")}</h1>
-          <p className="page-subtitle">
-            {t(
-              "Monitor suspicious activities, failed logins, and admin overrides",
-            )}
-          </p>
-        </div>
-        <div className="stats-badge">
-          <i className="fas fa-shield-alt"></i>
-          <span>
-            {pagination.total} {t("events")}
-          </span>
-        </div>
+    <div className="container py-4">
+      <div className="page-header mb-4">
+        <h2>🚨 {t("Security Feed")}</h2>
+        <p className="text-muted">
+          {t("Monitor all security-related events in real-time")}
+        </p>
       </div>
 
-      {/* Filters */}
-      <SecurityFilters filters={filters} onFilterChange={handleFilterChange} />
+      <SecurityFilters filters={filters} onChange={handleFilterChange} />
 
-      {/* Events List */}
-      <div className="security-events-list">
-        {loading ? (
-          <div className="loading-spinner">
-            <i className="fas fa-spinner fa-spin"></i> {t("Loading...")}
+      {isLoading && (
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">{t("Loading...")}</span>
           </div>
-        ) : events.length === 0 ? (
-          <EmptyState text={t("No security events found")} />
-        ) : (
-          events.map((event) => <SecurityCard key={event.id} event={event} />)
-        )}
+        </div>
+      )}
+
+      {isError && (
+        <div className="alert alert-danger">
+          {t("Failed to load security events")}: {error.message}
+        </div>
+      )}
+
+      {!isLoading && !isError && displayedEvents.length === 0 && (
+        <EmptyState text={t("No security events found.")} />
+      )}
+
+      <div className="row">
+        {displayedEvents.map((event) => (
+          <div className="col-12 mb-3" key={event.id}>
+            <SecurityCard event={event} />
+          </div>
+        ))}
       </div>
 
-      {/* Pagination */}
-      {pagination.last_page > 1 && (
-        <div className="pagination-controls">
+      {data?.meta && data.meta.last_page > 1 && (
+        <div className="d-flex justify-content-center mt-4">
           <button
-            className="btn btn-outline-secondary"
-            disabled={pagination.current_page === 1}
-            onClick={() => handlePageChange(pagination.current_page - 1)}
+            className="btn btn-outline-primary me-2"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
           >
-            <i className="fas fa-chevron-left"></i> {t("Previous")}
+            {t("Previous")}
           </button>
-          <span className="page-info">
-            {t("Page")} {pagination.current_page} {t("of")}{" "}
-            {pagination.last_page}
+          <span className="align-self-center">
+            {t("Page {{current}} of {{total}}", {
+              current: page,
+              total: data.meta.last_page,
+            })}
           </span>
           <button
-            className="btn btn-outline-secondary"
-            disabled={pagination.current_page === pagination.last_page}
-            onClick={() => handlePageChange(pagination.current_page + 1)}
+            className="btn btn-outline-primary ms-2"
+            disabled={page >= data.meta.last_page}
+            onClick={() => setPage((p) => p + 1)}
           >
-            {t("Next")} <i className="fas fa-chevron-right"></i>
+            {t("Next")}
           </button>
         </div>
       )}

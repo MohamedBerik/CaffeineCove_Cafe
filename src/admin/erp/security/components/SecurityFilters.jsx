@@ -1,65 +1,79 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
 
-const SecurityFilters = ({ filters, onFilterChange }) => {
+const SecurityFilters = memo(({ filters, onChange }) => {
   const { t } = useTranslation();
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    onChange({ ...filters, [name]: value });
+  };
+
   return (
-    <div className="security-filters">
-      <div className="filter-group">
-        <label>
-          <i className="fas fa-tag"></i> {t("Type")}
-        </label>
-        <select
-          value={filters.type}
-          onChange={(e) => onFilterChange("type", e.target.value)}
-        >
-          <option value="">{t("All Types")}</option>
-          <option value="failed_login">{t("Failed Login")}</option>
-          <option value="suspicious_activity">
-            {t("Suspicious Activity")}
-          </option>
-          <option value="admin_override">{t("Admin Override")}</option>
-        </select>
+    <div className="card mb-4">
+      <div className="card-body">
+        <div className="row g-3">
+          <div className="col-md-3">
+            <label className="form-label">{t("Event Type")}</label>
+            <select
+              name="type"
+              className="form-select"
+              value={filters.type}
+              onChange={handleChange}
+            >
+              <option value="">{t("All Types")}</option>
+              <option value="failed_login">{t("Failed Login")}</option>
+              <option value="suspicious_activity">
+                {t("Suspicious Activity")}
+              </option>
+              <option value="admin_override">{t("Admin Override")}</option>
+            </select>
+          </div>
+          <div className="col-md-3">
+            <label className="form-label">{t("Email")}</label>
+            <input
+              type="text"
+              name="email"
+              className="form-control"
+              placeholder={t("Search by email")}
+              value={filters.email}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-2">
+            <label className="form-label">{t("From")}</label>
+            <input
+              type="date"
+              name="dateFrom"
+              className="form-control"
+              value={filters.dateFrom}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-2">
+            <label className="form-label">{t("To")}</label>
+            <input
+              type="date"
+              name="dateTo"
+              className="form-control"
+              value={filters.dateTo}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-2 d-flex align-items-end">
+            <button
+              className="btn btn-outline-secondary w-100"
+              onClick={() =>
+                onChange({ type: "", email: "", dateFrom: "", dateTo: "" })
+              }
+            >
+              {t("Clear Filters")}
+            </button>
+          </div>
+        </div>
       </div>
-
-      <div className="filter-group">
-        <label>
-          <i className="fas fa-envelope"></i> {t("Email")}
-        </label>
-        <input
-          type="text"
-          value={filters.email}
-          onChange={(e) => onFilterChange("email", e.target.value)}
-          placeholder={t("Search by email")}
-        />
-      </div>
-
-      <div className="filter-group">
-        <label>
-          <i className="fas fa-calendar"></i> {t("Date")}
-        </label>
-        <input
-          type="date"
-          value={filters.date}
-          onChange={(e) => onFilterChange("date", e.target.value)}
-        />
-      </div>
-
-      {(filters.type || filters.email || filters.date) && (
-        <button
-          className="btn-clear-filters"
-          onClick={() => {
-            onFilterChange("type", "");
-            onFilterChange("email", "");
-            onFilterChange("date", "");
-          }}
-        >
-          <i className="fas fa-times"></i> {t("Clear Filters")}
-        </button>
-      )}
     </div>
   );
-};
+});
 
-export default memo(SecurityFilters);
+export default SecurityFilters;

@@ -1,111 +1,65 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
 
-const getTypeIcon = (type) => {
-  switch (type) {
-    case "failed_login":
-      return "fa-sign-in-alt";
-    case "suspicious_activity":
-      return "fa-exclamation-triangle";
-    case "admin_override":
-      return "fa-user-shield";
-    default:
-      return "fa-shield-alt";
-  }
+const typeIcons = {
+  failed_login: "🔑",
+  suspicious_activity: "⚠️",
+  admin_override: "👤",
 };
 
-const getTypeLabel = (type, t) => {
-  switch (type) {
-    case "failed_login":
-      return t("Failed Login");
-    case "suspicious_activity":
-      return t("Suspicious Activity");
-    case "admin_override":
-      return t("Admin Override");
-    default:
-      return type;
-  }
+const typeColors = {
+  failed_login: "danger",
+  suspicious_activity: "warning",
+  admin_override: "info",
 };
 
-const getTypeColor = (type) => {
-  switch (type) {
-    case "failed_login":
-      return "danger";
-    case "suspicious_activity":
-      return "warning";
-    case "admin_override":
-      return "info";
-    default:
-      return "secondary";
-  }
-};
-
-const SecurityCard = ({ event }) => {
+const SecurityCard = memo(({ event }) => {
   const { t } = useTranslation();
+  const icon = typeIcons[event.type] || "🔔";
+  const color = typeColors[event.type] || "secondary";
 
   return (
-    <div className={`security-card border-${getTypeColor(event.type)}`}>
-      <div className="card-header">
-        <div className="card-icon">
-          <i className={`fas ${getTypeIcon(event.type)}`}></i>
-        </div>
-        <div className="card-title-wrapper">
-          <h5 className="card-title">{event.title}</h5>
-          <span className={`badge badge-${getTypeColor(event.type)}`}>
-            {getTypeLabel(event.type, t)}
-          </span>
-        </div>
-        <small className="event-time">
-          {new Date(event.created_at).toLocaleString()}
-        </small>
-      </div>
-
+    <div className={`card border-${color} shadow-sm`}>
       <div className="card-body">
-        <div className="event-details">
-          {event.email && (
-            <div className="detail-item">
-              <i className="fas fa-envelope"></i>
-              <span>{event.email}</span>
+        <div className="d-flex justify-content-between align-items-start">
+          <div className="d-flex align-items-center">
+            <span className="me-3 fs-3">{icon}</span>
+            <div>
+              <h5 className={`text-${color} mb-1`}>{t(event.title)}</h5>
+              <div className="small text-muted">
+                <span className="me-3">
+                  <strong>{t("Type")}:</strong> {t(event.type)}
+                </span>
+                {event.email && (
+                  <span className="me-3">
+                    <strong>{t("Email")}:</strong> {event.email}
+                  </span>
+                )}
+                {event.ip && (
+                  <span className="me-3">
+                    <strong>IP:</strong> {event.ip}
+                  </span>
+                )}
+                {event.user_id && (
+                  <span>
+                    <strong>{t("User ID")}:</strong> {event.user_id}
+                  </span>
+                )}
+              </div>
+              {event.payload?.reason && (
+                <p className="mb-0 mt-1 text-muted small">
+                  {t("Reason")}: {event.payload.reason}
+                </p>
+              )}
             </div>
-          )}
-
-          {event.ip && (
-            <div className="detail-item">
-              <i className="fas fa-map-marker-alt"></i>
-              <span>{event.ip}</span>
-            </div>
-          )}
-
-          {event.user_id && (
-            <div className="detail-item">
-              <i className="fas fa-user"></i>
-              <span>User ID: {event.user_id}</span>
-            </div>
-          )}
-        </div>
-
-        {event.payload && Object.keys(event.payload).length > 0 && (
-          <div className="event-payload">
-            <button
-              className="btn btn-sm btn-outline-secondary"
-              onClick={(e) => {
-                const details = e.currentTarget.nextElementSibling;
-                if (details) {
-                  details.style.display =
-                    details.style.display === "none" ? "block" : "none";
-                }
-              }}
-            >
-              <i className="fas fa-code"></i> {t("Details")}
-            </button>
-            <pre className="payload-content" style={{ display: "none" }}>
-              {JSON.stringify(event.payload, null, 2)}
-            </pre>
           </div>
-        )}
+          <small className="text-muted">
+            {new Date(event.created_at).toLocaleString()}
+          </small>
+        </div>
       </div>
     </div>
   );
-};
+});
 
-export default memo(SecurityCard);
+export default SecurityCard;

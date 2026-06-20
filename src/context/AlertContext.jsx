@@ -19,7 +19,15 @@ export const AlertProvider = ({ children }) => {
   const queryClient = useQueryClient();
   const [unreadCount, setUnreadCount] = useState(0);
   const [alerts, setAlerts] = useState([]);
-  const unreadCountRef = useRef(unreadCount); // ✅ مرجع للعداد
+
+  // مراجع للحيلولة دون مشاكل السباق والتكرار
+  const alertsRef = useRef([]);
+  const receivedIdsRef = useRef(new Set());
+  const unreadCountRef = useRef(unreadCount);
+
+  useEffect(() => {
+    alertsRef.current = alerts;
+  }, [alerts]);
 
   useEffect(() => {
     unreadCountRef.current = unreadCount;
@@ -53,18 +61,32 @@ export const AlertProvider = ({ children }) => {
     };
   }, [user, authLoading]);
 
-  // عند تغيير المستخدم أو الفرع – نمسح الكاش فقط
+  // عند تغيير المستخدم أو الفرع – نمسح الكاش ومعرفات الأحداث المستلمة
   useEffect(() => {
     queryClient.removeQueries({ queryKey: ["alerts"] });
     queryClient.removeQueries({ queryKey: ["insights"] });
+    receivedIdsRef.current.clear();
   }, [user?.id, companyId, branchId, queryClient]);
 
   const addAlert = useCallback(
     (newAlert) => {
       const normalizedAlert = { ...newAlert, read: Boolean(newAlert.read) };
+      // مفتاح فريد يجمع الشركة والفرع والمعرف لمنع التداخل
+      const dedupeKey = `${companyId}:${branchId}:${normalizedAlert.id}`;
 
+      // 1️⃣ فحص التكرار باستخدام المفتاح المركب
+      if (receivedIdsRef.current.has(dedupeKey)) {
+        return;
+      }
+
+      // 2️⃣ فحص التكرار في القائمة الحالية باستخدام المرجع
+      if (alertsRef.current.some((a) => a.id === normalizedAlert.id)) {
+        return;
+      }
+
+      // 3️⃣ فحص التكرار في كاش React Query (اختياري لكن مفيد)
       const filters = ["all", "unread", "high"];
-      const alreadyExists = filters.some((filter) => {
+      const alreadyExistsInCache = filters.some((filter) => {
         const data = queryClient.getQueryData([
           "alerts",
           filter,
@@ -75,14 +97,20 @@ export const AlertProvider = ({ children }) => {
           page.data.some((a) => a.id === normalizedAlert.id),
         );
       });
-      if (alreadyExists) return;
+      if (alreadyExistsInCache) return;
 
+      // 4️⃣ إضافة المفتاح إلى قائمة المستلمين بعد نجاح جميع الفحوصات
+      receivedIdsRef.current.add(dedupeKey);
+
+      // 5️⃣ تحديث القائمة المحفوظة (آخر 10)
+      setAlerts((prev) => [normalizedAlert, ...prev].slice(0, 10));
+
+      // 6️⃣ زيادة العداد إذا كان غير مقروء
       if (!normalizedAlert.read) {
         setUnreadCount((prev) => prev + 1);
       }
 
-      setAlerts((prev) => [normalizedAlert, ...prev].slice(0, 10));
-
+      // 7️⃣ تحديث الكاش (React Query)
       filters.forEach((filter) => {
         if (filter === "unread" && normalizedAlert.read) return;
         if (filter === "high" && normalizedAlert.priority !== "high") return;
@@ -258,12 +286,11 @@ export const AlertProvider = ({ children }) => {
     }
   }, [queryClient, companyId, branchId]);
 
-  // ✅ دالة جديدة للاعتراف الجماعي
+  // ✅ markManyAsRead بدون الاعتماد على alerts في التبعيات
   const markManyAsRead = useCallback(
     async (ids) => {
       if (!ids || ids.length === 0) return;
 
-      // حفظ البيانات السابقة للتراجع عند الفشل
       const previousCount = unreadCountRef.current;
       const previousUnreadCache = queryClient.getQueryData([
         "alerts",
@@ -277,8 +304,14 @@ export const AlertProvider = ({ children }) => {
         companyId,
         branchId,
       ]);
+      const previousHighCache = queryClient.getQueryData([
+        "alerts",
+        "high",
+        companyId,
+        branchId,
+      ]);
+      const previousAlerts = alertsRef.current; // ✅ استخدام المرجع بدلاً من الحالة مباشرة
 
-      // حساب عدد العناصر غير المقروءة فعليًا من هذه الدفعة
       const unreadData = queryClient.getQueryData([
         "alerts",
         "unread",
@@ -289,29 +322,40 @@ export const AlertProvider = ({ children }) => {
         unreadData?.pages?.some((page) => page.data.some((a) => a.id === id)),
       );
 
-      // تحديث متفائل للكاش
-      queryClient.setQueriesData(
-        { queryKey: ["alerts"], exact: false },
-        (oldData) => {
-          if (!oldData) return oldData;
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page) => ({
-              ...page,
-              data: page.data.map((a) =>
-                ids.includes(a.id) ? { ...a, read: true } : a,
-              ),
-            })),
-          };
-        },
-      );
+      // تحديث الكاش بشكل منفصل لكل فلتر
+      const filters = ["all", "unread", "high"];
+      filters.forEach((filter) => {
+        queryClient.setQueryData(
+          ["alerts", filter, companyId, branchId],
+          (oldData) => {
+            if (!oldData) return oldData;
+            if (filter === "unread") {
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page) => ({
+                  ...page,
+                  data: page.data.filter((a) => !ids.includes(a.id)),
+                })),
+              };
+            }
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                data: page.data.map((a) =>
+                  ids.includes(a.id) ? { ...a, read: true } : a,
+                ),
+              })),
+            };
+          },
+        );
+      });
 
-      // تحديث القائمة المحفوظة (آخر 10)
+      // تحديث القائمة المحلية
       setAlerts((prev) =>
         prev.map((a) => (ids.includes(a.id) ? { ...a, read: true } : a)),
       );
 
-      // تحديث العداد
       if (unreadIdsInBatch.length > 0) {
         setUnreadCount((prev) => Math.max(prev - unreadIdsInBatch.length, 0));
       }
@@ -320,7 +364,7 @@ export const AlertProvider = ({ children }) => {
         await api.post("/erp/alerts/ack-many", { ids });
       } catch (err) {
         console.error("❌ rollback markManyAsRead:", err);
-        // استرجاع الكاش والعداد
+        // استرجاع جميع الكاشات
         if (previousUnreadCache) {
           queryClient.setQueryData(
             ["alerts", "unread", companyId, branchId],
@@ -333,11 +377,19 @@ export const AlertProvider = ({ children }) => {
             previousAllCache,
           );
         }
+        if (previousHighCache) {
+          queryClient.setQueryData(
+            ["alerts", "high", companyId, branchId],
+            previousHighCache,
+          );
+        }
+        // ✅ استرجاع القائمة المحلية
+        setAlerts(previousAlerts);
         setUnreadCount(previousCount);
-        throw err; // لإعلام المستدعي بأن العملية فشلت
+        throw err;
       }
     },
-    [queryClient, companyId, branchId],
+    [queryClient, companyId, branchId], // ✅ لا تعتمد على alerts
   );
 
   useAlertsSocket((newAlert) => addAlert(newAlert), companyId, branchId);
@@ -351,7 +403,7 @@ export const AlertProvider = ({ children }) => {
     addAlert,
     markAsRead,
     markAllAsRead,
-    markManyAsRead, // ✅ تصدير الدالة الجديدة
+    markManyAsRead,
   };
 
   return (

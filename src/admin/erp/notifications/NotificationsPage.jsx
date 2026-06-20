@@ -14,7 +14,6 @@ const NotificationsPage = () => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { markAsRead, markManyAsRead } = useAlertActions(); // ✅ استخراج الدالة الجديدة
-  const queryClient = useQueryClient();
 
   const [filter, setFilter] = useState("all");
   const [selectedAlert, setSelectedAlert] = useState(null);

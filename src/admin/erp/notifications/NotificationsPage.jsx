@@ -33,17 +33,14 @@ const NotificationsPage = () => {
       setSelectedBranch(localStorage.getItem("selectedBranchId"));
       setSelectedCompany(localStorage.getItem("selectedCompany"));
     };
-
     window.addEventListener("branchChanged", sync);
     window.addEventListener("companyChanged", sync);
-
     return () => {
       window.removeEventListener("branchChanged", sync);
       window.removeEventListener("companyChanged", sync);
     };
   }, []);
 
-  // استعلام التنبيهات (Infinite Query)
   const {
     data: alertsData,
     fetchNextPage,
@@ -52,22 +49,18 @@ const NotificationsPage = () => {
     isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ["alerts", filter, selectedCompany, selectedBranch],
-
     queryFn: async ({ pageParam = 1 }) => {
       const res = await api.get(
         `/erp/alerts?page=${pageParam}&filter=${filter}&branch_id=${selectedBranch || ""}`,
       );
       return res.data;
     },
-
     getNextPageParam: (lastPage) =>
       lastPage.meta?.has_more ? lastPage.meta.current_page + 1 : undefined,
-
     staleTime: 1000 * 30,
     placeholderData: undefined,
   });
 
-  // استعلام Insights
   const { data: insightsData } = useQuery({
     queryKey: ["insights", selectedCompany, selectedBranch],
     queryFn: async () => {
@@ -86,7 +79,6 @@ const NotificationsPage = () => {
   const alerts = alertsData?.pages.flatMap((page) => page.data) || [];
   const insights = insightsData || [];
 
-  // ✅ تجميع كل الإشعارات (بدون NotificationContext القديم)
   const allNotifications = useMemo(
     () => [
       ...alerts.map((a) => ({ ...a, notificationType: "alert" })),
@@ -128,7 +120,6 @@ const NotificationsPage = () => {
 
   const handleAcknowledge = async (alertId) => {
     if (typeof alertId === "string" && alertId.startsWith("insight-")) return;
-
     try {
       await markAsRead(alertId);
       setSelectedAlert((prev) => (prev ? { ...prev, read: true } : null));
@@ -181,6 +172,7 @@ const NotificationsPage = () => {
 
   const PRIORITY_ORDER = { high: 3, medium: 2, low: 1 };
 
+  // ✅ دوال التجميع والفرز (مع useCallback)
   const groupAlerts = useCallback((items) => {
     const groups = {};
     items.forEach((item) => {
@@ -217,27 +209,11 @@ const NotificationsPage = () => {
     return "info";
   }, []);
 
-  const sortGroups = (groups) =>
-    groups.sort(
-      (a, b) => PRIORITY_ORDER[b.priority] - PRIORITY_ORDER[a.priority],
-    );
-
-  const categorize = (item) => {
-    if (item.notificationType === "insight") {
-      return item.priority === "high" ? "critical" : "attention";
-    }
-    if (item.type === "danger" || item.priority === "high") return "critical";
-    if (item.type === "warning" || item.priority === "medium")
-      return "attention";
-    return "info";
-  };
-
   const formatGroupDate = (dateString) => {
     const date = new Date(dateString);
     const today = new Date();
     const diffTime = today - date;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
     if (diffDays === 0) return t("Today");
     if (diffDays === 1) return t("Yesterday");
     if (diffDays < 7) return `${diffDays} ${t("days ago")}`;
@@ -258,7 +234,7 @@ const NotificationsPage = () => {
 
   const smartGroupedAlerts = useMemo(() => {
     return sortGroups(groupAlerts(filteredAlerts));
-  }, [filteredAlerts]);
+  }, [filteredAlerts, groupAlerts, sortGroups]);
 
   const getNotificationIcon = (item) => {
     if (item.notificationType === "insight") {
@@ -335,21 +311,19 @@ const NotificationsPage = () => {
               className={`filter-btn ${filter === "all" ? "active" : ""}`}
               onClick={() => setFilter("all")}
             >
-              <i className="fas fa-bell me-1"></i>
-              {t("All")}
+              <i className="fas fa-bell me-1"></i> {t("All")}
             </button>
             <button
               className={`filter-btn ${filter === "unread" ? "active" : ""}`}
               onClick={() => setFilter("unread")}
             >
-              <i className="fas fa-envelope me-1"></i>
-              {t("Unread")}
+              <i className="fas fa-envelope me-1"></i> {t("Unread")}
             </button>
             <button
               className={`filter-btn ${filter === "high" ? "active" : ""}`}
               onClick={() => setFilter("high")}
             >
-              <i className="fas fa-exclamation-triangle me-1"></i>
+              <i className="fas fa-exclamation-triangle me-1"></i>{" "}
               {t("High Priority")}
             </button>
           </div>
@@ -364,7 +338,6 @@ const NotificationsPage = () => {
             {filteredAlerts.length} {t("notifications")}
           </span>
         </div>
-
         <div className="notifications-card-body">
           {filteredAlerts.length === 0 ? (
             <div className="empty-state">
@@ -400,14 +373,12 @@ const NotificationsPage = () => {
                       <span className="alert-count">({group.count})</span>
                     )}
                   </div>
-
                   {group.notificationType !== "insight" && group.time && (
                     <div className="alert-time">
-                      <i className="fas fa-clock"></i>
+                      <i className="fas fa-clock"></i>{" "}
                       {formatDateTime(group.time)}
                     </div>
                   )}
-
                   <div className="alert-actions">
                     <button
                       className="btn-view-group"
@@ -428,7 +399,6 @@ const NotificationsPage = () => {
               ))}
             </div>
           )}
-
           {hasNextPage && (
             <div className="load-more-container">
               <button
@@ -555,13 +525,12 @@ const NotificationsPage = () => {
                   className="btn-acknowledge"
                   onClick={() => handleAcknowledge(selectedAlert.id)}
                 >
-                  <i className="fas fa-check-circle me-2"></i>
+                  <i className="fas fa-check-circle me-2"></i>{" "}
                   {t("Acknowledge")}
                 </button>
               )}
               <button className="btn-close-modal" onClick={closeModal}>
-                <i className="fas fa-times me-2"></i>
-                {t("Close")}
+                <i className="fas fa-times me-2"></i> {t("Close")}
               </button>
             </div>
           </div>

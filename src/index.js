@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { AuthProvider } from "./context/AuthContext";
 import { AlertProvider } from "./context/AlertContext";
-import { NotificationProvider } from "./context/NotificationContext";
 import App from "./App";
 import "./i18n";
 
@@ -107,6 +106,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 دقائق
+      gcTime: 1000 * 60 * 30,
       refetchOnWindowFocus: false,
     },
   },
@@ -116,341 +116,318 @@ createRoot(document.getElementById("root")).render(
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <AlertProvider>
-        <NotificationProvider>
-          <BrowserRouter>
-            <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              closeOnClick
-              pauseOnHover
-              draggable
-              theme="light"
+        <BrowserRouter>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            closeOnClick
+            pauseOnHover
+            draggable
+            theme="light"
+          />
+          <Toaster position="top-right" />
+          <Routes>
+            {/* ================= Auth ================= */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/logout" element={<Logout />} />
+            {/* ================= ERP Dashboard (NEW SYSTEM) ================= */}
+            <Route
+              path="/admin/erp/invoices/:id/print"
+              element={<PrintInvoicePage />}
             />
-            <Toaster position="top-right" />
-            <Routes>
-              {/* ================= Auth ================= */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/privacy" element={<PrivacyPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/logout" element={<Logout />} />
-              {/* ================= ERP Dashboard (NEW SYSTEM) ================= */}
+            <Route
+              path="/admin/erp/purchase-orders/:id/print"
+              element={<PrintPurchaseOrderPage />}
+            />
+            <Route
+              path="/admin/erp/billing/invoices/:id/print"
+              element={<PrintBillingInvoicePage />}
+            />
+            <Route
+              path="/admin/erp/reports/analytics/print"
+              element={<PrintAnalyticsDashboardPage />}
+            />
+            <Route
+              path="/admin/erp/reports/appointments/print"
+              element={<PrintAppointmentsReportPage />}
+            />
+            <Route
+              path="/admin/erp/reports/doctors/print"
+              element={<PrintDoctorPerformanceReportPage />}
+            />
+            <Route
+              path="/admin/erp/reports/revenue/print"
+              element={<PrintRevenueReportPage />}
+            />
+            <Route
+              path="/admin/erp/reports/payments/print"
+              element={<PrintPaymentsReportPage />}
+            />
+            <Route
+              path="/admin/erp/reports/treatment-plans/print"
+              element={<PrintTreatmentPlansReportPage />}
+            />
+            <Route
+              path="/admin/erp/reports/patients/print"
+              element={<PrintPatientsReportPage />}
+            />
+            <Route
+              path="/admin/saas/reports/print"
+              element={<PrintSaaSReportsPage />}
+            />
+
+            {/* ================= ERP Dashboard (NEW SYSTEM) ================= */}
+
+            <Route
+              path="/admin/erp/*"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<ErpDashboardHome />} />
+              <Route path="orders" element={<OrdersList />} />
+              <Route path="orders/create" element={<CreateOrder />} />
+              <Route path="orders/:id" element={<OrderDetails />} />
+              <Route path="invoices" element={<InvoicesList />} />
+              <Route path="invoices/:id" element={<InvoiceDetails />} />
               <Route
-                path="/admin/erp/invoices/:id/print"
-                element={<PrintInvoicePage />}
+                path="purchase-orders/create"
+                element={<PurchaseOrderCreate />}
+              />
+              <Route path="purchase-orders" element={<PurchaseOrdersList />} />
+              <Route
+                path="purchase-orders/:id"
+                element={<PurchaseOrderDetails />}
               />
               <Route
-                path="/admin/erp/purchase-orders/:id/print"
-                element={<PrintPurchaseOrderPage />}
+                path="purchase-orders/:id/returns"
+                element={<PurchaseOrderReturns />}
               />
               <Route
-                path="/admin/erp/billing/invoices/:id/print"
-                element={<PrintBillingInvoicePage />}
-              />
-              <Route
-                path="/admin/erp/reports/analytics/print"
-                element={<PrintAnalyticsDashboardPage />}
-              />
-              <Route
-                path="/admin/erp/reports/appointments/print"
-                element={<PrintAppointmentsReportPage />}
-              />
-              <Route
-                path="/admin/erp/reports/doctors/print"
-                element={<PrintDoctorPerformanceReportPage />}
-              />
-              <Route
-                path="/admin/erp/reports/revenue/print"
-                element={<PrintRevenueReportPage />}
-              />
-              <Route
-                path="/admin/erp/reports/payments/print"
-                element={<PrintPaymentsReportPage />}
-              />
-              <Route
-                path="/admin/erp/reports/treatment-plans/print"
-                element={<PrintTreatmentPlansReportPage />}
-              />
-              <Route
-                path="/admin/erp/reports/patients/print"
-                element={<PrintPatientsReportPage />}
-              />
-              <Route
-                path="/admin/saas/reports/print"
-                element={<PrintSaaSReportsPage />}
+                path="purchase-orders/:id/returns-history"
+                element={<PurchaseOrderReturnsHistory />}
               />
 
-              {/* ================= ERP Dashboard (NEW SYSTEM) ================= */}
-
+              <Route path="suppliers" element={<SuppliersListPage />} />
+              <Route path="suppliers/create" element={<SupplierFormPage />} />
+              <Route path="suppliers/:id/edit" element={<SupplierFormPage />} />
               <Route
-                path="/admin/erp/*"
-                element={
-                  <AdminRoute>
-                    <ERPDashboard />
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<ErpDashboardHome />} />
-                <Route path="orders" element={<OrdersList />} />
-                <Route path="orders/create" element={<CreateOrder />} />
-                <Route path="orders/:id" element={<OrderDetails />} />
-                <Route path="invoices" element={<InvoicesList />} />
-                <Route path="invoices/:id" element={<InvoiceDetails />} />
-                <Route
-                  path="purchase-orders/create"
-                  element={<PurchaseOrderCreate />}
-                />
-                <Route
-                  path="purchase-orders"
-                  element={<PurchaseOrdersList />}
-                />
-                <Route
-                  path="purchase-orders/:id"
-                  element={<PurchaseOrderDetails />}
-                />
-                <Route
-                  path="purchase-orders/:id/returns"
-                  element={<PurchaseOrderReturns />}
-                />
-                <Route
-                  path="purchase-orders/:id/returns-history"
-                  element={<PurchaseOrderReturnsHistory />}
-                />
-
-                <Route path="suppliers" element={<SuppliersListPage />} />
-                <Route path="suppliers/create" element={<SupplierFormPage />} />
-                <Route
-                  path="suppliers/:id/edit"
-                  element={<SupplierFormPage />}
-                />
-                <Route
-                  path="suppliers/:id/statement"
-                  element={<SupplierStatementPage />}
-                />
-
-                <Route path="supplies" element={<SuppliesListPage />} />
-                <Route path="supplies/create" element={<SupplyFormPage />} />
-                <Route path="supplies/:id/edit" element={<SupplyFormPage />} />
-
-                <Route
-                  path="patients/:id/statement"
-                  element={<PatientStatement />}
-                />
-                <Route path="patients" element={<PatientsList />} />
-                <Route
-                  path="patients/:id/profile"
-                  element={<PatientProfilePage />}
-                />
-                <Route
-                  path="patients/:id/timeline"
-                  element={<PatientTimelinePage />}
-                />
-                <Route path="patients/create" element={<PatientFormPage />} />
-                <Route path="patients/:id/edit" element={<PatientFormPage />} />
-                <Route path="appointments" element={<AppointmentsListPage />} />
-                <Route
-                  path="appointments/:id/activity"
-                  element={<AppointmentActivityPage />}
-                />
-                <Route
-                  path="appointments/create"
-                  element={<BookAppointmentPage />}
-                />
-                <Route
-                  path="appointments/calendar"
-                  element={<AppointmentCalendarPage />}
-                />
-                <Route
-                  path="treatment-plans"
-                  element={<TreatmentPlansListPage />}
-                />
-                <Route
-                  path="treatment-plans/:id"
-                  element={<TreatmentPlanDetailsPage />}
-                />
-                <Route
-                  path="treatment-plans/create"
-                  element={<CreateTreatmentPlanPage />}
-                />
-                <Route
-                  path="dental-records"
-                  element={<DentalRecordsListPage />}
-                />
-                <Route
-                  path="dental-records/create"
-                  element={<CreateDentalRecordPage />}
-                />
-                <Route
-                  path="settings/clinic"
-                  element={<ClinicSettingsPage />}
-                />
-                <Route path="doctors/create" element={<DoctorFormPage />} />
-                <Route path="doctors/:id/edit" element={<DoctorFormPage />} />
-                <Route path="doctors" element={<DoctorsListPage />} />
-                <Route
-                  path="doctors/:id/availability"
-                  element={<DoctorAvailabilityPage />}
-                />
-
-                <Route path="employees" element={<EmployeeListPage />} />
-                <Route path="employees/create" element={<EmployeeFormPage />} />
-                <Route
-                  path="employees/:id/edit"
-                  element={<EmployeeFormPage />}
-                />
-
-                <Route path="branches" element={<BranchesListPage />} />
-                <Route path="branches/create" element={<BranchFormPage />} />
-                <Route path="branches/:id/edit" element={<BranchFormPage />} />
-
-                <Route path="reports" element={<ReportsDashboardPage />} />
-                <Route path="reports/revenue" element={<RevenueReportPage />} />
-                <Route
-                  path="reports/appointments"
-                  element={<AppointmentsReportPage />}
-                />
-                <Route
-                  path="reports/doctors"
-                  element={<DoctorPerformanceReportPage />}
-                />
-                <Route
-                  path="reports/analytics"
-                  element={<AnalyticsDashboardPage />}
-                />
-                <Route
-                  path="reports/payments"
-                  element={<PaymentsReportPage />}
-                />
-                <Route
-                  path="reports/treatment-plans"
-                  element={<TreatmentPlansReportPage />}
-                />
-                <Route
-                  path="reports/patients"
-                  element={<PatientsReportPage />}
-                />
-
-                <Route path="procedures" element={<ProceduresListPage />} />
-                <Route
-                  path="procedures/create"
-                  element={<ProcedureFormPage />}
-                />
-                <Route
-                  path="procedures/:id/edit"
-                  element={<ProcedureFormPage />}
-                />
-                <Route path="products" element={<ProductsListPage />} />
-                <Route path="products/create" element={<ProductFormPage />} />
-                <Route path="products/:id/edit" element={<ProductFormPage />} />
-                <Route path="visits/start" element={<StartVisitPage />} />
-                <Route path="notifications" element={<NotificationsPage />} />
-                <Route path="billing" element={<BillingPage />} />
-                <Route path="security-feed" element={<SecurityFeedPage />} />
-              </Route>
-
-              {/* ================= SaaS Dashboard (NEW) ================= */}
-              <Route
-                path="/admin/saas"
-                element={
-                  <AdminRoute>
-                    <ERPDashboard />
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<SaaSDashboard />} />
-              </Route>
-              {/* ================= Companies Routes ================= */}
-              <Route
-                path="/admin/companies"
-                element={
-                  <AdminRoute>
-                    <ERPDashboard />
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<CompaniesList />} />
-                <Route path="create" element={<CompanyForm />} />
-                <Route path=":id/edit" element={<CompanyForm />} />
-                <Route path=":id" element={<CompanyDetails />} />
-              </Route>
-              {/* ================= Plans Routes ================= */}
-              <Route
-                path="/admin/plans"
-                element={
-                  <AdminRoute>
-                    <ERPDashboard />
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<PlansList />} />
-              </Route>
-              {/* ================= Subscriptions Routes ================= */}
-              <Route
-                path="/admin/subscriptions"
-                element={
-                  <AdminRoute>
-                    <ERPDashboard />
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<SubscriptionsList />} />
-              </Route>
-              {/* ================= SaaS Reports Routes ================= */}
-              <Route
-                path="/admin/reports/saas"
-                element={
-                  <AdminRoute>
-                    <ERPDashboard />
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<SaaSReports />} />
-              </Route>
-              {/* ================= Platform Settings Routes ================= */}
-              <Route
-                path="/admin/settings/saas"
-                element={
-                  <AdminRoute>
-                    <ERPDashboard />
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<PlatformSettings />} />
-              </Route>
-              {/* ================= Activity Logs Route ================= */}
-              <Route
-                path="/admin/activity-logs"
-                element={
-                  <AdminRoute>
-                    <ERPDashboard />
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<ActivityLogs />} />
-              </Route>
-
-              {/* ================= Contact Messages Route ================= */}
-              <Route
-                path="/admin/saas/contact-messages"
-                element={
-                  <AdminRoute>
-                    <ERPDashboard />
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<ContactMessagesListPage />} />
-              </Route>
-              {/* ================= 404 ================= */}
-              <Route
-                path="*"
-                element={<p style={{ padding: 20 }}>Page not found</p>}
+                path="suppliers/:id/statement"
+                element={<SupplierStatementPage />}
               />
-            </Routes>
-          </BrowserRouter>
-        </NotificationProvider>
+
+              <Route path="supplies" element={<SuppliesListPage />} />
+              <Route path="supplies/create" element={<SupplyFormPage />} />
+              <Route path="supplies/:id/edit" element={<SupplyFormPage />} />
+
+              <Route
+                path="patients/:id/statement"
+                element={<PatientStatement />}
+              />
+              <Route path="patients" element={<PatientsList />} />
+              <Route
+                path="patients/:id/profile"
+                element={<PatientProfilePage />}
+              />
+              <Route
+                path="patients/:id/timeline"
+                element={<PatientTimelinePage />}
+              />
+              <Route path="patients/create" element={<PatientFormPage />} />
+              <Route path="patients/:id/edit" element={<PatientFormPage />} />
+              <Route path="appointments" element={<AppointmentsListPage />} />
+              <Route
+                path="appointments/:id/activity"
+                element={<AppointmentActivityPage />}
+              />
+              <Route
+                path="appointments/create"
+                element={<BookAppointmentPage />}
+              />
+              <Route
+                path="appointments/calendar"
+                element={<AppointmentCalendarPage />}
+              />
+              <Route
+                path="treatment-plans"
+                element={<TreatmentPlansListPage />}
+              />
+              <Route
+                path="treatment-plans/:id"
+                element={<TreatmentPlanDetailsPage />}
+              />
+              <Route
+                path="treatment-plans/create"
+                element={<CreateTreatmentPlanPage />}
+              />
+              <Route
+                path="dental-records"
+                element={<DentalRecordsListPage />}
+              />
+              <Route
+                path="dental-records/create"
+                element={<CreateDentalRecordPage />}
+              />
+              <Route path="settings/clinic" element={<ClinicSettingsPage />} />
+              <Route path="doctors/create" element={<DoctorFormPage />} />
+              <Route path="doctors/:id/edit" element={<DoctorFormPage />} />
+              <Route path="doctors" element={<DoctorsListPage />} />
+              <Route
+                path="doctors/:id/availability"
+                element={<DoctorAvailabilityPage />}
+              />
+
+              <Route path="employees" element={<EmployeeListPage />} />
+              <Route path="employees/create" element={<EmployeeFormPage />} />
+              <Route path="employees/:id/edit" element={<EmployeeFormPage />} />
+
+              <Route path="branches" element={<BranchesListPage />} />
+              <Route path="branches/create" element={<BranchFormPage />} />
+              <Route path="branches/:id/edit" element={<BranchFormPage />} />
+
+              <Route path="reports" element={<ReportsDashboardPage />} />
+              <Route path="reports/revenue" element={<RevenueReportPage />} />
+              <Route
+                path="reports/appointments"
+                element={<AppointmentsReportPage />}
+              />
+              <Route
+                path="reports/doctors"
+                element={<DoctorPerformanceReportPage />}
+              />
+              <Route
+                path="reports/analytics"
+                element={<AnalyticsDashboardPage />}
+              />
+              <Route path="reports/payments" element={<PaymentsReportPage />} />
+              <Route
+                path="reports/treatment-plans"
+                element={<TreatmentPlansReportPage />}
+              />
+              <Route path="reports/patients" element={<PatientsReportPage />} />
+
+              <Route path="procedures" element={<ProceduresListPage />} />
+              <Route path="procedures/create" element={<ProcedureFormPage />} />
+              <Route
+                path="procedures/:id/edit"
+                element={<ProcedureFormPage />}
+              />
+              <Route path="products" element={<ProductsListPage />} />
+              <Route path="products/create" element={<ProductFormPage />} />
+              <Route path="products/:id/edit" element={<ProductFormPage />} />
+              <Route path="visits/start" element={<StartVisitPage />} />
+              <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="billing" element={<BillingPage />} />
+              <Route path="security-feed" element={<SecurityFeedPage />} />
+            </Route>
+
+            {/* ================= SaaS Dashboard (NEW) ================= */}
+            <Route
+              path="/admin/saas"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<SaaSDashboard />} />
+            </Route>
+            {/* ================= Companies Routes ================= */}
+            <Route
+              path="/admin/companies"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<CompaniesList />} />
+              <Route path="create" element={<CompanyForm />} />
+              <Route path=":id/edit" element={<CompanyForm />} />
+              <Route path=":id" element={<CompanyDetails />} />
+            </Route>
+            {/* ================= Plans Routes ================= */}
+            <Route
+              path="/admin/plans"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<PlansList />} />
+            </Route>
+            {/* ================= Subscriptions Routes ================= */}
+            <Route
+              path="/admin/subscriptions"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<SubscriptionsList />} />
+            </Route>
+            {/* ================= SaaS Reports Routes ================= */}
+            <Route
+              path="/admin/reports/saas"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<SaaSReports />} />
+            </Route>
+            {/* ================= Platform Settings Routes ================= */}
+            <Route
+              path="/admin/settings/saas"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<PlatformSettings />} />
+            </Route>
+            {/* ================= Activity Logs Route ================= */}
+            <Route
+              path="/admin/activity-logs"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<ActivityLogs />} />
+            </Route>
+
+            {/* ================= Contact Messages Route ================= */}
+            <Route
+              path="/admin/saas/contact-messages"
+              element={
+                <AdminRoute>
+                  <ERPDashboard />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<ContactMessagesListPage />} />
+            </Route>
+            {/* ================= 404 ================= */}
+            <Route
+              path="*"
+              element={<p style={{ padding: 20 }}>Page not found</p>}
+            />
+          </Routes>
+        </BrowserRouter>
       </AlertProvider>
     </AuthProvider>
 

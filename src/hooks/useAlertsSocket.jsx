@@ -4,27 +4,15 @@ import echoService from "../services/echo";
 
 export default function useAlertsSocket(onNewAlert, companyId, branchId) {
   const { user, loading } = useAuth();
-
   const onNewAlertRef = useRef(onNewAlert);
 
   useEffect(() => {
-    console.log("SOCKET EFFECT", {
-      companyId,
-      branchId,
-      userId: user?.id,
-      loading,
-    });
     onNewAlertRef.current = onNewAlert;
   }, [onNewAlert]);
 
   useEffect(() => {
-    // Guard 1
     if (loading || !user) return;
-
-    // Guard 2
-    if (!companyId) return;
-
-    // Guard 3
+    if (!companyId || companyId === "global") return;
     if (branchId === null || branchId === undefined) return;
 
     const channelName =
@@ -49,26 +37,16 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
 
     const alertListener = (event) => {
       console.log("📨 [Socket] EVENT RECEIVED:", event);
-
-      if (onNewAlertRef.current) {
-        onNewAlertRef.current(event);
-      }
+      onNewAlertRef.current?.(event);
     };
 
-    channel.listen("alert.created", alertListener);
-
-    channel.listenToAll((event, data) => {
-      console.log("🔥 ALL EVENTS", event);
-      console.log("🔥 DATA", data);
-    });
+    // ✅ إزالة أي مستمع سابق ثم إعادة الاشتراك
+    channel.stopListening(".alert.created");
+    channel.listen(".alert.created", alertListener);
 
     return () => {
       console.log("🧹 [Socket] Leaving:", channelName);
-
       try {
-        channel.stopListening(".alert.created");
-
-        // مهم جداً
         echo.leave(channelName);
       } catch (err) {
         console.error("Socket cleanup error:", err);

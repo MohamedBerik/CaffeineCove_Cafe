@@ -7,7 +7,6 @@ import {
 } from "@tanstack/react-query";
 import { useAuth } from "../../../context/AuthContext";
 import { useAlertActions } from "../../../context/AlertContext";
-import { useNotifications } from "../../../context/NotificationContext";
 import api from "../../../services/axios";
 import "./NotificationsPage.css";
 
@@ -16,7 +15,6 @@ const NotificationsPage = () => {
   const { user } = useAuth();
   const { markAsRead } = useAlertActions();
   const queryClient = useQueryClient();
-  // const { notifications } = useNotifications();
 
   const [filter, setFilter] = useState("all");
   const [selectedAlert, setSelectedAlert] = useState(null);
@@ -45,7 +43,7 @@ const NotificationsPage = () => {
     };
   }, []);
 
-  // ✅ React Query - useInfiniteQuery (إرسال الفرع الحالي إجبارياً)
+  // استعلام التنبيهات (Infinite Query)
   const {
     data: alertsData,
     fetchNextPage,
@@ -56,7 +54,6 @@ const NotificationsPage = () => {
     queryKey: ["alerts", filter, selectedCompany, selectedBranch],
 
     queryFn: async ({ pageParam = 1 }) => {
-      // 🚀 [تعديل حاسم] تمرير الـ branch_id في الـ URL لمنع تداخل الفروع
       const res = await api.get(
         `/erp/alerts?page=${pageParam}&filter=${filter}&branch_id=${selectedBranch || ""}`,
       );
@@ -66,24 +63,15 @@ const NotificationsPage = () => {
     getNextPageParam: (lastPage) =>
       lastPage.meta?.has_more ? lastPage.meta.current_page + 1 : undefined,
 
-    // 🚀 [تعديل حاسم] جعلها 0 لكي يتم جلب إشعارات الفرع الجديد فوراً عند التبديل
-    staleTime: 0,
-
+    staleTime: 1000 * 30,
     placeholderData: undefined,
   });
 
-  const {
-    notifications,
-    markAsRead: notificationMarkAsRead,
-    markAllAsRead: notificationMarkAllAsRead,
-  } = useNotifications();
-
-  // ✅ جلب الـ Insights المخصصة للفرع الحالي
+  // استعلام Insights
   const { data: insightsData } = useQuery({
     queryKey: ["insights", selectedCompany, selectedBranch],
     queryFn: async () => {
       try {
-        // 🚀 [تعديل حاسم] تمرير الـ branch_id إلى داشبورد الإحصائيات
         const res = await api.get(
           `/erp/dashboard?branch_id=${selectedBranch || ""}`,
         );
@@ -92,23 +80,25 @@ const NotificationsPage = () => {
         return [];
       }
     },
-    staleTime: 0,
+    staleTime: 1000 * 30,
   });
 
   const alerts = alertsData?.pages.flatMap((page) => page.data) || [];
   const insights = insightsData || [];
 
-  // ✅ دمج Alerts + Insights
-  const allNotifications = [
-    ...notifications,
-    ...alerts.map((alert) => ({ ...alert, notificationType: "alert" })),
-    ...insights.map((insight) => ({
-      ...insight,
-      notificationType: "insight",
-      id: `insight-${insight.category}`,
-      read: true,
-    })),
-  ];
+  // ✅ تجميع كل الإشعارات (بدون NotificationContext القديم)
+  const allNotifications = useMemo(
+    () => [
+      ...alerts.map((a) => ({ ...a, notificationType: "alert" })),
+      ...insights.map((i) => ({
+        ...i,
+        notificationType: "insight",
+        id: `insight-${i.category}`,
+        read: true,
+      })),
+    ],
+    [alerts, insights],
+  );
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -116,16 +106,6 @@ const NotificationsPage = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  // 🚀 تنظيف الكاش وإعادة جلب البيانات فوراً عند تغير الشركة أو الفرع
-  useEffect(() => {
-    queryClient.invalidateQueries({
-      queryKey: ["alerts"],
-    });
-    queryClient.invalidateQueries({
-      queryKey: ["insights"],
-    });
-  }, [selectedCompany, selectedBranch, queryClient]);
 
   const formatDateTime = useCallback(
     (value) => {
@@ -198,17 +178,17 @@ const NotificationsPage = () => {
         return "type-default";
     }
   };
+
   const PRIORITY_ORDER = { high: 3, medium: 2, low: 1 };
 
   const groupAlerts = (items) => {
     const groups = {};
     items.forEach((item) => {
-      const category =
-        item.notificationType === "insight"
+      const key = item.code
+        ? `${item.code}-${item.type}-${item.priority}`
+        : item.notificationType === "insight"
           ? `insight-${item.category}`
           : `${item.type}-${item.priority}-${item.message}`;
-
-      const key = category;
 
       if (!groups[key]) {
         groups[key] = { ...item, count: 1, items: [item] };
@@ -235,17 +215,6 @@ const NotificationsPage = () => {
     return "info";
   };
 
-  const groupAlertsByDate = (alerts) => {
-    const groups = {};
-    alerts.forEach((alert) => {
-      const date = new Date(alert.time);
-      const key = date.toDateString();
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(alert);
-    });
-    return groups;
-  };
-
   const formatGroupDate = (dateString) => {
     const date = new Date(dateString);
     const today = new Date();
@@ -262,11 +231,13 @@ const NotificationsPage = () => {
     });
   };
 
-  const filteredAlerts = allNotifications.filter((a) => {
-    if (filter === "unread") return !a.read;
-    if (filter === "high") return a.priority === "high";
-    return true;
-  });
+  const filteredAlerts = useMemo(() => {
+    return allNotifications.filter((a) => {
+      if (filter === "unread") return !a.read;
+      if (filter === "high") return a.priority === "high";
+      return true;
+    });
+  }, [allNotifications, filter]);
 
   const smartGroupedAlerts = useMemo(() => {
     return sortGroups(groupAlerts(filteredAlerts));
@@ -283,7 +254,6 @@ const NotificationsPage = () => {
       };
       return iconMap[item.category] || "📊";
     }
-
     if (item.type === "danger") return "🔴";
     if (item.type === "warning") return "🟡";
     return "🔵";
@@ -428,7 +398,6 @@ const NotificationsPage = () => {
                     >
                       {t("View Details")}
                     </button>
-
                     {group.notificationType !== "insight" && (
                       <button
                         className="btn-ack-group"

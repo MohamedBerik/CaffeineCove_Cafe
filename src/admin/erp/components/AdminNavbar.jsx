@@ -4,21 +4,14 @@ import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAlertState, useAlertActions } from "../../../context/AlertContext";
 import { useAuth } from "../../../context/AuthContext";
-import { useNotifications } from "../../../context/NotificationContext";
 import api from "../../../services/axios";
 import { setActiveBranchId } from "../../../utils/activeBranch";
-import useUserNotificationSocket from "../../../hooks/useUserNotificationSocket";
 import "./AdminNavbar.css";
 
 const AdminNavbar = ({ onToggleSidebar, sidebarOpen }) => {
-  const { alerts, loading } = useAlertState();
+  const { alerts, loading, unreadCount } = useAlertState(); // ✅ unreadCount من AlertContext
   const { markAsRead, markAllAsRead } = useAlertActions();
-  const { unreadCount } = useNotifications(); // ✅ الآن لا تتعارض مع prop
   const { logout, user } = useAuth();
-  console.log("CURRENT USER", user);
-  useUserNotificationSocket(user?.id, (event) => {
-    console.log("🔔 USER NOTIFICATION", event);
-  });
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -172,8 +165,6 @@ const AdminNavbar = ({ onToggleSidebar, sidebarOpen }) => {
   };
 
   // ✅ تبديل الفرع
-  // ✅ تبديل الفرع ديناميكياً مع تحديث الـ URL والنظام كاملاً
-  // ✅ تبديل الفرع وتحديث المتصفح فوراً بالصيغة الموحدة branch_id
   const handleBranchChange = (e) => {
     const value = e.target.value;
     if (value === selectedBranch) return;
@@ -181,30 +172,25 @@ const AdminNavbar = ({ onToggleSidebar, sidebarOpen }) => {
     setSelectedBranch(value);
     localStorage.setItem("selectedBranchId", value);
 
-    // 🚀 إذا كنت تستخدم دالة setActiveBranchId قم بتحديثها هنا أيضاً
     if (typeof setActiveBranchId === "function") {
       setActiveBranchId(value);
     }
 
-    // 🎯 تحديث الرابط في شريط المتصفح فوراً بالصيغة الموحدة branch_id
     const currentPath = window.location.pathname;
     const searchParams = new URLSearchParams(window.location.search);
 
     if (value && value !== "all") {
-      searchParams.set("branch_id", value); // 🌟 توحيد الاسم
+      searchParams.set("branch_id", value);
     } else {
       searchParams.delete("branch_id");
     }
 
-    // سحب الرابط الجديد في الـ Router ليعيد رندرة مكونات الصفحة الحالية بالباراميتر الجديد
     navigate(`${currentPath}?${searchParams.toString()}`, { replace: true });
 
-    // بث الحدث لتحديث الاستعلامات
     window.dispatchEvent(
       new CustomEvent("branchChanged", { detail: { branchId: value } }),
     );
 
-    // تنظيف كاش التانستاك كويري لإجبار الداشبورد والعدادات على جلب بيانات الفرع الجديد فوراً
     queryClient.invalidateQueries({
       predicate: (query) =>
         ["dashboard", "unreadCount", "alerts", "activityLogs"].includes(
@@ -319,7 +305,7 @@ const AdminNavbar = ({ onToggleSidebar, sidebarOpen }) => {
         return false;
       return failureCount < 2;
     },
-    refetchOnWindowFocus: false, // 🛡️ حماية إضافية ضد الـ Loops عند التنقل بين الشاشات
+    refetchOnWindowFocus: false,
     refetchInterval: 600000,
     staleTime: 10 * 60 * 1000,
   });

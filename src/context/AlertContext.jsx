@@ -9,7 +9,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "./AuthContext";
 import useAlertsSocket from "../hooks/useAlertsSocket";
 import api from "../services/axios";
-import echoService from "../services/echo";
 
 const AlertStateContext = createContext();
 const AlertActionsContext = createContext();
@@ -18,8 +17,8 @@ export const AlertProvider = ({ children }) => {
   const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [alerts, setAlerts] = useState([]); // ✅ مصفوفة التنبيهات الأخيرة لشريط التنقل
 
-  // 1️⃣ جعل الحالة الابتدائية تقرأ بذكاء الكاش أولاً أو المتاح من الـ user
   const [companyId, setCompanyId] = useState(
     () => localStorage.getItem("selectedCompany") ?? user?.company_id ?? null,
   );
@@ -27,7 +26,7 @@ export const AlertProvider = ({ children }) => {
     () => localStorage.getItem("selectedBranchId") ?? user?.branch_id ?? null,
   );
 
-  // 2️⃣ 🚀 [التعديل السحري الحاسم]: مزامنة الحالات المحلية فور تغير الـ user (تسجيل الدخول) أو أحداث تبديل الفروع
+  // مزامنة القيم مع localStorage
   useEffect(() => {
     const syncStorage = () => {
       setCompanyId(
@@ -37,29 +36,23 @@ export const AlertProvider = ({ children }) => {
         localStorage.getItem("selectedBranchId") || user?.branch_id || null,
       );
     };
-
-    // مزامنة فورية عند اكتمال تحميل المستخدم بعد الـ Login مباشرة
-    if (!authLoading && user) {
-      syncStorage();
-    }
+    if (!authLoading && user) syncStorage();
 
     window.addEventListener("storage", syncStorage);
     window.addEventListener("branchChanged", syncStorage);
     window.addEventListener("companyChanged", syncStorage);
-
     return () => {
       window.removeEventListener("storage", syncStorage);
       window.removeEventListener("branchChanged", syncStorage);
       window.removeEventListener("companyChanged", syncStorage);
     };
-  }, [user, authLoading]); // 🚀 يراقب الـ user لكي يحدث القيم بمجرد الدخول
+  }, [user, authLoading]);
 
-  // ✅ عند تغير المستخدم، نعيد ضبط الحالة المحلية والكاش
-  const [alertsList, setAlertsList] = useState([]);
   const [alertsLoading, setAlertsLoading] = useState(false);
 
+  // تنظيف عند تغيير المستخدم
   useEffect(() => {
-    setAlertsList([]);
+    setAlerts([]);
     setUnreadCount(0);
     queryClient.removeQueries({ queryKey: ["alerts"] });
     queryClient.removeQueries({ queryKey: ["insights"] });
@@ -67,18 +60,47 @@ export const AlertProvider = ({ children }) => {
 
   const addAlert = useCallback(
     (newAlert) => {
+      // فحص التكرار أولاً
       const filters = ["all", "unread", "high"];
+      const alreadyExists = filters.some((filter) => {
+        const data = queryClient.getQueryData([
+          "alerts",
+          filter,
+          companyId,
+          branchId,
+        ]);
+        return data?.pages?.some((page) =>
+          page.data.some((a) => a.id === newAlert.id),
+        );
+      });
+      if (alreadyExists) return;
+
+      // زيادة العداد إذا كان غير مقروء
+      if (!newAlert.read) {
+        setUnreadCount((prev) => prev + 1);
+      }
+
+      // تحديث القائمة المحفوظة (آخر 10)
+      setAlerts((prev) => [newAlert, ...prev].slice(0, 10));
+
+      // تحديث الكاش (React Query) – إنشاء صفحة أولية إذا لم تكن موجودة
       filters.forEach((filter) => {
         if (filter === "unread" && newAlert.read) return;
         if (filter === "high" && newAlert.priority !== "high") return;
         queryClient.setQueryData(
           ["alerts", filter, companyId, branchId],
           (oldData) => {
-            if (!oldData) return oldData;
-            const alreadyExists = oldData.pages.some((page) =>
-              page.data.some((a) => a.id === newAlert.id),
-            );
-            if (alreadyExists) return oldData;
+            if (!oldData) {
+              return {
+                pages: [
+                  {
+                    data: [newAlert],
+                    meta: { current_page: 1, has_more: false },
+                  },
+                ],
+                pageParams: [1],
+              };
+            }
             return {
               ...oldData,
               pages: [
@@ -92,28 +114,33 @@ export const AlertProvider = ({ children }) => {
           },
         );
       });
-      setUnreadCount((prev) => prev + 1);
     },
     [queryClient, companyId, branchId],
   );
 
-  // ✅ mark one – مع optimistic update + rollback
   const markAsRead = useCallback(
     async (alertId) => {
       const filters = ["all", "unread", "high"];
+      let wasUnread = false;
+
+      // optimistic update مع تتبع ما إذا كان التنبيه غير مقروء
       filters.forEach((filter) => {
         queryClient.setQueryData(
           ["alerts", filter, companyId, branchId],
           (oldData) => {
             if (!oldData) return oldData;
             if (filter === "unread") {
-              return {
-                ...oldData,
-                pages: oldData.pages.map((page) => ({
+              const newPages = oldData.pages.map((page) => {
+                const alertToRemove = page.data.find(
+                  (a) => a.id === alertId && !a.read,
+                );
+                if (alertToRemove) wasUnread = true;
+                return {
                   ...page,
                   data: page.data.filter((a) => a.id !== alertId),
-                })),
-              };
+                };
+              });
+              return { ...oldData, pages: newPages };
             }
             return {
               ...oldData,
@@ -127,38 +154,34 @@ export const AlertProvider = ({ children }) => {
           },
         );
       });
-      setUnreadCount((prev) => Math.max(prev - 1, 0));
+
+      // تحديث القائمة المحلية
+      setAlerts((prev) =>
+        prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)),
+      );
+
+      if (wasUnread) {
+        setUnreadCount((prev) => Math.max(prev - 1, 0));
+      }
+
       try {
         await api.post(`/erp/alerts/${alertId}/ack`);
       } catch (err) {
         console.error("❌ rollback markAsRead:", err);
-        filters.forEach((filter) => {
-          queryClient.setQueryData(
-            ["alerts", filter, companyId, branchId],
-            (oldData) => {
-              if (!oldData) return oldData;
-              if (filter === "unread") return oldData;
-              return {
-                ...oldData,
-                pages: oldData.pages.map((page) => ({
-                  ...page,
-                  data: page.data.map((a) =>
-                    a.id === alertId ? { ...a, read: false } : a,
-                  ),
-                })),
-              };
-            },
-          );
+        // في حالة الفشل نعيد التحقق من الخادم
+        queryClient.invalidateQueries({
+          predicate: (query) => query.queryKey[0] === "alerts",
         });
-        setUnreadCount((prev) => prev + 1);
       }
     },
     [queryClient, companyId, branchId],
   );
 
-  // ✅ mark all – مع تحديث كل الفلاتر
   const markAllAsRead = useCallback(async () => {
     const filters = ["all", "unread", "high"];
+    const previousCount = unreadCount;
+
+    // optimistic update
     filters.forEach((filter) => {
       queryClient.setQueryData(
         ["alerts", filter, companyId, branchId],
@@ -167,10 +190,7 @@ export const AlertProvider = ({ children }) => {
           if (filter === "unread") {
             return {
               ...oldData,
-              pages: oldData.pages.map((page) => ({
-                ...page,
-                data: [],
-              })),
+              pages: oldData.pages.map((page) => ({ ...page, data: [] })),
             };
           }
           return {
@@ -183,21 +203,25 @@ export const AlertProvider = ({ children }) => {
         },
       );
     });
+
+    setAlerts((prev) => prev.map((a) => ({ ...a, read: true })));
     setUnreadCount(0);
+
     try {
       await api.post("/erp/alerts/mark-all-read");
     } catch (err) {
       console.error("❌ markAllAsRead failed:", err);
+      setUnreadCount(previousCount);
+      queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey[0] === "alerts",
+      });
     }
-  }, [queryClient, companyId, branchId]);
+  }, [queryClient, companyId, branchId, unreadCount]);
 
-  // ✅ تحميل العداد الأولي
-  // ✅ تحميل العداد الأولي المحدث
+  // تحميل العداد الأولي (معلق)
   useEffect(() => {
     if (authLoading) return;
     if (window.location.pathname.startsWith("/admin/erp/billing")) return;
-
-    // 🛡️ صمام أمان حرج: لا ترسل الطلب إذا كانت القيم لم تتحدث بعد في الـ State
     if (!user || !companyId || companyId === "global" || companyId === null) {
       setUnreadCount(0);
       return;
@@ -211,36 +235,24 @@ export const AlertProvider = ({ children }) => {
     let cancelled = false;
     setAlertsLoading(true);
 
-    api
-      .get(`/erp/alerts/unread-count?branch_id=${branchId}`)
-      .then((res) => {
-        if (!cancelled) setUnreadCount(res?.data?.count || 0);
-      })
-      .catch((err) => {
-        console.warn("⚠️ Unread alerts failed:", err.response?.status);
-      })
-      .finally(() => {
-        if (!cancelled) setAlertsLoading(false);
-      });
-
     return () => {
       cancelled = true;
+      setAlertsLoading(false);
     };
   }, [
     user?.id,
     user?.role,
     user?.is_super_admin,
-    companyId, // 🚀 سيقوم بإعادة الطلب فور تغير الـ state من null إلى القيمة الحقيقية
-    branchId, // 🚀 سيقوم بإعادة الطلب فور تغير الـ state من null إلى القيمة الحقيقية
+    companyId,
+    branchId,
     authLoading,
   ]);
 
-  // ✅ الاشتراك في التنبيهات العامة
   useAlertsSocket((newAlert) => addAlert(newAlert), companyId, branchId);
 
   const stateValue = {
     unreadCount,
-    alerts: alertsList,
+    alerts, // ✅ شريط التنقل يستخدمها
     loading: alertsLoading,
   };
 
@@ -249,49 +261,6 @@ export const AlertProvider = ({ children }) => {
     markAsRead,
     markAllAsRead,
   };
-
-  // ✅ الاستماع إلى الإشعارات الشخصية
-  useEffect(() => {
-    if (!user?.id) return;
-    const channel = echoService.getInstance().private(`user.${user.id}`);
-    channel.listen(".notification.created", (notification) => {
-      console.log("🔔 USER NOTIFICATION", notification);
-      addAlert({
-        id: notification.id ?? Date.now(),
-        type: notification.type || "info",
-        priority: notification.priority || "medium",
-        message: notification.message || notification.title,
-        meta: notification,
-        time: notification.created_at || new Date().toISOString(),
-        read: false,
-      });
-    });
-    return () => channel.stopListening(".notification.created");
-  }, [user?.id, addAlert]);
-  // ✅ الاستماع إلى إشعارات الدور
-  useEffect(() => {
-    if (!user?.role) return;
-
-    const channel = echoService.getInstance().private(`role.${user.role}`);
-
-    channel.listen(".notification.created", (notification) => {
-      console.log("🔔 ROLE NOTIFICATION", notification);
-      console.log("📡 [Role Socket] Subscribing:", `role.${user.role}`);
-      addAlert({
-        id: notification.id ?? Date.now(),
-        type: notification.type || "info",
-        priority: notification.priority || "medium",
-        message: notification.message || notification.title,
-        meta: notification,
-        time: notification.created_at || new Date().toISOString(),
-        read: false,
-      });
-    });
-
-    return () => {
-      channel.stopListening(".notification.created");
-    };
-  }, [user?.role, addAlert]);
 
   return (
     <AlertStateContext.Provider value={stateValue}>

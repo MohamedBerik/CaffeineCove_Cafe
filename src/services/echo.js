@@ -1,6 +1,5 @@
 import Echo from "laravel-echo";
 import Pusher from "pusher-js";
-import { getActiveBranchId } from "../utils/activeBranch";
 
 window.Pusher = Pusher;
 
@@ -38,7 +37,6 @@ class EchoService {
         },
       },
     });
-    window.Echo = this.instance;
 
     console.log("✅ Echo initialized");
 
@@ -56,13 +54,5 @@ class EchoService {
 }
 
 const echoService = new EchoService();
-
-const echo = echoService.getInstance();
-
-if (echo) {
-  echo.channel("security-feed").listen(".security.updated", (e) => {
-    console.log("🚨 SECURITY EVENT", e);
-  });
-}
 
 export default echoService;

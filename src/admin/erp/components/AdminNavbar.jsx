@@ -10,10 +10,10 @@ import { setActiveBranchId } from "../../../utils/activeBranch";
 import useUserNotificationSocket from "../../../hooks/useUserNotificationSocket";
 import "./AdminNavbar.css";
 
-const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
+const AdminNavbar = ({ onToggleSidebar, sidebarOpen }) => {
   const { alerts, loading } = useAlertState();
   const { markAsRead, markAllAsRead } = useAlertActions();
-  const { unreadCount } = useNotifications();
+  const { unreadCount } = useNotifications(); // ✅ الآن لا تتعارض مع prop
   const { logout, user } = useAuth();
   console.log("CURRENT USER", user);
   useUserNotificationSocket(user?.id, (event) => {

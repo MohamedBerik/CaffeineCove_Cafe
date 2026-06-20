@@ -1,26 +1,27 @@
 import { useEffect } from "react";
 import echoService from "../services/echo";
+import { useNotifications } from "../context/NotificationContext";
+import { toast } from "react-toastify";
 
 export default function useUserNotificationSocket(userId, onNotification) {
-  useEffect(() => {
-    console.log("HOOK USER ID", userId);
+  // ✅ استدعاء الـ Hook في أعلى المستوى (Top Level)
+  const { addNotification } = useNotifications();
 
+  useEffect(() => {
     if (!userId) return;
 
     const echo = echoService.getInstance();
-
-    console.log("ECHO INSTANCE", echo);
+    if (!echo) {
+      console.warn("Echo instance not available");
+      return;
+    }
 
     const channel = echo.private(`user.${userId}`);
 
-    console.log("SUBSCRIBED TO", `private-user.${userId}`);
-
     channel.listen(".notification.created", (event) => {
-      const { addNotification } = useNotifications();
-
-      useUserNotificationSocket(user.id, (event) => {
-        addNotification(event);
-      });
+      // ✅ استخدم الدالة التي حصلنا عليها من الـ Context
+      addNotification(event);
+      toast.success(event.title);
       onNotification?.(event);
     });
 
@@ -28,5 +29,5 @@ export default function useUserNotificationSocket(userId, onNotification) {
       channel.stopListening(".notification.created");
       echo.leave(`private-user.${userId}`);
     };
-  }, [userId, onNotification]);
+  }, [userId, onNotification, addNotification]); // ✅ أضف التبعيات
 }

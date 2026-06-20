@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { useAuth } from "../../../context/AuthContext";
 import { useAlertActions } from "../../../context/AlertContext";
+import { useNotifications } from "../../../context/NotificationContext";
 import api from "../../../services/axios";
 import "./NotificationsPage.css";
 
@@ -15,6 +16,7 @@ const NotificationsPage = () => {
   const { user } = useAuth();
   const { markAsRead } = useAlertActions();
   const queryClient = useQueryClient();
+  // const { notifications } = useNotifications();
 
   const [filter, setFilter] = useState("all");
   const [selectedAlert, setSelectedAlert] = useState(null);
@@ -70,7 +72,11 @@ const NotificationsPage = () => {
     placeholderData: undefined,
   });
 
-  const { notifications, markAsRead, markAllAsRead } = useNotifications();
+  const {
+    notifications,
+    markAsRead: notificationMarkAsRead,
+    markAllAsRead: notificationMarkAllAsRead,
+  } = useNotifications();
 
   // ✅ جلب الـ Insights المخصصة للفرع الحالي
   const { data: insightsData } = useQuery({

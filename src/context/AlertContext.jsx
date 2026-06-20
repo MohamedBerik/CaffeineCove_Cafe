@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useCallback,
+  useMemo,
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "./AuthContext";
@@ -17,7 +18,8 @@ export const AlertProvider = ({ children }) => {
   const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [alerts, setAlerts] = useState([]); // ✅ مصفوفة التنبيهات الأخيرة لشريط التنقل
+  const [alerts, setAlerts] = useState([]);
+  const [alertsLoading, setAlertsLoading] = useState(false);
 
   const [companyId, setCompanyId] = useState(
     () => localStorage.getItem("selectedCompany") ?? user?.company_id ?? null,
@@ -37,7 +39,6 @@ export const AlertProvider = ({ children }) => {
       );
     };
     if (!authLoading && user) syncStorage();
-
     window.addEventListener("storage", syncStorage);
     window.addEventListener("branchChanged", syncStorage);
     window.addEventListener("companyChanged", syncStorage);
@@ -48,18 +49,17 @@ export const AlertProvider = ({ children }) => {
     };
   }, [user, authLoading]);
 
-  const [alertsLoading, setAlertsLoading] = useState(false);
-
-  // تنظيف عند تغيير المستخدم
+  // عند تغيير المستخدم أو الفرع – نمسح الكاش فقط، دون تصفير القوائم
   useEffect(() => {
-    setAlerts([]);
-    setUnreadCount(0);
     queryClient.removeQueries({ queryKey: ["alerts"] });
     queryClient.removeQueries({ queryKey: ["insights"] });
   }, [user?.id, companyId, branchId, queryClient]);
 
   const addAlert = useCallback(
     (newAlert) => {
+      // طبيعية read
+      const normalizedAlert = { ...newAlert, read: Boolean(newAlert.read) };
+
       // فحص التكرار أولاً
       const filters = ["all", "unread", "high"];
       const alreadyExists = filters.some((filter) => {
@@ -70,23 +70,23 @@ export const AlertProvider = ({ children }) => {
           branchId,
         ]);
         return data?.pages?.some((page) =>
-          page.data.some((a) => a.id === newAlert.id),
+          page.data.some((a) => a.id === normalizedAlert.id),
         );
       });
       if (alreadyExists) return;
 
       // زيادة العداد إذا كان غير مقروء
-      if (!newAlert.read) {
+      if (!normalizedAlert.read) {
         setUnreadCount((prev) => prev + 1);
       }
 
       // تحديث القائمة المحفوظة (آخر 10)
-      setAlerts((prev) => [newAlert, ...prev].slice(0, 10));
+      setAlerts((prev) => [normalizedAlert, ...prev].slice(0, 10));
 
-      // تحديث الكاش (React Query) – إنشاء صفحة أولية إذا لم تكن موجودة
+      // تحديث الكاش – إنشاء صفحة أولية إذا لم تكن موجودة
       filters.forEach((filter) => {
-        if (filter === "unread" && newAlert.read) return;
-        if (filter === "high" && newAlert.priority !== "high") return;
+        if (filter === "unread" && normalizedAlert.read) return;
+        if (filter === "high" && normalizedAlert.priority !== "high") return;
         queryClient.setQueryData(
           ["alerts", filter, companyId, branchId],
           (oldData) => {
@@ -94,7 +94,7 @@ export const AlertProvider = ({ children }) => {
               return {
                 pages: [
                   {
-                    data: [newAlert],
+                    data: [normalizedAlert],
                     meta: { current_page: 1, has_more: false },
                   },
                 ],
@@ -106,7 +106,7 @@ export const AlertProvider = ({ children }) => {
               pages: [
                 {
                   ...oldData.pages[0],
-                  data: [newAlert, ...oldData.pages[0].data],
+                  data: [normalizedAlert, ...oldData.pages[0].data],
                 },
                 ...oldData.pages.slice(1),
               ],
@@ -120,27 +120,31 @@ export const AlertProvider = ({ children }) => {
 
   const markAsRead = useCallback(
     async (alertId) => {
-      const filters = ["all", "unread", "high"];
-      let wasUnread = false;
+      // فحص ما إذا كان التنبيه غير مقروء قبل التعديل
+      const unreadData = queryClient.getQueryData([
+        "alerts",
+        "unread",
+        companyId,
+        branchId,
+      ]);
+      const wasUnread = unreadData?.pages?.some((page) =>
+        page.data.some((a) => a.id === alertId),
+      );
 
-      // optimistic update مع تتبع ما إذا كان التنبيه غير مقروء
+      const filters = ["all", "unread", "high"];
       filters.forEach((filter) => {
         queryClient.setQueryData(
           ["alerts", filter, companyId, branchId],
           (oldData) => {
             if (!oldData) return oldData;
             if (filter === "unread") {
-              const newPages = oldData.pages.map((page) => {
-                const alertToRemove = page.data.find(
-                  (a) => a.id === alertId && !a.read,
-                );
-                if (alertToRemove) wasUnread = true;
-                return {
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page) => ({
                   ...page,
                   data: page.data.filter((a) => a.id !== alertId),
-                };
-              });
-              return { ...oldData, pages: newPages };
+                })),
+              };
             }
             return {
               ...oldData,
@@ -155,7 +159,6 @@ export const AlertProvider = ({ children }) => {
         );
       });
 
-      // تحديث القائمة المحلية
       setAlerts((prev) =>
         prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)),
       );
@@ -168,7 +171,6 @@ export const AlertProvider = ({ children }) => {
         await api.post(`/erp/alerts/${alertId}/ack`);
       } catch (err) {
         console.error("❌ rollback markAsRead:", err);
-        // في حالة الفشل نعيد التحقق من الخادم
         queryClient.invalidateQueries({
           predicate: (query) => query.queryKey[0] === "alerts",
         });
@@ -178,10 +180,9 @@ export const AlertProvider = ({ children }) => {
   );
 
   const markAllAsRead = useCallback(async () => {
-    const filters = ["all", "unread", "high"];
     const previousCount = unreadCount;
+    const filters = ["all", "unread", "high"];
 
-    // optimistic update
     filters.forEach((filter) => {
       queryClient.setQueryData(
         ["alerts", filter, companyId, branchId],
@@ -222,14 +223,9 @@ export const AlertProvider = ({ children }) => {
   useEffect(() => {
     if (authLoading) return;
     if (window.location.pathname.startsWith("/admin/erp/billing")) return;
-    if (!user || !companyId || companyId === "global" || companyId === null) {
-      setUnreadCount(0);
+    if (!user || !companyId || companyId === "global" || companyId === null)
       return;
-    }
-    if (branchId === null || branchId === undefined) {
-      setUnreadCount(0);
-      return;
-    }
+    if (branchId === null || branchId === undefined) return;
     if (user.role !== "admin" && !user.is_super_admin) return;
 
     let cancelled = false;
@@ -252,7 +248,7 @@ export const AlertProvider = ({ children }) => {
 
   const stateValue = {
     unreadCount,
-    alerts, // ✅ شريط التنقل يستخدمها
+    alerts,
     loading: alertsLoading,
   };
 

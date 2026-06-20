@@ -40,14 +40,14 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
       onNewAlertRef.current?.(event);
     };
 
-    // ✅ إزالة أي مستمع سابق ثم إعادة الاشتراك
     channel.stopListening(".alert.created");
     channel.listen(".alert.created", alertListener);
 
     return () => {
       console.log("🧹 [Socket] Leaving:", channelName);
       try {
-        echo.leave(channelName);
+        channel.stopListening(".alert.created");
+        echo.leave(`private-${channelName}`);
       } catch (err) {
         console.error("Socket cleanup error:", err);
       }

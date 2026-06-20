@@ -181,7 +181,7 @@ const NotificationsPage = () => {
 
   const PRIORITY_ORDER = { high: 3, medium: 2, low: 1 };
 
-  const groupAlerts = (items) => {
+  const groupAlerts = useCallback((items) => {
     const groups = {};
     items.forEach((item) => {
       const key = item.code
@@ -189,7 +189,6 @@ const NotificationsPage = () => {
         : item.notificationType === "insight"
           ? `insight-${item.category}`
           : `${item.type}-${item.priority}-${item.message}`;
-
       if (!groups[key]) {
         groups[key] = { ...item, count: 1, items: [item] };
       } else {
@@ -198,7 +197,25 @@ const NotificationsPage = () => {
       }
     });
     return Object.values(groups);
-  };
+  }, []);
+
+  const sortGroups = useCallback(
+    (groups) =>
+      groups.sort(
+        (a, b) => PRIORITY_ORDER[b.priority] - PRIORITY_ORDER[a.priority],
+      ),
+    [],
+  );
+
+  const categorize = useCallback((item) => {
+    if (item.notificationType === "insight") {
+      return item.priority === "high" ? "critical" : "attention";
+    }
+    if (item.type === "danger" || item.priority === "high") return "critical";
+    if (item.type === "warning" || item.priority === "medium")
+      return "attention";
+    return "info";
+  }, []);
 
   const sortGroups = (groups) =>
     groups.sort(

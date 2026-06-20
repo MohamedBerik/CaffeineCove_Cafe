@@ -261,9 +261,7 @@ const AdminNavbar = ({ onToggleSidebar, sidebarOpen }) => {
   const handleBellClick = () => {
     setShowDropdown((prev) => {
       const next = !prev;
-      if (next && unreadCount > 0) {
-        markAllAsRead();
-      }
+      // لم نعد نستدعي markAllAsRead هنا
       return next;
     });
   };

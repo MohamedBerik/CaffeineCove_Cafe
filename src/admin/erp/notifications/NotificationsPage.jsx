@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { useAuth } from "../../../context/AuthContext";
 import { useAlertActions } from "../../../context/AlertContext";
+import { toast } from "react-toastify";
 import api from "../../../services/axios";
 import "./NotificationsPage.css";
 

@@ -13,7 +13,7 @@ import "./NotificationsPage.css";
 const NotificationsPage = () => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
-  const { markAsRead } = useAlertActions();
+  const { markAsRead, markManyAsRead } = useAlertActions(); // ✅ استخراج الدالة الجديدة
   const queryClient = useQueryClient();
 
   const [filter, setFilter] = useState("all");
@@ -129,10 +129,17 @@ const NotificationsPage = () => {
   };
 
   const acknowledgeGroup = async (group) => {
-    const ids = group.items
-      .filter((i) => i.notificationType !== "insight")
-      .map((i) => i.id);
-    await Promise.all(ids.map((id) => markAsRead(id)));
+    const ids = group.itemIds || [];
+    if (ids.length === 0) return;
+
+    try {
+      await markManyAsRead(ids); // ✅ مصدر واحد للحقيقة
+      toast.success(t("All selected notifications have been acknowledged"));
+    } catch (err) {
+      console.error("Bulk acknowledge failed:", err);
+      toast.error(t("Failed to acknowledge notifications"));
+    }
+
     setSelectedGroup(null);
   };
 
@@ -181,11 +188,24 @@ const NotificationsPage = () => {
         : item.notificationType === "insight"
           ? `insight-${item.category}`
           : `${item.type}-${item.priority}-${item.message}`;
+
       if (!groups[key]) {
-        groups[key] = { ...item, count: 1, items: [item] };
+        groups[key] = {
+          id: item.id,
+          message: item.message,
+          priority: item.priority,
+          type: item.type,
+          notificationType: item.notificationType,
+          category: item.category,
+          time: item.time,
+          count: 1,
+          // ✅ تخزين آخر عنصر فقط وعدد التكرار بدلاً من المصفوفة كاملة
+          latestItem: item,
+          itemIds: [item.id],
+        };
       } else {
         groups[key].count += 1;
-        groups[key].items.push(item);
+        groups[key].itemIds.push(item.id);
       }
     });
     return Object.values(groups);
@@ -436,18 +456,21 @@ const NotificationsPage = () => {
               </button>
             </div>
             <div className="modal-body">
-              {selectedGroup.items.map((item) => (
-                <div key={item.id} className="group-item">
-                  <span className="group-item-icon">
-                    {getNotificationIcon(item)}
-                  </span>
-                  <span className="group-item-text">
-                    {item.notificationType === "insight"
-                      ? `${t(item.category)} - ${t(item.message)}`
-                      : formatDateTime(item.time)}
-                  </span>
-                </div>
-              ))}
+              {selectedGroup.itemIds.map((id) => {
+                const item = allNotifications.find((n) => n.id === id);
+                return item ? (
+                  <div key={id} className="group-item">
+                    <span className="group-item-icon">
+                      {getNotificationIcon(item)}
+                    </span>
+                    <span className="group-item-text">
+                      {item.notificationType === "insight"
+                        ? `${t(item.category)} - ${t(item.message)}`
+                        : formatDateTime(item.time)}
+                    </span>
+                  </div>
+                ) : null;
+              })}
             </div>
             <div className="modal-footer">
               {selectedGroup.notificationType !== "insight" && (

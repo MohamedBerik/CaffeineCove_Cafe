@@ -40,14 +40,15 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
       onNewAlertRef.current?.(event);
     };
 
-    channel.stopListening(".alert.created");
     channel.listen(".alert.created", alertListener);
+
+    // لا حاجة لإعادة الاشتراك يدويًا لأن Pusher/Echo يتولى ذلك تلقائيًا عند reconnect
 
     return () => {
       console.log("🧹 [Socket] Leaving:", channelName);
       try {
-        channel.stopListening(".alert.created");
-        echo.leave(`private-${channelName}`);
+        channel.stopListening(".alert.created"); // اختياري لكن آمن
+        echo.leave(`private-${channelName}`); // هذا ينظف كل شيء
       } catch (err) {
         console.error("Socket cleanup error:", err);
       }

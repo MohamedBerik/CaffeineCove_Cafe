@@ -70,6 +70,8 @@ const NotificationsPage = () => {
     placeholderData: undefined,
   });
 
+  const { notifications, markAsRead, markAllAsRead } = useNotifications();
+
   // ✅ جلب الـ Insights المخصصة للفرع الحالي
   const { data: insightsData } = useQuery({
     queryKey: ["insights", selectedCompany, selectedBranch],
@@ -92,6 +94,7 @@ const NotificationsPage = () => {
 
   // ✅ دمج Alerts + Insights
   const allNotifications = [
+    ...notifications,
     ...alerts.map((alert) => ({ ...alert, notificationType: "alert" })),
     ...insights.map((insight) => ({
       ...insight,

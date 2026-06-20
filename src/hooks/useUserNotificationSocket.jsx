@@ -16,7 +16,11 @@ export default function useUserNotificationSocket(userId, onNotification) {
     console.log("SUBSCRIBED TO", `private-user.${userId}`);
 
     channel.listen(".notification.created", (event) => {
-      console.log("🔔 USER NOTIFICATION", event);
+      const { addNotification } = useNotifications();
+
+      useUserNotificationSocket(user.id, (event) => {
+        addNotification(event);
+      });
       onNotification?.(event);
     });
 

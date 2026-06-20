@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAlertState, useAlertActions } from "../../../context/AlertContext";
 import { useAuth } from "../../../context/AuthContext";
+import { useNotifications } from "../../../context/NotificationContext";
 import api from "../../../services/axios";
 import { setActiveBranchId } from "../../../utils/activeBranch";
 import useUserNotificationSocket from "../../../hooks/useUserNotificationSocket";
@@ -12,6 +13,7 @@ import "./AdminNavbar.css";
 const AdminNavbar = ({ unreadCount, onToggleSidebar, sidebarOpen }) => {
   const { alerts, loading } = useAlertState();
   const { markAsRead, markAllAsRead } = useAlertActions();
+  const { unreadCount } = useNotifications();
   const { logout, user } = useAuth();
   console.log("CURRENT USER", user);
   useUserNotificationSocket(user?.id, (event) => {

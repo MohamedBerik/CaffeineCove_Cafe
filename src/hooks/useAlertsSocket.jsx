@@ -15,43 +15,71 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
     if (!companyId || companyId === "global") return;
     if (branchId === null || branchId === undefined) return;
 
-    const channelName =
-      branchId === "all"
-        ? `company.${companyId}.alerts`
-        : `company.${companyId}.branch.${branchId}.alerts`;
-
-    console.log("📡 [Socket] Connecting:", channelName);
-
     const echo = echoService.getInstance();
     if (!echo) return;
 
-    const channel = echo.private(channelName);
+    const cleanupChannels = [];
 
-    channel.subscribed(() => {
-      console.log("✅ [Socket] SUBSCRIBED:", channelName);
+    //
+    // 1) User Channel (Per User Alerts)
+    //
+    const userChannelName = `user.${user.id}`;
+
+    console.log("📡 [Socket] Connecting:", userChannelName);
+
+    const userChannel = echo.private(userChannelName);
+
+    userChannel.subscribed(() => {
+      console.log("✅ [Socket] SUBSCRIBED:", userChannelName);
     });
 
-    channel.error((err) => {
-      console.error("❌ [Socket] CHANNEL ERROR:", channelName, err);
+    userChannel.error((err) => {
+      console.error("❌ [Socket] CHANNEL ERROR:", userChannelName, err);
     });
 
-    const alertListener = (event) => {
-      console.log("📨 [Socket] EVENT RECEIVED:", event);
+    userChannel.listen(".alert.created", (event) => {
+      console.log("📨 [User Alert]", event);
       onNewAlertRef.current?.(event);
-    };
+    });
 
-    channel.listen(".alert.created", alertListener);
+    cleanupChannels.push(userChannelName);
 
-    // لا حاجة لإعادة الاشتراك يدويًا لأن Pusher/Echo يتولى ذلك تلقائيًا عند reconnect
+    //
+    // 2) Branch Channel (General Alerts)
+    //
+    if (branchId !== "all") {
+      const branchChannelName = `company.${companyId}.branch.${branchId}.alerts`;
+
+      console.log("📡 [Socket] Connecting:", branchChannelName);
+
+      const branchChannel = echo.private(branchChannelName);
+
+      branchChannel.subscribed(() => {
+        console.log("✅ [Socket] SUBSCRIBED:", branchChannelName);
+      });
+
+      branchChannel.error((err) => {
+        console.error("❌ [Socket] CHANNEL ERROR:", branchChannelName, err);
+      });
+
+      branchChannel.listen(".alert.created", (event) => {
+        console.log("📨 [Branch Alert]", event);
+        onNewAlertRef.current?.(event);
+      });
+
+      cleanupChannels.push(branchChannelName);
+    }
 
     return () => {
-      console.log("🧹 [Socket] Leaving:", channelName);
-      try {
-        channel.stopListening(".alert.created"); // اختياري لكن آمن
-        echo.leave(`private-${channelName}`); // هذا ينظف كل شيء
-      } catch (err) {
-        console.error("Socket cleanup error:", err);
-      }
+      cleanupChannels.forEach((channelName) => {
+        console.log("🧹 [Socket] Leaving:", channelName);
+
+        try {
+          echo.leave(`private-${channelName}`);
+        } catch (err) {
+          console.error("Socket cleanup error:", err);
+        }
+      });
     };
   }, [companyId, branchId, user?.id, loading]);
 }

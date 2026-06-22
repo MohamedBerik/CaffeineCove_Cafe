@@ -1,9 +1,11 @@
 import { useEffect, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 import echoService from "../services/echo";
 
 export default function useAlertsSocket(onNewAlert, companyId, branchId) {
   const { user, loading } = useAuth();
+  const queryClient = useQueryClient();
   const onNewAlertRef = useRef(onNewAlert);
 
   useEffect(() => {
@@ -40,6 +42,9 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
     userChannel.listen(".alert.created", (event) => {
       console.log("📨 [User Alert]", event);
       onNewAlertRef.current?.(event);
+      queryClient.invalidateQueries({
+        queryKey: ["alerts-unread-count"],
+      });
     });
 
     cleanupChannels.push(userChannelName);
@@ -64,7 +69,12 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
 
       branchChannel.listen(".alert.created", (event) => {
         console.log("📨 [Branch Alert]", event);
+
         onNewAlertRef.current?.(event);
+
+        queryClient.invalidateQueries({
+          queryKey: ["alerts-unread-count"],
+        });
       });
 
       cleanupChannels.push(branchChannelName);

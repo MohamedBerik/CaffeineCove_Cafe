@@ -11,29 +11,9 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
   }, [onNewAlert]);
 
   useEffect(() => {
-    // ✅ تشخيص الحالة الحالية للمتغيرات
-    console.log("🚦 [Socket] Effect triggered", {
-      loading,
-      user: !!user,
-      userRole: user?.role,
-      companyId,
-      branchId,
-    });
-
-    if (loading || !user) {
-      console.log("⏸️ [Socket] Waiting for auth...");
-      return;
-    }
-
-    if (!companyId || companyId === "global") {
-      console.log("⏸️ [Socket] Invalid companyId:", companyId);
-      return;
-    }
-
-    if (branchId === null || branchId === undefined) {
-      console.log("⏸️ [Socket] Invalid branchId:", branchId);
-      return;
-    }
+    if (loading || !user) return;
+    if (!companyId || companyId === "global") return;
+    if (branchId === null || branchId === undefined) return;
 
     const channelName =
       branchId === "all"
@@ -43,19 +23,12 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
     console.log("📡 [Socket] Connecting:", channelName);
 
     const echo = echoService.getInstance();
-
-    if (!echo) {
-      console.error(
-        "❌ [Socket] Failed to get Echo instance – check token and EchoService",
-      );
-      return;
-    }
-    console.log("✅ [Socket] Echo instance obtained");
+    if (!echo) return;
 
     const channel = echo.private(channelName);
 
     channel.subscribed(() => {
-      console.log("✅ [Socket] SUBSCRIBED successfully:", channelName);
+      console.log("✅ [Socket] SUBSCRIBED:", channelName);
     });
 
     channel.error((err) => {
@@ -69,11 +42,13 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
 
     channel.listen(".alert.created", alertListener);
 
+    // لا حاجة لإعادة الاشتراك يدويًا لأن Pusher/Echo يتولى ذلك تلقائيًا عند reconnect
+
     return () => {
       console.log("🧹 [Socket] Leaving:", channelName);
       try {
-        channel.stopListening(".alert.created");
-        echo.leave(`private-${channelName}`);
+        channel.stopListening(".alert.created"); // اختياري لكن آمن
+        echo.leave(`private-${channelName}`); // هذا ينظف كل شيء
       } catch (err) {
         console.error("Socket cleanup error:", err);
       }

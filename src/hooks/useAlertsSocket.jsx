@@ -11,6 +11,12 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
   }, [onNewAlert]);
 
   useEffect(() => {
+    console.log("Socket effect", {
+      loading,
+      user,
+      companyId,
+      branchId,
+    });
     if (loading || !user) return;
     if (!companyId || companyId === "global") return;
     if (branchId === null || branchId === undefined) return;

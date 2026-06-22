@@ -15,43 +15,45 @@ export default function useAlertsSocket(onNewAlert, companyId, branchId) {
     if (!companyId || companyId === "global") return;
     if (branchId === null || branchId === undefined) return;
 
-    const channelName =
-      branchId === "all"
-        ? `company.${companyId}.alerts`
-        : `company.${companyId}.branch.${branchId}.alerts`;
-
-    console.log("📡 [Socket] Connecting:", channelName);
-
     const echo = echoService.getInstance();
     if (!echo) return;
 
-    const channel = echo.private(channelName);
+    const channels = [];
 
-    channel.subscribed(() => {
-      console.log("✅ [Socket] SUBSCRIBED:", channelName);
-    });
+    //
+    // 1) قناة المستخدم
+    //
+    const userChannelName = `user.${user.id}`;
 
-    channel.error((err) => {
-      console.error("❌ [Socket] CHANNEL ERROR:", channelName, err);
-    });
+    const userChannel = echo.private(userChannelName);
 
-    const alertListener = (event) => {
-      console.log("📨 [Socket] EVENT RECEIVED:", event);
+    userChannel.listen(".alert.created", (event) => {
+      console.log("📨 User alert:", event);
       onNewAlertRef.current?.(event);
-    };
+    });
 
-    channel.listen(".alert.created", alertListener);
+    channels.push(userChannelName);
 
-    // لا حاجة لإعادة الاشتراك يدويًا لأن Pusher/Echo يتولى ذلك تلقائيًا عند reconnect
+    //
+    // 2) قناة الفرع
+    //
+    if (branchId !== "all") {
+      const branchChannelName = `company.${companyId}.branch.${branchId}.alerts`;
+
+      const branchChannel = echo.private(branchChannelName);
+
+      branchChannel.listen(".alert.created", (event) => {
+        console.log("📨 Branch alert:", event);
+        onNewAlertRef.current?.(event);
+      });
+
+      channels.push(branchChannelName);
+    }
 
     return () => {
-      console.log("🧹 [Socket] Leaving:", channelName);
-      try {
-        channel.stopListening(".alert.created"); // اختياري لكن آمن
-        echo.leave(`private-${channelName}`); // هذا ينظف كل شيء
-      } catch (err) {
-        console.error("Socket cleanup error:", err);
-      }
+      channels.forEach((channelName) => {
+        echo.leave(`private-${channelName}`);
+      });
     };
   }, [companyId, branchId, user?.id, loading]);
 }

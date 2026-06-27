@@ -1,0 +1,450 @@
+/* Dental Records Page Styles */
+.dental-records-page {
+  padding: 0 0.5rem;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #1a237e, #283593);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  color: #6c757d;
+  margin: 0.25rem 0 0 0;
+  font-size: 0.875rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Search Card */
+.search-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.search-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  color: #1a237e;
+}
+
+.search-card-body {
+  padding: 1.25rem;
+}
+
+.search-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+.search-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.search-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.total-badge {
+  padding: 0.5rem 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #1a237e;
+  text-align: center;
+}
+
+/* Records Card */
+.records-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.records-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  color: #1a237e;
+}
+
+.records-card-header h5 {
+  margin: 0;
+  flex: 1;
+}
+
+.record-count {
+  padding: 0.25rem 0.75rem;
+  background: #e9ecef;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.records-card-body {
+  padding: 0;
+}
+
+/* Records Table */
+.records-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.records-table thead tr {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.records-table th {
+  padding: 0.875rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  text-align: left;
+}
+
+.records-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f3f5;
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+.records-table tr:hover td {
+  background-color: #f8f9ff;
+}
+
+.highlighted-row {
+  background-color: #fff8e7;
+  box-shadow: inset 4px 0 0 #ffc107;
+}
+
+/* Patient Info */
+.patient-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.patient-name {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.patient-email {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+/* Notes Cell */
+.notes-cell {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.action-buttons .btn-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.action-buttons .btn-sm span {
+  display: inline-block;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-danger {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.status-warning {
+  background: #fff3e0;
+  color: #ed6c02;
+}
+
+.status-info {
+  background: #e3f2fd;
+  color: #0288d1;
+}
+
+.status-secondary {
+  background: #eceff1;
+  color: #546e7a;
+}
+
+/* Convert Form Row */
+.convert-row td {
+  padding: 0;
+  background: #f8f9fa;
+}
+
+.convert-form {
+  padding: 1.25rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.convert-header {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: #1a237e;
+}
+
+.convert-fields {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+.convert-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.convert-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.form-hint {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.form-hint.error {
+  color: #dc3545;
+}
+
+.convert-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Empty State */
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  color: #dee2e6;
+  margin-bottom: 1rem;
+}
+
+.empty-text {
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .convert-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .convert-actions {
+    justify-content: stretch;
+  }
+
+  .convert-actions .btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .dental-records-page {
+    padding: 0;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: stretch;
+  }
+
+  .header-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .search-card-body {
+    padding: 1rem;
+  }
+
+  .search-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .total-badge {
+    text-align: left;
+  }
+
+  /* Mobile Table */
+  .records-table thead {
+    display: none;
+  }
+
+  .records-table tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    background: white;
+  }
+
+  .records-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f3f5;
+  }
+
+  .records-table td:last-child {
+    border-bottom: none;
+  }
+
+  .records-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-right: 1rem;
+  }
+
+  .action-buttons {
+    justify-content: flex-end;
+  }
+
+  .action-buttons .btn-sm span {
+    display: none;
+  }
+
+  .action-buttons .btn-sm {
+    padding: 0.375rem 0.5rem;
+  }
+
+  .convert-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .convert-actions {
+    flex-direction: column;
+  }
+
+  .convert-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .records-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .record-count {
+    align-self: flex-start;
+  }
+
+  .notes-cell {
+    white-space: normal;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .records-table th,
+[dir="rtl"] .records-table td {
+  text-align: right;
+}
+
+[dir="rtl"] .action-buttons .btn-sm i {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .convert-actions .btn i {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .records-table td::before {
+  margin-right: 0;
+  margin-left: 1rem;
+}

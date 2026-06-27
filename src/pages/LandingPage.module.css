@@ -1,0 +1,327 @@
+/* ===================== */
+/* Landing Page Styles   */
+/* ===================== */
+
+.page {
+  background: #fff;
+  font-family: "Open Sans", sans-serif;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 20px;
+}
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(135deg, #e8eaf6 0%, #f5f5f5 100%);
+  padding: 6rem 0 4rem;
+}
+
+.heroRow {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+
+.heroContent {
+  flex: 1;
+}
+
+.heroTitle {
+  font-family: "Oswald", sans-serif;
+  font-size: 3rem;
+  color: #1a237e;
+  margin-bottom: 1rem;
+}
+
+.heroSubtitle {
+  font-size: 1.15rem;
+  color: #555;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.heroActions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  background: #1a237e;
+  color: #fff;
+  padding: 0.85rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.btnPrimary:hover {
+  background: #283593;
+  color: #fff;
+}
+
+.btnOutline {
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid #1a237e;
+  color: #1a237e;
+  padding: 0.85rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.btnOutline:hover {
+  background: #1a237e;
+  color: #fff;
+}
+
+.heroStats {
+  display: flex;
+  gap: 2rem;
+}
+
+.statNumber {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a237e;
+}
+
+.statLabel {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.heroImage {
+  flex: 1;
+  text-align: center;
+}
+
+.heroImg {
+  max-width: 100%;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Features Section */
+.features {
+  padding: 5rem 0;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.sectionTitle {
+  font-family: "Oswald", sans-serif;
+  font-size: 2.2rem;
+  color: #1a237e;
+  margin-bottom: 0.5rem;
+}
+
+.sectionSubtitle {
+  color: #666;
+  font-size: 1.05rem;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.featureCard {
+  background: #f8f9ff;
+  padding: 2rem;
+  border-radius: 16px;
+  text-align: center;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+
+.featureCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(26, 35, 126, 0.1);
+}
+
+.featureIcon {
+  font-size: 2rem;
+  color: #1a237e;
+  margin-bottom: 1rem;
+}
+
+.featureTitle {
+  margin-bottom: 0.5rem;
+  color: #1a237e;
+}
+
+.featureDesc {
+  color: #555;
+  font-size: 0.95rem;
+}
+
+/* Pricing Section */
+.pricing {
+  padding: 5rem 0;
+  background: #f5f5f5;
+}
+
+.plansGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+}
+
+.planCard {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: 0.3s;
+}
+
+.planCard:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.planCardInactive {
+  opacity: 0.6;
+}
+
+.planName {
+  font-size: 1.3rem;
+  color: #1a237e;
+}
+
+.planPrice {
+  margin: 1rem 0;
+}
+
+.planAmount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a237e;
+}
+
+.planPeriod {
+  color: #666;
+}
+
+.planDesc {
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.planFeatures {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+  margin-bottom: 2rem;
+}
+
+.planFeatureItem {
+  padding: 0.3rem 0;
+  color: #444;
+}
+
+.planFeatureIcon {
+  color: #2e7d32;
+  margin-right: 0.5rem;
+}
+
+.btnPlan {
+  display: inline-block;
+  background: #1a237e;
+  color: #fff;
+  padding: 0.7rem 1.8rem;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btnPlan:hover {
+  background: #283593;
+  color: #fff;
+}
+
+/* CTA Section */
+.cta {
+  background: #1a237e;
+  color: white;
+  text-align: center;
+  padding: 4rem 0;
+}
+
+.ctaTitle {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.ctaSubtitle {
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.ctaButton {
+  background: white;
+  color: #1a237e;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.85rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.ctaButton:hover {
+  background: #e8eaf6;
+  color: #1a237e;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .heroRow {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .heroTitle {
+    font-size: 2rem;
+  }
+
+  .heroActions {
+    justify-content: center;
+  }
+
+  .heroStats {
+    justify-content: center;
+  }
+
+  .heroImage {
+    display: none;
+  }
+
+  .plansGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .planFeatureIcon {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}

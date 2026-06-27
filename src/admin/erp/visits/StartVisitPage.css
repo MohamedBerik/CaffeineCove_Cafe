@@ -1,0 +1,376 @@
+/* Start Visit Page Styles */
+.start-visit-page {
+  padding: 0 0.5rem;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #1a237e, #283593);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  color: #6c757d;
+  margin: 0.25rem 0 0 0;
+  font-size: 0.875rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Visit Container */
+.visit-container {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 1.5rem;
+}
+
+/* Form Card */
+.form-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.form-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: #1a237e;
+}
+
+.form-card-body {
+  padding: 1.5rem;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.required-star {
+  color: #dc3545;
+  margin-left: 0.25rem;
+}
+
+/* Visit Types Grid */
+.visit-types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.visit-card {
+  padding: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.visit-card:hover {
+  border-color: #1a237e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.visit-card.active {
+  border-color: currentColor;
+  background: #f8f9ff;
+}
+
+.visit-card.active.primary {
+  border-color: #1a237e;
+  background: rgba(26, 35, 126, 0.05);
+}
+
+.visit-card.active.success {
+  border-color: #28a745;
+  background: rgba(40, 167, 69, 0.05);
+}
+
+.visit-card.active.warning {
+  border-color: #ffc107;
+  background: rgba(255, 193, 7, 0.05);
+}
+
+.visit-card-radio {
+  margin-bottom: 0.75rem;
+}
+
+.visit-card-title {
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.visit-card input[type="radio"] {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.visit-card-description {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin: 0.5rem 0;
+  line-height: 1.4;
+}
+
+.visit-card-next {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+/* Info Cards */
+.info-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 0;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.info-card-header {
+  padding: 0.75rem 1rem;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.info-card-body {
+  padding: 1rem;
+}
+
+.patient-name,
+.plan-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+}
+
+.patient-contact,
+.plan-details {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.separator {
+  margin: 0 0.5rem;
+  color: #dee2e6;
+}
+
+.form-hint {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.form-hint.error {
+  color: #dc3545;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.btn-lg {
+  padding: 0.625rem 1.5rem;
+  font-size: 1rem;
+}
+
+/* Workflow Card */
+.workflow-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 86px;
+}
+
+.workflow-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: #1a237e;
+}
+
+.workflow-card-body {
+  padding: 1.25rem;
+}
+
+.workflow-steps {
+  margin-bottom: 1rem;
+}
+
+.workflow-title {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.steps-list {
+  padding-left: 1.25rem;
+  margin: 0;
+}
+
+.steps-list li {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.workflow-divider {
+  margin: 1rem 0;
+}
+
+.workflow-note {
+  font-size: 0.75rem;
+  color: #6c757d;
+  background: #f8f9fa;
+  padding: 0.75rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.workflow-note i {
+  margin-top: 0.125rem;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .visit-container {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-card {
+    position: static;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .start-visit-page {
+    padding: 0;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: stretch;
+  }
+
+  .header-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .form-card-body {
+    padding: 1rem;
+  }
+
+  .visit-types-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .workflow-card-body {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .form-label {
+    font-size: 0.875rem;
+  }
+
+  .visit-card-title {
+    font-size: 0.875rem;
+  }
+
+  .visit-card-description {
+    font-size: 0.75rem;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .visit-card input[type="radio"] {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+[dir="rtl"] .visit-card-next i {
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] .form-actions .btn i {
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] .steps-list {
+  padding-left: 0;
+  padding-right: 1.25rem;
+}
+
+[dir="rtl"] .separator {
+  margin: 0 0.5rem;
+}

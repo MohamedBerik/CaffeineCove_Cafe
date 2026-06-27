@@ -1,0 +1,1000 @@
+/* Patient Profile Page Styles */
+.patient-profile-page {
+  padding: 0 0.5rem;
+}
+
+/* Profile Header */
+.profile-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.profile-name {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #1a237e, #283593);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.profile-code {
+  color: #6c757d;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Info Card */
+.info-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.info-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.info-value {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+/* KPI Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.kpi-content {
+  flex: 1;
+}
+
+.kpi-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.kpi-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Section Card */
+.section-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  color: #1a237e;
+}
+
+.section-body {
+  padding: 1.25rem;
+}
+
+/* Data Table */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead tr {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.data-table th {
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  text-align: left;
+}
+
+.data-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f3f5;
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+.data-table tr:hover td {
+  background-color: #f8f9ff;
+}
+
+.data-link {
+  color: #1a237e;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.data-link:hover {
+  text-decoration: underline;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.badge-danger {
+  background: #ffebee;
+  color: #c62828;
+}
+.badge-warning {
+  background: #fff3e0;
+  color: #ed6c02;
+}
+.badge-info {
+  background: #e3f2fd;
+  color: #0288d1;
+}
+.badge-secondary {
+  background: #eceff1;
+  color: #546e7a;
+}
+
+/* Action Group */
+.action-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.action-group .btn-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.record-meta {
+  font-size: 0.7rem;
+  color: #6c757d;
+}
+
+/* Empty State */
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  color: #dee2e6;
+  margin-bottom: 0.5rem;
+}
+
+.empty-text {
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Dental Chart */
+.dental-chart {
+  background: white;
+  border-radius: 12px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chart-note {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.jaw-section {
+  margin-bottom: 1.5rem;
+}
+
+.jaw-title {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #2c3e50;
+}
+
+.teeth-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tooth-card {
+  width: 86px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.5rem;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tooth-card:hover {
+  border-color: #1a237e;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tooth-card.selected {
+  border-color: #1a237e;
+  box-shadow: 0 0 0 2px rgba(26, 35, 126, 0.2);
+}
+
+.tooth-number {
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+}
+
+.tooth-surfaces {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+}
+
+.surface-row {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+}
+
+.surface-box {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  font-weight: 600;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+}
+
+.surface-box.center {
+  width: 26px;
+  height: 26px;
+}
+
+.surface-placeholder {
+  width: 18px;
+  height: 26px;
+}
+
+.surface-completed {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-color: #2e7d32;
+}
+.surface-in-progress {
+  background: #e3f2fd;
+  color: #0288d1;
+  border-color: #0288d1;
+}
+.surface-planned {
+  background: #fff3e0;
+  color: #ed6c02;
+  border-color: #ed6c02;
+}
+.surface-empty {
+  background: #f8f9fa;
+  color: #adb5bd;
+  border-color: #e9ecef;
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.legend-completed {
+  background: #e8f5e9;
+  border: 1px solid #2e7d32;
+}
+.legend-in-progress {
+  background: #e3f2fd;
+  border: 1px solid #0288d1;
+}
+.legend-planned {
+  background: #fff3e0;
+  border: 1px solid #ed6c02;
+}
+.legend-no-data {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+/* Tooth Details */
+.tooth-details {
+  padding: 0.5rem 0;
+}
+
+.record-form-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.form-actions {
+  display: flex;
+  align-items: flex-end;
+}
+
+.records-table-section h6 {
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.records-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.records-table th {
+  padding: 0.5rem;
+  background: #f8f9fa;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6c757d;
+  text-align: left;
+}
+
+.records-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #f1f3f5;
+  font-size: 0.8rem;
+  vertical-align: top;
+}
+
+/* Convert Form */
+.convert-form {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.convert-header {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  color: #1a237e;
+}
+
+.convert-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.convert-field {
+  flex: 1;
+  min-width: 150px;
+}
+
+.convert-field label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.convert-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .patient-profile-page {
+    padding: 0;
+  }
+  .profile-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .header-actions {
+    justify-content: stretch;
+  }
+  .header-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+  .section-body {
+    padding: 1rem;
+  }
+
+  /* Mobile Tables */
+  .data-table thead,
+  .records-table thead {
+    display: none;
+  }
+  .data-table tbody tr,
+  .records-table tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+  }
+  .data-table td,
+  .records-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid #f1f3f5;
+  }
+  .data-table td:last-child,
+  .records-table td:last-child {
+    border-bottom: none;
+  }
+  .data-table td::before,
+  .records-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-right: 1rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  .convert-fields {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .convert-actions {
+    justify-content: stretch;
+  }
+  .convert-actions .btn {
+    width: 100%;
+  }
+  .action-group {
+    justify-content: flex-end;
+  }
+  .action-group .btn-sm span {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .profile-name {
+    font-size: 1.25rem;
+  }
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+  .teeth-row {
+    justify-content: center;
+  }
+}
+
+/* RTL */
+[dir="rtl"] .data-table td::before,
+[dir="rtl"] .records-table td::before {
+  margin-right: 0;
+  margin-left: 1rem;
+}
+
+/* Radiology Section Styles */
+.radiology-tabs {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.radiology-tabs-header {
+  display: flex;
+  border-bottom: 1px solid #e9ecef;
+  background: #fafbfc;
+  padding: 0.5rem 1rem;
+  gap: 0.5rem;
+}
+
+.radiology-tabs-header .tab-btn {
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.radiology-tabs-header .tab-btn:hover {
+  background: #e9ecef;
+  color: #1a237e;
+}
+
+.radiology-tabs-header .tab-btn.active {
+  background: #1a237e;
+  color: white;
+}
+
+.radiology-tabs-content {
+  padding: 1.25rem;
+}
+
+/* Radiology Uploader Styles */
+.radiology-uploader {
+  max-width: 100%;
+}
+
+.upload-area {
+  border: 2px dashed #e9ecef;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+.upload-area:hover {
+  border-color: #1a237e;
+  background: #f8f9ff;
+}
+
+.file-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.file-preview i {
+  font-size: 1.5rem;
+  color: #28a745;
+}
+
+.file-preview button {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+}
+
+.upload-placeholder i {
+  font-size: 2rem;
+  color: #adb5bd;
+  margin-bottom: 0.5rem;
+}
+
+.upload-placeholder p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.upload-form .form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+/* Radiology Gallery Styles */
+.radiology-gallery {
+  width: 100%;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.gallery-item {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.gallery-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.gallery-image {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.gallery-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover .gallery-image img {
+  transform: scale(1.05);
+}
+
+.gallery-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gallery-image:hover .gallery-overlay {
+  opacity: 1;
+}
+
+.gallery-overlay i {
+  color: white;
+  font-size: 1.5rem;
+}
+
+.gallery-info {
+  padding: 0.75rem;
+  position: relative;
+}
+
+.gallery-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  color: #1a237e;
+}
+
+.gallery-title i {
+  font-size: 0.875rem;
+}
+
+.gallery-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tooth-badge,
+.date-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  padding: 0.125rem 0.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  color: #6c757d;
+}
+
+.gallery-notes {
+  font-size: 0.7rem;
+  color: #6c757d;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.btn-delete {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(220, 53, 69, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-delete:hover {
+  background: #dc3545;
+  transform: scale(1.05);
+}
+
+/* Lightbox Modal */
+.lightbox-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.lightbox-content img {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lightbox-close:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.05);
+}
+
+.lightbox-info {
+  padding: 1rem;
+  background: white;
+}
+
+.lightbox-info h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.lightbox-info p {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.lightbox-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.lightbox-meta i {
+  margin-right: 0.25rem;
+}
+
+/* Radiology Loading & Empty States */
+.radiology-loading,
+.radiology-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.radiology-empty i {
+  font-size: 3rem;
+  color: #dee2e6;
+  margin-bottom: 1rem;
+}
+
+.radiology-empty p {
+  margin-bottom: 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
+  .gallery-image {
+    height: 140px;
+  }
+
+  .lightbox-content {
+    max-width: 95vw;
+  }
+
+  .upload-form .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gallery-pdf-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: #f8f9fa;
+}
+
+.gallery-pdf-preview i {
+  font-size: 3rem;
+  color: #dc3545;
+}
+
+.gallery-pdf-preview span {
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: #6c757d;
+}

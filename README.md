@@ -1,170 +1,112 @@
-☕ Caffeine Cove
+# ☕ Caffeine Cove (Dental Clinic ERP)
 
-Full Stack ERP & Accounting System (React + Laravel)
+**Full Stack Dental Clinic Management & Accounting System (React + Laravel)**
 
-Caffeine Cove is a full-stack ERP and accounting system designed for café and retail management.
-The system goes beyond CRUD operations by implementing a structured accounting engine with double-entry bookkeeping, payment tracking, refund control, and customer ledger management.
-This project demonstrates real-world ERP logic, financial consistency, and scalable backend architecture.
+Caffeine Cove is a comprehensive full-stack ERP system tailored for **dental clinics and healthcare management**.
+It combines robust accounting logic (double-entry bookkeeping) with advanced clinic operations (appointments, patient records, treatment plans) and a **production-grade real-time notification engine**.
 
-🏗️ System Overview
+## 🏗️ System Overview
 
-Caffeine Cove includes:
-Order Management
-Invoice Engine
-Partial & Multiple Payments
-Refund System (Invoice & Credit Separation)
-Customer Ledger
-Double-Entry Journal Accounting
-Admin Dashboard (React)
-Built with production-style architecture using:
-Laravel REST API
-React.js Frontend
-MySQL Database
-Laravel Sanctum Authentication
+Caffeine Cove is built with a decoupled architecture:
 
-🚀 Core Features
+- **Frontend:** React.js SPA with Context API and Axios.
+- **Backend:** Laravel REST API with Sanctum Authentication.
+- **Realtime:** Pusher WebSockets for live notifications and activity.
 
-🔐 Authentication & Role-Based Access
-Sanctum Token Authentication
-Admin / User Role Separation
-Protected Routes
-Axios Interceptors for secure API calls
+### Core Modules:
 
-🧾 ERP & Finance Modules
+- **Clinic Management:** Appointments, Patients, Doctors, Treatment Plans, Dental Records.
+- **Financial Engine:** Invoices, Payments, Refunds, Double-Entry Journal, Customer Ledger.
+- **Real-Time System:** Live alerts, toast notifications, and private channel broadcasting.
 
-1️⃣ Orders
-Create / Update / Cancel Orders
-Stock validation before confirmation
-Order → Invoice generation
+## 🚀 Core Features
 
-2️⃣ Invoice Engine
-Automatic invoice creation
-Status lifecycle:
-unpaid
-partially_paid
-paid
-Dynamic remaining balance calculation
+### 🔐 Authentication & Multi-Tenancy
 
-3️⃣ Payments System
-Supports partial payments
-Multiple payments per invoice
-Applied amount vs credit amount separation
-Real-time status recalculation
+- Sanctum Token Authentication (Secure HttpOnly cookies in production).
+- **Company/Clinic Isolation:** All data is scoped per `company_id`.
+- Role-Based Access (Admin, Doctor, Staff).
 
-4️⃣ Advanced Refund Engine
-Refunds are linked to specific payments and support:
-invoice refund
-credit refund
-System prevents:
-Over-refunding
-Double refunds
-Refund exceeding available balance
-Per-payment tracking includes:
-refunded_invoice
-refunded_credit
-available_invoice_refund
-available_credit_refund
-Invoice status automatically recalculates after each refund.
+### 🦷 Clinic & Patient Management
 
-📊 Accounting Engine (Double Entry)
+1. **Appointments**
+   - Booking, Rescheduling, Cancellation.
+   - Conflict detection and availability slots.
+   - Appointment status tracking (Scheduled, Completed, No-Show).
+2. **Patients**
+   - CRM for patients with medical history.
+   - Treatment timelines and profile management.
+3. **Treatment Plans & Procedures**
+   - Create multi-phase treatment plans.
+   - Link procedures directly to invoices.
+   - Track plan progress and sessions.
 
-This project implements structured accounting principles.
+### 📊 Accounting & Finance Engine
 
-✔ Journal Entries
-Created for payments and refunds
-Balanced debit/credit lines
-Linked to source invoice
-Full financial traceability
+- **Invoice Engine:** Auto-generation from appointments/orders. Statuses: `unpaid`, `partially_paid`, `paid`.
+- **Double-Entry Journal:** Automatic balanced entries for every financial transaction.
+- **Advanced Refund System:** Prevents over-refunding. Tracks `refunded_invoice` vs `refunded_credit`.
+- **Customer Ledger:** Real-time balance tracking (Debit/Credit).
 
-✔ Customer Ledger
-Tracks:
-Invoice (Debit)
-Payment Applied (Credit)
-Refund Invoice (Debit)
-Refund Credit (Credit)
-Ensures:
-Net balance consistency
-Accurate customer account tracking
-Financial audit capability
+### 🔔 Real-Time Notification System (Enterprise Grade)
 
-📈 Admin Dashboard (React)
+This is a dedicated layer ensuring instant feedback and system awareness:
 
-Finance summary
-Sales overview
-Order tracking
-Backend-powered search
-Debounced API calls
-Pagination
-Reusable CRUD components
+- **Private Channels:** Multi-tenant isolation using `private-company.{id}` to prevent data leaks.
+- **Live Alerts:** New orders, low stock warnings, payment failures, and appointment reminders appear instantly.
+- **Persistent Storage:** All alerts are saved in `system_alerts` table for audit and history.
+- **UI Integration:**
+  - **Toast Popups:** Customizable alerts with sound feedback.
+  - **Notification Bell:** Real-time badge counter with dropdown preview.
+  - **Mark as Read:** Syncs read status instantly with the backend.
 
-🧠 Engineering Concepts Demonstrated
+## 🧠 Engineering Concepts Demonstrated
 
-RESTful API Design
-Separation of Concerns
-Accounting Logic Modeling
-Eloquent Relationships
-Computed Financial Aggregations
-Guard Conditions & Edge Case Handling
-Protected Routes & Token Interceptors
-Debounced Search Optimization
-Structured Error Handling
+- **Separation of Concerns:** Reusable hooks (`useAlertsSocket`), context providers, and service layers.
+- **Real-Time Patterns:** WebSocket connection handling, reconnection logic, and duplicate event prevention.
+- **Financial Consistency:** Database transactions and ledger balancing.
+- **Performance:** Debounced search, pagination, and optimized React re-renders.
 
-🛠️ Tech Stack
+## 🛠️ Tech Stack
 
-Backend
-Laravel 10+
-Eloquent ORM
-MySQL
-Sanctum Authentication
-Frontend
-React.js
-React Router
-Axios
-Context API
-Tailwind CSS / Bootstrap
+**Frontend**
 
-🔐 Edge Cases Handled
+- React.js (Hooks, Context API)
+- React Router v6
+- Axios (Interceptors)
+- **Pusher** & **Laravel Echo** (Realtime)
+- React Hot Toast
+- CSS Modules / Custom Styling
 
-Prevent refund > available amount
-Prevent duplicate refunds
-Auto recalculation of invoice status
-Ledger consistency after refund
-Balanced journal entries
-Partial payment scenarios
-Multiple payment support
+**Backend**
 
-📂 Architecture (Simplified)
+- Laravel 10+ (REST API)
+- MySQL 8.0
+- Laravel Sanctum
+- Pusher Channels
 
-Invoice
-├── Payments
-│ ├── Refunds
-│
-├── JournalEntries
-│ └── JournalLines
-│
-└── CustomerLedgerEntries
+## 🛣️ Roadmap & Recent Updates
 
-🛣️ Roadmap
+- [x] **Core ERP & Accounting Logic**
+- [x] **Clinic Management Module (Appointments, Treatments)**
+- [x] **Multi-Tenant Architecture (Company Scoping)**
+- [x] **Production-Grade Realtime Alerts (Private Channels)**
+- [x] **System Alerts Center & Activity Logs**
+- [ ] **Dental Charting (Odontogram) Integration**
+- [ ] **Automated Reminders (Email/SMS)**
+- [ ] **Advanced Analytics Dashboard**
 
-Transaction locking for race condition prevention
-Automated tests (Unit & Feature)
-Advanced financial reports (Aging / AR / Cash Flow)
-Role-based permissions (RBAC)
-Export to Excel / PDF
-Audit log system
+## 💼 Why This Project Matters
 
-💼 Why This Project Matters
+This is **not a simple CRUD dashboard**. It demonstrates the ability to architect a complex system that handles:
 
-This project demonstrates:
-✔ Real accounting logic implementation
-✔ ERP-style data relationships
-✔ Financial consistency enforcement
-✔ Clean API design
-✔ Scalable architecture foundation
-It is not a simple CRUD dashboard — it models real-world financial workflows.
+- **Strict Financial Accounting** (Journals & Ledgers).
+- **Sensitive Healthcare Scheduling** (Appointments & Conflicts).
+- **Secure Real-Time Communication** (Private WebSockets).
+- **Scalable Multi-Tenant Data Isolation**.
 
-👨‍💻 Author
+## 👨‍💻 Author
 
-Mohamed Berik
+**Mohamed Berik**
 Full Stack Developer
-Laravel | React | REST APIs | ERP Systems | Accounting Logic
+_Laravel | React | REST APIs | ERP Systems | Real-Time Applications_

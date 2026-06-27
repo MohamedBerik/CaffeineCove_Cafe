@@ -1,0 +1,151 @@
+/* تنسيقات صفحة الطباعة */
+.print-invoice-page {
+  background: #fff;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.print-controls {
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.invoice-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  padding: 3rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #1a237e;
+  padding-bottom: 1rem;
+}
+
+.clinic-info h2 {
+  color: #1a237e;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.clinic-info p {
+  margin: 0.25rem 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.invoice-title h1 {
+  font-size: 2.5rem;
+  color: #1a237e;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.invoice-title p {
+  font-size: 1.2rem;
+  margin: 0.5rem 0 0 0;
+  text-align: right;
+  color: #6c757d;
+}
+
+.invoice-meta {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.meta-label {
+  font-weight: 600;
+  color: #495057;
+}
+
+.meta-value {
+  color: #2c3e50;
+}
+
+.invoice-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.invoice-items-table th {
+  background: #f8f9fa;
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.invoice-items-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.invoice-items-table tfoot td {
+  border-top: 2px solid #dee2e6;
+  font-weight: bold;
+}
+
+.total-row td {
+  font-size: 1.1rem;
+  color: #1a237e;
+}
+
+.invoice-footer {
+  text-align: center;
+  margin-top: 3rem;
+  color: #6c757d;
+  font-size: 0.9rem;
+  border-top: 1px solid #e9ecef;
+  padding-top: 1rem;
+}
+
+/* عند الطباعة: إخفاء الأزرار وإظهار المحتوى فقط */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-invoice-page {
+    padding: 0;
+  }
+
+  .invoice-container {
+    box-shadow: none;
+    border: none;
+    padding: 1rem;
+    max-width: 100%;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .invoice-header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .invoice-title p {
+  text-align: left;
+}
+
+[dir="rtl"] .invoice-items-table th,
+[dir="rtl"] .invoice-items-table td {
+  text-align: right;
+}

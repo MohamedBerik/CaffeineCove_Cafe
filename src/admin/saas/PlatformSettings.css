@@ -1,0 +1,343 @@
+/* Platform Settings Container */
+.platform-settings-container {
+  padding: 0 1rem;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.settings-header {
+  margin-bottom: 2rem;
+}
+
+.header-title h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a237e;
+  margin: 0 0 0.25rem 0;
+}
+
+.header-title p {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Settings Layout */
+.settings-layout {
+  display: flex;
+  gap: 1.5rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* Sidebar */
+.settings-sidebar {
+  width: 260px;
+  background: #fafbfc;
+  border-right: 1px solid #e9ecef;
+  padding: 1.5rem 0;
+}
+
+.sidebar-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: transparent;
+  border: none;
+  color: #6c757d;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+.sidebar-tab:hover {
+  background: #f0f2ff;
+  color: #1a237e;
+}
+.sidebar-tab.active {
+  background: linear-gradient(
+    90deg,
+    rgba(26, 35, 126, 0.1) 0%,
+    transparent 100%
+  );
+  color: #1a237e;
+  border-left: 3px solid #1a237e;
+}
+.sidebar-tab i {
+  width: 20px;
+  text-align: center;
+}
+
+/* Content */
+.settings-content {
+  flex: 1;
+  padding: 1.5rem;
+}
+
+/* Settings Section */
+.settings-section {
+  margin-bottom: 1rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+.section-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.btn-save {
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, #1a237e, #283593);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+.btn-save:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(26, 35, 126, 0.3);
+}
+.btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Form Grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.form-group.full-width {
+  grid-column: span 2;
+}
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #1a237e;
+  box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+}
+.form-group small {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+/* Checkbox */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+.checkbox-label input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Color Input */
+.color-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.color-input-wrapper input[type="color"] {
+  width: 50px;
+  height: 42px;
+  padding: 2px;
+  cursor: pointer;
+}
+.color-input-wrapper input[type="text"] {
+  flex: 1;
+}
+
+/* File Input */
+.file-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.image-preview {
+  width: 150px;
+  height: 60px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  overflow: hidden;
+}
+.image-preview.small {
+  width: 40px;
+  height: 40px;
+}
+.image-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Section Divider */
+.section-divider {
+  margin: 0.5rem 0;
+  padding-top: 0.5rem;
+}
+.section-divider h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1a237e;
+  margin: 0;
+}
+
+/* Loading State */
+.settings-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+}
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1a237e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .settings-layout {
+    flex-direction: column;
+  }
+  .settings-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e9ecef;
+    padding: 0.75rem;
+    display: flex;
+    overflow-x: auto;
+  }
+  .sidebar-tab {
+    white-space: nowrap;
+    border-left: none !important;
+    border-bottom: 3px solid transparent;
+  }
+  .sidebar-tab.active {
+    background: transparent;
+    border-bottom-color: #1a237e;
+  }
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-group.full-width {
+    grid-column: span 1;
+  }
+  .section-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  .btn-save {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .settings-sidebar {
+  border-right: none;
+  border-left: 1px solid #e9ecef;
+}
+[dir="rtl"] .sidebar-tab {
+  border-left: none !important;
+  border-right: 3px solid transparent;
+  text-align: right;
+}
+[dir="rtl"] .sidebar-tab.active {
+  background: linear-gradient(
+    270deg,
+    rgba(26, 35, 126, 0.1) 0%,
+    transparent 100%
+  );
+  border-right-color: #1a237e;
+}
+[dir="rtl"] .checkbox-label {
+  flex-direction: row-reverse;
+}
+
+@media (max-width: 992px) {
+  [dir="rtl"] .settings-sidebar {
+    border-left: none;
+  }
+  [dir="rtl"] .sidebar-tab {
+    border-right: none !important;
+  }
+}

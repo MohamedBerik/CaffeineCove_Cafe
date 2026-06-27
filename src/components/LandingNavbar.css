@@ -1,0 +1,113 @@
+.landing-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 1rem 0;
+  transition:
+    background 0.3s,
+    box-shadow 0.3s;
+}
+
+.landing-navbar.scrolled {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.landing-navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.landing-navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a237e;
+}
+
+.navbar-brand i {
+  font-size: 1.6rem;
+}
+
+.navbar-links {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+}
+
+.navbar-links button {
+  background: none;
+  border: none;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.navbar-links button:hover {
+  color: #1a237e;
+}
+
+.lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.navbar-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-login {
+  color: #1a237e;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+
+.btn-login:hover {
+  background: #e8eaf6;
+}
+
+.btn-trial {
+  background: #1a237e;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+
+.btn-trial:hover {
+  background: #283593;
+  color: #fff;
+}
+
+/* RTL */
+[dir="rtl"] .navbar-links {
+  flex-direction: row-reverse;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .navbar-links {
+    display: none;
+  }
+  .navbar-actions {
+    gap: 0.5rem;
+  }
+}

@@ -1,0 +1,490 @@
+.billing-page {
+  padding: 0 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.billing-header {
+  margin-bottom: 2rem;
+}
+.billing-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a237e;
+  margin: 0 0 0.25rem;
+}
+.billing-header p {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+.billing-section {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+.billing-section h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 1.25rem;
+}
+
+.current-plan-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.plan-name {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.plan-name h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+.plan-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a237e;
+  margin: 0.5rem 0;
+}
+.plan-period {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin: 0.25rem 0;
+}
+.days-left {
+  color: #ff9800;
+  margin-left: 0.5rem;
+}
+
+.plan-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+.btn-change-plan {
+  padding: 0.75rem 1.5rem;
+  background: #1a237e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-cancel-plan {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  color: #dc3545;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.no-plan {
+  text-align: center;
+  padding: 1rem;
+}
+.btn-choose-plan {
+  padding: 0.75rem 1.5rem;
+  background: #1a237e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.payment-methods-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.payment-method-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+.payment-method-icon {
+  font-size: 2rem;
+  color: #1a237e;
+}
+.payment-method-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+.card-brand {
+  font-weight: 600;
+  color: #2c3e50;
+}
+.card-number,
+.card-expiry {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+.default-badge {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.btn-remove {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.btn-remove:hover {
+  opacity: 1;
+}
+
+.btn-add-payment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: white;
+  border: 2px dashed #e0e0e0;
+  border-radius: 12px;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-add-payment:hover {
+  border-color: #1a237e;
+  color: #1a237e;
+}
+
+.invoices-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.invoices-table th {
+  padding: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6c757d;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+}
+.invoices-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f1f3f5;
+  font-size: 0.875rem;
+}
+.btn-download {
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.btn-download:hover {
+  color: #1a237e;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.status-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.status-warning {
+  background: #fff3e0;
+  color: #ed6c02;
+}
+.status-danger {
+  background: #ffebee;
+  color: #c62828;
+}
+.status-info {
+  background: #e3f2fd;
+  color: #0288d1;
+}
+.status-secondary {
+  background: #eceff1;
+  color: #546e7a;
+}
+
+.no-data {
+  text-align: center;
+  color: #adb5bd;
+  padding: 2rem;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+.plans-modal {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+}
+.billing-cycle-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+}
+.cycle-btn {
+  padding: 0.5rem 1.5rem;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.cycle-btn.active {
+  background: #1a237e;
+  color: white;
+  border-color: #1a237e;
+}
+.save-badge {
+  background: #4caf50;
+  color: white;
+  padding: 0.125rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  margin-left: 0.5rem;
+}
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  padding: 0 1.5rem 1.5rem;
+}
+.plan-card {
+  padding: 1.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.plan-card:hover {
+  border-color: #1a237e;
+}
+.plan-card.selected {
+  border-color: #1a237e;
+  background: #f0f2ff;
+}
+.plan-card.current {
+  border-color: #4caf50;
+}
+.current-badge {
+  position: absolute;
+  top: -10px;
+  right: 1rem;
+  background: #4caf50;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+.btn-subscribe {
+  padding: 0.75rem 1.5rem;
+  background: #1a237e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-subscribe:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.billing-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+}
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1a237e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .current-plan-card {
+    flex-direction: column;
+  }
+  .plan-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+  .btn-change-plan,
+  .btn-cancel-plan {
+    width: 100%;
+  }
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+  .modal-footer {
+    flex-direction: column-reverse;
+  }
+  .btn-cancel,
+  .btn-subscribe {
+    width: 100%;
+  }
+}
+
+/* Card Input */
+.card-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.card-input-wrapper input {
+  flex: 1;
+  padding-right: 40px;
+}
+
+.card-brand-icon {
+  position: absolute;
+  right: 12px;
+  font-size: 1.5rem;
+  color: #1a237e;
+}
+
+/* Three Columns Layout */
+.form-row.three-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Payment Modal */
+.payment-modal {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  padding: 2px 15px;
+}
+
+.checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.checkbox input {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 768px) {
+  .form-row.three-columns {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+.iframe-note {
+  text-align: center;
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.iframe-note i {
+  color: #4caf50;
+  margin-right: 0.25rem;
+}

@@ -1,0 +1,313 @@
+/* Doctor Availability Page Styles */
+.doctor-availability-page {
+  padding: 0 0.5rem;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #1a237e, #283593);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  color: #6c757d;
+  margin: 0.25rem 0 0 0;
+  font-size: 0.875rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Info Card */
+.info-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.info-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  color: #1a237e;
+}
+
+.info-card-body {
+  padding: 1.25rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.info-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.info-value {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+/* Availability Card */
+.availability-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.availability-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  color: #1a237e;
+}
+
+.availability-card-body {
+  padding: 1.25rem;
+}
+
+.availability-form {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.date-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #6c757d;
+}
+
+.btn-load {
+  padding: 0.5rem 1.5rem;
+  height: 42px;
+}
+
+/* Slots Card */
+.slots-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.slots-card-header {
+  padding: 1rem 1.25rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  color: #1a237e;
+}
+
+.slots-card-header h5 {
+  margin: 0;
+  flex: 1;
+}
+
+.selected-date {
+  padding: 0.25rem 0.75rem;
+  background: #e9ecef;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.slots-card-body {
+  padding: 1.25rem;
+}
+
+/* Slots Grid */
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.slot-item {
+  display: flex;
+  align-items: center;
+  padding: 0.625rem 1rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.slot-item.available {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.slot-item.available:hover {
+  background: #c8e6c9;
+  transform: translateY(-1px);
+}
+
+.slot-item.unavailable {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+  opacity: 0.8;
+}
+
+.slot-time {
+  flex: 1;
+}
+
+.slot-badge {
+  font-size: 0.65rem;
+  padding: 0.125rem 0.375rem;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  margin-left: 0.5rem;
+}
+
+/* Empty State */
+.empty-slots {
+  text-align: center;
+  padding: 2rem;
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  color: #dee2e6;
+  margin-bottom: 0.5rem;
+}
+
+.empty-text {
+  color: #6c757d;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .doctor-availability-page {
+    padding: 0;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: stretch;
+  }
+
+  .header-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .info-card-body,
+  .availability-card-body,
+  .slots-card-body {
+    padding: 1rem;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .availability-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .date-field {
+    width: 100%;
+  }
+
+  .btn-load {
+    width: 100%;
+  }
+
+  .slots-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .slot-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .slots-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .slot-item {
+    justify-content: center;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .slot-badge {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+[dir="rtl"] .btn-load i {
+  transform: scaleX(-1);
+}

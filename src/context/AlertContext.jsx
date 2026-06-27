@@ -1,0 +1,419 @@
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "./AuthContext";
+import useAlertsSocket from "../hooks/useAlertsSocket";
+import api from "../services/axios";
+
+const AlertStateContext = createContext();
+const AlertActionsContext = createContext();
+
+export const AlertProvider = ({ children }) => {
+  const { user, loading: authLoading } = useAuth();
+  const queryClient = useQueryClient();
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [alerts, setAlerts] = useState([]);
+
+  // مراجع للحيلولة دون مشاكل السباق والتكرار
+  const alertsRef = useRef([]);
+  const receivedIdsRef = useRef(new Set());
+  const unreadCountRef = useRef(unreadCount);
+
+  useEffect(() => {
+    alertsRef.current = alerts;
+  }, [alerts]);
+
+  useEffect(() => {
+    unreadCountRef.current = unreadCount;
+  }, [unreadCount]);
+
+  const [companyId, setCompanyId] = useState(
+    () => localStorage.getItem("selectedCompany") ?? user?.company_id ?? null,
+  );
+  const [branchId, setBranchId] = useState(
+    () => localStorage.getItem("selectedBranchId") ?? user?.branch_id ?? null,
+  );
+
+  // مزامنة القيم مع localStorage
+  useEffect(() => {
+    const syncStorage = () => {
+      setCompanyId(
+        localStorage.getItem("selectedCompany") || user?.company_id || null,
+      );
+      setBranchId(
+        localStorage.getItem("selectedBranchId") || user?.branch_id || null,
+      );
+    };
+    if (!authLoading && user) syncStorage();
+    window.addEventListener("storage", syncStorage);
+    window.addEventListener("branchChanged", syncStorage);
+    window.addEventListener("companyChanged", syncStorage);
+    return () => {
+      window.removeEventListener("storage", syncStorage);
+      window.removeEventListener("branchChanged", syncStorage);
+      window.removeEventListener("companyChanged", syncStorage);
+    };
+  }, [user, authLoading]);
+
+  // عند تغيير المستخدم أو الفرع – نمسح الكاش ومعرفات الأحداث المستلمة
+  useEffect(() => {
+    queryClient.removeQueries({ queryKey: ["alerts"] });
+    queryClient.removeQueries({ queryKey: ["insights"] });
+    receivedIdsRef.current.clear();
+  }, [user?.id, companyId, branchId, queryClient]);
+
+  const addAlert = useCallback(
+    (newAlert) => {
+      const normalizedAlert = { ...newAlert, read: Boolean(newAlert.read) };
+      // مفتاح فريد يجمع الشركة والفرع والمعرف لمنع التداخل
+      const dedupeKey = `${companyId}:${branchId}:${normalizedAlert.id}`;
+
+      // 1️⃣ فحص التكرار باستخدام المفتاح المركب
+      if (receivedIdsRef.current.has(dedupeKey)) {
+        return;
+      }
+
+      // 2️⃣ فحص التكرار في القائمة الحالية باستخدام المرجع
+      if (alertsRef.current.some((a) => a.id === normalizedAlert.id)) {
+        return;
+      }
+
+      // 3️⃣ فحص التكرار في كاش React Query (اختياري لكن مفيد)
+      const filters = ["all", "unread", "high"];
+      const alreadyExistsInCache = filters.some((filter) => {
+        const data = queryClient.getQueryData([
+          "alerts",
+          filter,
+          companyId,
+          branchId,
+        ]);
+        return data?.pages?.some((page) =>
+          page.data.some((a) => a.id === normalizedAlert.id),
+        );
+      });
+      if (alreadyExistsInCache) return;
+
+      // 4️⃣ إضافة المفتاح إلى قائمة المستلمين بعد نجاح جميع الفحوصات
+      receivedIdsRef.current.add(dedupeKey);
+
+      // 5️⃣ تحديث القائمة المحفوظة (آخر 10)
+      setAlerts((prev) => [normalizedAlert, ...prev].slice(0, 10));
+
+      // 6️⃣ زيادة العداد إذا كان غير مقروء
+      if (!normalizedAlert.read) {
+        setUnreadCount((prev) => prev + 1);
+      }
+
+      // 7️⃣ تحديث الكاش (React Query)
+      filters.forEach((filter) => {
+        if (filter === "unread" && normalizedAlert.read) return;
+        if (filter === "high" && normalizedAlert.priority !== "high") return;
+        queryClient.setQueryData(
+          ["alerts", filter, companyId, branchId],
+          (oldData) => {
+            if (!oldData) {
+              return {
+                pages: [
+                  {
+                    data: [normalizedAlert],
+                    meta: { current_page: 1, has_more: false },
+                  },
+                ],
+                pageParams: [1],
+              };
+            }
+            const currentPage = oldData.pages[0] || { data: [], meta: {} };
+            const updatedData = [normalizedAlert, ...currentPage.data].slice(
+              0,
+              50,
+            );
+            return {
+              ...oldData,
+              pages: [
+                {
+                  ...currentPage,
+                  data: updatedData,
+                },
+                ...oldData.pages.slice(1),
+              ],
+            };
+          },
+        );
+      });
+    },
+    [queryClient, companyId, branchId],
+  );
+
+  const markAsRead = useCallback(
+    async (alertId) => {
+      const previousCount = unreadCountRef.current; // ✅ استخدام المرجع
+      const previousUnreadCache = queryClient.getQueryData([
+        "alerts",
+        "unread",
+        companyId,
+        branchId,
+      ]);
+      const previousAllCache = queryClient.getQueryData([
+        "alerts",
+        "all",
+        companyId,
+        branchId,
+      ]);
+
+      const unreadData = queryClient.getQueryData([
+        "alerts",
+        "unread",
+        companyId,
+        branchId,
+      ]);
+      const wasUnread = unreadData?.pages?.some((page) =>
+        page.data.some((a) => a.id === alertId),
+      );
+
+      const filters = ["all", "unread", "high"];
+      filters.forEach((filter) => {
+        queryClient.setQueryData(
+          ["alerts", filter, companyId, branchId],
+          (oldData) => {
+            if (!oldData) return oldData;
+            if (filter === "unread") {
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page) => ({
+                  ...page,
+                  data: page.data.filter((a) => a.id !== alertId),
+                })),
+              };
+            }
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                data: page.data.map((a) =>
+                  a.id === alertId ? { ...a, read: true } : a,
+                ),
+              })),
+            };
+          },
+        );
+      });
+
+      setAlerts((prev) =>
+        prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)),
+      );
+
+      if (wasUnread) {
+        setUnreadCount((prev) => Math.max(prev - 1, 0));
+      }
+
+      try {
+        await api.post(`/erp/alerts/${alertId}/ack`);
+      } catch (err) {
+        console.error("❌ rollback markAsRead:", err);
+        if (previousUnreadCache) {
+          queryClient.setQueryData(
+            ["alerts", "unread", companyId, branchId],
+            previousUnreadCache,
+          );
+        }
+        if (previousAllCache) {
+          queryClient.setQueryData(
+            ["alerts", "all", companyId, branchId],
+            previousAllCache,
+          );
+        }
+        setUnreadCount(previousCount);
+      }
+    },
+    [queryClient, companyId, branchId], // ✅ إزالة unreadCount من التبعيات
+  );
+
+  const markAllAsRead = useCallback(async () => {
+    const previousCount = unreadCountRef.current; // ✅
+    const previousUnreadCache = queryClient.getQueryData([
+      "alerts",
+      "unread",
+      companyId,
+      branchId,
+    ]);
+
+    const filters = ["all", "unread", "high"];
+    filters.forEach((filter) => {
+      queryClient.setQueryData(
+        ["alerts", filter, companyId, branchId],
+        (oldData) => {
+          if (!oldData) return oldData;
+          if (filter === "unread") {
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({ ...page, data: [] })),
+            };
+          }
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: page.data.map((a) => ({ ...a, read: true })),
+            })),
+          };
+        },
+      );
+    });
+
+    setAlerts((prev) => prev.map((a) => ({ ...a, read: true })));
+    setUnreadCount(0);
+
+    try {
+      await api.post("/erp/alerts/mark-all-read");
+    } catch (err) {
+      console.error("❌ markAllAsRead failed:", err);
+      if (previousUnreadCache) {
+        queryClient.setQueryData(
+          ["alerts", "unread", companyId, branchId],
+          previousUnreadCache,
+        );
+      }
+      setUnreadCount(previousCount);
+      queryClient.invalidateQueries({
+        queryKey: ["alerts", "unread", companyId, branchId],
+      });
+    }
+  }, [queryClient, companyId, branchId]);
+
+  // ✅ markManyAsRead بدون الاعتماد على alerts في التبعيات
+  const markManyAsRead = useCallback(
+    async (ids) => {
+      if (!ids || ids.length === 0) return;
+
+      const previousCount = unreadCountRef.current;
+      const previousUnreadCache = queryClient.getQueryData([
+        "alerts",
+        "unread",
+        companyId,
+        branchId,
+      ]);
+      const previousAllCache = queryClient.getQueryData([
+        "alerts",
+        "all",
+        companyId,
+        branchId,
+      ]);
+      const previousHighCache = queryClient.getQueryData([
+        "alerts",
+        "high",
+        companyId,
+        branchId,
+      ]);
+      const previousAlerts = alertsRef.current; // ✅ استخدام المرجع بدلاً من الحالة مباشرة
+
+      const unreadData = queryClient.getQueryData([
+        "alerts",
+        "unread",
+        companyId,
+        branchId,
+      ]);
+      const unreadIdsInBatch = ids.filter((id) =>
+        unreadData?.pages?.some((page) => page.data.some((a) => a.id === id)),
+      );
+
+      // تحديث الكاش بشكل منفصل لكل فلتر
+      const filters = ["all", "unread", "high"];
+      filters.forEach((filter) => {
+        queryClient.setQueryData(
+          ["alerts", filter, companyId, branchId],
+          (oldData) => {
+            if (!oldData) return oldData;
+            if (filter === "unread") {
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page) => ({
+                  ...page,
+                  data: page.data.filter((a) => !ids.includes(a.id)),
+                })),
+              };
+            }
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                data: page.data.map((a) =>
+                  ids.includes(a.id) ? { ...a, read: true } : a,
+                ),
+              })),
+            };
+          },
+        );
+      });
+
+      // تحديث القائمة المحلية
+      setAlerts((prev) =>
+        prev.map((a) => (ids.includes(a.id) ? { ...a, read: true } : a)),
+      );
+
+      if (unreadIdsInBatch.length > 0) {
+        setUnreadCount((prev) => Math.max(prev - unreadIdsInBatch.length, 0));
+      }
+
+      try {
+        await api.post("/erp/alerts/ack-many", { ids });
+      } catch (err) {
+        console.error("❌ rollback markManyAsRead:", err);
+        // استرجاع جميع الكاشات
+        if (previousUnreadCache) {
+          queryClient.setQueryData(
+            ["alerts", "unread", companyId, branchId],
+            previousUnreadCache,
+          );
+        }
+        if (previousAllCache) {
+          queryClient.setQueryData(
+            ["alerts", "all", companyId, branchId],
+            previousAllCache,
+          );
+        }
+        if (previousHighCache) {
+          queryClient.setQueryData(
+            ["alerts", "high", companyId, branchId],
+            previousHighCache,
+          );
+        }
+        // ✅ استرجاع القائمة المحلية
+        setAlerts(previousAlerts);
+        setUnreadCount(previousCount);
+        throw err;
+      }
+    },
+    [queryClient, companyId, branchId], // ✅ لا تعتمد على alerts
+  );
+
+  useAlertsSocket((newAlert) => addAlert(newAlert), companyId, branchId);
+
+  const stateValue = {
+    unreadCount,
+    alerts,
+  };
+
+  const actionsValue = {
+    addAlert,
+    markAsRead,
+    markAllAsRead,
+    markManyAsRead,
+  };
+
+  return (
+    <AlertStateContext.Provider value={stateValue}>
+      <AlertActionsContext.Provider value={actionsValue}>
+        {children}
+      </AlertActionsContext.Provider>
+    </AlertStateContext.Provider>
+  );
+};
+
+export const useAlertState = () => useContext(AlertStateContext);
+export const useAlertActions = () => useContext(AlertActionsContext);

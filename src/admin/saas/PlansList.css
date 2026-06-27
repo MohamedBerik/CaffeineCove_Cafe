@@ -1,0 +1,436 @@
+/* Plans List Container */
+.plans-list-container {
+  padding: 0 1rem;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.plans-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-title h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a237e;
+  margin: 0 0 0.25rem 0;
+}
+
+.header-title p {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+.btn-add-plan {
+  background: linear-gradient(135deg, #1a237e, #283593);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+.btn-add-plan:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(26, 35, 126, 0.3);
+}
+
+/* Plans Grid */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Plan Card */
+.plan-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+}
+.plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+.plan-card.inactive {
+  opacity: 0.7;
+}
+
+.inactive-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #f44336;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  z-index: 1;
+}
+
+.plan-header {
+  padding: 1.5rem;
+  color: white;
+  text-align: center;
+}
+.plan-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+.plan-name-ar {
+  font-size: 0.875rem;
+  opacity: 0.9;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.plan-body {
+  padding: 1.5rem;
+}
+
+.plan-price {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.price-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+.price-period {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.plan-price-yearly {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.plan-description {
+  text-align: center;
+  color: #2c3e50;
+  margin: 1rem 0;
+}
+.plan-description-ar {
+  text-align: center;
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+}
+.plan-features li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+.plan-features li i {
+  width: 20px;
+  text-align: center;
+  color: #6c757d;
+}
+
+.plan-footer {
+  display: flex;
+  padding: 1rem 1.5rem 1.5rem;
+  gap: 0.5rem;
+  border-top: 1px solid #e9ecef;
+}
+.plan-footer button {
+  flex: 1;
+  padding: 0.625rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.btn-edit {
+  background: #e3f2fd;
+  color: #0288d1;
+}
+.btn-edit:hover {
+  background: #0288d1;
+  color: white;
+}
+.btn-toggle {
+  background: #f8f9fa;
+  color: #6c757d;
+}
+.btn-toggle:hover {
+  background: #e9ecef;
+}
+.btn-delete {
+  background: #ffebee;
+  color: #c62828;
+}
+.btn-delete:hover {
+  background: #c62828;
+  color: white;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.plan-modal {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+.modal-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a237e;
+  margin: 0;
+}
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.modal-close:hover {
+  background: #f8f9fa;
+  color: #dc3545;
+}
+
+.plan-form {
+  padding: 1.5rem;
+}
+.form-row {
+  margin-bottom: 1.25rem;
+}
+.form-row.two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+.form-group input,
+.form-group textarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #1a237e;
+  box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+.checkbox-label input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+.btn-cancel {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  color: #6c757d;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-submit {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #1a237e, #283593);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Loading State */
+.plans-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+}
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1a237e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error State */
+.plans-error {
+  text-align: center;
+  padding: 3rem;
+  background: #fff5f5;
+  border-radius: 20px;
+}
+.plans-error i {
+  font-size: 3rem;
+  color: #dc3545;
+  margin-bottom: 1rem;
+}
+.btn-retry {
+  background: linear-gradient(135deg, #1a237e, #283593);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .plans-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .btn-add-plan {
+    width: 100%;
+    justify-content: center;
+  }
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-row.two-columns {
+    grid-template-columns: 1fr;
+  }
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+  .btn-cancel,
+  .btn-submit {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .inactive-badge {
+  right: auto;
+  left: 1rem;
+}
+[dir="rtl"] .plan-features li {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+[dir="rtl"] .checkbox-label {
+  flex-direction: row-reverse;
+}
